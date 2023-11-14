@@ -1,0 +1,14 @@
+@import "_interTight.scss";
+
+#root {
+}
+
+body {
+  background: var(--background, none);
+}
+
+:root {
+  --mui-palette-primary-main: #3e4eec;
+  --mui-palette-secondary-main: #5366eb;
+  --mui-palette-text-secondary: #666f7a;
+}
