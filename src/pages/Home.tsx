@@ -36,6 +36,8 @@ import QrCodeIcon from "../components/icons/QrCodeIcon.tsx";
 import GoogleIcon from "../components/icons/GoogleIcon.tsx";
 import AppleIcon from "../components/icons/AppleIcon.tsx";
 import FacebookIcon from "../components/icons/FacebookIcon.tsx";
+import ArtworkCard from "../components/ArtworkCard.tsx";
+import ArtistCard from "../components/ArtistCard.tsx";
 export interface HomeProps {}
 
 type IconColor = SvgIconProps["color"];
@@ -337,6 +339,79 @@ const Home: React.FC<HomeProps> = ({}) => {
             <Chip label="Error" color="error" size="small" />
             <Chip label="Success" color="success" size="small" />
             <Chip label="Info" color="info" size="small" />
+          </Box>
+        </ShowcaseBox>
+        <ShowcaseBox title="Cards" md={12}>
+          <Box display="flex" gap={2}>
+            <div>
+              <ArtworkCard
+                artistName="Nome dell'artista"
+                title="Titolo dell’opera d’arte esposta sul sito di Artpay"
+                galleryName="Nome della galleria"
+                size="small"
+                price={20000}
+              />
+            </div>
+            <div>
+              <ArtworkCard
+                artistName="Nome dell'artista"
+                title="Titolo dell’opera d’arte esposta sul sito di Artpay"
+                galleryName="Nome della galleria"
+                size="small"
+              />
+            </div>
+            <div>
+              <ArtworkCard
+                artistName="Nome dell'artista"
+                title="Titolo dell’opera d’arte esposta sul sito di Artpay"
+                galleryName="Nome della galleria"
+                size="medium"
+                price={20000}
+              />
+            </div>
+            <div>
+              <ArtworkCard
+                artistName="Nome dell'artista"
+                title="Titolo dell’opera d’arte esposta sul sito di Artpay"
+                size="medium"
+                galleryName="Nome della galleria"
+              />
+            </div>
+          </Box>
+          <Box display="flex" gap={2}>
+            <div>
+              <ArtworkCard
+                artistName="Nome dell'artista"
+                title="Titolo dell’opera d’arte esposta sul sito di Artpay"
+                galleryName="Nome della galleria"
+                size="large"
+                price={20000}
+              />
+            </div>
+            <div>
+              <ArtworkCard
+                artistName="Nome dell'artista"
+                title="Titolo dell’opera d’arte esposta sul sito di Artpay"
+                size="large"
+                galleryName="Nome della galleria"
+              />
+            </div>
+          </Box>
+          <Box display="flex" gap={2}>
+            <div>
+              <ArtistCard
+                title="Nome dell'artista"
+                subtitle="Torino, 1984"
+                isFavourite={false}
+              />
+            </div>
+            <div>
+              <ArtistCard
+                title="Nome dell'artista"
+                subtitle="Torino, 1984"
+                isFavourite={true}
+              />
+            </div>
           </Box>
         </ShowcaseBox>
       </Grid>
