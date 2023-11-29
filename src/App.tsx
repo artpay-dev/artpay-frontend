@@ -19,7 +19,8 @@ function AppContent() {
     <AuthProvider baseUrl="https://artpay.art">
       <DataProvider>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Gallery />} />
+          <Route path="/showcase" element={<Home />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/gallery/info" element={<Gallery />} />
           <Route path="/gallery/events" element={<Gallery />} />

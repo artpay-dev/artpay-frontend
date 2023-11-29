@@ -11,7 +11,11 @@ const ArtworksList: React.FC<ArtworksListProps> = ({ items }) => {
     <Box
       display="flex"
       gap={3}
-      sx={{ flexDirection: { xs: "column", md: "row" } }}>
+      sx={{
+        flexDirection: { xs: "column", sm: "row" },
+        flexWrap: { xs: "wrap", md: "nowrap" },
+        justifyContent: { xs: "center", md: "flex-start" },
+      }}>
       {items.map((item, i) => (
         <ArtworkCard key={i} {...item} />
       ))}

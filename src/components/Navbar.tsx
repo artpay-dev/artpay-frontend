@@ -13,6 +13,7 @@ import Logo from "./icons/Logo";
 import { Search } from "@mui/icons-material";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import UserIcon from "./icons/UserIcon.tsx";
+import { useNavigate } from "react-router-dom";
 
 export interface NavbarProps {}
 
@@ -20,11 +21,14 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   const theme = useTheme();
   const auth = useAuth();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const navigate = useNavigate();
 
   return (
     <AppBar color="default" sx={{}} elevation={0}>
       <Box display="flex" alignItems="center" sx={{ height: "100%" }}>
-        <Box sx={{ height: "24px" }}>
+        <Box
+          sx={{ height: "24px", cursor: "pointer" }}
+          onClick={() => navigate("/")}>
           <Logo />
         </Box>
         {!isMobile && (

@@ -20,8 +20,12 @@ class MapContainer extends React.Component {
           borderRadius: "5px",
         }}
         google={this.props.google}
+        initialCenter={{ lat: 45.0603541, lng: 7.6911952 }}
         zoom={14}>
-        <Marker name={"Current location"} />
+        <Marker
+          name={"Current location"}
+          position={{ lat: 45.0603541, lng: 7.6911952 }}
+        />
 
         {/*<Marker onClick={this.onMarkerClick} name={"Current location"} />
 <InfoWindow onClose={() =>}>
@@ -35,5 +39,5 @@ class MapContainer extends React.Component {
 }
 
 export default GoogleApiWrapper({
-  apiKey: "",
+  apiKey: "AIzaSyC15eERVyY9lE5QSh3SAK1LsBw8W4wrGxM",
 })(MapContainer);

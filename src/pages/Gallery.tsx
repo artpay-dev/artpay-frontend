@@ -29,7 +29,7 @@ const Gallery: React.FC<GalleryProps> = ({}) => {
   }, []);
 
   const galleryContent: GalleryContent = {
-    imageSrc: "/public/gallery_example.jpg",
+    imageSrc: "/gallery_example.jpg",
     title: "Crag – Chiono Reisova Art Gallery",
     subtitle: "Torino, 1992",
     description: `CRAG – Chiono Reisova Art Gallery nasce nel 2016 in un loft
