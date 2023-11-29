@@ -23,9 +23,13 @@ interface SignInFormData {
 
 export interface SignInFormProps {
   onSubmit?: (data: SignInFormData) => void;
+  disabled?: boolean;
 }
 
-const SignInForm: React.FC<SignInFormProps> = ({ onSubmit }) => {
+const SignInForm: React.FC<SignInFormProps> = ({
+  onSubmit,
+  disabled = false,
+}) => {
   const registrationFormContent: SignInFormContent = {
     fields: {
       email: { label: "Email" },
@@ -63,17 +67,23 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSubmit }) => {
           {...register("email", { required: true })}
           error={!!errors?.email}
           helperText={errors?.email?.message}
+          disabled={disabled}
         />
         <PasswordField
           label={registrationFormContent.fields.password.label}
           {...register("password", { required: true })}
           error={!!errors?.password}
           helperText={errors?.email?.message}
+          disabled={disabled}
         />
         <LinkButton sx={{ alignSelf: "flex-start" }} size="small">
           Hai perso la password?
         </LinkButton>
-        <Button sx={{ mt: 2 }} type="submit" variant="contained">
+        <Button
+          sx={{ mt: 2 }}
+          type="submit"
+          variant="contained"
+          disabled={disabled}>
           {registrationFormContent.buttonLabel}
         </Button>
       </Box>

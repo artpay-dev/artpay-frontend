@@ -28,7 +28,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
-    <Card elevation={0} sx={{ width: cardWidth }}>
+    <Card elevation={0} sx={{ width: cardWidth, minWidth: cardWidth }}>
       <CardMedia
         component="img"
         image="/gallery_example.jpg"

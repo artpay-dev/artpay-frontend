@@ -16,7 +16,7 @@ import Purchase from "./pages/Purchase";
 
 function AppContent() {
   return (
-    <AuthProvider baseUrl="">
+    <AuthProvider baseUrl="https://artpay.art">
       <DataProvider>
         <Routes>
           <Route path="/" element={<Home />} />

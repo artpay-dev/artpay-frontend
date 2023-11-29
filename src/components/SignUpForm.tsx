@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import TextField from "./TextField.tsx";
 import PasswordField from "./PasswordField.tsx";
 import { Box, Button, Typography } from "@mui/material";
@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 
 interface SignUpFormContent {
   fields: {
-    name: FormField;
+    username: FormField;
     email: FormField;
     password: FormField;
   };
@@ -18,21 +18,23 @@ interface SignUpFormContent {
   buttonLabel: string;
 }
 
-interface SignUpFormData {
-  name: string;
+export interface SignUpFormData {
+  username: string;
   email: string;
   password: string;
   privacy: undefined;
 }
 
 export interface SignUpFormProps {
-  onSubmit?: (data: SignUpFormData) => void;
+  disabled?: boolean;
+  onSubmit?: (data: SignUpFormData) => Promise<void>;
 }
 
-const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
+const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, disabled }) => {
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const registrationFormContent: SignUpFormContent = {
     fields: {
-      name: { label: "Nome" },
+      username: { label: "Nome" },
       email: { label: "Email" },
       password: { label: "Password" },
     },
@@ -50,17 +52,21 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
   } = useForm({
     //handleSubmit
     defaultValues: {
-      name: "",
+      username: "",
       email: "",
       password: "",
       privacy: undefined,
     } as SignUpFormData,
   });
 
-  console.log("errors", errors);
-  const handleSubmitClick = (data: SignUpFormData) => {
+  const handleSubmitClick = async (data: SignUpFormData) => {
     if (onSubmit) {
-      onSubmit(data);
+      setSubmitError(null);
+      try {
+        await onSubmit(data);
+      } catch (e) {
+        setSubmitError(e.toString());
+      }
     }
   };
 
@@ -68,22 +74,25 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
     <form onSubmit={handleSubmit(handleSubmitClick)}>
       <Box display="flex" flexDirection="column" gap={1.5} my={2}>
         <TextField
-          label={registrationFormContent.fields.name.label}
-          {...register("name", { required: true })}
-          error={!!errors?.name}
-          helperText={errors?.name?.message}
+          label={registrationFormContent.fields.username.label}
+          {...register("username", { required: true })}
+          error={!!errors?.username}
+          helperText={errors?.username?.message}
+          disabled={disabled}
         />
         <TextField
           label={registrationFormContent.fields.email.label}
           {...register("email", { required: true })}
           error={!!errors?.email}
           helperText={errors?.email?.message}
+          disabled={disabled}
         />
         <PasswordField
           label={registrationFormContent.fields.password.label}
           {...register("password", { required: true, minLength: 12 })}
           error={!!errors?.password}
           helperText={errors?.email?.message}
+          disabled={disabled}
         />
         <Typography
           variant="caption"
@@ -97,12 +106,22 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
           alignTop
           label={registrationFormContent.privacyLabel}
           error={!!errors?.privacy}
+          disabled={disabled}
           {...register("privacy", { required: true })}
         />
         <Typography variant="body2" color="textSecondary">
           {registrationFormContent.privacyDescription}
         </Typography>
-        <Button sx={{ mt: 2 }} type="submit" variant="contained">
+        {submitError && (
+          <Typography variant="body2" color="error">
+            {submitError}
+          </Typography>
+        )}
+        <Button
+          sx={{ mt: 2 }}
+          type="submit"
+          variant="contained"
+          disabled={disabled}>
           {registrationFormContent.buttonLabel}
         </Button>
       </Box>

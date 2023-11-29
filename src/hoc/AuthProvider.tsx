@@ -12,7 +12,7 @@ import {
 import { Close } from "@mui/icons-material";
 import Logo from "../components/icons/Logo";
 import LinkButton from "../components/LinkButton.tsx";
-import SignUpForm from "../components/SignUpForm.tsx";
+import SignUpForm, { SignUpFormData } from "../components/SignUpForm.tsx";
 import SignInForm from "../components/SignInForm.tsx";
 import AppleIcon from "../components/icons/AppleIcon.tsx";
 import GoogleIcon from "../components/icons/GoogleIcon.tsx";
@@ -23,6 +23,72 @@ export interface UserInfo {
   username: string;
   email: string;
 }
+
+type User = {
+  id: number;
+  username: string;
+  name: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  url: string;
+  description: string;
+  link: string;
+  locale: string;
+  nickname: string;
+  slug: string;
+  roles: string[];
+  registered_date: string;
+  capabilities: {
+    [key: string]: boolean;
+    edit_shop_order: boolean;
+    edit_shop_orders: boolean;
+    edit_users: boolean;
+    list_roles: boolean;
+    list_users: boolean;
+    publish_shop_orders: boolean;
+    read: boolean;
+    read_private_products: boolean;
+    read_private_shop_coupons: boolean;
+    read_product: boolean;
+    read_shop_coupon: boolean;
+    read_shop_order: boolean;
+    customer: boolean;
+  };
+  extra_capabilities: {
+    customer: boolean;
+  };
+  avatar_urls: {
+    "24": string;
+    "48": string;
+    "96": string;
+  };
+  meta: {
+    persisted_preferences: unknown[]; // You might want to replace 'any' with a more specific type
+  };
+  wc_api_user_keys: {
+    consumer_key: string;
+    consumer_secret: string;
+  };
+  acf: unknown[]; // You might want to replace 'any' with a more specific type
+  is_super_admin: boolean;
+  woocommerce_meta: {
+    [key: string]: string;
+    // Add more specific types if known
+  };
+  _links: {
+    self: {
+      href: string;
+    }[];
+    collection: {
+      href: string;
+    }[];
+  };
+};
+
+type RequestError = {
+  message?: string;
+};
 
 export interface AuthState {
   isLoading: boolean;
@@ -50,6 +116,11 @@ interface LoginResponse {
   user: UserInfo;
 }
 
+const userStorageKey = "artpay-user";
+
+const GUEST_CONSUMER_KEY = "ck_349ace6a3d417517d0140e415779ed924c65f5e1";
+const GUEST_CONSUMER_SECRET = "cs_b74f44b74eadd4718728c26a698fd73f9c5c9328";
+
 const Context = createContext<AuthContext>({
   isAuthenticated: false,
   isLoading: true,
@@ -67,8 +138,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 }) => {
   const userInfoUrl = `${baseUrl}/api/users/me`;
   const loginUrl = `${baseUrl}/api/auth/local`;
+  const signUpUrl = `${baseUrl}/wp-json/wp/v2/users`;
   const [loginOpen, setLoginOpen] = useState(false);
   const [isSignIn, setIsSignIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [authValues, setAuthValues] = React.useState<AuthState>({
     isAuthenticated: false,
@@ -109,6 +182,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     }
   };
 
+  const register = async ({ email, username, password }: SignUpFormData) => {
+    setIsLoading(true);
+    const credentials = btoa(GUEST_CONSUMER_KEY + ":" + GUEST_CONSUMER_SECRET);
+    const basicAuth = "Basic " + credentials;
+    console.log("set auth", basicAuth);
+    try {
+      const resp = await axios.post<
+        SignUpFormData,
+        AxiosResponse<User, RequestError>
+      >(
+        signUpUrl,
+        { email, username, password },
+        { headers: { Authorization: basicAuth } },
+      );
+      if (resp.status > 299) {
+        setIsLoading(false);
+        throw (
+          (resp.data as RequestError)?.message || "Si è verificato un errore"
+        );
+      }
+      localStorage.setItem(userStorageKey, JSON.stringify(resp.data));
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const showLoginDialog = () => {
     setLoginOpen(true);
   };
@@ -141,13 +239,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   useEffect(() => {
     //TODO: check authentication
     /*axios.get<UserInfo>(userInfoUrl).then(resp => {
-      setAuthValues({user: resp.data, isAuthenticated: true, isLoading: false})
-    })*/
-    setAuthValues({
-      user: undefined,
-      isAuthenticated: false,
-      isLoading: false,
-    });
+          setAuthValues({user: resp.data, isAuthenticated: true, isLoading: false})
+        })*/
+    const userStr = localStorage.getItem(userStorageKey);
+    if (userStr) {
+      const userObj: User = JSON.parse(userStr);
+      setAuthValues({
+        user: userObj,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    } else {
+      setAuthValues({
+        user: undefined,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+    }
   }, [userInfoUrl]);
 
   return (
@@ -172,7 +280,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           <Typography variant="h6">
             Qui possiamo mettere payoff / claim di artpay
           </Typography>
-          {isSignIn ? <SignInForm /> : <SignUpForm />}
+          {isSignIn ? (
+            <SignInForm disabled={isLoading} />
+          ) : (
+            <SignUpForm disabled={isLoading} onSubmit={register} />
+          )}
           <Divider sx={{ maxWidth: "80%", marginLeft: "10%" }} />
           <Box display="flex" flexDirection="column" gap={1} py={2}>
             <Button variant="outlined" endIcon={<AppleIcon color="primary" />}>

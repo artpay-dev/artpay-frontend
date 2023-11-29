@@ -274,6 +274,19 @@ const defaultTheme = createTheme({
         },
       },
     },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+          fontSize: "20px",
+          fontStyle: "normal",
+          fontWeight: 600,
+          lineHeight: "125%",
+          marginLeft: "8px",
+          marginRight: "8px",
+        },
+      },
+    },
   },
 });
 

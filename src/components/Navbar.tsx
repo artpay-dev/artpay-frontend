@@ -5,12 +5,14 @@ import {
   Button,
   IconButton,
   Link,
+  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import Logo from "./icons/Logo";
 import { Search } from "@mui/icons-material";
 import { useAuth } from "../hoc/AuthProvider.tsx";
+import UserIcon from "./icons/UserIcon.tsx";
 
 export interface NavbarProps {}
 
@@ -45,26 +47,39 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
           </IconButton>
         )}
         <Box mx={2} flexGrow={1} />
-        {!isMobile && (
-          <Link
-            sx={{ mr: 2, minWidth: "120px" }}
-            href="#"
-            color="tertiary.main">
-            Sei una galleria?
-          </Link>
-        )}
         {isMobile && (
           <IconButton>
             <Search />
           </IconButton>
         )}
-        <Button
-          sx={{ minWidth: "150px" }}
-          onClick={() => auth.login()}
-          color="secondary"
-          variant="outlined">
-          Login/Registrati
-        </Button>
+        {auth.isAuthenticated ? (
+          <>
+            <Typography sx={{ mr: 2 }} variant="body2" color="primary">
+              Ciao Niccolò
+            </Typography>
+            <IconButton onClick={() => auth.logout()} color="primary">
+              <UserIcon color="primary" />
+            </IconButton>
+          </>
+        ) : (
+          <>
+            {!isMobile && (
+              <Link
+                sx={{ mr: 2, minWidth: "120px" }}
+                href="#"
+                color="tertiary.main">
+                Sei una galleria?
+              </Link>
+            )}
+            <Button
+              sx={{ minWidth: "150px" }}
+              onClick={() => auth.login()}
+              color="secondary"
+              variant="outlined">
+              Login/Registrati
+            </Button>
+          </>
+        )}
       </Box>
     </AppBar>
   );

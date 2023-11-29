@@ -43,7 +43,7 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
   const textMaxWidth = size === "large" ? "190px" : "152px";
   const imgMargin = size === "small" ? 1 : 2;
   return (
-    <Card elevation={0} sx={{ width: cardSize }}>
+    <Card elevation={0} sx={{ width: cardSize, minWidth: cardSize }}>
       <CardMedia
         component="img"
         image="/gallery_example.jpg"
