@@ -5,7 +5,9 @@ type PaletteColor = "primary" | "secondary" | "info" | "error";
 const defaultTheme = createTheme({
   palette: {
     primary: {
+      light: "#B1BAF6",
       main: "#3E4EEC",
+      contrastText: "#FFF",
     },
     secondary: {
       light: "#9FA9F3",
@@ -32,6 +34,7 @@ const defaultTheme = createTheme({
       dark: "#595e65",
       contrastText: "#000000",
     },
+    contrast: { main: "#fff" },
     //tertiary: palette.augmentColor({color: {main: '#808791'}})
   },
   typography: {
@@ -63,6 +66,10 @@ const defaultTheme = createTheme({
           fontSize: "14px",
           height: "30px",
         },
+        textContrast: ({ theme }) => ({
+          color: theme.palette.primary.main,
+          background: theme.palette.contrast.main,
+        }),
         // @ts-ignore
         link: ({ theme }) => {
           return {

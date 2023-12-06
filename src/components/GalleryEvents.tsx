@@ -22,8 +22,9 @@ const GalleryEvents: React.FC<GalleryEventsProps> = ({
   artists,
   artworks,
 }) => {
+  // { px: { xs: 3, md: 6 } }
   return (
-    <Grid sx={{ px: { xs: 3, md: 6 } }} container>
+    <Grid container>
       <Grid xs={12} md={6} item>
         <img style={{ maxWidth: "100%", borderRadius: "5px" }} src={imgUrl} />
       </Grid>
@@ -42,21 +43,10 @@ const GalleryEvents: React.FC<GalleryEventsProps> = ({
         <Divider color="textSecondary" />
       </Grid>
       <Grid xs={12} py={6} sx={{ maxWidth: "100%", overflow: "auto" }} item>
-        <Typography sx={{ mb: 6 }} variant="h3">
-          Le nostre opere
-        </Typography>
-        <ArtworksList items={artworks} />
+        <ArtworksList title="Le nostre opere" items={artworks} />
       </Grid>
-      <Grid
-        xs={12}
-        mt={6}
-        py={6}
-        sx={{ maxWidth: "100%", overflow: "auto" }}
-        item>
-        <Typography sx={{ mb: 6 }} variant="h3">
-          I nostri artisti
-        </Typography>
-        <ArtistsList items={artists} />
+      <Grid xs={12} mt={6} py={6} sx={{ maxWidth: "100%" }} item>
+        <ArtistsList title="I nostri artisti" items={artists} />
       </Grid>
     </Grid>
   );

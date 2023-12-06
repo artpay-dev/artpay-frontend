@@ -1,12 +1,21 @@
 import React from "react";
 import { Box } from "@mui/material";
 import ArtistCard, { ArtistCardProps } from "./ArtistCard.tsx";
+import CardList from "./CardList.tsx";
 
 export interface ArtistsListProps {
   items: ArtistCardProps[];
+  title?: string;
 }
 
-const ArtistsList: React.FC<ArtistsListProps> = ({ items }) => {
+const ArtistsList: React.FC<ArtistsListProps> = ({ items, title }) => {
+  return (
+    <CardList title={title}>
+      {items.map((item, i) => (
+        <ArtistCard key={i} {...item} />
+      ))}
+    </CardList>
+  );
   return (
     <Box
       display="flex"

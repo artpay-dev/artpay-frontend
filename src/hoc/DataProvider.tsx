@@ -3,11 +3,13 @@ import { Gallery } from "../types/gallery.ts";
 import { useAuth } from "./AuthProvider.tsx";
 import axios, { AxiosResponse } from "axios";
 import { SignInFormData } from "../components/SignInForm.tsx";
+import { Artwork } from "../types/artwork.ts";
 
 export interface DataContext {
   info(): Promise<string>;
   listGalleries(): Promise<Gallery[]>;
   getGallery(id: string): Promise<Gallery>;
+  getArtwork(id: string): Promise<Artwork>;
 }
 
 export interface DataProviderProps extends React.PropsWithChildren {
@@ -18,6 +20,7 @@ const defaultContext: DataContext = {
   info: () => Promise.reject("Data provider loaded"),
   listGalleries: () => Promise.reject("Data provider loaded"),
   getGallery: () => Promise.reject("Data provider loaded"),
+  getArtwork: () => Promise.reject("Data provider loaded"),
 };
 
 const Context = createContext<DataContext>({ ...defaultContext });
@@ -36,6 +39,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({
   const dataContext: DataContext = {
     info(): Promise<string> {
       return Promise.resolve("");
+    },
+    async getArtwork(id: string): Promise<Artwork> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<Artwork>>(
+        `${baseUrl}/wp-json/wc/v3/products/${id}`,
+      );
+      return resp.data;
     },
     async getGallery(id: string): Promise<Gallery> {
       const resp = await axios.get<SignInFormData, AxiosResponse<Gallery>>(
