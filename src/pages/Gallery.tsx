@@ -12,6 +12,8 @@ import GalleryContacts, {
 } from "../components/GalleryContacts.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
 import { useNavigate, useParams } from "react-router-dom";
+import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
+import { artworksToGalleryItems } from "../utils.ts";
 
 export interface GalleryProps {}
 
@@ -39,6 +41,7 @@ const Gallery: React.FC<GalleryProps> = ({}) => {
   const [galleryContent, setGalleryContent] = useState({
     ...exampleGalleryContent,
   });
+  const [galleryArtworks, setGalleryArtworks] = useState<ArtworkCardProps[]>();
 
   const data = useData();
   const urlParams = useParams();
@@ -51,11 +54,15 @@ const Gallery: React.FC<GalleryProps> = ({}) => {
     }
     data
       .getGallery(urlParams.id)
-      .then((gallery) => {
+      .then(async (gallery) => {
         setGalleryContent({
           ...exampleGalleryContent,
           title: gallery.username,
         });
+        const artworks = await data.listArtworksForGallery(
+          gallery.id.toString(),
+        );
+        setGalleryArtworks(artworksToGalleryItems(artworks, "large"));
       })
       .finally(() => {
         setIsReady(true);
@@ -82,17 +89,12 @@ const Gallery: React.FC<GalleryProps> = ({}) => {
     imgUrl: "/gallery-event.jpg",
     title: "Vernissage di Primavera: celebrazione dell'arte e della creatività",
     artists: [...Array(8).keys()].map((i) => ({
+      id: "",
       isFavourite: i % 3 === 0,
       subtitle: "Torino, 1984",
       title: "Nome dell'artista",
     })),
-    artworks: [...Array(8).keys()].map(() => ({
-      artistName: "Nome dell' artista",
-      galleryName: "Nome della galleria",
-      price: 20000,
-      size: "large",
-      title: "Titolo dell’opera d’arte esposta sul sito di Artpay",
-    })),
+    artworks: galleryArtworks || [],
   };
 
   const galleryContacts: GalleryContactsProps = {

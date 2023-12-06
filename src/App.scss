@@ -12,3 +12,23 @@ body {
   --mui-palette-secondary-main: #5366eb;
   --mui-palette-text-secondary: #666f7a;
 }
+
+
+.SwiperCard, .swiper-slide.SwiperCard {
+  &-small{
+    width: 180px;
+    min-width: 180px;
+  }
+  &-medium{
+    width: 230px;
+    min-width: 230px;
+  }
+  &-large{
+    width: 320px;
+    min-width: 320px;
+  }
+}
+
+.borderRadius {
+  border-radius: 5px;
+}

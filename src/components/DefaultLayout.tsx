@@ -6,8 +6,8 @@ import Navbar from "./Navbar.tsx";
 export interface DefaultLayoutProps {
   authRequired?: boolean;
   background?: string;
-  children: ReactNode | ReactNode[];
-  pageLoading: boolean;
+  children?: ReactNode | ReactNode[];
+  pageLoading?: boolean;
 }
 
 const DefaultLayout: React.FC<DefaultLayoutProps> = ({
@@ -23,7 +23,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
     if (authRequired && !auth.isAuthenticated) {
       //TODO: redirect to login
     }
-    setTimeout(() => setReady(true), 1000);
+    setReady(true);
   }, [auth.isAuthenticated, authRequired]);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
   }
 
   return (
-    <Container sx={{ px: "0!important" }} maxWidth="xl">
+    <Container sx={{ px: "0!important", pb: 8 }} maxWidth="xl">
       <Navbar />
       {children}
     </Container>

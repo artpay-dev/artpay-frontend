@@ -1,4 +1,7 @@
 import "./App.scss";
+import "swiper/css";
+import "swiper/css/free-mode";
+import "swiper/css/pagination";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { StyledEngineProvider } from "@mui/material";
 import defaultTheme from "./themes/defaultTheme";

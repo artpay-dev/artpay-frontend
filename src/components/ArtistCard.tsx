@@ -12,15 +12,18 @@ import {
 import { Add, Check } from "@mui/icons-material";
 
 export interface ArtistCardProps {
+  id: string;
   title: string;
   subtitle: string;
   isFavourite?: boolean;
+  onClick?: () => void;
 }
 
 const ArtistCard: React.FC<ArtistCardProps> = ({
   title,
   subtitle,
   isFavourite = false,
+  onClick,
 }) => {
   const theme = useTheme();
   const imgHeight = "430px";
@@ -28,12 +31,20 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
-    <Card elevation={0} sx={{ width: cardWidth, minWidth: cardWidth }}>
+    <Card
+      elevation={0}
+      className="SwiperCard-large"
+      sx={{ minWidth: cardWidth }}>
       <CardMedia
         component="img"
         image="/gallery_example.jpg"
         height={imgHeight}
-        sx={{ backgroundColor: "#D9D9D9" }}></CardMedia>
+        className="borderRadius"
+        onClick={onClick}
+        sx={{
+          backgroundColor: "#D9D9D9",
+          cursor: onClick ? "pointer" : "auto",
+        }}></CardMedia>
       <CardContent sx={{ p: 0, mt: 2 }}>
         <Box display="flex">
           <Box display="flex" flexDirection="column" flexGrow={1}>

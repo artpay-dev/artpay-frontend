@@ -23,7 +23,9 @@ const ArtworkDetails: React.FC<ArtworkDetailsProps> = ({ artwork }) => {
     <Box
       display="flex"
       sx={{
-        flexDirection: { xs: "column", md: "row" },
+        width: "100%",
+        flexDirection: { xs: "column", sm: "row" },
+        justifyContent: { xs: "flex-start", sm: "center" },
         gap: { xs: 0, md: 12 },
       }}>
       <Box

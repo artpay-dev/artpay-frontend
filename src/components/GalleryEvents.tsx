@@ -4,6 +4,7 @@ import ArtworksList from "./ArtworksList.tsx";
 import ArtistsList from "./ArtistsList.tsx";
 import { ArtworkCardProps } from "./ArtworkCard.tsx";
 import { ArtistCardProps } from "./ArtistCard.tsx";
+import { useNavigate } from "react-router-dom";
 
 export interface GalleryEventsProps {
   imgUrl: string;
@@ -22,7 +23,16 @@ const GalleryEvents: React.FC<GalleryEventsProps> = ({
   artists,
   artworks,
 }) => {
-  // { px: { xs: 3, md: 6 } }
+  const navigate = useNavigate();
+  const handleSelectArtwork = (index: number) => {
+    const selectedArtwork = artworks[index];
+    navigate(`/artwork/${selectedArtwork.id}`);
+  };
+  const handleSelectArtist = (index: number) => {
+    const selectedArtist = artists[index];
+    navigate(`/artist/${selectedArtist.id}`);
+  };
+
   return (
     <Grid container>
       <Grid xs={12} md={6} item>
@@ -43,10 +53,19 @@ const GalleryEvents: React.FC<GalleryEventsProps> = ({
         <Divider color="textSecondary" />
       </Grid>
       <Grid xs={12} py={6} sx={{ maxWidth: "100%", overflow: "auto" }} item>
-        <ArtworksList title="Le nostre opere" items={artworks} />
+        <ArtworksList
+          title="Le nostre opere"
+          items={artworks}
+          onSelect={handleSelectArtwork}
+          cardSize="large"
+        />
       </Grid>
       <Grid xs={12} mt={6} py={6} sx={{ maxWidth: "100%" }} item>
-        <ArtistsList title="I nostri artisti" items={artists} />
+        <ArtistsList
+          title="I nostri artisti"
+          items={artists}
+          onSelect={handleSelectArtist}
+        />
       </Grid>
     </Grid>
   );

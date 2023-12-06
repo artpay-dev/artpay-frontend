@@ -345,6 +345,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
           <Box display="flex" gap={2}>
             <div>
               <ArtworkCard
+                id=""
                 artistName="Nome dell'artista"
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 galleryName="Nome della galleria"
@@ -354,6 +355,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
             </div>
             <div>
               <ArtworkCard
+                id=""
                 artistName="Nome dell'artista"
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 galleryName="Nome della galleria"
@@ -362,6 +364,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
             </div>
             <div>
               <ArtworkCard
+                id=""
                 artistName="Nome dell'artista"
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 galleryName="Nome della galleria"
@@ -371,6 +374,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
             </div>
             <div>
               <ArtworkCard
+                id=""
                 artistName="Nome dell'artista"
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 size="medium"
@@ -381,6 +385,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
           <Box display="flex" gap={2}>
             <div>
               <ArtworkCard
+                id=""
                 artistName="Nome dell'artista"
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 galleryName="Nome della galleria"
@@ -390,6 +395,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
             </div>
             <div>
               <ArtworkCard
+                id=""
                 artistName="Nome dell'artista"
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 size="large"
@@ -400,6 +406,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
           <Box display="flex" gap={2}>
             <div>
               <ArtistCard
+                id=""
                 title="Nome dell'artista"
                 subtitle="Torino, 1984"
                 isFavourite={false}
@@ -407,6 +414,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
             </div>
             <div>
               <ArtistCard
+                id=""
                 title="Nome dell'artista"
                 subtitle="Torino, 1984"
                 isFavourite={true}

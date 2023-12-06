@@ -9,17 +9,19 @@ import {
 } from "@mui/material";
 import FavouriteIcon from "./icons/FavouriteIcon.tsx";
 import QrCodeIcon from "./icons/QrCodeIcon.tsx";
+import { CardSize } from "../types";
 
-export type ArtworkCardSize = "small" | "medium" | "large";
 export interface ArtworkCardProps {
+  id: string;
   artistName: string;
   title: string;
   galleryName: string;
   price?: number;
-  size?: ArtworkCardSize;
+  size?: CardSize;
+  onClick?: () => void;
 }
 
-const cardSizes: { [key in ArtworkCardSize]: string } = {
+const cardSizes: { [key in CardSize]: string } = {
   small: "180px",
   medium: "230px",
   large: "320px",
@@ -31,8 +33,10 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
   galleryName,
   price,
   size = "medium",
+  onClick,
 }) => {
   const cardSize = cardSizes[size];
+  const cardSizeClass = `SwiperCard-${size}`;
   const formattedPrice = price
     ? `€ ${price.toLocaleString(undefined, {
         minimumFractionDigits: 2,
@@ -43,25 +47,35 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
   const textMaxWidth = size === "large" ? "190px" : "152px";
   const imgMargin = size === "small" ? 1 : 2;
   return (
-    <Card elevation={0} sx={{ width: cardSize, minWidth: cardSize }}>
+    <Card elevation={0} className={cardSizeClass} sx={{ height: "100%" }}>
       <CardMedia
         component="img"
         image="/gallery_example.jpg"
         height={cardSize}
-        sx={{ backgroundColor: "#D9D9D9" }}></CardMedia>
-      <CardContent sx={{ p: 0, mt: imgMargin }}>
+        onClick={onClick}
+        className="borderRadius"
+        sx={{
+          backgroundColor: "#D9D9D9",
+          cursor: onClick ? "pointer" : "auto",
+        }}></CardMedia>
+      <CardContent sx={{ p: 0, mt: imgMargin, height: "100%" }}>
         <Box display="flex">
           <Box display="flex" flexDirection="column" flexGrow={1}>
             <Typography variant="body2" color="textSecondary">
-              {artistName}
+              {artistName || "-"}
             </Typography>
             <Typography
               variant={titleVariant}
-              sx={{ mt: 0.5, mb: 1, maxWidth: textMaxWidth }}>
+              sx={{
+                mt: 0.5,
+                mb: 1,
+                maxWidth: textMaxWidth,
+                minHeight: "50px",
+              }}>
               {title}
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              {galleryName}
+              {galleryName || "-"}
             </Typography>
             {price && (
               <Typography variant={priceVariant} sx={{ mt: 2 }}>

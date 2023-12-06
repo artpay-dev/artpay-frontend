@@ -16,6 +16,10 @@ import HeroArtwork from "../components/HeroArtwork.tsx";
 import TabPanel from "../components/TabPanel.tsx";
 import ArtworksList from "../components/ArtworksList.tsx";
 import ArtworkDetails from "../components/ArtworkDetails.tsx";
+import { artworksToGalleryItems } from "../utils.ts";
+import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
+import { Gallery } from "../types/gallery.ts";
+import GalleryDetails from "../components/GalleryDetails.tsx";
 
 export interface ArtworkProps {}
 
@@ -23,18 +27,38 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const [isReady, setIsReady] = useState(false);
   const [selectedTabPanel, setSelectedTabPanel] = useState(0);
   const [artwork, setArtwork] = useState<Artwork>();
+  const [galleryArtworks, setGalleryArtworks] = useState<ArtworkCardProps[]>();
+  const [artistArtworks, setArtistArtworks] = useState<ArtworkCardProps[]>();
+  const [galleryDetails, setGalleryDetails] = useState<Gallery | undefined>();
 
   const data = useData();
   const urlParams = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
+    //TODO: page loader
+    // setIsReady(false);
     if (!urlParams.id) {
       navigate("/");
       return;
     }
-    data.getArtwork(urlParams.id).then((resp) => {
+    data.getArtwork(urlParams.id).then(async (resp) => {
       setArtwork(resp);
+      const [galleryArtworks] = await Promise.all([
+        data.listArtworksForGallery(resp.vendor),
+        //data.getGallery(resp.vendor),
+      ]);
+      if (resp.vendor) {
+        const galleryDetails = await data.getGallery(resp.vendor);
+        setGalleryDetails(galleryDetails);
+      }
+
+      // setGalleryDetails(galleryDetails);
+      //const galleryArtworks = await data.listArtworksForArtist(resp.vendor);
+      setGalleryArtworks(artworksToGalleryItems(galleryArtworks));
+
+      //TODO: filtro per artista
+      setArtistArtworks(artworksToGalleryItems(galleryArtworks));
       setIsReady(true);
     });
   }, [data, navigate, urlParams.id]);
@@ -47,14 +71,15 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
           xs={12}
           md={6}
           sx={{
-            maxHeight: { xs: "315px", sm: "660px" },
+            maxHeight: { xs: "315px", sm: "660px", md: "820px" },
             overflow: "hidden",
             display: "flex",
             alignItems: "center",
+            justifyContent: "center",
           }}>
           <img
             src={artwork?.images?.length ? artwork.images[0].src : ""}
-            style={{ width: "100%" }}
+            style={{ height: "100%" }}
           />
         </Grid>
         <Grid
@@ -89,15 +114,27 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               Certificato di autenticità incluso
             </Typography>
           </Box>
-          <Divider />
-          <Typography sx={{ mt: 3 }} variant="h3">
-            {artwork?.price} €
-          </Typography>
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h3">{artwork?.price} €</Typography>
           <Box mt={2} mb={3} display="flex" gap={1}>
             <Button variant="outlined">Compra ora</Button>
             <Button variant="contained">Acquista a rate</Button>
           </Box>
-          <Divider />
+          <Divider sx={{ my: 3 }} />
+          <Box display="flex" alignItems="center">
+            <Box flexGrow={1} display="flex" flexDirection="column">
+              <Typography variant="subtitle1" fontWeight={600}>
+                {galleryDetails?.username}
+              </Typography>
+              <Typography variant="subtitle1">
+                {galleryDetails?.billing?.city}
+              </Typography>
+            </Box>
+            <Box>
+              <Button variant="outlined">Contatta la galleria</Button>
+            </Box>
+          </Box>
+          <Divider sx={{ mt: 3 }} />
           <Box
             display="flex"
             flexDirection={{ xs: "column", sm: "row" }}
@@ -140,7 +177,9 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
             {artwork && <ArtworkDetails artwork={artwork} />}
           </TabPanel>
           <TabPanel value={selectedTabPanel} index={1}></TabPanel>
-          <TabPanel value={selectedTabPanel} index={2}></TabPanel>
+          <TabPanel value={selectedTabPanel} index={2}>
+            {galleryDetails && <GalleryDetails gallery={galleryDetails} />}
+          </TabPanel>
         </Box>
         <Divider
           sx={{
@@ -150,8 +189,14 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
           }}
         />
       </Box>
-      <ArtworksList title="Opere dello stesso artista" items={[]} />
-      <ArtworksList title="Opere della galleria" items={[]} />
+      <ArtworksList
+        title="Opere dello stesso artista"
+        items={artistArtworks || []}
+      />
+      <ArtworksList
+        title="Opere della galleria"
+        items={galleryArtworks || []}
+      />
       <ArtworksList title="Simili per prezzo" items={[]} />
     </DefaultLayout>
   );
