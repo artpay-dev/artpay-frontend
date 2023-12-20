@@ -1,13 +1,15 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
+import GalleryContacts, { GalleryContactsProps } from "./GalleryContacts.tsx";
 
 export interface GalleryInfoProps {
   title?: string;
   description: string[] | string;
   imageUrl?: string;
+  contacts?: GalleryContactsProps;
 }
 
-const GalleryInfo: React.FC<GalleryInfoProps> = ({ title, description, imageUrl }) => {
+const GalleryInfo: React.FC<GalleryInfoProps> = ({ title, description, imageUrl, contacts }) => {
   return (
     <Box sx={{ maxWidth: "900px" }}>
       {title && (
@@ -26,8 +28,8 @@ const GalleryInfo: React.FC<GalleryInfoProps> = ({ title, description, imageUrl 
           {description}
         </Typography>
       )}
-
       {imageUrl && <img style={{ width: "100%" }} src={imageUrl} />}
+      {contacts && <GalleryContacts {...contacts} sx={{ pt: 2 }} />}
     </Box>
   );
 };

@@ -69,3 +69,12 @@ export type Gallery = {
     }[];
   };
 };
+
+export interface GalleryContent {
+  coverImage: string;
+  title: string;
+  logoImage: string;
+  subtitle: string;
+  description: string;
+  categories: string[];
+}

@@ -1,14 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Card,
-  CardContent,
-  CardMedia,
-  IconButton,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, Card, CardContent, CardMedia, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { Add, Check } from "@mui/icons-material";
 
 export interface ArtistCardProps {
@@ -17,12 +8,16 @@ export interface ArtistCardProps {
   subtitle: string;
   isFavourite?: boolean;
   onClick?: () => void;
+  imgUrl?: string;
+  mode?: "grid" | "list";
 }
 
 const ArtistCard: React.FC<ArtistCardProps> = ({
   title,
   subtitle,
   isFavourite = false,
+  imgUrl,
+  mode = "list",
   onClick,
 }) => {
   const theme = useTheme();
@@ -31,26 +26,22 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
-    <Card
-      elevation={0}
-      className="SwiperCard-large"
-      sx={{ minWidth: cardWidth }}>
+    <Card elevation={0} className="SwiperCard-large" sx={{ minWidth: cardWidth }}>
       <CardMedia
         component="img"
-        image="/gallery_example.jpg"
+        image={imgUrl}
         height={imgHeight}
         className="borderRadius"
         onClick={onClick}
         sx={{
-          backgroundColor: "#D9D9D9",
+          objectFit: mode === "list" ? "conver" : "contain",
+          backgroundColor: imgUrl ? "" : "#D9D9D9",
           cursor: onClick ? "pointer" : "auto",
         }}></CardMedia>
       <CardContent sx={{ p: 0, mt: 2 }}>
         <Box display="flex">
           <Box display="flex" flexDirection="column" flexGrow={1}>
-            <Typography variant={isMobile ? "subtitle1" : "h6"}>
-              {title}
-            </Typography>
+            <Typography variant={isMobile ? "subtitle1" : "h6"}>{title}</Typography>
             <Typography variant="subtitle1" color="textSecondary">
               {subtitle}
             </Typography>

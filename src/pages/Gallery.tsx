@@ -4,39 +4,21 @@ import { Box, Button, Chip, Grid, Tab, Tabs, Typography } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import TabPanel from "../components/TabPanel.tsx";
 import GalleryInfo, { GalleryInfoProps } from "../components/GalleryInfo.tsx";
-import GalleryContacts, { GalleryContactsProps } from "../components/GalleryContacts.tsx";
+import { GalleryContactsProps } from "../components/GalleryContacts.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
-import { artistsToGalleryItems, artworksToGalleryItems } from "../utils.ts";
+import { artistsToGalleryItems, artworksToGalleryItems, galleryToGalleryContent } from "../utils.ts";
 import GalleryArtworksList from "../components/GalleryArtworksList.tsx";
 import GalleryArtistsList from "../components/GalleryArtistsList.tsx";
 import { ArtistCardProps } from "../components/ArtistCard.tsx";
+import { GalleryContent } from "../types/gallery.ts";
 
 export interface GalleryProps {
   selectedTab?: number;
 }
 
-interface GalleryContent {
-  coverImage: string;
-  title: string;
-  logoImage: string;
-  subtitle: string;
-  description: string;
-  categories: string[];
-}
-const subPageSlugs = ["tutte-le-opere", "about", "tutti-gli-artisti", "contacts"];
-
-const galleryInfoExample: GalleryInfoProps = {
-  title:
-    "Siamo entusiasti di darvi il benvenuto nella nostra galleria d'arte, un luogo dove la creatività prende vita e l'arte diventa un'esperienza coinvolgente.",
-  textContent: [
-    "La nostra galleria è più di un semplice spazio espositivo; è un rifugio per gli amanti dell'arte, un luogo dove artisti e appassionati si incontrano per celebrare l'arte in tutte le sue forme. Siamo dedicati alla promozione di artisti emergenti e affermati, offrendo una piattaforma per esporre le loro opere più significative.",
-    "La nostra missione è quella di condividere l'arte con il mondo, ispirando, educando e coinvolgendo il pubblico. Crediamo che l'arte abbia il potere di trasformare, di aprire nuove prospettive e di collegare le persone attraverso la bellezza e la creatività.",
-    "Nella nostra galleria troverete una vasta collezione di opere d'arte uniche, dalla pittura alla scultura, dalla fotografia all'arte digitale. Ogni opera ha una storia da raccontare, un messaggio da trasmettere e un'emozione da condividere.",
-  ],
-  imageUrl: "/gallery-info-image.png",
-};
+const subPageSlugs = ["", "tutti-gli-artisti", "galleria"];
 const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
   const [isReady, setIsReady] = useState(false);
   const [selectedTabPanel, setSelectedTabPanel] = useState(selectedTab);
@@ -60,14 +42,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
       .getGalleryBySlug(urlParams.slug)
       .then(async (gallery) => {
         //const description = gallery.shop.description.split("\n")[0];
-        setGalleryContent({
-          title: gallery.display_name,
-          subtitle: `${gallery.address?.city}`,
-          logoImage: gallery.shop?.image,
-          coverImage: gallery.shop?.banner,
-          categories: [],
-          description: gallery.message_to_buyers,
-        });
+        setGalleryContent(galleryToGalleryContent(gallery));
         const galleryAddress = [gallery.address.address_1, gallery.address.address_2].join(" ");
         setGalleryContacts({
           address: galleryAddress,
@@ -92,12 +67,19 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
     // TODO: loadData
   }, [data, navigate, urlParams.id]);
 
+  const handleSelectArtwork = (i: number) => {
+    if (galleryArtworks?.length) {
+      console.log("handleSelectArtwork", galleryArtworks[i]);
+      navigate(`/gallerie/${urlParams.slug}/opere/${galleryArtworks[i].slug}`);
+    }
+  };
+
   /*const galleryContacts: GalleryContactsProps = {
-    address: "via della Rocca 39/A 10100, Torino",
-    email: "info@galleria.it",
-    phoneNumbers: ["+39 011 11 22 333", "+39 393 11 22 333"],
-    website: "galleria.it",
-  };*/
+      address: "via della Rocca 39/A 10100, Torino",
+      email: "info@galleria.it",
+      phoneNumbers: ["+39 011 11 22 333", "+39 393 11 22 333"],
+      website: "galleria.it",
+    };*/
 
   return (
     <DefaultLayout pageLoading={!isReady || !galleryContent}>
@@ -171,22 +153,18 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
             color="secondary"
             centered>
             <Tab label="Opere d'arte" />
-            <Tab label="Informazioni galleria" />
             <Tab label="Artisti" />
-            <Tab label="Contatti" />
+            <Tab label="Galleria" />
           </Tabs>
         </Box>
         <TabPanel value={selectedTabPanel} index={0}>
-          <GalleryArtworksList artworks={galleryArtworks} />
+          <GalleryArtworksList artworks={galleryArtworks} onSelect={handleSelectArtwork} />
         </TabPanel>
         <TabPanel value={selectedTabPanel} index={1}>
-          {galleryInfo && <GalleryInfo {...galleryInfo} />}
-        </TabPanel>
-        <TabPanel value={selectedTabPanel} index={2}>
           <GalleryArtistsList artists={galleryArtists || []} />
         </TabPanel>
-        <TabPanel value={selectedTabPanel} index={3}>
-          <GalleryContacts {...galleryContacts} />
+        <TabPanel value={selectedTabPanel} index={2}>
+          {galleryInfo && <GalleryInfo {...galleryInfo} contacts={galleryContacts} />}
         </TabPanel>
       </Box>
     </DefaultLayout>

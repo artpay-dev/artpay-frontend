@@ -1,3 +1,10 @@
+type ArtistArtwork = {
+  ID: string;
+  artwork_name: string;
+  price: string;
+  images: [string, number, number, boolean];
+};
+
 export type Artist = {
   id: number;
   date: string;
@@ -26,6 +33,7 @@ export type Artist = {
   featured_media: number;
   template: string;
   meta: [];
+  artworks?: ArtistArtwork[];
   acf: {
     birth_nation: string;
     birth_year: string;

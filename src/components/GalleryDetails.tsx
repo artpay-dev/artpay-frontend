@@ -2,6 +2,8 @@ import React from "react";
 import { Gallery } from "../types/gallery";
 import { Box, Button, Typography } from "@mui/material";
 import DisplayImage from "./DisplayImage.tsx";
+import { galleryToGalleryContent } from "../utils.ts";
+import { Add } from "@mui/icons-material";
 
 export interface GalleryDetailsProps {
   gallery: Gallery;
@@ -12,23 +14,26 @@ const placeholderText =
   "Lorem ipsum dolor sit amet consectetur. Id nunc viverra faucibus molestie pretium massa proin. Sagittis orci adipiscing nunc ac. Risus tellus volutpat diam ut quis. Quis felis ut ornare justo ultrices amet nascetur consectetur orci. Amet sed senectus ridiculus ac eleifend. A quam lorem neque vestibulum adipiscing ac justo etiam.";
 
 const GalleryDetails: React.FC<GalleryDetailsProps> = ({ gallery }) => {
+  const galleryContent = galleryToGalleryContent(gallery);
   return (
     <Box sx={{ maxWidth: "900px", width: "100%" }} display="flex">
-      <DisplayImage src={gallery.avatar_url} width={320} height={320} />
+      <DisplayImage src={galleryContent.coverImage} width={320} height={320} />
       <Box flexGrow={1} px={3}>
-        <Box display="flex">
+        <Box display="flex" flexDirection="row">
           <Box flexGrow={1}>
-            <Typography variant="h6">{gallery.username}</Typography>
+            <Typography variant="h6">{galleryContent.title}</Typography>
             <Typography variant="h6" color="textSecondary">
-              {gallery.username}
+              {galleryContent.subtitle}
             </Typography>
           </Box>
           <Box>
-            <Button variant="outlined">Follow</Button>
+            <Button variant="outlined" endIcon={<Add />}>
+              Follow
+            </Button>
           </Box>
         </Box>
         <Typography sx={{ mt: 3 }} variant="subtitle1">
-          {placeholderText}
+          {galleryContent.description}
         </Typography>
       </Box>
     </Box>

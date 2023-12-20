@@ -6,7 +6,7 @@ export interface FormField {
 export interface MetadataItem {
   id: number;
   key: string;
-  value: string | string[];
+  value: { [key: string]: string };
 }
 
 export type CardSize = "small" | "medium" | "large";

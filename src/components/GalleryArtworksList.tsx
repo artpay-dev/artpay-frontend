@@ -1,25 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import { ArtworkCardProps } from "./ArtworkCard.tsx";
-import { useNavigate } from "react-router-dom";
 import { Grid } from "@mui/material";
-import ArtworksList from "./ArtworksList.tsx";
 import ArtworksGrid from "./ArtworksGrid.tsx";
 
 export interface GalleryArtworksListProps {
   artworks?: ArtworkCardProps[];
+  onSelect?: (idx: number) => void;
 }
 
-const GalleryArtworksList: React.FC<GalleryArtworksListProps> = ({ artworks = [] }) => {
-  const navigate = useNavigate();
-  const handleSelectArtwork = (index: number) => {
-    const selectedArtwork = artworks[index];
-    navigate(`/artwork/${selectedArtwork.id}`);
-  };
-
+const GalleryArtworksList: React.FC<GalleryArtworksListProps> = ({ artworks = [], onSelect }) => {
   return (
     <Grid container>
       <Grid xs={12} py={6} sx={{ maxWidth: "100%", overflow: "auto" }} item>
-        <ArtworksGrid title="Le nostre opere" items={artworks} onSelect={handleSelectArtwork} cardSize="large" />
+        <ArtworksGrid title="Le nostre opere" items={artworks} onSelect={onSelect} cardSize="large" />
       </Grid>
     </Grid>
   );

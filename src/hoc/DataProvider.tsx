@@ -11,6 +11,7 @@ export interface DataContext {
   getGallery(id: string): Promise<Gallery>;
   getGalleryBySlug(slug: string): Promise<Gallery>;
   getArtwork(id: string): Promise<Artwork>;
+  getArtworkBySlug(slug: string): Promise<Artwork>;
   listArtworksForArtist(galleryId: string): Promise<Artwork[]>;
   listArtworksForGallery(galleryId: string): Promise<Artwork[]>;
   listArtistsForGallery(galleryId: string): Promise<Artist[]>;
@@ -26,8 +27,10 @@ const defaultContext: DataContext = {
   getGallery: () => Promise.reject("Data provider loaded"),
   getGalleryBySlug: () => Promise.reject("Data provider loaded"),
   getArtwork: () => Promise.reject("Data provider loaded"),
+  getArtworkBySlug: () => Promise.reject("Data provider loaded"),
   listArtworksForArtist: () => Promise.reject("Data provider loaded"),
   listArtworksForGallery: () => Promise.reject("Data provider loaded"),
+  listArtistsForGallery: () => Promise.reject("Data provider loaded"),
 };
 
 const Context = createContext<DataContext>({ ...defaultContext });
@@ -46,6 +49,15 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     async getArtwork(id: string): Promise<Artwork> {
       const resp = await axios.get<SignInFormData, AxiosResponse<Artwork>>(`${baseUrl}/wp-json/wc/v3/products/${id}`);
       return resp.data;
+    },
+    async getArtworkBySlug(slug: string): Promise<Artwork> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<Artwork[]>>(
+        `${baseUrl}/wp-json/wc/v3/products?slug=${slug}`,
+      );
+      if (!resp.data?.length) {
+        throw "Not found";
+      }
+      return resp.data[0];
     },
     async getGallery(id: string): Promise<Gallery> {
       const resp = await axios.get<SignInFormData, AxiosResponse<Gallery>>(`${baseUrl}/wp-json/mvx/v1/vendors/${id}`);
@@ -74,7 +86,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     },
     async listArtworksForArtist(artistId: string): Promise<Artwork[]> {
       const resp = await axios.get<SignInFormData, AxiosResponse<Artwork[]>>(`${baseUrl}/wp-json/wc/v3/products`);
-
       return resp.data;
     },
     async listArtistsForGallery(galleryId: string): Promise<Artist[]> {

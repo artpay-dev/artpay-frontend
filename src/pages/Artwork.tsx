@@ -8,10 +8,11 @@ import HeroArtwork from "../components/HeroArtwork.tsx";
 import TabPanel from "../components/TabPanel.tsx";
 import ArtworksList from "../components/ArtworksList.tsx";
 import ArtworkDetails from "../components/ArtworkDetails.tsx";
-import { artworksToGalleryItems } from "../utils.ts";
+import { artworksToGalleryItems, getPropertyFromMetadata } from "../utils.ts";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import { Gallery } from "../types/gallery.ts";
 import GalleryDetails from "../components/GalleryDetails.tsx";
+import { Add } from "@mui/icons-material";
 
 export interface ArtworkProps {}
 
@@ -30,11 +31,11 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   useEffect(() => {
     //TODO: page loader
     // setIsReady(false);
-    if (!urlParams.id) {
+    if (!urlParams.slug_opera) {
       navigate("/");
       return;
     }
-    data.getArtwork(urlParams.id).then(async (resp) => {
+    data.getArtworkBySlug(urlParams.slug_opera).then(async (resp) => {
       setArtwork(resp);
       const [galleryArtworks] = await Promise.all([
         data.listArtworksForGallery(resp.vendor),
@@ -57,7 +58,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
 
   return (
     <DefaultLayout pageLoading={!isReady}>
-      <Grid sx={{ p: 0, maxWidth: "1440px", mt: 12 }} container>
+      <Grid sx={{ p: 0, maxWidth: "1440px", mt: 12, justifyContent: "center" }} container>
         <Grid
           item
           xs={12}
@@ -69,18 +70,24 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
             alignItems: "center",
             justifyContent: "center",
           }}>
-          <img src={artwork?.images?.length ? artwork.images[0].src : ""} style={{ height: "100%" }} />
+          <img
+            src={artwork?.images?.length ? artwork.images[0].src : ""}
+            style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }}
+          />
         </Grid>
         <Grid item xs={12} p={3} md display="flex" justifyContent="flex-start" flexDirection="column">
           <Typography sx={{ typography: { sm: "h1", xs: "h3" }, pr: { xs: 0, md: 5 } }}>{artwork?.name}</Typography>
           <Typography variant="h4" color="textSecondary" sx={{ mt: 2 }}>
-            {artwork?.store_name}
+            {getPropertyFromMetadata(artwork?.meta_data || [], "artist")?.artist_name}, (anno)
           </Typography>
           <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 3 }}>
             Acrylic & ink on paper
           </Typography>
           <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 1 }}>
-            91,4 x 61 cm
+            {artwork?.dimensions.width || 0} x {artwork?.dimensions.height || 0} x {artwork?.dimensions.length || 0} cm
+          </Typography>
+          <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 1 }}>
+            <a href="#artwork-info">Maggiori info sull'opera</a>
           </Typography>
           <Box mt={3}>
             <Typography variant="subtitle1" color="textSecondary">
@@ -104,8 +111,11 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               </Typography>
               <Typography variant="subtitle1">{galleryDetails?.address?.city}</Typography>
             </Box>
-            <Box>
+            <Box display="flex" flexDirection="column" gap={2}>
               <Button variant="outlined">Contatta la galleria</Button>
+              <Button variant="outlined" endIcon={<Add />}>
+                Follow
+              </Button>
             </Box>
           </Box>
           <Divider sx={{ mt: 3 }} />
@@ -129,6 +139,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         cta={"Blocca l'opera"}
         sx={{ mt: 15, mb: 5 }}
       />
+      <Box id="artwork-info" sx={{ top: "-100px", position: "relative" }}></Box>
       <Box mt={5}>
         <Box
           sx={{

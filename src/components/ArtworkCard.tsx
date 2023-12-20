@@ -8,6 +8,7 @@ export interface ArtworkCardProps {
   id: string;
   artistName: string;
   title: string;
+  slug: string;
   galleryName: string;
   price?: number;
   size?: CardSize;

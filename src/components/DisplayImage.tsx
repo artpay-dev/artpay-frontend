@@ -8,24 +8,20 @@ export interface DisplayImageProps {
   sx?: SxProps<Theme>;
 }
 
-const DisplayImage: React.FC<DisplayImageProps> = ({
-  src,
-  width,
-  height,
-  sx = {},
-}) => {
+const DisplayImage: React.FC<DisplayImageProps> = ({ src, width, height, sx = {} }) => {
   return (
     <Box
       sx={{
         ...sx,
         height: height || "auto",
-        minHeight: height || "auto",
+        maxHeight: height || "auto",
         width: width || "auto",
-        minWidth: width || "auto",
-        background: "rgba(0,0,0,0.2)",
+        maxWidth: width || "auto",
+        //background: "rgba(0,0,0,0.2)",
+        flexShrink: 0,
       }}
       className="borderRadius">
-      <img src={src} />
+      <img style={{ maxHeight: height || "auto", maxWidth: width || "auto" }} src={src} />
     </Box>
   );
 };
