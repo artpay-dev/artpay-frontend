@@ -48,13 +48,23 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
 
   useEffect(() => {
     const loadCategories = async (): Promise<CategoryMap> => {
-      const categoriesResp = await axios.get<SignInFormData, AxiosResponse<Category[]>>(
+      let categoriesResp = await axios.get<SignInFormData, AxiosResponse<Category[]>>(
         `${baseUrl}/wp-json/wc/v3/products/categories?per_page=100`,
         { headers: { Authorization: auth.getGuestAuth() } },
       );
+      const categoriesData = [...categoriesResp.data];
+      let page = 1;
+      while (categoriesResp.data?.length > 0) {
+        page++;
+        categoriesResp = await axios.get<SignInFormData, AxiosResponse<Category[]>>(
+          `${baseUrl}/wp-json/wc/v3/products/categories?per_page=100&page=${page}`,
+          { headers: { Authorization: auth.getGuestAuth() } },
+        );
+        categoriesData.push(...categoriesResp.data);
+      }
 
-      const parents = categoriesResp.data.filter((c) => !c.parent);
-      const children = categoriesResp.data.filter((c) => !!c.parent);
+      const parents = categoriesData.filter((c) => !c.parent);
+      const children = categoriesData.filter((c) => !!c.parent);
 
       const categoryGroups = parents.map((p) => {
         const categoryGroup: CategoryGroup = {

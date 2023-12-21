@@ -2,26 +2,28 @@ import React from "react";
 import { Artwork } from "../types/artwork.ts";
 import { Box, Typography } from "@mui/material";
 import DisplayProperty from "./DisplayProperty.tsx";
-import { getPropertyFromMetadata } from "../utils.ts";
+import { getArtworkDimensions, getPropertyFromMetadata } from "../utils.ts";
 import { useData } from "../hoc/DataProvider.tsx";
+import { Artist } from "../types/artist.ts";
 
 export interface ArtworkDetailsProps {
   artwork: Artwork;
+  artist?: Artist;
 }
 
-const ArtworkDetails: React.FC<ArtworkDetailsProps> = ({ artwork }) => {
+const ArtworkDetails: React.FC<ArtworkDetailsProps> = ({ artwork, artist }) => {
   const data = useData();
   const artworkDetails = {
     material: data.getCategoryMapValues(artwork, "materiale").join(" "), //getPropertyFromMetadata(artwork.meta_data, "tecnica"),
-    measures: "",
+    measures: getArtworkDimensions(artwork),
     style: data.getCategoryMapValues(artwork, "stile").join(" "),
     artworkClass: data.getCategoryMapValues(artwork, "tipologia").join(" "),
     technique: data.getCategoryMapValues(artwork, "tecnica").join(" "), //getPropertyFromMetadata(artwork.meta_data, "tipologia"),
     conditions: "",
-    signature: "",
-    certificate: "",
-    frame: "",
-    theme: "",
+    signature: data.getCategoryMapValues(artwork, "firma").join(" "),
+    certificate: data.getCategoryMapValues(artwork, "certificato").join(" "),
+    frame: data.getCategoryMapValues(artwork, "cornice").join(" "),
+    theme: data.getCategoryMapValues(artwork, "tema").join(" "),
     epoch: data.getCategoryMapValues(artwork, "periodo").join(" "),
   };
   return (
@@ -29,7 +31,8 @@ const ArtworkDetails: React.FC<ArtworkDetailsProps> = ({ artwork }) => {
       <Box mb={3}>
         <Typography variant="h4">{artwork.name}</Typography>
         <Typography variant="h6" color="textSecondary">
-          {getPropertyFromMetadata(artwork.meta_data, "artist")?.artist_name}, (anno)
+          {getPropertyFromMetadata(artwork.meta_data, "artist")?.artist_name}, {artist?.acf.birth_nation},{" "}
+          {artist?.acf.birth_year}
         </Typography>
         <Typography
           variant="body1"
@@ -54,13 +57,13 @@ const ArtworkDetails: React.FC<ArtworkDetailsProps> = ({ artwork }) => {
           <DisplayProperty label="Condizioni" value={artworkDetails.conditions} />
           <DisplayProperty label="Firma" value={artworkDetails.signature} />
         </Box>
-        <Box display="flex" flexDirection="column" gap={3} sx={{ width: "232px" }}>
+        <Box display="flex" flexDirection="column" gap={3} sx={{ width: "232px", mt: { xs: 3, md: 0 } }}>
           <DisplayProperty label="Certificato di autenticità" value={artworkDetails.certificate} />
           <DisplayProperty label="Anno di creazione" value={""} />
           <DisplayProperty label="Stile" value={artworkDetails.style} />
           <DisplayProperty label="Cornice" value={artworkDetails.frame} />
-          <DisplayProperty label="Tema" value={artworkDetails.frame} />
-          <DisplayProperty label="Periodo" value={artworkDetails.frame} />
+          <DisplayProperty label="Tema" value={artworkDetails.theme} />
+          <DisplayProperty label="Periodo" value={artworkDetails.epoch} />
         </Box>
       </Box>
     </Box>

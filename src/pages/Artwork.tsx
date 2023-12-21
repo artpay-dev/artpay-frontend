@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Grid, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Button, Divider, Grid, Tab, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout";
 import { useData } from "../hoc/DataProvider.tsx";
@@ -8,13 +8,14 @@ import HeroArtwork from "../components/HeroArtwork.tsx";
 import TabPanel from "../components/TabPanel.tsx";
 import ArtworksList from "../components/ArtworksList.tsx";
 import ArtworkDetails from "../components/ArtworkDetails.tsx";
-import { artworksToGalleryItems, getPropertyFromMetadata } from "../utils.ts";
+import { artworksToGalleryItems, getArtworkDimensions, getPropertyFromMetadata } from "../utils.ts";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import { Gallery } from "../types/gallery.ts";
 import GalleryDetails from "../components/GalleryDetails.tsx";
 import { Add } from "@mui/icons-material";
 import ArtistDetails from "../components/ArtistDetails.tsx";
 import { Artist } from "../types/artist.ts";
+import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
 
 export interface ArtworkProps {}
 
@@ -32,6 +33,8 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const navigate = useNavigate();
 
   const artworkTechnique = artwork ? data.getCategoryMapValues(artwork, "tecnica").join(" ") : "";
+  const artworkCertificate = artwork ? data.getCategoryMapValues(artwork, "certificato").join(" ") : "";
+  const artworkUnique = artwork ? data.getCategoryMapValues(artwork, "rarita").join(" ") : "";
 
   useEffect(() => {
     //TODO: page loader
@@ -54,17 +57,21 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       if (artistId) {
         const artistDetails = await data.getArtist(artistId);
         setArtistDetails(artistDetails);
+        //TODO: filtro per artista
+        const artworksIds = (artistDetails.artworks || []).map((a) => a.ID.toString());
+        console.log("artist.artworks", artworksIds, galleryArtworks);
+        setArtistArtworks(
+          artworksToGalleryItems(galleryArtworks.filter((a) => artworksIds.indexOf(a.id.toString()) !== -1)),
+        );
       }
 
       // setGalleryDetails(galleryDetails);
       //const galleryArtworks = await data.listArtworksForArtist(resp.vendor);
       setGalleryArtworks(artworksToGalleryItems(galleryArtworks));
 
-      //TODO: filtro per artista
-      setArtistArtworks(artworksToGalleryItems(galleryArtworks));
       setIsReady(true);
     });
-  }, [data, navigate, urlParams.id]);
+  }, [data, navigate, urlParams.id, urlParams.slug_opera]);
 
   return (
     <DefaultLayout pageLoading={!isReady}>
@@ -88,28 +95,28 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         <Grid item xs={12} p={3} md display="flex" justifyContent="flex-start" flexDirection="column">
           <Typography sx={{ typography: { sm: "h1", xs: "h3" }, pr: { xs: 0, md: 5 } }}>{artwork?.name}</Typography>
           <Typography variant="h4" color="textSecondary" sx={{ mt: 2 }}>
-            {getPropertyFromMetadata(artwork?.meta_data || [], "artist")?.artist_name}, (anno)
+            {getPropertyFromMetadata(artwork?.meta_data || [], "artist")?.artist_name}
           </Typography>
-          <Typography variant="h6" color="textSecondary" sx={{ mt: 3 }}>
+          <Typography color="textSecondary" sx={{ mt: 3, typography: { xs: "h6", md: "subtitle1" } }}>
             {artworkTechnique}
           </Typography>
-          <Typography variant="h6" color="textSecondary" sx={{ mt: 1 }}>
-            {artwork?.dimensions.width || 0} x {artwork?.dimensions.height || 0} x {artwork?.dimensions.length || 0} cm
+          <Typography color="textSecondary" sx={{ mt: 1, typography: { xs: "h6", md: "subtitle1" } }}>
+            {getArtworkDimensions(artwork)}
           </Typography>
           <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 1 }}>
             <a href="#artwork-info">Maggiori info sull'opera</a>
           </Typography>
           <Box mt={3}>
             <Typography variant="subtitle1" color="textSecondary">
-              Opera unica
+              {artworkUnique}
             </Typography>
             <Typography sx={{ mt: 1 }} variant="subtitle1" color="textSecondary">
-              Certificato di autenticità incluso
+              {artworkCertificate}
             </Typography>
           </Box>
           <Divider sx={{ my: 3 }} />
           <Typography variant="h3">{artwork?.price} €</Typography>
-          <Box mt={2} mb={3} display="flex" gap={1}>
+          <Box mt={2} sx={{ mb: { xs: 0, md: 3 } }} display="flex" gap={1}>
             <Button variant="outlined">Compra ora</Button>
             <Button variant="contained">Acquista a rate</Button>
           </Box>
@@ -160,19 +167,15 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
             borderColor: "secondary",
             mx: { xs: 0, sm: 3, md: 6 },
           }}>
-          <Tabs
-            value={selectedTabPanel}
-            onChange={(_, newValue) => setSelectedTabPanel(newValue)}
-            color="secondary"
-            centered>
+          <ResponsiveTabs value={selectedTabPanel} onChange={(_, newValue) => setSelectedTabPanel(newValue)}>
             <Tab label="Informazioni sull' opera" />
             <Tab label="Informazioni sull' artista" />
             <Tab label="Informazioni sulla galleria" />
-          </Tabs>
+          </ResponsiveTabs>
         </Box>
         <Box sx={{ minHeight: { md: "120px" } }}>
           <TabPanel value={selectedTabPanel} index={0}>
-            {artwork && <ArtworkDetails artwork={artwork} />}
+            {artwork && <ArtworkDetails artwork={artwork} artist={artistDetails} />}
           </TabPanel>
           <TabPanel value={selectedTabPanel} index={1}>
             {artistDetails && <ArtistDetails artist={artistDetails} />}

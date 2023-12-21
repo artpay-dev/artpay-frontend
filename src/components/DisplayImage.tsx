@@ -6,22 +6,27 @@ export interface DisplayImageProps {
   width?: number | string;
   height?: number | string;
   sx?: SxProps<Theme>;
+  onClick?: () => void;
 }
 
-const DisplayImage: React.FC<DisplayImageProps> = ({ src, width, height, sx = {} }) => {
+const DisplayImage: React.FC<DisplayImageProps> = ({ src, width, height, sx = {}, onClick }) => {
   return (
     <Box
       sx={{
         ...sx,
-        height: height || "auto",
+        //height: height || "auto",
         maxHeight: height || "auto",
-        width: width || "auto",
+        //width: width || "auto",
         maxWidth: width || "auto",
         //background: "rgba(0,0,0,0.2)",
         flexShrink: 0,
       }}
       className="borderRadius">
-      <img style={{ maxHeight: height || "auto", maxWidth: width || "auto" }} src={src} />
+      <img
+        style={{ maxHeight: height || "auto", maxWidth: width || "auto", cursor: !!onClick ? "pointer" : "auto" }}
+        onClick={onClick}
+        src={src}
+      />
     </Box>
   );
 };

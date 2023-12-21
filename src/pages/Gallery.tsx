@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
-import { Box, Button, Chip, Grid, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Button, Chip, Grid, Tab, Typography } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import TabPanel from "../components/TabPanel.tsx";
 import GalleryInfo, { GalleryInfoProps } from "../components/GalleryInfo.tsx";
@@ -13,6 +13,7 @@ import GalleryArtworksList from "../components/GalleryArtworksList.tsx";
 import GalleryArtistsList from "../components/GalleryArtistsList.tsx";
 import { ArtistCardProps } from "../components/ArtistCard.tsx";
 import { GalleryContent } from "../types/gallery.ts";
+import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
 
 export interface GalleryProps {
   selectedTab?: number;
@@ -153,18 +154,16 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
             borderColor: "secondary",
             mx: { xs: 0, sm: 3, md: 6 },
           }}>
-          <Tabs
+          <ResponsiveTabs
             value={selectedTabPanel}
             onChange={(_, newValue) => {
               window.history.replaceState(null, "", `/gallerie/${urlParams.slug}/${subPageSlugs[newValue]}`);
               setSelectedTabPanel(newValue);
-            }}
-            color="secondary"
-            centered>
+            }}>
             <Tab label="Opere d'arte" />
             <Tab label="Artisti" />
             <Tab label="Galleria" />
-          </Tabs>
+          </ResponsiveTabs>
         </Box>
         <TabPanel value={selectedTabPanel} index={0}>
           <GalleryArtworksList artworks={galleryArtworks} onSelect={handleSelectArtwork} />

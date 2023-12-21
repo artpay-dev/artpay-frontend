@@ -26,6 +26,11 @@ export const artworkToGalleryItem = (artwork: Artwork, cardSize?: CardSize): Art
   };
 };
 export const artistToGalleryItem = (artist: Artist): ArtistCardProps => {
+  const imgUrl = artist?.featured_img?.length
+    ? artist?.featured_img[0]
+    : artist.artworks?.length && artist.artworks[0].images?.length
+      ? artist.artworks[0].images[0]
+      : "";
   return {
     id: artist.id.toString(),
     isFavourite: false,
@@ -33,7 +38,7 @@ export const artistToGalleryItem = (artist: Artist): ArtistCardProps => {
     title: artist.title?.rendered || "",
     description: artist.excerpt?.rendered || "",
     artworksCount: artist.artworks?.length || 0,
-    imgUrl: artist.artworks?.length && artist.artworks[0].images?.length ? artist.artworks[0].images[0] : "",
+    imgUrl: imgUrl,
   };
 };
 
@@ -52,4 +57,13 @@ export const artworksToGalleryItems = (artworks: Artwork[], cardSize?: CardSize)
 
 export const artistsToGalleryItems = (artists: Artist[]): ArtistCardProps[] => {
   return artists.map((a) => artistToGalleryItem(a));
+};
+
+export const getArtworkDimensions = (artwork?: Artwork): string => {
+  if (!artwork) {
+    return "";
+  }
+  return `${artwork?.dimensions.width || 0} x ${artwork?.dimensions.height || 0} x ${
+    artwork?.dimensions.length || 0
+  } cm`;
 };
