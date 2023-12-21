@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { useAuth } from "../hoc/AuthProvider.tsx";
-import { Box, Container, LinearProgress, Typography } from "@mui/material";
+import { Box, Container, LinearProgress, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Navbar from "./Navbar.tsx";
 
 export interface DefaultLayoutProps {
@@ -16,8 +16,11 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
   background,
   pageLoading = false,
 }) => {
-  const [ready, setReady] = useState(false);
   const auth = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (authRequired && !auth.isAuthenticated) {
@@ -33,11 +36,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
   if (!ready || pageLoading) {
     return (
       <Container maxWidth="md">
-        <Box
-          height="100vh"
-          display="flex"
-          flexDirection="column"
-          justifyContent="center">
+        <Box height="100vh" display="flex" flexDirection="column" justifyContent="center">
           <Box>
             <Typography variant="h6">Loading...</Typography>
             <LinearProgress />
@@ -48,8 +47,9 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
   }
 
   return (
-    <Container sx={{ px: "0!important", pb: 8 }} maxWidth="xl">
+    <Container sx={{ px: "0!important", pb: 0, minHeight: "100vh" }} maxWidth="xl">
       <Navbar />
+      {isMobile && <Box mt={8}></Box>}
       {children}
     </Container>
   );

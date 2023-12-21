@@ -13,6 +13,8 @@ import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import { Gallery } from "../types/gallery.ts";
 import GalleryDetails from "../components/GalleryDetails.tsx";
 import { Add } from "@mui/icons-material";
+import ArtistDetails from "../components/ArtistDetails.tsx";
+import { Artist } from "../types/artist.ts";
 
 export interface ArtworkProps {}
 
@@ -23,10 +25,13 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const [galleryArtworks, setGalleryArtworks] = useState<ArtworkCardProps[]>();
   const [artistArtworks, setArtistArtworks] = useState<ArtworkCardProps[]>();
   const [galleryDetails, setGalleryDetails] = useState<Gallery | undefined>();
+  const [artistDetails, setArtistDetails] = useState<Artist | undefined>();
 
   const data = useData();
   const urlParams = useParams();
   const navigate = useNavigate();
+
+  const artworkTechnique = artwork ? data.getCategoryMapValues(artwork, "tecnica").join(" ") : "";
 
   useEffect(() => {
     //TODO: page loader
@@ -44,6 +49,11 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       if (resp.vendor) {
         const galleryDetails = await data.getGallery(resp.vendor);
         setGalleryDetails(galleryDetails);
+      }
+      const artistId = getPropertyFromMetadata(resp.meta_data, "artist")?.ID;
+      if (artistId) {
+        const artistDetails = await data.getArtist(artistId);
+        setArtistDetails(artistDetails);
       }
 
       // setGalleryDetails(galleryDetails);
@@ -80,10 +90,10 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
           <Typography variant="h4" color="textSecondary" sx={{ mt: 2 }}>
             {getPropertyFromMetadata(artwork?.meta_data || [], "artist")?.artist_name}, (anno)
           </Typography>
-          <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 3 }}>
-            Acrylic & ink on paper
+          <Typography variant="h6" color="textSecondary" sx={{ mt: 3 }}>
+            {artworkTechnique}
           </Typography>
-          <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 1 }}>
+          <Typography variant="h6" color="textSecondary" sx={{ mt: 1 }}>
             {artwork?.dimensions.width || 0} x {artwork?.dimensions.height || 0} x {artwork?.dimensions.length || 0} cm
           </Typography>
           <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 1 }}>
@@ -104,14 +114,17 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
             <Button variant="contained">Acquista a rate</Button>
           </Box>
           <Divider sx={{ my: 3 }} />
-          <Box display="flex" alignItems="center">
-            <Box flexGrow={1} display="flex" flexDirection="column">
-              <Typography variant="subtitle1" fontWeight={600}>
+          <Box
+            display="flex"
+            alignItems={{ xs: "flex-start", md: "center" }}
+            flexDirection={{ xs: "column", sm: "row" }}>
+            <Box flexGrow={1} display="flex" flexDirection="column" sx={{ gap: { xs: 1, sm: 0 } }}>
+              <Typography variant="h6" fontWeight={600}>
                 {galleryDetails?.display_name}
               </Typography>
-              <Typography variant="subtitle1">{galleryDetails?.address?.city}</Typography>
+              <Typography variant="h6">{galleryDetails?.address?.city}</Typography>
             </Box>
-            <Box display="flex" flexDirection="column" gap={2}>
+            <Box display="flex" flexDirection={{ xs: "row", sm: "column" }} sx={{ mt: { xs: 2, sm: 0 } }} gap={2}>
               <Button variant="outlined">Contatta la galleria</Button>
               <Button variant="outlined" endIcon={<Add />}>
                 Follow
@@ -137,7 +150,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
           "Se ti interessa quest’opera puoi bloccarla in esclusiva per 24 ore. Clicca qui e scegli se procedere all’iter di finanziamento direttamente dalla tua area personale."
         }
         cta={"Blocca l'opera"}
-        sx={{ mt: 15, mb: 5 }}
+        sx={{ mt: { xs: 3, sm: 6, md: 15 }, mb: 5 }}
       />
       <Box id="artwork-info" sx={{ top: "-100px", position: "relative" }}></Box>
       <Box mt={5}>
@@ -157,11 +170,13 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
             <Tab label="Informazioni sulla galleria" />
           </Tabs>
         </Box>
-        <Box sx={{ minHeight: { md: "480px" } }}>
+        <Box sx={{ minHeight: { md: "120px" } }}>
           <TabPanel value={selectedTabPanel} index={0}>
             {artwork && <ArtworkDetails artwork={artwork} />}
           </TabPanel>
-          <TabPanel value={selectedTabPanel} index={1}></TabPanel>
+          <TabPanel value={selectedTabPanel} index={1}>
+            {artistDetails && <ArtistDetails artist={artistDetails} />}
+          </TabPanel>
           <TabPanel value={selectedTabPanel} index={2}>
             {galleryDetails && <GalleryDetails gallery={galleryDetails} />}
           </TabPanel>

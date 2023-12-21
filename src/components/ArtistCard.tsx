@@ -6,6 +6,8 @@ export interface ArtistCardProps {
   id: string;
   title: string;
   subtitle: string;
+  description?: string;
+  artworksCount: number;
   isFavourite?: boolean;
   onClick?: () => void;
   imgUrl?: string;
@@ -30,11 +32,12 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
       <CardMedia
         component="img"
         image={imgUrl}
-        height={imgHeight}
+        height={isMobile && mode === "grid" ? "auto" : imgHeight}
         className="borderRadius"
         onClick={onClick}
         sx={{
           objectFit: mode === "list" ? "conver" : "contain",
+          minHeight: "100px",
           backgroundColor: imgUrl ? "" : "#D9D9D9",
           cursor: onClick ? "pointer" : "auto",
         }}></CardMedia>

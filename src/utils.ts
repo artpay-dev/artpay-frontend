@@ -31,6 +31,8 @@ export const artistToGalleryItem = (artist: Artist): ArtistCardProps => {
     isFavourite: false,
     subtitle: `${artist.acf.location}, ${artist.acf.birth_year}`,
     title: artist.title?.rendered || "",
+    description: artist.excerpt?.rendered || "",
+    artworksCount: artist.artworks?.length || 0,
     imgUrl: artist.artworks?.length && artist.artworks[0].images?.length ? artist.artworks[0].images[0] : "",
   };
 };

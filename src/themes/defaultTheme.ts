@@ -1,8 +1,9 @@
 import { createTheme } from "@mui/material";
+import { Theme } from "../types";
 
 type PaletteColor = "primary" | "secondary" | "info" | "error";
 
-const defaultTheme = createTheme({
+const defaultTheme: Theme = createTheme({
   palette: {
     primary: {
       light: "#B1BAF6",
@@ -34,7 +35,12 @@ const defaultTheme = createTheme({
       dark: "#595e65",
       contrastText: "#000000",
     },
-    contrast: { main: "#fff" },
+    contrast: {
+      main: "#fff",
+      light: "#fff",
+      dark: "#fff",
+      contrastText: "#fff",
+    },
     //tertiary: palette.augmentColor({color: {main: '#808791'}})
   },
   typography: {
@@ -92,17 +98,11 @@ const defaultTheme = createTheme({
       styleOverrides: {
         root: ({ ownerState, theme }) => {
           const color =
-            (ownerState?.color &&
-            ["primary", "secondary", "info", "error"].indexOf(
-              ownerState?.color,
-            ) !== -1
+            (ownerState?.color && ["primary", "secondary", "info", "error"].indexOf(ownerState?.color) !== -1
               ? theme.palette[ownerState?.color as PaletteColor]?.main
               : null) || theme.palette.grey.A200;
           const contrastColor =
-            (ownerState?.color &&
-            ["primary", "secondary", "info", "error"].indexOf(
-              ownerState?.color,
-            ) !== -1
+            (ownerState?.color && ["primary", "secondary", "info", "error"].indexOf(ownerState?.color) !== -1
               ? theme.palette[ownerState?.color as PaletteColor]?.contrastText
               : null) || theme.palette.grey["600"];
           const variant = ownerState.variant || "default";
@@ -294,7 +294,34 @@ const defaultTheme = createTheme({
         },
       },
     },
+    MuiFooter: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#010F22",
+        },
+      },
+    },
   },
 });
 
-export default defaultTheme;
+const responsiveTheme = createTheme(defaultTheme, {
+  typography: {
+    h4: {
+      [defaultTheme.breakpoints.only("xs")]: {
+        fontSize: "25px",
+      },
+    },
+    h6: {
+      [defaultTheme.breakpoints.only("xs")]: {
+        fontSize: "20px",
+      },
+    },
+    subtitle1: {
+      [defaultTheme.breakpoints.only("xs")]: {
+        fontSize: "14px",
+      },
+    },
+  },
+});
+
+export default responsiveTheme;

@@ -52,6 +52,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
           email: gallery.email,
           phoneNumbers: [gallery.address.phone],
           website: gallery.shop.url,
+          social: { linkedin: gallery.social.linkdin, ...gallery.social },
         });
         const artworks = await data.listArtworksForGallery(gallery.id.toString());
         setGalleryArtworks(artworksToGalleryItems(artworks, "large"));
@@ -108,7 +109,15 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
             <img className="borderRadius" src={galleryContent?.logoImage} style={{ width: "100%" }} />
           </Box>
         </Grid>
-        <Grid item xs={12} p={3} pt={12} md display="flex" justifyContent="center" flexDirection="column">
+        <Grid
+          item
+          xs={12}
+          p={3}
+          sx={{ pt: { xs: 3, sm: 6, md: 12 } }}
+          md
+          display="flex"
+          justifyContent="center"
+          flexDirection="column">
           <Typography sx={{ typography: { sm: "h1", xs: "h3" }, pr: { xs: 0, md: 5 } }}>
             {galleryContent?.title}
           </Typography>
@@ -137,7 +146,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
           </Box>
         </Grid>
       </Grid>
-      <Box mt={12}>
+      <Box sx={{ mt: { xs: 6, md: 12 } }}>
         <Box
           sx={{
             borderBottom: 1,

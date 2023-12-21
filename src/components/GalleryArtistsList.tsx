@@ -17,7 +17,7 @@ const GalleryArtistsList: React.FC<GalleryArtistsListProps> = ({ artists = [] })
 
   return (
     <Grid container>
-      <Grid xs={12} py={6} sx={{ maxWidth: "100%", overflow: "auto" }} item>
+      <Grid xs={12} sx={{ maxWidth: "100%", overflow: "auto", py: { xs: 3, md: 6 } }} item>
         <ArtistsGrid title="I nostri artisti" items={artists} onSelect={handleSelectArtist} />
       </Grid>
     </Grid>

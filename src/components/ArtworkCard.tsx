@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Card, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
+import { Box, Card, CardContent, CardMedia, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
 import FavouriteIcon from "./icons/FavouriteIcon.tsx";
 import QrCodeIcon from "./icons/QrCodeIcon.tsx";
 import { CardSize } from "../types";
@@ -33,6 +33,9 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
   onClick,
   mode = "list",
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const cardSize = cardSizes[size];
   const cardSizeClass = `SwiperCard-${size}`;
   const formattedPrice = price
@@ -49,7 +52,7 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
       <CardMedia
         component="img"
         image={imgUrl}
-        height={cardSize}
+        height={isMobile && mode === "grid" ? "auto" : cardSize}
         onClick={onClick}
         className="borderRadius"
         sx={{

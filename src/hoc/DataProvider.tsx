@@ -4,6 +4,8 @@ import axios, { AxiosResponse } from "axios";
 import { SignInFormData } from "../components/SignInForm.tsx";
 import { Artwork } from "../types/artwork.ts";
 import { Artist } from "../types/artist.ts";
+import { Category, CategoryGroup, CategoryMap } from "../types/category.ts";
+import { useAuth } from "./AuthProvider.tsx";
 
 export interface DataContext {
   info(): Promise<string>;
@@ -15,6 +17,8 @@ export interface DataContext {
   listArtworksForArtist(galleryId: string): Promise<Artwork[]>;
   listArtworksForGallery(galleryId: string): Promise<Artwork[]>;
   listArtistsForGallery(galleryId: string): Promise<Artist[]>;
+  getArtist(id: string): Promise<Artist>;
+  getCategoryMapValues(artwork: Artwork, key: string): string[];
 }
 
 export interface DataProviderProps extends React.PropsWithChildren {
@@ -31,16 +35,50 @@ const defaultContext: DataContext = {
   listArtworksForArtist: () => Promise.reject("Data provider loaded"),
   listArtworksForGallery: () => Promise.reject("Data provider loaded"),
   listArtistsForGallery: () => Promise.reject("Data provider loaded"),
+  getArtist: () => Promise.reject("Data provider loaded"),
+  getCategoryMapValues: () => [],
 };
 
 const Context = createContext<DataContext>({ ...defaultContext });
-
+const categoryMap: CategoryMap = {};
 export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl }) => {
   const [isLoading, setIsLoading] = useState(true);
+  //const [categoryMap, setCategoryMap] = useState<CategoryMap | undefined>();
+  const auth = useAuth();
 
   useEffect(() => {
-    setIsLoading(false);
-  }, []);
+    const loadCategories = async (): Promise<CategoryMap> => {
+      const categoriesResp = await axios.get<SignInFormData, AxiosResponse<Category[]>>(
+        `${baseUrl}/wp-json/wc/v3/products/categories?per_page=100`,
+        { headers: { Authorization: auth.getGuestAuth() } },
+      );
+
+      const parents = categoriesResp.data.filter((c) => !c.parent);
+      const children = categoriesResp.data.filter((c) => !!c.parent);
+
+      const categoryGroups = parents.map((p) => {
+        const categoryGroup: CategoryGroup = {
+          ...p,
+          children: children.filter((c) => c.parent === p.id),
+        };
+        return categoryGroup;
+      });
+
+      for (let i = 0; i < categoryGroups.length; i++) {
+        const categoryGroup = categoryGroups[i];
+        categoryMap[categoryGroup.slug] = { ...categoryGroup };
+      }
+
+      console.log("categoryGroups", categoryMap);
+
+      return categoryMap;
+    };
+
+    loadCategories().then(() => {
+      setIsLoading(false);
+      console.log("categories loaded");
+    });
+  }, [baseUrl]);
 
   const dataContext: DataContext = {
     info(): Promise<string> {
@@ -65,7 +103,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     },
     async getGalleryBySlug(slug: string): Promise<Gallery> {
       const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(
-        `${baseUrl}/wp-json/mvx/v1/vendors?slug=${slug}`,
+        `${baseUrl}/wp-json/mvx/v1/vendors?nice_name=${slug}`,
       );
       const gallery = resp.data.find((g) => g.shop?.slug === slug);
       if (!gallery) {
@@ -93,6 +131,21 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         `${baseUrl}/wp-json/wp/v2/artist?vendor=${galleryId}`,
       );
       return resp.data;
+    },
+    async getArtist(artistId: string): Promise<Artist> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<Artist>>(
+        `${baseUrl}/wp-json/wp/v2/artist/${artistId}`,
+      );
+      return resp.data;
+    },
+    getCategoryMapValues(artwork: Artwork, key: string): string[] {
+      if (!categoryMap || !categoryMap[key]) {
+        return [];
+      }
+      const categoryGroup = categoryMap[key];
+      const childrenIds = categoryGroup.children.map((c) => c.id);
+
+      return artwork.categories.filter((c) => childrenIds.indexOf(c.id) !== -1).map((c) => c.name);
     },
   };
 

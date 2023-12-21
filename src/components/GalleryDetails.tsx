@@ -9,14 +9,17 @@ export interface GalleryDetailsProps {
   gallery: Gallery;
 }
 
-//TODO: descrizione galleria
-const placeholderText =
-  "Lorem ipsum dolor sit amet consectetur. Id nunc viverra faucibus molestie pretium massa proin. Sagittis orci adipiscing nunc ac. Risus tellus volutpat diam ut quis. Quis felis ut ornare justo ultrices amet nascetur consectetur orci. Amet sed senectus ridiculus ac eleifend. A quam lorem neque vestibulum adipiscing ac justo etiam.";
-
 const GalleryDetails: React.FC<GalleryDetailsProps> = ({ gallery }) => {
   const galleryContent = galleryToGalleryContent(gallery);
   return (
-    <Box sx={{ maxWidth: "900px", width: "100%" }} display="flex">
+    <Box
+      sx={{
+        maxWidth: "900px",
+        width: "100%",
+        flexDirection: { xs: "column", md: "row" },
+        alignItems: { xs: "center" },
+      }}
+      display="flex">
       <DisplayImage src={galleryContent.coverImage} width={320} height={320} />
       <Box flexGrow={1} px={3}>
         <Box display="flex" flexDirection="row">

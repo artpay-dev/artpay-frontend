@@ -1,6 +1,6 @@
 import React from "react";
 import { Grid, SxProps, Theme, Typography } from "@mui/material";
-import SocialLinks from "./SocialLinks.tsx";
+import SocialLinks, { SocialLinksProps } from "./SocialLinks.tsx";
 import Map from "./Map.tsx";
 
 export interface GalleryContactsProps {
@@ -11,6 +11,7 @@ export interface GalleryContactsProps {
   email: string;
   phoneNumbers: string[];
   website: string;
+  social?: SocialLinksProps;
   sx?: SxProps<Theme>;
 }
 
@@ -22,6 +23,7 @@ const GalleryContacts: React.FC<GalleryContactsProps> = ({
   city,
   postcode,
   country,
+  social = {},
   sx = {},
 }) => {
   return (
@@ -46,7 +48,7 @@ const GalleryContacts: React.FC<GalleryContactsProps> = ({
             {website}
           </a>
         </Typography>
-        <SocialLinks mt={6} facebook={"1"} twitter={"1"} linkedin={"1"} whatsapp={"1"} />
+        <SocialLinks sx={{ mt: { xs: 3, md: 6 }, mb: { xs: 3, md: 0 } }} {...social} />
       </Grid>
       <Grid xs={12} md={6} style={{ position: "relative" }} item>
         <Map address={address} />

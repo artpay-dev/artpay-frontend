@@ -5,6 +5,8 @@ import {
   Button,
   IconButton,
   Link,
+  SxProps,
+  Theme,
   Typography,
   useMediaQuery,
   useTheme,
@@ -23,20 +25,23 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
 
+  const mobileStyleOverrides: SxProps<Theme> = {
+    top: 0,
+    left: 0,
+    width: "100%",
+    margin: 0,
+    borderRadius: 0,
+  };
+
   return (
-    <AppBar color="default" sx={{}} elevation={0}>
+    <AppBar color="default" sx={isMobile ? mobileStyleOverrides : {}} elevation={0}>
       <Box display="flex" alignItems="center" sx={{ height: "100%" }}>
-        <Box
-          sx={{ height: "24px", cursor: "pointer" }}
-          onClick={() => navigate("/")}>
+        <Box sx={{ height: "24px", cursor: "pointer" }} onClick={() => navigate("/")}>
           <Logo />
         </Box>
         {!isMobile && (
           <Box>
-            <Button
-              sx={{ ml: { xs: 1, sm: 2, lg: 6 } }}
-              color="inherit"
-              variant="text">
+            <Button sx={{ ml: { xs: 1, sm: 2, lg: 6 } }} color="inherit" variant="text">
               Opere
             </Button>
             <Button sx={{ ml: 0 }} color="inherit" variant="text">
@@ -68,18 +73,11 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
         ) : (
           <>
             {!isMobile && (
-              <Link
-                sx={{ mr: 2, minWidth: "120px" }}
-                href="#"
-                color="tertiary.main">
+              <Link sx={{ mr: 2, minWidth: "120px" }} href="#" color="tertiary.main">
                 Sei una galleria?
               </Link>
             )}
-            <Button
-              sx={{ minWidth: "150px" }}
-              onClick={() => auth.login()}
-              color="secondary"
-              variant="outlined">
+            <Button sx={{ minWidth: "150px" }} onClick={() => auth.login()} color="secondary" variant="outlined">
               Login/Registrati
             </Button>
           </>

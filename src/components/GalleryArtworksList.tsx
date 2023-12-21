@@ -11,7 +11,7 @@ export interface GalleryArtworksListProps {
 const GalleryArtworksList: React.FC<GalleryArtworksListProps> = ({ artworks = [], onSelect }) => {
   return (
     <Grid container>
-      <Grid xs={12} py={6} sx={{ maxWidth: "100%", overflow: "auto" }} item>
+      <Grid xs={12} sx={{ maxWidth: "100%", overflow: "auto", py: { xs: 3, md: 6 } }} item>
         <ArtworksGrid title="Le nostre opere" items={artworks} onSelect={onSelect} cardSize="large" />
       </Grid>
     </Grid>

@@ -23,7 +23,7 @@ const ArtworksGrid: React.FC<ArtworksGridProps> = ({ title, items, cardSize, onS
     }
   };
   return (
-    <Box sx={{ px: { xs: 3, md: 6 }, maxWidth: "100%" }}>
+    <Box sx={{ px: { xs: 0, md: 6 }, maxWidth: "100%" }}>
       {title && (
         <Typography sx={{ mb: { xs: 3, md: 6 } }} variant="h3">
           {title}
