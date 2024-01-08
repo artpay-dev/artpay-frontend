@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Grid, Tab, Typography } from "@mui/material";
+import { Box, Button, Divider, Grid, IconButton, Tab, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout";
 import { useData } from "../hoc/DataProvider.tsx";
@@ -12,10 +12,11 @@ import { artworksToGalleryItems, getArtworkDimensions, getPropertyFromMetadata }
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import { Gallery } from "../types/gallery.ts";
 import GalleryDetails from "../components/GalleryDetails.tsx";
-import { Add } from "@mui/icons-material";
+import { Share } from "@mui/icons-material";
 import ArtistDetails from "../components/ArtistDetails.tsx";
 import { Artist } from "../types/artist.ts";
 import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
+import FavouriteIcon from "../components/icons/FavouriteIcon.tsx";
 
 export interface ArtworkProps {}
 
@@ -83,7 +84,25 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
 
   return (
     <DefaultLayout pageLoading={!isReady}>
-      <Grid sx={{ p: 0, maxWidth: "1440px", mt: 12, justifyContent: "center" }} container>
+      <Box
+        mt={12}
+        sx={{ borderBottom: "1px solid #666F7A", px: { xs: 8 }, pb: 1, mt: { xs: 6, sm: 12 } }}
+        gap={2}
+        display="flex">
+        <img className="borderRadius" src={galleryDetails?.shop?.image} style={{ maxHeight: "72px" }} />
+        <Box display="flex" flexDirection="column" justifyContent="center" gap={0.5}>
+          <Typography
+            variant="h4"
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate(`/gallerie/${galleryDetails?.nice_name}`)}>
+            {galleryDetails?.display_name}
+          </Typography>
+          <Typography sx={{ typography: { sm: "subtitle1", xs: "h6" } }} variant="subtitle1" color="textSecondary">
+            {galleryDetails?.address?.city}, {galleryDetails?.address?.country}
+          </Typography>
+        </Box>
+      </Box>
+      <Grid sx={{ p: 0, maxWidth: "1440px", mt: 1, justifyContent: "center" }} container>
         <Grid
           item
           xs={12}
@@ -123,7 +142,16 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
             </Typography>
           </Box>
           <Divider sx={{ my: 3 }} />
-          <Typography variant="h3">{artwork?.price} €</Typography>
+          <Box display="flex" alignItems="center">
+            <Typography variant="h3">{artwork?.price} €</Typography>
+            <Box flexGrow={1} />
+            <IconButton>
+              <FavouriteIcon color="primary" />
+            </IconButton>
+            <IconButton>
+              <Share color="primary" />
+            </IconButton>
+          </Box>
           <Box mt={2} sx={{ mb: { xs: 0, md: 3 } }} display="flex" gap={1}>
             <Button variant="outlined">Compra ora</Button>
             <Button variant="contained">Acquista a rate</Button>
@@ -141,9 +169,6 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
             </Box>
             <Box display="flex" flexDirection={{ xs: "row", sm: "column" }} sx={{ mt: { xs: 2, sm: 0 } }} gap={2}>
               <Button variant="outlined">Contatta la galleria</Button>
-              <Button variant="outlined" endIcon={<Add />}>
-                Follow
-              </Button>
             </Box>
           </Box>
           <Divider sx={{ mt: 3 }} />

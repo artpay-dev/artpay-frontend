@@ -19,7 +19,8 @@ const ArtworkDetails: React.FC<ArtworkDetailsProps> = ({ artwork, artist }) => {
     style: data.getCategoryMapValues(artwork, "stile").join(" "),
     artworkClass: data.getCategoryMapValues(artwork, "tipologia").join(" "),
     technique: data.getCategoryMapValues(artwork, "tecnica").join(" "), //getPropertyFromMetadata(artwork.meta_data, "tipologia"),
-    conditions: "",
+    conditions: getPropertyFromMetadata(artwork?.meta_data || [], "condizioni")?.value || "-",
+    creationYear: getPropertyFromMetadata(artwork?.meta_data || [], "anno_di_produzione")?.value || "-",
     signature: data.getCategoryMapValues(artwork, "firma").join(" "),
     certificate: data.getCategoryMapValues(artwork, "certificato").join(" "),
     frame: data.getCategoryMapValues(artwork, "cornice").join(" "),
@@ -49,7 +50,7 @@ const ArtworkDetails: React.FC<ArtworkDetailsProps> = ({ artwork, artist }) => {
           justifyContent: { xs: "flex-start", sm: "center" },
           gap: { xs: 0, md: 12 },
         }}>
-        <Box display="flex" flexDirection="column" gap={3} sx={{ width: "232px" }}>
+        <Box display="flex" flexDirection="column" gap={3} sx={{ width: "300px" }}>
           <DisplayProperty label="Materiale" value={artworkDetails.material} />
           <DisplayProperty label="Tecnica" value={artworkDetails.technique} />
           <DisplayProperty label="Misure" value={artworkDetails.measures} />
@@ -57,9 +58,9 @@ const ArtworkDetails: React.FC<ArtworkDetailsProps> = ({ artwork, artist }) => {
           <DisplayProperty label="Condizioni" value={artworkDetails.conditions} />
           <DisplayProperty label="Firma" value={artworkDetails.signature} />
         </Box>
-        <Box display="flex" flexDirection="column" gap={3} sx={{ width: "232px", mt: { xs: 3, md: 0 } }}>
+        <Box display="flex" flexDirection="column" gap={3} sx={{ width: "300px", mt: { xs: 3, md: 0 } }}>
           <DisplayProperty label="Certificato di autenticità" value={artworkDetails.certificate} />
-          <DisplayProperty label="Anno di creazione" value={""} />
+          <DisplayProperty label="Anno di creazione" value={artworkDetails.creationYear} />
           <DisplayProperty label="Stile" value={artworkDetails.style} />
           <DisplayProperty label="Cornice" value={artworkDetails.frame} />
           <DisplayProperty label="Tema" value={artworkDetails.theme} />

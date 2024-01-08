@@ -77,4 +77,5 @@ export interface GalleryContent {
   subtitle: string;
   description: string;
   categories: string[];
+  productsCount?: number;
 }

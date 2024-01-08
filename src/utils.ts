@@ -49,6 +49,7 @@ export const galleryToGalleryContent = (gallery: Gallery): GalleryContent => ({
   coverImage: gallery.shop?.banner,
   categories: [],
   description: gallery.message_to_buyers,
+  productsCount: gallery.products_count,
 });
 
 export const artworksToGalleryItems = (artworks: Artwork[], cardSize?: CardSize): ArtworkCardProps[] => {

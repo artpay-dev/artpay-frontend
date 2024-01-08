@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
-import { Box, Button, Chip, Grid, Tab, Typography } from "@mui/material";
-import { Add } from "@mui/icons-material";
+import { Box, Button, Chip, Grid, IconButton, Tab, Typography } from "@mui/material";
+import { Add, Share } from "@mui/icons-material";
 import TabPanel from "../components/TabPanel.tsx";
 import GalleryInfo, { GalleryInfoProps } from "../components/GalleryInfo.tsx";
 import { GalleryContactsProps } from "../components/GalleryContacts.tsx";
@@ -76,11 +76,11 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
   };
 
   /*const galleryContacts: GalleryContactsProps = {
-      address: "via della Rocca 39/A 10100, Torino",
-      email: "info@galleria.it",
-      phoneNumbers: ["+39 011 11 22 333", "+39 393 11 22 333"],
-      website: "galleria.it",
-    };*/
+        address: "via della Rocca 39/A 10100, Torino",
+        email: "info@galleria.it",
+        phoneNumbers: ["+39 011 11 22 333", "+39 393 11 22 333"],
+        website: "galleria.it",
+      };*/
 
   return (
     <DefaultLayout pageLoading={!isReady || !galleryContent}>
@@ -100,11 +100,11 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
           <Box
             position="absolute"
             sx={{
-              height: "100px",
-              width: "100px",
-              bottom: "48px",
-              left: "48px",
-              display: { xs: "none", sm: "block" },
+              height: { xs: "64px", sm: "100px" },
+              width: { xs: "64px", sm: "100px" },
+              bottom: { xs: "24px", sm: "48px" },
+              left: { xs: "24px", sm: "48px" },
+              display: { xs: "block" },
             }}>
             <img className="borderRadius" src={galleryContent?.logoImage} style={{ width: "100%" }} />
           </Box>
@@ -127,6 +127,11 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
           <Typography variant="subtitle1" sx={{ mt: 2, maxWidth: { md: "560px" } }}>
             {galleryContent?.description}
           </Typography>
+          {galleryContent?.productsCount && (
+            <Typography variant="h6" color="textSecondary" sx={{ mt: 2, maxWidth: { md: "560px" } }}>
+              {galleryContent?.productsCount} opere presenti su Artpay
+            </Typography>
+          )}
           <Box
             display="flex"
             flexDirection={{ xs: "column", sm: "row" }}
@@ -140,9 +145,14 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
                 <Chip key={index} label={category} color="secondary" size="small" />
               ))}
             </Box>
-            <Button variant="outlined" endIcon={<Add />}>
-              Follow
-            </Button>
+            <Box display="flex" gap={2}>
+              <Button variant="outlined" endIcon={<Add />}>
+                Follow
+              </Button>
+              <IconButton variant="outlined" color="primary" size="small">
+                <Share />
+              </IconButton>
+            </Box>
           </Box>
         </Grid>
       </Grid>

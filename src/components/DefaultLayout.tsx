@@ -2,6 +2,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import { Box, Container, LinearProgress, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Navbar from "./Navbar.tsx";
+import Footer from "./Footer.tsx";
 
 export interface DefaultLayoutProps {
   authRequired?: boolean;
@@ -51,6 +52,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
       <Navbar />
       {isMobile && <Box mt={8}></Box>}
       {children}
+      <Footer />
     </Container>
   );
 };

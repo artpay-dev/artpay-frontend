@@ -9,6 +9,7 @@ export interface SocialLinksProps {
   whatsapp?: string;
   instagram?: string;
   youtube?: string;
+  color?: string;
 }
 
 const SocialLinks: React.FC<SocialLinksProps & BoxProps> = ({
@@ -19,38 +20,39 @@ const SocialLinks: React.FC<SocialLinksProps & BoxProps> = ({
   instagram,
   youtube,
   sx = {},
+  color = "#9FA9F3",
   ...other
 }) => {
   return (
     <Box display="flex" flexDirection="row" sx={{ gap: { xs: 2, md: 2 }, ...sx }} {...other}>
       {facebook && (
         <IconButton href={facebook} target="_blank">
-          <FaFacebook size="22px" color="#9FA9F3" />
+          <FaFacebook size="22px" color={color} />
         </IconButton>
       )}
       {twitter && (
         <IconButton href={twitter} target="_blank">
-          <FaTwitter size="22px" color="#9FA9F3" />
+          <FaTwitter size="22px" color={color} />
         </IconButton>
       )}
       {linkedin && (
         <IconButton href={linkedin} target="_blank">
-          <FaLinkedin size="22px" color="#9FA9F3" />
+          <FaLinkedin size="22px" color={color} />
         </IconButton>
       )}
       {whatsapp && (
         <IconButton href={whatsapp} target="_blank">
-          <FaWhatsapp size="22px" color="#9FA9F3" />
+          <FaWhatsapp size="22px" color={color} />
         </IconButton>
       )}
       {instagram && (
         <IconButton href={instagram} target="_blank">
-          <FaInstagram size="22px" color="#9FA9F3" />
+          <FaInstagram size="22px" color={color} />
         </IconButton>
       )}
       {youtube && (
         <IconButton href={youtube} target="_blank">
-          <FaYoutube size="22px" color="#9FA9F3" />
+          <FaYoutube size="22px" color={color} />
         </IconButton>
       )}
     </Box>

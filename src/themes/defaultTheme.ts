@@ -298,6 +298,12 @@ const defaultTheme: Theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: "#010F22",
+          "& a": {
+            color: "white",
+          },
+          "& a:visited": {
+            color: "#96b1d7",
+          },
         },
       },
     },
