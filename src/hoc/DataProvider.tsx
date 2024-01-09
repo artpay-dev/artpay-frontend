@@ -85,7 +85,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     loadCategories().then(() => {
       setIsLoading(false);
     });
-  }, [baseUrl]);
+  }, [auth, baseUrl]);
 
   const dataContext: DataContext = {
     info(): Promise<string> {

@@ -8,12 +8,14 @@ export interface DefaultLayoutProps {
   authRequired?: boolean;
   background?: string;
   children?: ReactNode | ReactNode[];
+  topBar?: ReactNode | ReactNode[];
   pageLoading?: boolean;
 }
 
 const DefaultLayout: React.FC<DefaultLayoutProps> = ({
   authRequired = false,
   children,
+  topBar,
   background,
   pageLoading = false,
 }) => {
@@ -48,12 +50,15 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
   }
 
   return (
-    <Container sx={{ px: "0!important", pb: 0, minHeight: "100vh" }} maxWidth="xl">
+    <>
       <Navbar />
-      {isMobile && <Box mt={8}></Box>}
-      {children}
+      {topBar || ""}
+      <Container sx={{ px: "0!important", pb: 0, minHeight: "100vh" }} maxWidth="xl">
+        {isMobile && <Box mt={8}></Box>}
+        {children}
+      </Container>
       <Footer />
-    </Container>
+    </>
   );
 };
 

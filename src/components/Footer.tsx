@@ -3,7 +3,7 @@ import { Box, Button, Divider, Grid, IconButton, Typography } from "@mui/materia
 import { styled } from "@mui/material/styles";
 import { FaPaypal, FaCcVisa, FaCcMastercard } from "react-icons/fa";
 import TextField from "./TextField.tsx";
-import { ArrowUpward, Facebook, Instagram, LinkedIn, YouTube } from "@mui/icons-material";
+import { ArrowUpward } from "@mui/icons-material";
 import SocialLinks from "./SocialLinks.tsx";
 
 export interface FooterProps {}

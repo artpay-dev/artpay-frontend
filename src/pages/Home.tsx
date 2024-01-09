@@ -33,7 +33,7 @@ const Home: React.FC<HomeProps> = ({}) => {
 
   return (
     <DefaultLayout pageLoading={!isReady}>
-      <Grid sx={{ maxWidth: "1440px", pt: 12, px: 6, flexDirection: "column" }} container>
+      <Grid sx={{ maxWidth: "1440px", minHeight: "90vh", pt: 12, px: 6, flexDirection: "column" }} container>
         {auth.isAuthenticated ? (
           <>
             <Typography variant="h3">Seleziona galleria</Typography>
