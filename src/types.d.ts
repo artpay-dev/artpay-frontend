@@ -13,6 +13,11 @@ export interface MetadataItem {
   value: { [key: string]: string };
 }
 
+export interface CardItem {
+  id: number | string;
+  slug: string;
+}
+
 export type CardSize = "small" | "medium" | "large";
 
 type Theme = Omit<MuiTheme, "components">;

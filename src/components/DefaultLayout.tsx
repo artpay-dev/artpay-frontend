@@ -3,6 +3,7 @@ import { useAuth } from "../hoc/AuthProvider.tsx";
 import { Box, Container, LinearProgress, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Navbar from "./Navbar.tsx";
 import Footer from "./Footer.tsx";
+import { Breakpoint } from "@mui/system";
 
 export interface DefaultLayoutProps {
   authRequired?: boolean;
@@ -10,6 +11,7 @@ export interface DefaultLayoutProps {
   children?: ReactNode | ReactNode[];
   topBar?: ReactNode | ReactNode[];
   pageLoading?: boolean;
+  maxWidth?: Breakpoint | false;
 }
 
 const DefaultLayout: React.FC<DefaultLayoutProps> = ({
@@ -18,6 +20,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
   topBar,
   background,
   pageLoading = false,
+  maxWidth = "xl",
 }) => {
   const auth = useAuth();
   const theme = useTheme();
@@ -53,7 +56,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
     <>
       <Navbar />
       {topBar || ""}
-      <Container sx={{ px: "0!important", pb: 0, minHeight: "100vh" }} maxWidth="xl">
+      <Container sx={{ px: "0!important", pb: 0, minHeight: "100vh" }} maxWidth={maxWidth}>
         {isMobile && <Box mt={8}></Box>}
         {children}
       </Container>

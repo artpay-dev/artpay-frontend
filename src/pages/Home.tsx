@@ -5,6 +5,7 @@ import { useData } from "../hoc/DataProvider.tsx";
 import { Gallery } from "../types/gallery.ts";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import { useNavigate } from "react-router-dom";
+import HeroSlider from "../components/HeroSlider.tsx";
 
 export interface HomeProps {}
 
@@ -32,7 +33,8 @@ const Home: React.FC<HomeProps> = ({}) => {
   }, [auth, auth.isAuthenticated, data]);
 
   return (
-    <DefaultLayout pageLoading={!isReady}>
+    <DefaultLayout pageLoading={!isReady} maxWidth={false}>
+      <HeroSlider />
       <Grid sx={{ maxWidth: "1440px", minHeight: "90vh", pt: 12, px: 6, flexDirection: "column" }} container>
         {auth.isAuthenticated ? (
           <>
@@ -40,7 +42,7 @@ const Home: React.FC<HomeProps> = ({}) => {
             {galleries
               .filter((gallery) => !!gallery?.shop?.slug)
               .map((gallery, i) => (
-                <Button key={i} onClick={() => navigate(`/gallerie/${gallery.shop.slug}/tutte-le-opere`)}>
+                <Button key={i} onClick={() => navigate(`/gallerie/${gallery.shop.slug}`)}>
                   {gallery.display_name}
                 </Button>
               ))}

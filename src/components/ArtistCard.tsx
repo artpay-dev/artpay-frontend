@@ -7,7 +7,7 @@ export interface ArtistCardProps {
   title: string;
   subtitle: string;
   description?: string;
-  artworksCount: number;
+  artworksCount?: number;
   isFavourite?: boolean;
   onClick?: () => void;
   imgUrl?: string;
@@ -21,6 +21,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
   imgUrl,
   mode = "list",
   onClick,
+  // artworksCount = 0,
 }) => {
   const theme = useTheme();
   const imgHeight = "430px";

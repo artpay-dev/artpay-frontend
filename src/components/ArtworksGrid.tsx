@@ -1,6 +1,6 @@
 import React from "react";
 import ArtworkCard, { ArtworkCardProps } from "./ArtworkCard.tsx";
-import { CardSize } from "../types";
+import { CardItem, CardSize } from "../types";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Typography } from "@mui/material";
 
@@ -8,7 +8,7 @@ export interface ArtworksGridProps {
   items: ArtworkCardProps[];
   title?: string;
   cardSize?: CardSize;
-  onSelect?: (index: number) => void;
+  onSelect?: (item: CardItem) => void;
   onLoadMore?: () => Promise<void>;
 }
 
@@ -20,6 +20,7 @@ const ArtworksGrid: React.FC<ArtworksGridProps> = ({ title, items, cardSize, onS
   };
   const handleLoadMore = () => {
     if (onLoadMore) {
+      onLoadMore();
     }
   };
   return (
@@ -56,15 +57,17 @@ const ArtworksGrid: React.FC<ArtworksGridProps> = ({ title, items, cardSize, onS
               {...item}
               size={cardSize}
               mode="grid"
-              onClick={() => (onSelect ? onSelect(i) : handleSelectArtwork(i))}
+              onClick={() => (onSelect ? onSelect({ ...item }) : handleSelectArtwork(i))}
             />
           ))}
         </Box>
-        <Box display="flex" mt={4} justifyContent="center">
-          <Button onClick={handleLoadMore} variant="outlined" color="primary" size="large">
-            Mostra più opere
-          </Button>
-        </Box>
+        {onLoadMore && (
+          <Box display="flex" mt={4} justifyContent="center">
+            <Button onClick={handleLoadMore} variant="outlined" color="primary" size="large">
+              Mostra più opere
+            </Button>
+          </Box>
+        )}
       </Box>
     </Box>
   );

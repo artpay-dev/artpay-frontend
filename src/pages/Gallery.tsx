@@ -14,6 +14,7 @@ import GalleryArtistsList from "../components/GalleryArtistsList.tsx";
 import { ArtistCardProps } from "../components/ArtistCard.tsx";
 import { GalleryContent } from "../types/gallery.ts";
 import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
+import { CardItem } from "../types";
 
 export interface GalleryProps {
   selectedTab?: number;
@@ -69,10 +70,13 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
     // TODO: loadData
   }, [data, navigate, urlParams.id]);
 
-  const handleSelectArtwork = (i: number) => {
+  const handleSelectArtwork = (item: CardItem) => {
     if (galleryArtworks?.length) {
-      navigate(`/gallerie/${urlParams.slug}/opere/${galleryArtworks[i].slug}`);
+      navigate(`/gallerie/${urlParams.slug}/opere/${item.slug}`);
     }
+  };
+  const handleLoadMoreArtworks = async () => {
+    navigate(`/gallerie/${urlParams.slug}/tutte-le-opere`);
   };
 
   /*const galleryContacts: GalleryContactsProps = {
@@ -175,7 +179,11 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
           </ResponsiveTabs>
         </Box>
         <TabPanel value={selectedTabPanel} index={0}>
-          <GalleryArtworksList artworks={galleryArtworks} onSelect={handleSelectArtwork} />
+          <GalleryArtworksList
+            artworks={galleryArtworks}
+            onSelect={handleSelectArtwork}
+            onLoadMore={handleLoadMoreArtworks}
+          />
         </TabPanel>
         <TabPanel value={selectedTabPanel} index={1}>
           <GalleryArtistsList artists={galleryArtists || []} />

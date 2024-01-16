@@ -41,15 +41,7 @@ import ArtistCard from "../components/ArtistCard.tsx";
 export interface HomeProps {}
 
 type IconColor = SvgIconProps["color"];
-const ShowcaseBox = ({
-  children,
-  title,
-  md,
-}: {
-  children: ReactNode;
-  title?: string;
-  md?: number;
-}) => {
+const ShowcaseBox = ({ children, title, md }: { children: ReactNode; title?: string; md?: number }) => {
   return (
     <Grid item sm={12} md={md || 6} p={2}>
       <Paper
@@ -169,18 +161,10 @@ const Showcase: React.FC<HomeProps> = ({}) => {
             </IconButton>
           </Box>
           <Box display="flex" gap={2}>
-            <Button
-              variant="contained"
-              color="primary"
-              disabled
-              startIcon={<Add />}>
+            <Button variant="contained" color="primary" disabled startIcon={<Add />}>
               Disabled contained
             </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              disabled
-              startIcon={<Add />}>
+            <Button variant="outlined" color="primary" disabled startIcon={<Add />}>
               Disabled outlined
             </Button>
           </Box>
@@ -208,15 +192,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
           </Box>
         </ShowcaseBox>
         <ShowcaseBox title="Icons" md={9}>
-          {(
-            [
-              "inherit",
-              "primary",
-              "secondary",
-              "error",
-              "success",
-            ] as IconColor[]
-          ).map((color, index) => (
+          {(["inherit", "primary", "secondary", "error", "success"] as IconColor[]).map((color, index) => (
             <Box display="flex" key={index} flexDirection="row" gap={1}>
               <CheckIcon color={color} />
               <ErrorIcon color={color} />
@@ -238,15 +214,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
           ))}
         </ShowcaseBox>
         <ShowcaseBox title="Control icons" md={3}>
-          {(
-            [
-              "inherit",
-              "primary",
-              "secondary",
-              "error",
-              "success",
-            ] as IconColor[]
-          ).map((color, index) => (
+          {(["inherit", "primary", "secondary", "error", "success"] as IconColor[]).map((color, index) => (
             <Box display="flex" key={index} flexDirection="row" gap={1}>
               <CheckboxIcon color={color} />
               <CheckboxIcon color={color} disabled />
@@ -263,10 +231,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
           {inputVariants.map((variant) => (
             <>
               <Box>
-                <span
-                  style={{ color: "grey", fontSize: "1em", fontWeight: "500" }}>
-                  {variant}
-                </span>
+                <span style={{ color: "grey", fontSize: "1em", fontWeight: "500" }}>{variant}</span>
               </Box>
               <Box display="flex" gap={2}>
                 <TextField label="Input" variant={variant} />
@@ -274,26 +239,13 @@ const Showcase: React.FC<HomeProps> = ({}) => {
               </Box>
               <Box display="flex" gap={2}>
                 <TextField label="Error" variant={variant} error />
-                <TextField
-                  label="Error"
-                  defaultValue="Error"
-                  variant={variant}
-                  error
-                />
+                <TextField label="Error" defaultValue="Error" variant={variant} error />
                 <TextField label="Success" variant={variant} color="success" />
               </Box>
               <Box display="flex" gap={2}>
                 <PasswordField variant={variant} defaultValue="Password" />
-                <PasswordField
-                  variant={variant}
-                  defaultValue="Password visibile"
-                  defaultVisible
-                />
-                <PasswordField
-                  variant={variant}
-                  helperText="Password con errore"
-                  error
-                />
+                <PasswordField variant={variant} defaultValue="Password visibile" defaultVisible />
+                <PasswordField variant={variant} helperText="Password con errore" error />
               </Box>
             </>
           ))}
@@ -322,18 +274,8 @@ const Showcase: React.FC<HomeProps> = ({}) => {
           </Box>
           <Box display="flex" flexDirection="row" gap={1}>
             <Chip label="Outlined" variant="outlined" size="small" />
-            <Chip
-              label="Primary"
-              color="primary"
-              variant="outlined"
-              size="small"
-            />
-            <Chip
-              label="Secondary"
-              color="secondary"
-              variant="outlined"
-              size="small"
-            />
+            <Chip label="Primary" color="primary" variant="outlined" size="small" />
+            <Chip label="Secondary" color="secondary" variant="outlined" size="small" />
           </Box>
           <Box display="flex" flexDirection="row" gap={1} mt={0}>
             <Chip label="Error" color="error" size="small" />
@@ -346,6 +288,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
             <div>
               <ArtworkCard
                 id=""
+                slug=""
                 artistName="Nome dell'artista"
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 galleryName="Nome della galleria"
@@ -356,6 +299,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
             <div>
               <ArtworkCard
                 id=""
+                slug=""
                 artistName="Nome dell'artista"
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 galleryName="Nome della galleria"
@@ -365,6 +309,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
             <div>
               <ArtworkCard
                 id=""
+                slug=""
                 artistName="Nome dell'artista"
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 galleryName="Nome della galleria"
@@ -375,6 +320,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
             <div>
               <ArtworkCard
                 id=""
+                slug="slug"
                 artistName="Nome dell'artista"
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 size="medium"
@@ -386,6 +332,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
             <div>
               <ArtworkCard
                 id=""
+                slug="slug"
                 artistName="Nome dell'artista"
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 galleryName="Nome della galleria"
@@ -396,6 +343,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
             <div>
               <ArtworkCard
                 id=""
+                slug="slug"
                 artistName="Nome dell'artista"
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 size="large"
@@ -405,20 +353,10 @@ const Showcase: React.FC<HomeProps> = ({}) => {
           </Box>
           <Box display="flex" gap={2}>
             <div>
-              <ArtistCard
-                id=""
-                title="Nome dell'artista"
-                subtitle="Torino, 1984"
-                isFavourite={false}
-              />
+              <ArtistCard id="" title="Nome dell'artista" subtitle="Torino, 1984" isFavourite={false} />
             </div>
             <div>
-              <ArtistCard
-                id=""
-                title="Nome dell'artista"
-                subtitle="Torino, 1984"
-                isFavourite={true}
-              />
+              <ArtistCard id="" title="Nome dell'artista" subtitle="Torino, 1984" isFavourite={true} />
             </div>
           </Box>
         </ShowcaseBox>

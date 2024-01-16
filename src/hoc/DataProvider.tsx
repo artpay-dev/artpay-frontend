@@ -14,6 +14,7 @@ export interface DataContext {
   getGalleryBySlug(slug: string): Promise<Gallery>;
   getArtwork(id: string): Promise<Artwork>;
   getArtworkBySlug(slug: string): Promise<Artwork>;
+  listArtworks(): Promise<Artwork[]>;
   listArtworksForArtist(galleryId: string): Promise<Artwork[]>;
   listArtworksForGallery(galleryId: string): Promise<Artwork[]>;
   listArtistsForGallery(galleryId: string): Promise<Artist[]>;
@@ -32,6 +33,7 @@ const defaultContext: DataContext = {
   getGalleryBySlug: () => Promise.reject("Data provider loaded"),
   getArtwork: () => Promise.reject("Data provider loaded"),
   getArtworkBySlug: () => Promise.reject("Data provider loaded"),
+  listArtworks: () => Promise.reject("Data provider loaded"),
   listArtworksForArtist: () => Promise.reject("Data provider loaded"),
   listArtworksForGallery: () => Promise.reject("Data provider loaded"),
   listArtistsForGallery: () => Promise.reject("Data provider loaded"),
@@ -122,14 +124,21 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(`${baseUrl}/wp-json/mvx/v1/vendors`);
       return resp.data;
     },
+    async listArtworks(): Promise<Artwork[]> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<Artwork[]>>(`${baseUrl}/wp-json/wc/v3/products`);
+
+      return resp.data;
+    },
     async listArtworksForGallery(galleryId: string): Promise<Artwork[]> {
       const resp = await axios.get<SignInFormData, AxiosResponse<Artwork[]>>(
-        `${baseUrl}/wp-json/wc/v3/products?vendor_id=${galleryId}`,
+        `${baseUrl}/wp-json/wc/v2/products/?vendor=[${galleryId}]`,
       );
 
       return resp.data;
     },
     async listArtworksForArtist(artistId: string): Promise<Artwork[]> {
+      //TODO: listArtworksForArtist filter
+      console.log("artistId", artistId);
       const resp = await axios.get<SignInFormData, AxiosResponse<Artwork[]>>(`${baseUrl}/wp-json/wc/v3/products`);
       return resp.data;
     },

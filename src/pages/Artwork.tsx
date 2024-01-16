@@ -17,6 +17,7 @@ import ArtistDetails from "../components/ArtistDetails.tsx";
 import { Artist } from "../types/artist.ts";
 import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
 import FavouriteIcon from "../components/icons/FavouriteIcon.tsx";
+import GalleryHeader from "../components/GalleryHeader.tsx";
 
 export interface ArtworkProps {}
 
@@ -82,29 +83,16 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
     });
   }, [data, navigate, urlParams.id, urlParams.slug_opera, urlParams.slug_galleria]);
 
-  const topBar = (
-    <Box
-      mt={12}
-      sx={{ borderBottom: "1px solid #666F7A", px: { xs: 8 }, pb: 1, mt: { xs: 8, sm: 12 } }}
-      gap={2}
-      display="flex">
-      <img className="borderRadius" src={galleryDetails?.shop?.image} style={{ maxHeight: "72px" }} />
-      <Box display="flex" flexDirection="column" justifyContent="center" gap={0.5}>
-        <Typography
-          variant="h4"
-          style={{ cursor: "pointer" }}
-          onClick={() => navigate(`/gallerie/${galleryDetails?.nice_name}`)}>
-          {galleryDetails?.display_name}
-        </Typography>
-        <Typography sx={{ typography: { sm: "subtitle1", xs: "h6" } }} variant="subtitle1" color="textSecondary">
-          {galleryDetails?.address?.city}, {galleryDetails?.address?.country}
-        </Typography>
-      </Box>
-    </Box>
-  );
-
   return (
-    <DefaultLayout pageLoading={!isReady} topBar={topBar}>
+    <DefaultLayout
+      pageLoading={!isReady}
+      topBar={
+        <GalleryHeader
+          slug={galleryDetails?.nice_name || ""}
+          logo={galleryDetails?.shop?.image || ""}
+          displayName={galleryDetails?.display_name || ""}
+        />
+      }>
       <Grid sx={{ p: 0, maxWidth: "1440px", mt: 1, justifyContent: "center" }} container>
         <Grid
           item

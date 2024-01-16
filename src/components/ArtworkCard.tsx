@@ -67,12 +67,14 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
               {artistName || "-"}
             </Typography>
             <Typography
+              onClick={onClick}
               variant={titleVariant}
               sx={{
                 mt: 0.5,
                 mb: 1,
                 maxWidth: textMaxWidth,
                 minHeight: "50px",
+                cursor: "pointer",
               }}>
               {title}
             </Typography>
