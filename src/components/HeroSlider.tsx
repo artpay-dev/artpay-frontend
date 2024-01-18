@@ -25,19 +25,19 @@ const HeroSlider: React.FC<HeroSliderProps> = ({}) => {
   useEffect(() => {
     setSlides([
       {
-        imgUrl: "/public/gallery_example.jpg",
+        imgUrl: "/gallery_example.jpg",
         subtitle:
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
         title: "Da oggi l’arte a portata di clic",
       },
       {
-        imgUrl: "/public/gallery-event.jpg",
+        imgUrl: "/gallery-event.jpg",
         subtitle:
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
         title: "Slide 2",
       },
       {
-        imgUrl: "/public/gallery_example.jpg",
+        imgUrl: "/gallery_example.jpg",
         subtitle: "",
         title: "Slide 3",
       },
@@ -48,9 +48,9 @@ const HeroSlider: React.FC<HeroSliderProps> = ({}) => {
     <Box
       sx={{
         width: "100%",
-        //height: { xs: "600px" },
+        height: { xs: "auto" },
         pt: { xs: 3, md: 14 },
-        pb: { xs: 2, md: 3 },
+        pb: { xs: 4, md: 3 },
         px: { xs: 2, md: 6, lg: 12 },
         background: theme.palette.primary.main,
       }}
@@ -71,7 +71,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({}) => {
           modules={[Navigation]}
           className="heroSwiper"
           loop
-          style={{ maxHeight: "100%" }}>
+          style={{ maxHeight: "calc(100% - 50px)" }}>
           {slides.map((slideProps, i) => (
             <SwiperSlide key={`slide-${i}`}>
               <HeroSlide {...slideProps} />

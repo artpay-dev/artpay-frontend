@@ -11,7 +11,7 @@ export interface HeroArtworkProps {
   onClick?: () => void;
 }
 
-const HeroArtwork: React.FC<HeroArtworkProps> = ({ sx = {}, cta, imgUrl, title, subtitle, onClick }) => {
+const PromoBig: React.FC<HeroArtworkProps> = ({ sx = {}, cta, imgUrl, title, subtitle, onClick }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -55,4 +55,4 @@ const HeroArtwork: React.FC<HeroArtworkProps> = ({ sx = {}, cta, imgUrl, title, 
   );
 };
 
-export default HeroArtwork;
+export default PromoBig;

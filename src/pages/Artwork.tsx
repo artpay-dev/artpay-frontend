@@ -4,7 +4,7 @@ import DefaultLayout from "../components/DefaultLayout";
 import { useData } from "../hoc/DataProvider.tsx";
 import { useNavigate, useParams } from "react-router-dom";
 import { Artwork } from "../types/artwork.ts";
-import HeroArtwork from "../components/HeroArtwork.tsx";
+import PromoBig from "../components/PromoBig.tsx";
 import TabPanel from "../components/TabPanel.tsx";
 import ArtworksList from "../components/ArtworksList.tsx";
 import ArtworkDetails from "../components/ArtworkDetails.tsx";
@@ -38,7 +38,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const artworkCertificate = artwork ? data.getCategoryMapValues(artwork, "certificato").join(" ") : "";
   const artworkUnique = artwork ? data.getCategoryMapValues(artwork, "rarita").join(" ") : "";
 
-  const heroImgUrl = artwork?.images.length ? artwork.images[artwork.images.length - 1].src : "";
+  const heroImgUrl = artwork?.images.length ? artwork.images[0].src : "";
 
   const handleGalleryArtworkSelect = (i: number) => {
     if (galleryDetails && galleryArtworks && galleryArtworks[i]) {
@@ -175,7 +175,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
           </Box>
         </Grid>
       </Grid>
-      <HeroArtwork
+      <PromoBig
         title={"Vuoi acquistare a rate?"}
         subtitle={
           "Se ti interessa quest’opera puoi bloccarla in esclusiva per 24 ore. Clicca qui e scegli se procedere all’iter di finanziamento direttamente dalla tua area personale."

@@ -32,3 +32,40 @@ body {
 .borderRadius {
   border-radius: 5px;
 }
+
+.promoSmall {
+  position: relative;
+  &-contrast {
+    p, div {
+      z-index: 1;
+    }
+    &:after {
+      position: absolute;
+      top: 0;
+      left: 0;
+      content: ' ';
+      background: rgba(0,0,0,0.5);
+      height: 100%;
+      width: 100%;
+    }
+    &:hover {
+      &:after {
+        content: ' ';
+        background: rgba(0,0,0,0.6);
+      }
+    }
+  }
+  &-standard{
+    &:hover {
+      &:after {
+        position: absolute;
+        top: 0;
+        left: 0;
+        content: ' ';
+        background: rgba(255,255,255,0.2);
+        height: 100%;
+        width: 100%;
+      }
+    }
+  }
+}

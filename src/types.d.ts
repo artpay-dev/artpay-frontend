@@ -47,6 +47,11 @@ declare module "@mui/material/styles" {
     contrast: PaletteColorOptions;
   }
 }
+declare module "@mui/material/SvgIcon" {
+  interface SvgIconPropsColorOverrides {
+    contrast: true;
+  }
+}
 
 declare module "@material-ui/core/styles/createPalette" {
   interface Palette {

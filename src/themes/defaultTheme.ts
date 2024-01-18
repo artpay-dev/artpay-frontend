@@ -92,6 +92,12 @@ const defaultTheme: Theme = createTheme({
           height: "18px",
           minWidth: 0,
         },
+        sizeLarge: {
+          height: "65px",
+          minWidth: "160px",
+          borderRadius: "33px",
+          fontSize: "24px",
+        },
       },
     },
     MuiIconButton: {
