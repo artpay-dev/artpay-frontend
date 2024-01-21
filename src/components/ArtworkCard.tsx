@@ -10,6 +10,7 @@ export interface ArtworkCardProps {
   title: string;
   slug: string;
   galleryName: string;
+  galleryId: string;
   price?: number;
   size?: CardSize;
   imgUrl?: string;

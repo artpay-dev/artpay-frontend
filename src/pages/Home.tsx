@@ -11,16 +11,32 @@ import { artistsToGalleryItems, artworksToGalleryItems } from "../utils.ts";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import { ArtistCardProps } from "../components/ArtistCard.tsx";
 import ArtistsList from "../components/ArtistsList.tsx";
+import { useNavigate } from "react-router-dom";
 
 export interface HomeProps {}
 
 const Home: React.FC<HomeProps> = ({}) => {
   const data = useData();
+  const navigate = useNavigate();
 
   const [featuredArtworks, setFeaturedArtworks] = useState<ArtworkCardProps[]>();
   const [featuredArtists, setFeaturedArtists] = useState<ArtistCardProps[]>();
   const [homeContent, setHomeContent] = useState<HomeContent>();
   const [isReady, setIsReady] = useState(false);
+
+  const handleSelectArtwork = (item?: ArtworkCardProps) => {
+    if (item) {
+      setIsReady(false);
+      data
+        .getGallery(item.galleryId)
+        .then((gallery) => {
+          navigate(`/gallerie/${gallery.shop?.slug}/opere/${item.slug}`);
+        })
+        .catch(() => {
+          setIsReady(true);
+        });
+    }
+  };
 
   useEffect(() => {
     Promise.all([
@@ -49,7 +65,14 @@ const Home: React.FC<HomeProps> = ({}) => {
     <DefaultLayout pageLoading={!isReady} maxWidth={false}>
       <HeroSlider slides={homeContent?.heroSlides} />
       <Grid sx={{ px: 6, mt: 4 }} container>
-        <ArtworksList items={featuredArtworks || []} title="Opere in evidenza" showEmpty />
+        {featuredArtworks && (
+          <ArtworksList
+            items={featuredArtworks || []}
+            onSelect={(i) => handleSelectArtwork(featuredArtworks[i])}
+            title="Opere in evidenza"
+            showEmpty
+          />
+        )}
       </Grid>
       <Grid spacing={4} sx={{ mt: 4 }} justifyContent="center" container>
         {homeContent?.promoItems.map((promoItem, i) => <PromoItem key={`promo-${i}`} {...promoItem} />)}

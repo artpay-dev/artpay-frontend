@@ -22,6 +22,7 @@ export const artworkToGalleryItem = (artwork: Artwork, cardSize?: CardSize): Art
   return {
     id: artwork.id.toString(),
     artistName: getPropertyFromMetadata(artwork.meta_data, "artist")?.artist_name,
+    galleryId: artwork.vendor,
     galleryName: artwork.store_name,
     price: +artwork.price,
     size: cardSize,
