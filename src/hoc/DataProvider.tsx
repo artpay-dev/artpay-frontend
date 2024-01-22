@@ -217,7 +217,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       return resp.data;
     },
     async getArtworkBySlug(slug: string): Promise<Artwork> {
-      const resp = await axios.get<SignInFormData, AxiosResponse<Artwork[]>>(
+      const resps = await axios.get<SignInFormData, AxiosResponse<Artwork[]>>(
         `${baseUrl}/wp-json/wc/v3/products?slug=${slug}`,
       );
       if (!resp.data?.length) {

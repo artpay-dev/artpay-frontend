@@ -284,7 +284,9 @@ const defaultTheme: Theme = createTheme({
     },
     MuiDialog: {
       styleOverrides: {
+        paper: {},
         paperWidthSm: {
+          borderRadius: "8px!important",
           maxWidth: "530px",
         },
       },
@@ -293,6 +295,13 @@ const defaultTheme: Theme = createTheme({
       styleOverrides: {
         root: {
           padding: "0 48px",
+        },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          padding: "8px",
         },
       },
     },

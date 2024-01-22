@@ -18,6 +18,7 @@ import { Artist } from "../types/artist.ts";
 import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
 import FavouriteIcon from "../components/icons/FavouriteIcon.tsx";
 import GalleryHeader from "../components/GalleryHeader.tsx";
+import { useDialogs } from "../hoc/DialogProvider.tsx";
 
 export interface ArtworkProps {}
 
@@ -33,6 +34,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const data = useData();
   const urlParams = useParams();
   const navigate = useNavigate();
+  const dialogs = useDialogs();
 
   const artworkTechnique = artwork ? data.getCategoryMapValues(artwork, "tecnica").join(" ") : "";
   const artworkCertificate = artwork ? data.getCategoryMapValues(artwork, "certificato").join(" ") : "";
@@ -45,6 +47,10 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       setIsReady(false);
       navigate(`/gallerie/${galleryDetails.shop?.slug}/opere/${galleryArtworks[i].slug}`);
     }
+  };
+
+  const handleShare = async () => {
+    await dialogs.share("/");
   };
 
   useEffect(() => {
@@ -139,7 +145,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
             <IconButton>
               <FavouriteIcon color="primary" />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={handleShare}>
               <Share color="primary" />
             </IconButton>
           </Box>
