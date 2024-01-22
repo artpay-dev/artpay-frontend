@@ -68,7 +68,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
         {auth.isAuthenticated ? (
           <>
             <Typography sx={{ mr: 2 }} variant="body2" color="primary">
-              Ciao Niccolò
+              Ciao {auth.user?.username}
             </Typography>
             <IconButton onClick={() => auth.logout()} color="primary">
               <UserIcon color="primary" />

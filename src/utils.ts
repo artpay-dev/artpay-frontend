@@ -9,6 +9,7 @@ import { Media } from "./types/media.ts";
 import { HeroSlideItem } from "./components/HeroSlide.tsx";
 import { Cta } from "./types/ui.ts";
 import { PromoComponentType, PromoItemProps } from "./components/PromoItem.tsx";
+import { User, UserInfo } from "./types/user.ts";
 
 export const getPropertyFromMetadata = (metadata: MetadataItem[], key: string): { [key: string]: string } => {
   const item = metadata.find((p) => p.key === key);
@@ -16,6 +17,14 @@ export const getPropertyFromMetadata = (metadata: MetadataItem[], key: string): 
     return {};
   }
   return typeof item.value === "object" ? item.value : { value: item.value };
+};
+
+export const userToUserInfo = (user: User): UserInfo => {
+  return {
+    email: user.email,
+    id: user.id,
+    username: user.name,
+  };
 };
 
 export const artworkToGalleryItem = (artwork: Artwork, cardSize?: CardSize): ArtworkCardProps => {

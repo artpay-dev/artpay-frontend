@@ -94,7 +94,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
       };*/
 
   return (
-    <DefaultLayout pageLoading={!isReady || !galleryContent}>
+    <DefaultLayout pageLoading={!isReady || !galleryContent} authRequired>
       <Grid sx={{ p: 0, maxWidth: "1440px" }} container>
         <Grid
           item

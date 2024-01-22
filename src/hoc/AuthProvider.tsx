@@ -1,14 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
-import {
-  Dialog,
-  DialogContent,
-  IconButton,
-  Typography,
-  Button,
-  Box,
-  Divider,
-} from "@mui/material";
+import { Box, Button, Dialog, DialogContent, Divider, IconButton, Typography } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import Logo from "../components/icons/Logo";
 import LinkButton from "../components/LinkButton.tsx";
@@ -17,74 +9,8 @@ import SignInForm, { SignInFormData } from "../components/SignInForm.tsx";
 import AppleIcon from "../components/icons/AppleIcon.tsx";
 import GoogleIcon from "../components/icons/GoogleIcon.tsx";
 import FacebookIcon from "../components/icons/FacebookIcon.tsx";
-
-export interface UserInfo {
-  id: number;
-  username: string;
-  email: string;
-}
-
-type User = {
-  id: number;
-  username: string;
-  name: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  url: string;
-  description: string;
-  link: string;
-  locale: string;
-  nickname: string;
-  slug: string;
-  roles: string[];
-  registered_date: string;
-  capabilities: {
-    [key: string]: boolean;
-    edit_shop_order: boolean;
-    edit_shop_orders: boolean;
-    edit_users: boolean;
-    list_roles: boolean;
-    list_users: boolean;
-    publish_shop_orders: boolean;
-    read: boolean;
-    read_private_products: boolean;
-    read_private_shop_coupons: boolean;
-    read_product: boolean;
-    read_shop_coupon: boolean;
-    read_shop_order: boolean;
-    customer: boolean;
-  };
-  extra_capabilities: {
-    customer: boolean;
-  };
-  avatar_urls: {
-    "24": string;
-    "48": string;
-    "96": string;
-  };
-  meta: {
-    persisted_preferences: unknown[]; // You might want to replace 'any' with a more specific type
-  };
-  wc_api_user_keys: {
-    consumer_key: string;
-    consumer_secret: string;
-  };
-  acf: unknown[]; // You might want to replace 'any' with a more specific type
-  is_super_admin: boolean;
-  woocommerce_meta: {
-    [key: string]: string;
-    // Add more specific types if known
-  };
-  _links: {
-    self: {
-      href: string;
-    }[];
-    collection: {
-      href: string;
-    }[];
-  };
-};
+import { User, UserInfo } from "../types/user.ts";
+import { userToUserInfo } from "../utils.ts";
 
 type RequestError = {
   message?: string;
@@ -117,13 +43,7 @@ const getGuestAuth = () => {
   const credentials = btoa(GUEST_CONSUMER_KEY + ":" + GUEST_CONSUMER_SECRET);
   return "Basic " + credentials;
 };
-const getWcCredentials = ({
-  consumer_key,
-  consumer_secret,
-}: {
-  consumer_key: string;
-  consumer_secret: string;
-}) => {
+const getWcCredentials = ({ consumer_key, consumer_secret }: { consumer_key: string; consumer_secret: string }) => {
   const wcCredentials = btoa(`${consumer_key}:${consumer_secret}`);
   const authToken = "Basic " + wcCredentials;
   return authToken;
@@ -141,10 +61,7 @@ const Context = createContext<AuthContext>({
   getGuestAuth: () => getGuestAuth(),
 });
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({
-  children,
-  baseUrl = "",
-}) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = "" }) => {
   const userInfoUrl = `${baseUrl}/api/users/me`;
   const loginUrl = `${baseUrl}/wp-json/wp/v2/users/me`;
   const signUpUrl = `${baseUrl}/wp-json/wp/v2/users`;
@@ -163,10 +80,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const login = async ({ email, password }: SignInFormData) => {
     setIsLoading(true);
     try {
-      const resp = await axios.get<SignInFormData, AxiosResponse<User>>(
-        loginUrl,
-        { auth: { username: email, password } },
-      );
+      const resp = await axios.get<SignInFormData, AxiosResponse<User>>(loginUrl, {
+        auth: { username: email, password },
+      });
       /*const userInfoResp = await axios.get<object, AxiosResponse<UserInfo>>(
         userInfoUrl,
         { headers: { Authorization: `Bearer ${resp.data.jwt}` } },
@@ -174,10 +90,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       // TODO: save user to local storage
       // await storage.set('auth', JSON.stringify({jwt: resp.data.jwt, user: userInfoResp.data})) //TODO: local storage
       localStorage.setItem(userStorageKey, JSON.stringify(resp.data));
+      console.log("userinfo", resp.data);
       setAuthValues({
         ...authValues,
         isAuthenticated: true,
-        user: resp.data,
+        user: userToUserInfo(resp.data),
         wcToken: getWcCredentials(resp.data.wc_api_user_keys),
       });
       setLoginOpen(false);
@@ -204,25 +121,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     const credentials = btoa(GUEST_CONSUMER_KEY + ":" + GUEST_CONSUMER_SECRET);
     const basicAuth = "Basic " + credentials;
     try {
-      const resp = await axios.post<
-        SignUpFormData,
-        AxiosResponse<User, RequestError>
-      >(
+      const resp = await axios.post<SignUpFormData, AxiosResponse<User, RequestError>>(
         signUpUrl,
         { email, username, password },
         { headers: { Authorization: basicAuth } },
       );
       if (resp.status > 299) {
         setIsLoading(false);
-        throw (
-          (resp.data as RequestError)?.message || "Si è verificato un errore"
-        );
+        throw (resp.data as RequestError)?.message || "Si è verificato un errore";
       }
       localStorage.setItem(userStorageKey, JSON.stringify(resp.data));
       setAuthValues({
         ...authValues,
         isAuthenticated: true,
-        user: resp.data,
+        user: userToUserInfo(resp.data),
         wcToken: getWcCredentials(resp.data.wc_api_user_keys),
       });
       setLoginOpen(false);
@@ -281,7 +193,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       const userObj: User = JSON.parse(userStr);
 
       setAuthValues({
-        user: userObj,
+        user: userToUserInfo(userObj),
         isAuthenticated: true,
         isLoading: false,
         wcToken: getWcCredentials(userObj.wc_api_user_keys),
@@ -302,11 +214,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   return (
     <Context.Provider value={state}>
       {authValues.isLoading ? <></> : children}
-      <Dialog
-        onClose={() => setLoginOpen(false)}
-        aria-labelledby="auth-dialog-title"
-        maxWidth="sm"
-        open={loginOpen}>
+      <Dialog onClose={() => setLoginOpen(false)} aria-labelledby="auth-dialog-title" maxWidth="sm" open={loginOpen}>
         <Box px={6} pt={6} alignItems="center" display="flex">
           <Logo />
           <Box flexGrow={1} />
@@ -318,9 +226,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           </IconButton>
         </Box>
         <DialogContent sx={{ pt: 2, pb: 6 }}>
-          <Typography variant="h6">
-            Qui possiamo mettere payoff / claim di artpay
-          </Typography>
+          <Typography variant="h6">Qui possiamo mettere payoff / claim di artpay</Typography>
           {isSignIn ? (
             <SignInForm disabled={isLoading} onSubmit={login} />
           ) : (
@@ -334,9 +240,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
             <Button variant="outlined" endIcon={<GoogleIcon color="primary" />}>
               Continua con Google
             </Button>
-            <Button
-              variant="outlined"
-              endIcon={<FacebookIcon color="primary" />}>
+            <Button variant="outlined" endIcon={<FacebookIcon color="primary" />}>
               Continua con Facebook
             </Button>
           </Box>

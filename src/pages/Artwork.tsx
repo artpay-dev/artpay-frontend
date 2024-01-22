@@ -92,6 +92,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   return (
     <DefaultLayout
       pageLoading={!isReady}
+      authRequired
       topBar={
         <GalleryHeader
           slug={galleryDetails?.nice_name || ""}

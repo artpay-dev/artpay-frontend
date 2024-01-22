@@ -30,9 +30,11 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
 
   useEffect(() => {
     if (authRequired && !auth.isAuthenticated) {
+      auth.login();
       //TODO: redirect to login
+    } else {
+      setReady(true);
     }
-    setReady(true);
   }, [auth.isAuthenticated, authRequired]);
 
   useEffect(() => {
