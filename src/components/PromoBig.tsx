@@ -33,6 +33,7 @@ const PromoBig: React.FC<PromoBigProps> = ({ sx = {}, cta, imgUrl, title, conten
         <Box
           sx={{
             minHeight: { xs: "auto", md: "550px" },
+            display: { xs: imgUrl ? "block" : "none", md: "block" },
             borderRadius: "5px",
             background: imgUrl ? "" : theme.palette.primary.light,
             pt: { xs: 3, md: 0 },

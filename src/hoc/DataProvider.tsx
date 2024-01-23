@@ -6,11 +6,13 @@ import { Artwork } from "../types/artwork.ts";
 import { Artist } from "../types/artist.ts";
 import { Category, CategoryGroup, CategoryMap } from "../types/category.ts";
 import { useAuth } from "./AuthProvider.tsx";
-import { Post, PostCategory, PostCategoryMap } from "../types/post.ts";
+import { FavouritesMap, Post, PostCategory, PostCategoryMap } from "../types/post.ts";
 import { Media } from "../types/media.ts";
 import { postAndMediaToHeroSlide, postAndMediaToPromoItem } from "../utils.ts";
 import { HomeContent } from "../types/home.ts";
 import { PromoComponentType } from "../components/PromoItem.tsx";
+// @ts-expect-error no type definitions for console
+import * as console from "console";
 
 export interface ArtworksFilter {
   featured?: boolean;
@@ -45,6 +47,18 @@ export interface DataContext {
   getArtist(id: string): Promise<Artist>;
 
   getCategoryMapValues(artwork: Artwork, key: string): string[];
+
+  getFavouriteArtists(): Promise<number[]>;
+  addFavouriteArtist(id: string): Promise<number[]>;
+  removeFavouriteArtist(id: string): Promise<number[]>;
+
+  getFavouriteArtworks(): Promise<number[]>;
+  addFavouriteArtwork(id: string): Promise<number[]>;
+  removeFavouriteArtwork(id: string): Promise<number[]>;
+
+  getFavouriteGalleries(): Promise<number[]>;
+  addFavouriteGallery(id: string): Promise<number[]>;
+  removeFavouriteGallery(id: string): Promise<number[]>;
 }
 
 export interface DataProviderProps extends React.PropsWithChildren {
@@ -66,6 +80,19 @@ const defaultContext: DataContext = {
   listFeaturedArtists: () => Promise.reject("Data provider loaded"),
   listArtistsForGallery: () => Promise.reject("Data provider loaded"),
   getArtist: () => Promise.reject("Data provider loaded"),
+
+  getFavouriteArtists: () => Promise.reject("Data provider loaded"),
+  addFavouriteArtist: () => Promise.reject("Data provider loaded"),
+  removeFavouriteArtist: () => Promise.reject("Data provider loaded"),
+
+  getFavouriteArtworks: () => Promise.reject("Data provider loaded"),
+  addFavouriteArtwork: () => Promise.reject("Data provider loaded"),
+  removeFavouriteArtwork: () => Promise.reject("Data provider loaded"),
+
+  getFavouriteGalleries: () => Promise.reject("Data provider loaded"),
+  addFavouriteGallery: () => Promise.reject("Data provider loaded"),
+  removeFavouriteGallery: () => Promise.reject("Data provider loaded"),
+
   getCategoryMapValues: () => [],
 };
 
@@ -75,6 +102,11 @@ const CategoryMapStorageKey = "CategoryMap";
 const Context = createContext<DataContext>({ ...defaultContext });
 const categoryMap: CategoryMap = {};
 const postCategoryMap: PostCategoryMap = {};
+const favouritesMap: FavouritesMap = {
+  galleries: null,
+  artists: null,
+  artworks: null,
+};
 export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl }) => {
   const [isLoading, setIsLoading] = useState(true);
   //const [categoryMap, setCategoryMap] = useState<CategoryMap | undefined>();
@@ -125,7 +157,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       localStorage.setItem(CategoryMapStorageKey, JSON.stringify(categoryMap));
       return categoryMap;
     };
-
     const loadPostCategories = async (): Promise<PostCategoryMap> => {
       const cachedPostCategoryMap = localStorage.getItem(PostCategoryMapStorageKey);
       if (cachedPostCategoryMap) {
@@ -296,6 +327,62 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       const childrenIds = categoryGroup.children.map((c) => c.id);
 
       return artwork.categories.filter((c) => childrenIds.indexOf(c.id) !== -1).map((c) => c.name);
+    },
+    async getFavouriteArtists(): Promise<number[]> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/getUserFavoriteArtists`,
+      );
+      return resp.data;
+    },
+    async addFavouriteArtist(id: string): Promise<number[]> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/addUserFavoriteArtist/${id}`,
+      );
+      return resp.data;
+    },
+    async removeFavouriteArtist(id: string): Promise<number[]> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/removeUserFavoriteArtist/${id}`,
+      );
+      return resp.data;
+    },
+
+    async getFavouriteArtworks(): Promise<number[]> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/getUserFavoriteArtworks`,
+      );
+      return resp.data;
+    },
+    async addFavouriteArtwork(id: string): Promise<number[]> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/addUserFavoriteArtwork/${id}`,
+      );
+      return resp.data;
+    },
+    async removeFavouriteArtwork(id: string): Promise<number[]> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/removeUserFavoriteArtwork/${id}`,
+      );
+      return resp.data;
+    },
+
+    async getFavouriteGalleries(): Promise<number[]> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/getUserFavoriteGalleries`,
+      );
+      return resp.data;
+    },
+    async addFavouriteGallery(id: string): Promise<number[]> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/addUserFavoriteGallery/${id}`,
+      );
+      return resp.data;
+    },
+    async removeFavouriteGallery(id: string): Promise<number[]> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/removeUserFavoriteGallery/${id}`,
+      );
+      return resp.data;
     },
   };
 

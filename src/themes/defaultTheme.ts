@@ -4,6 +4,15 @@ import { Theme } from "../types";
 type PaletteColor = "primary" | "secondary" | "info" | "error";
 
 const defaultTheme: Theme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1280,
+      xl: 1440,
+    },
+  },
   palette: {
     primary: {
       light: "#B1BAF6",
@@ -347,7 +356,17 @@ const defaultTheme: Theme = createTheme({
 // @ts-expect-error custom theme
 const responsiveTheme = createTheme(defaultTheme, {
   typography: {
+    h3: {
+      [defaultTheme.breakpoints.only("xs")]: {
+        fontSize: "40px",
+      },
+    },
     h4: {
+      [defaultTheme.breakpoints.only("xs")]: {
+        fontSize: "36px",
+      },
+    },
+    h5: {
       [defaultTheme.breakpoints.only("xs")]: {
         fontSize: "25px",
       },

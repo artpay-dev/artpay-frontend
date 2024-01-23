@@ -2,6 +2,12 @@ export type PostCategoryMap = {
   [slug: string]: PostCategory;
 };
 
+export type FavouritesMap = {
+  galleries: string[] | null;
+  artists: string[] | null;
+  artworks: string[] | null;
+};
+
 export type PostCategory = {
   id: number;
   count: number;

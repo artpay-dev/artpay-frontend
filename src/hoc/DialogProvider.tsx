@@ -158,7 +158,7 @@ export const DialogProvider: React.FC<DialogProviderProps> = ({ children }) => {
         };
 
         return (
-          <Box display="flex" gap={2}>
+          <Box display="flex" sx={{ flexDirection: { xs: "column", md: "row" } }} gap={2}>
             <Button href={`https://web.whatsapp.com/send?text=${link}`} target="_blank" startIcon={<FaWhatsapp />}>
               Whatsapp
             </Button>

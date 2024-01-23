@@ -51,13 +51,23 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ slides = [] }) => {
         background: theme.palette.primary.main,
       }}
       display="flex"
+      alignItems="center"
       flexDirection="column">
-      <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
-        <Box sx={{ display: { xs: "none", md: "flex" }, mb: 2, ml: -2 }} gap={2}>
-          <IconButton onClick={handlePrev} variant="contained">
+      <Box sx={{ width: "100%", height: "100%", position: "relative", maxWidth: `${theme.breakpoints.values.xl}px` }}>
+        <Box
+          sx={{
+            display: { xs: "flex", md: "flex" },
+            position: { xs: "absolute", md: "static" },
+            zIndex: 5,
+            right: 0,
+            mb: 2,
+            ml: -2,
+            gap: { xs: 1, sm: 2 },
+          }}>
+          <IconButton onClick={handlePrev} variant="contained" size="small">
             <ChevronLeft color="primary" />
           </IconButton>
-          <IconButton onClick={handleNext} variant="contained">
+          <IconButton onClick={handleNext} variant="contained" size="small">
             <ChevronRight color="primary" />
           </IconButton>
         </Box>

@@ -11,19 +11,14 @@ export interface CardListProps {
   showEmpty?: boolean;
 }
 
-const CardList: React.FC<CardListProps> = ({
-  title,
-  children = [],
-  cardSize = "medium",
-  showEmpty = false,
-}) => {
+const CardList: React.FC<CardListProps> = ({ title, children = [], cardSize = "medium", showEmpty = false }) => {
   if (!showEmpty && !children?.length) {
     return <></>;
   }
   return (
     <Box sx={{ px: { xs: 3, md: 6 }, maxWidth: "100%" }}>
       {title && (
-        <Typography sx={{ mb: { xs: 3, md: 6 } }} variant="h3">
+        <Typography sx={{ mb: { xs: 3, md: 6 }, typography: { xs: "h4", sm: "h3" } }} variant="h3">
           {title}
         </Typography>
       )}
@@ -38,12 +33,7 @@ const CardList: React.FC<CardListProps> = ({
           flexWrap: { xs: "wrap", md: "nowrap" },
           justifyContent: { xs: "center", md: "flex-start" },*/
         }}>
-        <Swiper
-          slidesPerView={"auto"}
-          spaceBetween={30}
-          freeMode={true}
-          modules={[FreeMode]}
-          className="mySwiper">
+        <Swiper slidesPerView={"auto"} spaceBetween={30} freeMode={true} modules={[FreeMode]} className="mySwiper">
           {children.map((child, i) => (
             <SwiperSlide className={`SwiperCard-${cardSize}`} key={i}>
               {child}

@@ -118,8 +118,10 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
           />
         </Grid>
         <Grid item xs={12} p={3} md display="flex" justifyContent="flex-start" flexDirection="column">
-          <Typography sx={{ typography: { sm: "h1", xs: "h3" }, pr: { xs: 0, md: 5 } }}>{artwork?.name}</Typography>
-          <Typography variant="h4" color="textSecondary" sx={{ mt: 2 }}>
+          <Typography sx={{ typography: { sm: "h1", xs: "h3" }, pr: { xs: 0, md: 5 } }} variant="h3">
+            {artwork?.name}
+          </Typography>
+          <Typography variant="h4" color="textSecondary" sx={{ mt: 2, typography: { sm: "h4", xs: "h5" } }}>
             {getPropertyFromMetadata(artwork?.meta_data || [], "artist")?.artist_name}
           </Typography>
           <Typography color="textSecondary" sx={{ mt: 3, typography: { xs: "h6", md: "subtitle1" } }}>

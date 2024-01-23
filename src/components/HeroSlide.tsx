@@ -40,7 +40,13 @@ const HeroSlide: React.FC<HeroSlideProps> = ({ title, subtitle, imgUrl, cta, onC
         display="flex"
         flexDirection="column"
         justifyContent="flex-start">
-        <Typography variant="h3" color="white">
+        <Typography
+          variant="h3"
+          sx={{
+            typography: { xs: "h4", sm: "h3" },
+            maxWidth: { xs: "calc(100vw - 110px)", sm: "calc(100vw - 160px)", md: "auto" },
+          }}
+          color="white">
           {title}
         </Typography>
         <Typography
