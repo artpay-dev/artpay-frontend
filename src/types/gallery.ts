@@ -71,6 +71,7 @@ export type Gallery = {
 };
 
 export interface GalleryContent {
+  id: number;
   coverImage: string;
   title: string;
   logoImage: string;

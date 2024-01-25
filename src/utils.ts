@@ -69,6 +69,7 @@ export const artistPostToGalleryItem = (artist: ArtistPost): ArtistCardProps => 
 };
 
 export const galleryToGalleryContent = (gallery: Gallery): GalleryContent => ({
+  id: gallery.id,
   title: gallery.display_name,
   subtitle: `${gallery.address?.city}`,
   logoImage: gallery.shop?.image,

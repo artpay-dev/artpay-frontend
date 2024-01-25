@@ -294,6 +294,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
                 galleryName="Nome della galleria"
                 size="small"
                 price={20000}
+                galleryId={""}
               />
             </div>
             <div>
@@ -304,6 +305,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 galleryName="Nome della galleria"
                 size="small"
+                galleryId={""}
               />
             </div>
             <div>
@@ -315,6 +317,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
                 galleryName="Nome della galleria"
                 size="medium"
                 price={20000}
+                galleryId={""}
               />
             </div>
             <div>
@@ -325,6 +328,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 size="medium"
                 galleryName="Nome della galleria"
+                galleryId={""}
               />
             </div>
           </Box>
@@ -338,6 +342,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
                 galleryName="Nome della galleria"
                 size="large"
                 price={20000}
+                galleryId={""}
               />
             </div>
             <div>
@@ -348,6 +353,7 @@ const Showcase: React.FC<HomeProps> = ({}) => {
                 title="Titolo dell’opera d’arte esposta sul sito di Artpay"
                 size="large"
                 galleryName="Nome della galleria"
+                galleryId={""}
               />
             </div>
           </Box>

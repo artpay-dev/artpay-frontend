@@ -3,6 +3,7 @@ import { Box, Card, CardContent, CardMedia, IconButton, Typography, useMediaQuer
 import FavouriteIcon from "./icons/FavouriteIcon.tsx";
 import QrCodeIcon from "./icons/QrCodeIcon.tsx";
 import { CardSize } from "../types";
+import FavouriteFilledIcon from "./icons/FavouriteFilledIcon.tsx";
 
 export interface ArtworkCardProps {
   id: string;
@@ -11,10 +12,12 @@ export interface ArtworkCardProps {
   slug: string;
   galleryName: string;
   galleryId: string;
+  isFavourite?: boolean;
   price?: number;
   size?: CardSize;
   imgUrl?: string;
   onClick?: () => void;
+  onSetFavourite?: (currentValue: boolean) => void;
   mode?: "grid" | "list";
 }
 
@@ -31,7 +34,9 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
   price,
   size = "medium",
   imgUrl,
+  isFavourite = false,
   onClick,
+  onSetFavourite,
   mode = "list",
 }) => {
   const theme = useTheme();
@@ -48,6 +53,13 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
   const priceVariant = size === "large" ? "subtitle1" : "subtitle2";
   const textMaxWidth = size === "large" ? "190px" : "152px";
   const imgMargin = size === "small" ? 1 : 2;
+
+  const handleSetFavourite = () => {
+    if (onSetFavourite) {
+      onSetFavourite(isFavourite);
+    }
+  };
+
   return (
     <Card elevation={0} className={cardSizeClass} sx={{ height: mode === "list" ? "100%" : "auto" }}>
       <CardMedia
@@ -94,8 +106,12 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
             alignItems="end"
             justifyContent="space-between"
             sx={{ maxWidth: "20px" }}>
-            <IconButton size="small" sx={{ mt: -0.5 }}>
-              <FavouriteIcon fontSize="small" />
+            <IconButton onClick={() => handleSetFavourite()} size="small" sx={{ mt: -0.5 }}>
+              {isFavourite ? (
+                <FavouriteFilledIcon color="primary" fontSize="small" />
+              ) : (
+                <FavouriteIcon fontSize="small" />
+              )}
             </IconButton>
             <IconButton sx={{ mb: -1 }} size="medium">
               <QrCodeIcon color="primary" />

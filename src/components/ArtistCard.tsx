@@ -9,7 +9,9 @@ export interface ArtistCardProps {
   description?: string;
   artworksCount?: number;
   isFavourite?: boolean;
+  isLoading?: boolean;
   onClick?: () => void;
+  onSetFavourite?: (currentValue: boolean) => void;
   imgUrl?: string;
   mode?: "grid" | "list";
 }
@@ -18,15 +20,23 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
   title,
   subtitle,
   isFavourite = false,
+  isLoading = false,
   imgUrl,
   mode = "list",
   onClick,
+  onSetFavourite,
   // artworksCount = 0,
 }) => {
   const theme = useTheme();
   const imgHeight = "430px";
   const cardWidth = "320px";
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const handleSetFavourite = () => {
+    if (onSetFavourite) {
+      onSetFavourite(isFavourite);
+    }
+  };
 
   return (
     <Card elevation={0} className="SwiperCard-large" sx={{ minWidth: cardWidth }}>
@@ -51,15 +61,14 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column">
-            {isFavourite ? (
-              <IconButton color="primary" variant="outlined" size="small">
-                <Check />
-              </IconButton>
-            ) : (
-              <IconButton color="primary" variant="outlined" size="small">
-                <Add />
-              </IconButton>
-            )}
+            <IconButton
+              color="primary"
+              disabled={isLoading}
+              onClick={() => handleSetFavourite()}
+              variant={isFavourite ? "contained" : "outlined"}
+              size="small">
+              {isFavourite ? <Check /> : <Add />}
+            </IconButton>
           </Box>
         </Box>
       </CardContent>

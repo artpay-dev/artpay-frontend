@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ArtworkCard, { ArtworkCardProps } from "./ArtworkCard.tsx";
 import { CardItem, CardSize } from "../types";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Typography } from "@mui/material";
+import { useData } from "../hoc/DataProvider.tsx";
 
 export interface ArtworksGridProps {
   items: ArtworkCardProps[];
@@ -14,6 +15,13 @@ export interface ArtworksGridProps {
 
 const ArtworksGrid: React.FC<ArtworksGridProps> = ({ title, items, cardSize, onSelect, onLoadMore }) => {
   const navigate = useNavigate();
+  const data = useData();
+
+  const [favourites, setFavourites] = useState<number[]>([]);
+
+  useEffect(() => {
+    data.getFavouriteArtworks().then((resp) => setFavourites(resp));
+  }, [data]);
   const handleSelectArtwork = (index: number) => {
     const selectedArtwork = items[index];
     navigate(`/artwork/${selectedArtwork.id}`);
@@ -23,6 +31,25 @@ const ArtworksGrid: React.FC<ArtworksGridProps> = ({ title, items, cardSize, onS
       onLoadMore();
     }
   };
+  const handleSetFavourite = async (artworkId: string, isFavourite: boolean) => {
+    if (artworkId) {
+      try {
+        if (isFavourite) {
+          await data.removeFavouriteArtwork(artworkId).then((resp) => {
+            setFavourites(resp);
+          });
+        } else {
+          await data.addFavouriteArtwork(artworkId).then((resp) => {
+            setFavourites(resp);
+          });
+        }
+      } catch (e) {
+        //TODO: notify error
+        console.log(e);
+      }
+    }
+  };
+
   return (
     <Box sx={{ px: { xs: 0, md: 6 }, maxWidth: "100%" }}>
       {title && (
@@ -38,10 +65,10 @@ const ArtworksGrid: React.FC<ArtworksGridProps> = ({ title, items, cardSize, onS
           overflow: "auto",
           px: { xs: 1, sm: 4, md: 0 },
           /*          minHeight: "318px",
-                          flexDirection: { xs: "column", sm: "row" },
-                          { xs: "repeat(1, 1fr);", sm: "repeat(2, 1fr);", md: "repeat(3, 1fr);" }
-                          flexWrap: { xs: "wrap", md: "nowrap" }, ;
-                          justifyContent: { xs: "center", md: "flex-start" },*/
+                                    flexDirection: { xs: "column", sm: "row" },
+                                    { xs: "repeat(1, 1fr);", sm: "repeat(2, 1fr);", md: "repeat(3, 1fr);" }
+                                    flexWrap: { xs: "wrap", md: "nowrap" }, ;
+                                    justifyContent: { xs: "center", md: "flex-start" },*/
         }}>
         <Box
           display="grid"
@@ -58,6 +85,8 @@ const ArtworksGrid: React.FC<ArtworksGridProps> = ({ title, items, cardSize, onS
               size={cardSize}
               mode="grid"
               onClick={() => (onSelect ? onSelect({ ...item }) : handleSelectArtwork(i))}
+              onSetFavourite={(currentValue) => handleSetFavourite(item.id, currentValue)}
+              isFavourite={favourites.indexOf(+item.id) !== -1}
             />
           ))}
         </Box>

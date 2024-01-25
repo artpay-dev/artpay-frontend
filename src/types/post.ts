@@ -3,9 +3,9 @@ export type PostCategoryMap = {
 };
 
 export type FavouritesMap = {
-  galleries: string[] | null;
-  artists: string[] | null;
-  artworks: string[] | null;
+  galleries: number[] | null;
+  artists: number[] | null;
+  artworks: number[] | null;
 };
 
 export type PostCategory = {

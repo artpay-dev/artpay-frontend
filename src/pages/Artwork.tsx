@@ -1,7 +1,7 @@
 import { Box, Button, Divider, Grid, IconButton, Tab, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout";
-import { useData } from "../hoc/DataProvider.tsx";
+import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
 import { useNavigate, useParams } from "react-router-dom";
 import { Artwork } from "../types/artwork.ts";
 import PromoBig from "../components/PromoBig.tsx";
@@ -19,6 +19,8 @@ import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
 import FavouriteIcon from "../components/icons/FavouriteIcon.tsx";
 import GalleryHeader from "../components/GalleryHeader.tsx";
 import { useDialogs } from "../hoc/DialogProvider.tsx";
+import FavouriteFilledIcon from "../components/icons/FavouriteFilledIcon.tsx";
+import { FavouritesMap } from "../types/post.ts";
 
 export interface ArtworkProps {}
 
@@ -30,6 +32,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const [artistArtworks, setArtistArtworks] = useState<ArtworkCardProps[]>();
   const [galleryDetails, setGalleryDetails] = useState<Gallery | undefined>();
   const [artistDetails, setArtistDetails] = useState<Artist | undefined>();
+  const [isArtworkFavourite, setIsArtworkFavourite] = useState(false);
 
   const data = useData();
   const urlParams = useParams();
@@ -54,6 +57,25 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
     await dialogs.share(window.location.href);
   };
 
+  const handleSetArtworkFavourite = async () => {
+    if (artwork?.id) {
+      try {
+        if (isArtworkFavourite) {
+          await data.removeFavouriteArtwork(artwork.id.toString()).then(() => {
+            setIsArtworkFavourite(false);
+          });
+        } else {
+          await data.addFavouriteArtwork(artwork.id.toString()).then(() => {
+            setIsArtworkFavourite(true);
+          });
+        }
+      } catch (e) {
+        //TODO: notify error
+        console.log(e);
+      }
+    }
+  };
+
   useEffect(() => {
     //TODO: page loader
     // setIsReady(false);
@@ -63,10 +85,12 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
     }
     data.getArtworkBySlug(urlParams.slug_opera).then(async (resp) => {
       setArtwork(resp);
-      const [galleryArtworks] = await Promise.all([
+      const [galleryArtworks, favouriteArtworks] = await Promise.all([
         data.listArtworksForGallery(resp.vendor),
+        data.getFavouriteArtworks(),
         //data.getGallery(resp.vendor),
       ]);
+      setIsArtworkFavourite(favouriteArtworks.indexOf(resp.id) !== -1);
       if (resp.vendor) {
         const galleryDetails = await data.getGallery(resp.vendor);
         setGalleryDetails(galleryDetails);
@@ -89,6 +113,20 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       setIsReady(true);
     });
   }, [data, navigate, urlParams.id, urlParams.slug_opera, urlParams.slug_galleria]);
+
+  useEffect(() => {
+    const handleFavouritesUpdated = (e: CustomEvent<FavouritesMap>) => {
+      if (artwork?.id) {
+        const isFavourite = e.detail.artworks?.indexOf(artwork.id) !== -1;
+        setIsArtworkFavourite(isFavourite);
+      }
+    };
+
+    document.addEventListener(FAVOURITES_UPDATED_EVENT, handleFavouritesUpdated);
+    return () => {
+      document.removeEventListener(FAVOURITES_UPDATED_EVENT, handleFavouritesUpdated);
+    };
+  }, []);
 
   return (
     <DefaultLayout
@@ -148,8 +186,12 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
             <Box display="flex" alignItems="center">
               <Typography variant="h3">{artwork?.price} €</Typography>
               <Box flexGrow={1} />
-              <IconButton>
-                <FavouriteIcon color="primary" />
+              <IconButton onClick={() => handleSetArtworkFavourite()}>
+                {isArtworkFavourite ? (
+                  <FavouriteFilledIcon color="primary" fontSize="small" />
+                ) : (
+                  <FavouriteIcon fontSize="small" />
+                )}
               </IconButton>
               <IconButton onClick={handleShare}>
                 <Share color="primary" />

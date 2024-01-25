@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { Box, Button, Chip, Grid, IconButton, Tab, Typography } from "@mui/material";
-import { Add, Share } from "@mui/icons-material";
+import { Add, Remove, Share } from "@mui/icons-material";
 import TabPanel from "../components/TabPanel.tsx";
 import GalleryInfo, { GalleryInfoProps } from "../components/GalleryInfo.tsx";
 import { GalleryContactsProps } from "../components/GalleryContacts.tsx";
@@ -16,6 +16,7 @@ import { GalleryContent } from "../types/gallery.ts";
 import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
 import { CardItem } from "../types";
 import { useDialogs } from "../hoc/DialogProvider.tsx";
+import FollowButton from "../components/FollowButton.tsx";
 
 export interface GalleryProps {
   selectedTab?: number;
@@ -29,6 +30,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
   const [galleryArtworks, setGalleryArtworks] = useState<ArtworkCardProps[]>();
   const [galleryContacts, setGalleryContacts] = useState<GalleryContactsProps>();
   const [galleryArtists, setGalleryArtists] = useState<ArtistCardProps[]>();
+  const [isFavourite, setIsFavourite] = useState(false);
 
   const [galleryInfo, setGalleryInfo] = useState<GalleryInfoProps>();
 
@@ -58,11 +60,16 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
           website: gallery.shop.url,
           social: { linkedin: gallery.social.linkdin, ...gallery.social },
         });
-        const artworks = await data.listArtworksForGallery(gallery.id.toString());
+        const [artworks, artists, favouriteGalleries] = await Promise.all([
+          data.listArtworksForGallery(gallery.id.toString()),
+          data.listArtistsForGallery(gallery.id.toString()),
+          data.getFavouriteGalleries(),
+        ]);
         setGalleryArtworks(artworksToGalleryItems(artworks, "large"));
-        //TODO: sostituire endpoint quando funziona
-        const artists = await data.listArtistsForGallery(gallery.id.toString());
         setGalleryArtists(artistsToGalleryItems(artists));
+        if (favouriteGalleries.indexOf(gallery.id) !== -1) {
+          setIsFavourite(true);
+        }
         const galleryDescription = (gallery.shop?.description || "").split("\r\n").filter((val) => !!val);
         setGalleryInfo({ description: galleryDescription });
       })
@@ -71,7 +78,26 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
       });
     //data.getGallery()
     // TODO: loadData
-  }, [data, navigate, urlParams.id]);
+  }, [data, navigate, urlParams.slug]);
+
+  const handleSetFavourite = async (isFavourite: boolean) => {
+    if (galleryContent?.id) {
+      try {
+        if (isFavourite) {
+          await data.removeFavouriteGallery(galleryContent.id.toString()).then(() => {
+            setIsFavourite(false);
+          });
+        } else {
+          await data.addFavouriteGallery(galleryContent.id.toString()).then(() => {
+            setIsFavourite(true);
+          });
+        }
+      } catch (e) {
+        //TODO: notify error
+        console.log(e);
+      }
+    }
+  };
 
   const handleSelectArtwork = (item: CardItem) => {
     if (galleryArtworks?.length) {
@@ -157,9 +183,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
               ))}
             </Box>
             <Box display="flex" gap={2}>
-              <Button variant="outlined" endIcon={<Add />}>
-                Follow
-              </Button>
+              <FollowButton isFavourite={isFavourite} onClick={handleSetFavourite} />
               <IconButton onClick={handleShare} variant="outlined" color="primary" size="small">
                 <Share />
               </IconButton>

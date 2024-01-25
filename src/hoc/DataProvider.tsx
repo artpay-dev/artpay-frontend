@@ -107,6 +107,14 @@ const favouritesMap: FavouritesMap = {
   artists: null,
   artworks: null,
 };
+
+export const FAVOURITES_UPDATED_EVENT = "favourites:updated";
+export const dispatchFavouritesUpdated = (data: FavouritesMap) =>
+  document.dispatchEvent(
+    new CustomEvent<FavouritesMap>(FAVOURITES_UPDATED_EVENT, {
+      detail: data,
+    }),
+  );
 export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl }) => {
   const [isLoading, setIsLoading] = useState(true);
   //const [categoryMap, setCategoryMap] = useState<CategoryMap | undefined>();
@@ -193,6 +201,89 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       },
     );
     return mediaResp.data;
+  };
+
+  const favourites = {
+    async getFavouriteArtists(): Promise<number[]> {
+      if (favouritesMap.artists !== null) {
+        return favouritesMap.artists;
+      }
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/getUserFavoriteArtists`,
+      );
+      favouritesMap.artists = resp.data;
+      return resp.data;
+    },
+    async addFavouriteArtist(id: string): Promise<number[]> {
+      const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/addUserFavoriteArtist/${id}`,
+      );
+      favouritesMap.artists = resp.data;
+      dispatchFavouritesUpdated({ ...favouritesMap });
+      return resp.data;
+    },
+    async removeFavouriteArtist(id: string): Promise<number[]> {
+      const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/removeUserFavoriteArtist/${id}`,
+      );
+      favouritesMap.artists = resp.data;
+      dispatchFavouritesUpdated({ ...favouritesMap });
+      return resp.data;
+    },
+
+    async getFavouriteArtworks(): Promise<number[]> {
+      if (favouritesMap.artworks !== null) {
+        return favouritesMap.artworks;
+      }
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/getUserFavoriteArtworks`,
+      );
+      favouritesMap.artworks = resp.data;
+      return resp.data;
+    },
+    async addFavouriteArtwork(id: string): Promise<number[]> {
+      const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/addUserFavoriteArtwork/${id}`,
+      );
+      favouritesMap.artworks = resp.data;
+      dispatchFavouritesUpdated({ ...favouritesMap });
+      return resp.data;
+    },
+    async removeFavouriteArtwork(id: string): Promise<number[]> {
+      const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/removeUserFavoriteArtwork/${id}`,
+      );
+      favouritesMap.artworks = resp.data;
+      dispatchFavouritesUpdated({ ...favouritesMap });
+      return resp.data;
+    },
+
+    async getFavouriteGalleries(): Promise<number[]> {
+      if (favouritesMap.galleries !== null) {
+        return favouritesMap.galleries;
+      }
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/getUserFavoriteGalleries`,
+      );
+      favouritesMap.galleries = resp.data;
+      return resp.data;
+    },
+    async addFavouriteGallery(id: string): Promise<number[]> {
+      const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/addUserFavoriteGallery/${id}`,
+      );
+      favouritesMap.galleries = resp.data;
+      dispatchFavouritesUpdated({ ...favouritesMap });
+      return resp.data;
+    },
+    async removeFavouriteGallery(id: string): Promise<number[]> {
+      const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/removeUserFavoriteGallery/${id}`,
+      );
+      favouritesMap.galleries = resp.data;
+      dispatchFavouritesUpdated({ ...favouritesMap });
+      return resp.data;
+    },
   };
 
   const dataContext: DataContext = {
@@ -328,62 +419,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
 
       return artwork.categories.filter((c) => childrenIds.indexOf(c.id) !== -1).map((c) => c.name);
     },
-    async getFavouriteArtists(): Promise<number[]> {
-      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
-        `${baseUrl}/wp-json/wp/v2/getUserFavoriteArtists`,
-      );
-      return resp.data;
-    },
-    async addFavouriteArtist(id: string): Promise<number[]> {
-      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
-        `${baseUrl}/wp-json/wp/v2/addUserFavoriteArtist/${id}`,
-      );
-      return resp.data;
-    },
-    async removeFavouriteArtist(id: string): Promise<number[]> {
-      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
-        `${baseUrl}/wp-json/wp/v2/removeUserFavoriteArtist/${id}`,
-      );
-      return resp.data;
-    },
 
-    async getFavouriteArtworks(): Promise<number[]> {
-      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
-        `${baseUrl}/wp-json/wp/v2/getUserFavoriteArtworks`,
-      );
-      return resp.data;
-    },
-    async addFavouriteArtwork(id: string): Promise<number[]> {
-      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
-        `${baseUrl}/wp-json/wp/v2/addUserFavoriteArtwork/${id}`,
-      );
-      return resp.data;
-    },
-    async removeFavouriteArtwork(id: string): Promise<number[]> {
-      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
-        `${baseUrl}/wp-json/wp/v2/removeUserFavoriteArtwork/${id}`,
-      );
-      return resp.data;
-    },
-
-    async getFavouriteGalleries(): Promise<number[]> {
-      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
-        `${baseUrl}/wp-json/wp/v2/getUserFavoriteGalleries`,
-      );
-      return resp.data;
-    },
-    async addFavouriteGallery(id: string): Promise<number[]> {
-      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
-        `${baseUrl}/wp-json/wp/v2/addUserFavoriteGallery/${id}`,
-      );
-      return resp.data;
-    },
-    async removeFavouriteGallery(id: string): Promise<number[]> {
-      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
-        `${baseUrl}/wp-json/wp/v2/removeUserFavoriteGallery/${id}`,
-      );
-      return resp.data;
-    },
+    ...favourites,
   };
 
   return <Context.Provider value={dataContext}>{isLoading ? <></> : children}</Context.Provider>;
