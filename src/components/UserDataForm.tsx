@@ -1,148 +1,120 @@
 import React, { useState } from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { TextField, Button, FormControl, InputLabel, Select, MenuItem, Box, Grid, FormHelperText } from "@mui/material";
+import { TextField, Button, FormControl, InputLabel, Select, MenuItem, Grid, FormHelperText } from "@mui/material";
 import countries from "../countries";
-export interface UserDataFormProps {}
+import { BillingData } from "../types/user.ts";
 
-interface UserFormInput {
-  firstName: string;
-  lastName: string;
-  gender: string;
-  phone: string;
-  street: string;
-  city: string;
-  zipCode: string;
-  country: string;
+export interface UserDataFormProps {
+  defaultValues?: BillingData;
+  onSubmit?: (formData: BillingData) => Promise<void>;
 }
 
-const UserDataForm: React.FC<UserDataFormProps> = ({}) => {
+const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit }) => {
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<UserFormInput>({
+  } = useForm<BillingData>({
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      gender: "", // Ensure this is not undefined or null
-      phone: "",
-      street: "",
-      city: "",
-      zipCode: "",
-      country: "IT",
+      ...defaultValues,
+      country: defaultValues?.country || "IT",
     },
   });
+  const [isSaving, setIsSaving] = useState(false);
 
-  const onSubmit: SubmitHandler<UserFormInput> = (data) => {
-    console.log(data);
+  const handleFormSubmit: SubmitHandler<BillingData> = (data) => {
+    if (onSubmit) {
+      setIsSaving(true);
+      onSubmit(data).then(() => {
+        setIsSaving(false);
+      });
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
+    <form onSubmit={handleSubmit(handleFormSubmit)}>
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6}>
           <Controller
-            name="firstName"
+            name="first_name"
             control={control}
-            defaultValue=""
-            rules={{ required: "Campo obbligatorio" }}
+            rules={{ required: "Nome richiesto" }}
             render={({ field }) => (
               <TextField
+                disabled={isSaving}
                 label="Nome"
-                variant="standard"
+                variant="outlined"
                 fullWidth
                 {...field}
-                error={!!errors.firstName}
-                helperText={errors.firstName?.message}
+                error={!!errors.first_name}
+                helperText={errors.first_name?.message}
               />
             )}
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} sm={6}>
           <Controller
-            name="lastName"
+            name="last_name"
             control={control}
-            defaultValue=""
-            rules={{ required: "Campo obbligatorio" }}
+            rules={{ required: "Cognome richiesto" }}
             render={({ field }) => (
               <TextField
+                disabled={isSaving}
                 label="Cognome"
                 variant="outlined"
                 fullWidth
                 {...field}
-                error={!!errors.lastName}
-                helperText={errors.lastName?.message}
+                error={!!errors.last_name}
+                helperText={errors.last_name?.message}
               />
             )}
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
-          <FormControl fullWidth error={!!errors.gender}>
-            <InputLabel id="gender-label">Sesso</InputLabel>
-            <Controller
-              name="gender"
-              control={control}
-              rules={{ required: "Campo obbligatorio" }}
-              render={({ field }) => (
-                <Select labelId="gender-label" label="Sesso" {...field}>
-                  <MenuItem value="female">Donna</MenuItem>
-                  <MenuItem value="male">Uomo</MenuItem>
-                  <MenuItem value="other">Altro</MenuItem>
-                </Select>
-              )}
-            />
-            {errors.gender && <FormHelperText>{errors.gender.message}</FormHelperText>}
-          </FormControl>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <Controller
-            name="phone"
+            name="address_1"
             control={control}
-            defaultValue=""
-            rules={{ required: "Campo obbligatorio" }}
+            rules={{ required: "Indirizzo richiesto" }}
             render={({ field }) => (
               <TextField
-                label="Telefono"
+                disabled={isSaving}
+                label="Indirizzo (linea 1: via/piazza,...)"
                 variant="outlined"
                 fullWidth
                 {...field}
-                error={!!errors.phone}
-                helperText={errors.phone?.message}
+                error={!!errors.address_1}
+                helperText={errors.address_1?.message}
               />
             )}
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <Controller
-            name="street"
+            name="address_2"
             control={control}
-            defaultValue=""
-            rules={{ required: "Campo obbligatorio" }}
             render={({ field }) => (
               <TextField
-                label="Indirizzo"
+                disabled={isSaving}
+                label="Indirizzo (linea 2: scala, piano)"
                 variant="outlined"
                 fullWidth
                 {...field}
-                error={!!errors.street}
-                helperText={errors.street?.message}
               />
             )}
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} sm={6}>
           <Controller
             name="city"
             control={control}
-            defaultValue=""
-            rules={{ required: "Campo obbligatorio" }}
+            rules={{ required: "Città richiesta" }}
             render={({ field }) => (
               <TextField
+                disabled={isSaving}
                 label="Città"
                 variant="outlined"
                 fullWidth
@@ -154,20 +126,20 @@ const UserDataForm: React.FC<UserDataFormProps> = ({}) => {
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} sm={6}>
           <Controller
-            name="zipCode"
+            name="postcode"
             control={control}
-            defaultValue=""
-            rules={{ required: "Campo obbligatorio" }}
+            rules={{ required: "CAP richiesto" }}
             render={({ field }) => (
               <TextField
-                label="Codice postale"
+                disabled={isSaving}
+                label="CAP"
                 variant="outlined"
                 fullWidth
                 {...field}
-                error={!!errors.zipCode}
-                helperText={errors.zipCode?.message}
+                error={!!errors.postcode}
+                helperText={errors.postcode?.message}
               />
             )}
           />
@@ -179,9 +151,9 @@ const UserDataForm: React.FC<UserDataFormProps> = ({}) => {
             <Controller
               name="country"
               control={control}
-              rules={{ required: "Campo obbligatorio" }}
+              rules={{ required: "Paese richiesto" }}
               render={({ field }) => (
-                <Select labelId="country-label" defaultValue="IT" label="Paese" {...field}>
+                <Select disabled={isSaving} labelId="country-label" defaultValue="IT" label="Paese" {...field}>
                   {countries.map((country) => (
                     <MenuItem value={country.code} key={country.code}>
                       {country.name}
@@ -193,6 +165,71 @@ const UserDataForm: React.FC<UserDataFormProps> = ({}) => {
             {errors.country && <FormHelperText>{errors.country.message}</FormHelperText>}
           </FormControl>
         </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <Controller
+            name="state"
+            control={control}
+            rules={{ required: "Provincia richiesta" }}
+            render={({ field }) => (
+              <TextField
+                disabled={isSaving}
+                label="Provincia"
+                variant="outlined"
+                fullWidth
+                {...field}
+                error={!!errors.state}
+                helperText={errors.state?.message}
+              />
+            )}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <Controller
+            name="phone"
+            control={control}
+            rules={{ required: "Telefono richiesto" }}
+            render={({ field }) => (
+              <TextField
+                disabled={isSaving}
+                label="Telefono"
+                variant="outlined"
+                fullWidth
+                {...field}
+                error={!!errors.phone}
+                helperText={errors.phone?.message}
+              />
+            )}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <Controller
+            name="email"
+            control={control}
+            rules={{ required: "Email richiesta" }}
+            render={({ field }) => (
+              <TextField
+                disabled={isSaving}
+                label="Email"
+                variant="outlined"
+                fullWidth
+                {...field}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+              />
+            )}
+          />
+        </Grid>
+
+        {/*        <Grid item xs={12}>
+          <Controller
+            name="company"
+            control={control}
+            render={({ field }) => <TextField label="Azienda" variant="outlined" fullWidth {...field} />}
+          />
+        </Grid>*/}
 
         <Grid item xs={12}>
           <Button sx={{ minWidth: "160px" }} type="submit" variant="contained" color="primary">

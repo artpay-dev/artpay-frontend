@@ -108,6 +108,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
           status: err.response.status,
           message: err.message,
         };
+      } else {
+        setAuthValues({ ...authValues, isAuthenticated: false, user: undefined });
       }
       //TODO: handle error
       return { error: err?.toString() };

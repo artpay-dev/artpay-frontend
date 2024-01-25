@@ -15,6 +15,7 @@ import { PromoComponentType } from "../components/PromoItem.tsx";
 import * as console from "console";
 import { Order, OrderRequest, PaymentIntentRequest } from "../types/order.ts";
 import { PaymentIntent } from "@stripe/stripe-js";
+import { UserProfile } from "../types/user.ts";
 
 export interface ArtworksFilter {
   featured?: boolean;
@@ -54,6 +55,10 @@ export interface DataContext {
   createPaymentIntent(body: PaymentIntentRequest): Promise<PaymentIntent>;
 
   getArtist(id: string): Promise<Artist>;
+
+  getUserProfile(): Promise<UserProfile>;
+
+  updateUserProfile(data: UserProfile): Promise<UserProfile>;
 
   getCategoryMapValues(artwork: Artwork, key: string): string[];
 
@@ -98,6 +103,8 @@ const defaultContext: DataContext = {
   listPendingOrders: () => Promise.reject("Data provider loaded"),
   createOrder: () => Promise.reject("Data provider loaded"),
   createPaymentIntent: () => Promise.reject("Data provider loaded"),
+  getUserProfile: () => Promise.reject("Data provider loaded"),
+  updateUserProfile: () => Promise.reject("Data provider loaded"),
 
   getFavouriteArtists: () => Promise.reject("Data provider loaded"),
   addFavouriteArtist: () => Promise.reject("Data provider loaded"),
@@ -439,6 +446,26 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     async createPaymentIntent(body: PaymentIntentRequest): Promise<PaymentIntent> {
       const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
         `${baseUrl}/wp-json/wc/v3/stripe/payment_intent`,
+        body,
+      );
+      return resp.data;
+    },
+    async getUserProfile(): Promise<UserProfile> {
+      const userId = auth.user?.id;
+      if (!userId) {
+        throw "Not authenticated";
+      }
+      const resp = await axios.get<unknown, AxiosResponse<UserProfile>>(`${baseUrl}/wp-json/wc/v3/customers/${userId}`);
+      return resp.data;
+    },
+    async updateUserProfile(body: UserProfile): Promise<UserProfile> {
+      const userId = auth.user?.id;
+      if (!userId) {
+        throw "Not authenticated";
+      }
+      body.id = userId;
+      const resp = await axios.post<UserProfile, AxiosResponse<UserProfile>>(
+        `${baseUrl}/wp-json/wc/v3/customers/${userId}`,
         body,
       );
       return resp.data;
