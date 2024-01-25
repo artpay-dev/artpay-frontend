@@ -13,10 +13,13 @@ import { HomeContent } from "../types/home.ts";
 import { PromoComponentType } from "../components/PromoItem.tsx";
 // @ts-expect-error no type definitions for console
 import * as console from "console";
+import { Order, OrderRequest, PaymentIntentRequest } from "../types/order.ts";
+import { PaymentIntent } from "@stripe/stripe-js";
 
 export interface ArtworksFilter {
   featured?: boolean;
 }
+
 export interface DataContext {
   info(): Promise<string>;
 
@@ -44,20 +47,32 @@ export interface DataContext {
 
   listArtistsForGallery(galleryId: string): Promise<Artist[]>;
 
+  listPendingOrders(): Promise<Order[]>;
+
+  createOrder(body: OrderRequest): Promise<Order>;
+
+  createPaymentIntent(body: PaymentIntentRequest): Promise<PaymentIntent>;
+
   getArtist(id: string): Promise<Artist>;
 
   getCategoryMapValues(artwork: Artwork, key: string): string[];
 
   getFavouriteArtists(): Promise<number[]>;
+
   addFavouriteArtist(id: string): Promise<number[]>;
+
   removeFavouriteArtist(id: string): Promise<number[]>;
 
   getFavouriteArtworks(): Promise<number[]>;
+
   addFavouriteArtwork(id: string): Promise<number[]>;
+
   removeFavouriteArtwork(id: string): Promise<number[]>;
 
   getFavouriteGalleries(): Promise<number[]>;
+
   addFavouriteGallery(id: string): Promise<number[]>;
+
   removeFavouriteGallery(id: string): Promise<number[]>;
 }
 
@@ -80,6 +95,9 @@ const defaultContext: DataContext = {
   listFeaturedArtists: () => Promise.reject("Data provider loaded"),
   listArtistsForGallery: () => Promise.reject("Data provider loaded"),
   getArtist: () => Promise.reject("Data provider loaded"),
+  listPendingOrders: () => Promise.reject("Data provider loaded"),
+  createOrder: () => Promise.reject("Data provider loaded"),
+  createPaymentIntent: () => Promise.reject("Data provider loaded"),
 
   getFavouriteArtists: () => Promise.reject("Data provider loaded"),
   addFavouriteArtist: () => Promise.reject("Data provider loaded"),
@@ -410,6 +428,22 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       );
       return resp.data;
     },
+    async listPendingOrders(): Promise<Order[]> {
+      const resp = await axios.get<unknown, AxiosResponse<Order[]>>(`${baseUrl}/wp-json/wc/v3/orders?status=pending`);
+      return resp.data;
+    },
+    async createOrder(body: OrderRequest): Promise<Order> {
+      const resp = await axios.post<OrderRequest, AxiosResponse<Order>>(`${baseUrl}/wp-json/wc/v3/orders`, body);
+      return resp.data;
+    },
+    async createPaymentIntent(body: PaymentIntentRequest): Promise<PaymentIntent> {
+      const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
+        `${baseUrl}/wp-json/wc/v3/stripe/payment_intent`,
+        body,
+      );
+      return resp.data;
+    },
+
     getCategoryMapValues(artwork: Artwork, key: string): string[] {
       if (!categoryMap || !categoryMap[key]) {
         return [];

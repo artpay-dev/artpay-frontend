@@ -32,7 +32,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const [artistArtworks, setArtistArtworks] = useState<ArtworkCardProps[]>();
   const [galleryDetails, setGalleryDetails] = useState<Gallery | undefined>();
   const [artistDetails, setArtistDetails] = useState<Artist | undefined>();
-  const [isArtworkFavourite, setIsArtworkFavourite] = useState(false);
+  const [favouriteArtworks, setFavouriteArtworks] = useState<number[]>([]);
 
   const data = useData();
   const urlParams = useParams();
@@ -45,6 +45,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const artworkUnique = artwork ? data.getCategoryMapValues(artwork, "rarita").join(" ") : "";
 
   const heroImgUrl = artwork?.images.length ? artwork.images[0].src : "";
+  const isArtworkFavourite = artwork?.id ? favouriteArtworks.indexOf(artwork.id) !== -1 : false;
 
   const handleGalleryArtworkSelect = (i: number) => {
     if (galleryDetails && galleryArtworks && galleryArtworks[i]) {
@@ -61,12 +62,12 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
     if (artwork?.id) {
       try {
         if (isArtworkFavourite) {
-          await data.removeFavouriteArtwork(artwork.id.toString()).then(() => {
-            setIsArtworkFavourite(false);
+          await data.removeFavouriteArtwork(artwork.id.toString()).then((resp) => {
+            setFavouriteArtworks(resp);
           });
         } else {
-          await data.addFavouriteArtwork(artwork.id.toString()).then(() => {
-            setIsArtworkFavourite(true);
+          await data.addFavouriteArtwork(artwork.id.toString()).then((resp) => {
+            setFavouriteArtworks(resp);
           });
         }
       } catch (e) {
@@ -90,7 +91,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         data.getFavouriteArtworks(),
         //data.getGallery(resp.vendor),
       ]);
-      setIsArtworkFavourite(favouriteArtworks.indexOf(resp.id) !== -1);
+      setFavouriteArtworks(favouriteArtworks);
       if (resp.vendor) {
         const galleryDetails = await data.getGallery(resp.vendor);
         setGalleryDetails(galleryDetails);
@@ -117,8 +118,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   useEffect(() => {
     const handleFavouritesUpdated = (e: CustomEvent<FavouritesMap>) => {
       if (artwork?.id) {
-        const isFavourite = e.detail.artworks?.indexOf(artwork.id) !== -1;
-        setIsArtworkFavourite(isFavourite);
+        setFavouriteArtworks(e.detail.artworks || []);
       }
     };
 
@@ -126,7 +126,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
     return () => {
       document.removeEventListener(FAVOURITES_UPDATED_EVENT, handleFavouritesUpdated);
     };
-  }, []);
+  }, [artwork?.id]);
 
   return (
     <DefaultLayout

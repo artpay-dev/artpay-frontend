@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
-import { Box, Button, Chip, Grid, IconButton, Tab, Typography } from "@mui/material";
-import { Add, Remove, Share } from "@mui/icons-material";
+import { Box, Chip, Grid, IconButton, Tab, Typography } from "@mui/material";
+import { Share } from "@mui/icons-material";
 import TabPanel from "../components/TabPanel.tsx";
 import GalleryInfo, { GalleryInfoProps } from "../components/GalleryInfo.tsx";
 import { GalleryContactsProps } from "../components/GalleryContacts.tsx";

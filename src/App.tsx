@@ -32,7 +32,7 @@ function AppContent() {
             <Route path="/gallerie/:slug/galleria" element={<Gallery selectedTab={2} />} />
             <Route path="/gallerie/:slug_galleria/opere/:slug_opera" element={<Artwork />} />
             <Route path="/artworks" element={<Artworks />} />
-            <Route path="/purchase" element={<Purchase />} />
+            <Route path="/acquisti" element={<Purchase />} />
             <Route path="/profile" element={<Profile />} />
           </Routes>
         </DataProvider>
