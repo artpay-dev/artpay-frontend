@@ -35,7 +35,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
     } else {
       setReady(true);
     }
-  }, [auth.isAuthenticated, authRequired]);
+  }, [auth, auth.isAuthenticated, authRequired]);
 
   useEffect(() => {
     document.body.style.setProperty("--background", background || "none");
