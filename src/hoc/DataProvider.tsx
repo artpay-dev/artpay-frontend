@@ -11,15 +11,33 @@ import { Media } from "../types/media.ts";
 import { postAndMediaToHeroSlide, postAndMediaToPromoItem } from "../utils.ts";
 import { HomeContent } from "../types/home.ts";
 import { PromoComponentType } from "../components/PromoItem.tsx";
-// @ts-expect-error no type definitions for console
-import * as console from "console";
-import { Order, OrderRequest, PaymentIntentRequest } from "../types/order.ts";
+import { Order, OrderCreateRequest, PaymentIntentRequest, ShippingMethodOption } from "../types/order.ts";
 import { PaymentIntent } from "@stripe/stripe-js";
 import { UserProfile } from "../types/user.ts";
 
 export interface ArtworksFilter {
   featured?: boolean;
 }
+
+const availableShippingMethods: ShippingMethodOption[] = [
+  {
+    id: 3,
+    instance_id: 3,
+    title: "Ritiro in sede",
+    method_id: "local_pickup",
+    method_title: "Ritiro in sede",
+    method_description:
+      "Permetti ai clienti di ritirare gli ordini autonomamente. Per impostazione predefinita, quando si utilizza il ritiro in sede le imposte si applicano indipendentemente dall'indirizzo del cliente",
+  },
+  {
+    id: 7,
+    instance_id: 7,
+    title: "Vendor Shipping",
+    method_id: "mvx_vendor_shipping",
+    method_title: "Vendor Shipping",
+    method_description: "Charge varying rates based on user defined conditions",
+  },
+];
 
 export interface DataContext {
   info(): Promise<string>;
@@ -48,9 +66,13 @@ export interface DataContext {
 
   listArtistsForGallery(galleryId: string): Promise<Artist[]>;
 
+  getAvailableShippingMethods(): Promise<ShippingMethodOption[]>;
+
   listPendingOrders(): Promise<Order[]>;
 
-  createOrder(body: OrderRequest): Promise<Order>;
+  getPendingOrder(): Promise<Order | null>;
+
+  createOrder(body: OrderCreateRequest): Promise<Order>;
 
   createPaymentIntent(body: PaymentIntentRequest): Promise<PaymentIntent>;
 
@@ -100,7 +122,9 @@ const defaultContext: DataContext = {
   listFeaturedArtists: () => Promise.reject("Data provider loaded"),
   listArtistsForGallery: () => Promise.reject("Data provider loaded"),
   getArtist: () => Promise.reject("Data provider loaded"),
+  getAvailableShippingMethods: () => Promise.reject("Data provider loaded"),
   listPendingOrders: () => Promise.reject("Data provider loaded"),
+  getPendingOrder: () => Promise.reject("Data provider loaded"),
   createOrder: () => Promise.reject("Data provider loaded"),
   createPaymentIntent: () => Promise.reject("Data provider loaded"),
   getUserProfile: () => Promise.reject("Data provider loaded"),
@@ -217,6 +241,20 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     });
   }, [auth, baseUrl]);
 
+  // Guest auth interceptor
+  useEffect(() => {
+    const interceptorId = axios.interceptors.response.use((value) => {
+      if (value.status < 300 && typeof value.data === "string") {
+        throw value.data;
+      }
+      return value;
+    });
+
+    return () => {
+      axios.interceptors.request.eject(interceptorId);
+    };
+  }, []);
+
   const loadMedia = async (ids: number[]): Promise<Media[]> => {
     // https://artpay.art/wp-json/wp/v2/media?include=622,648
     const mediaResp = await axios.get<unknown, AxiosResponse<Media[]>>(
@@ -236,24 +274,24 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
         `${baseUrl}/wp-json/wp/v2/getUserFavoriteArtists`,
       );
-      favouritesMap.artists = resp.data;
-      return resp.data;
+      favouritesMap.artists = resp.data || [];
+      return resp.data || [];
     },
     async addFavouriteArtist(id: string): Promise<number[]> {
       const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
         `${baseUrl}/wp-json/wp/v2/addUserFavoriteArtist/${id}`,
       );
-      favouritesMap.artists = resp.data;
+      favouritesMap.artists = resp.data || favouritesMap.artists;
       dispatchFavouritesUpdated({ ...favouritesMap });
-      return resp.data;
+      return resp.data || [];
     },
     async removeFavouriteArtist(id: string): Promise<number[]> {
       const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
         `${baseUrl}/wp-json/wp/v2/removeUserFavoriteArtist/${id}`,
       );
-      favouritesMap.artists = resp.data;
+      favouritesMap.artists = resp.data || favouritesMap.artists;
       dispatchFavouritesUpdated({ ...favouritesMap });
-      return resp.data;
+      return resp.data || [];
     },
 
     async getFavouriteArtworks(): Promise<number[]> {
@@ -263,14 +301,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
         `${baseUrl}/wp-json/wp/v2/getUserFavoriteArtworks`,
       );
-      favouritesMap.artworks = resp.data;
-      return resp.data;
+      favouritesMap.artworks = resp.data || [];
+      return resp.data || [];
     },
     async addFavouriteArtwork(id: string): Promise<number[]> {
       const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
         `${baseUrl}/wp-json/wp/v2/addUserFavoriteArtwork/${id}`,
       );
-      favouritesMap.artworks = resp.data;
+      favouritesMap.artworks = resp.data || favouritesMap.artworks;
       dispatchFavouritesUpdated({ ...favouritesMap });
       return resp.data;
     },
@@ -278,7 +316,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
         `${baseUrl}/wp-json/wp/v2/removeUserFavoriteArtwork/${id}`,
       );
-      favouritesMap.artworks = resp.data;
+      favouritesMap.artworks = resp.data || favouritesMap.artworks;
       dispatchFavouritesUpdated({ ...favouritesMap });
       return resp.data;
     },
@@ -290,14 +328,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
         `${baseUrl}/wp-json/wp/v2/getUserFavoriteGalleries`,
       );
-      favouritesMap.galleries = resp.data;
+      favouritesMap.galleries = resp.data || [];
       return resp.data;
     },
     async addFavouriteGallery(id: string): Promise<number[]> {
       const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
         `${baseUrl}/wp-json/wp/v2/addUserFavoriteGallery/${id}`,
       );
-      favouritesMap.galleries = resp.data;
+      favouritesMap.galleries = resp.data || favouritesMap.galleries;
       dispatchFavouritesUpdated({ ...favouritesMap });
       return resp.data;
     },
@@ -305,7 +343,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
         `${baseUrl}/wp-json/wp/v2/removeUserFavoriteGallery/${id}`,
       );
-      favouritesMap.galleries = resp.data;
+      favouritesMap.galleries = resp.data || favouritesMap.galleries;
       dispatchFavouritesUpdated({ ...favouritesMap });
       return resp.data;
     },
@@ -435,12 +473,26 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       );
       return resp.data;
     },
+    async getAvailableShippingMethods(): Promise<ShippingMethodOption[]> {
+      return availableShippingMethods.map((s) => ({ ...s }));
+    },
     async listPendingOrders(): Promise<Order[]> {
       const resp = await axios.get<unknown, AxiosResponse<Order[]>>(`${baseUrl}/wp-json/wc/v3/orders?status=pending`);
       return resp.data;
     },
-    async createOrder(body: OrderRequest): Promise<Order> {
-      const resp = await axios.post<OrderRequest, AxiosResponse<Order>>(`${baseUrl}/wp-json/wc/v3/orders`, body);
+    async getPendingOrder(): Promise<Order | null> {
+      const resp = await axios.get<unknown, AxiosResponse<Order[]>>(`${baseUrl}/wp-json/wc/v3/orders`, {
+        params: {
+          status: "pending",
+          orderby: "date",
+          order: "desc",
+          per_page: 1,
+        },
+      });
+      return resp.data.length ? resp.data[0] : null;
+    },
+    async createOrder(body: OrderCreateRequest): Promise<Order> {
+      const resp = await axios.post<OrderCreateRequest, AxiosResponse<Order>>(`${baseUrl}/wp-json/wc/v3/orders`, body);
       return resp.data;
     },
     async createPaymentIntent(body: PaymentIntentRequest): Promise<PaymentIntent> {

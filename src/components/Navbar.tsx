@@ -16,6 +16,7 @@ import { Search } from "@mui/icons-material";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import UserIcon from "./icons/UserIcon.tsx";
 import { useNavigate } from "react-router-dom";
+import ShoppingBagIcon from "./icons/ShoppingBagIcon.tsx";
 
 export interface NavbarProps {}
 
@@ -31,6 +32,10 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
     width: "100%",
     margin: 0,
     borderRadius: 0,
+  };
+
+  const handleCheckout = () => {
+    navigate("/acquisti");
   };
 
   return (
@@ -70,6 +75,9 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
             <Typography sx={{ mr: 2 }} variant="body2" color="primary">
               Ciao {auth.user?.username}
             </Typography>
+            <IconButton onClick={() => handleCheckout()} color="primary">
+              <ShoppingBagIcon color="primary" />
+            </IconButton>
             <IconButton onClick={() => auth.logout()} color="primary">
               <UserIcon color="primary" />
             </IconButton>

@@ -1,19 +1,37 @@
 import React from "react";
-import { FormControlLabel, FormControlLabelProps, Radio } from "@mui/material";
+import { Box, FormControlLabel, FormControlLabelProps, Radio, Typography } from "@mui/material";
 import RadioIcon from "./icons/RadioIcon.tsx";
 
-export interface RadioButtonProps {}
+export interface RadioButtonProps {
+  description?: string;
+}
 
-const RadioButton: React.FC<
-  Omit<FormControlLabelProps, "control"> & RadioButtonProps
-> = (props) => {
+const RadioButton: React.FC<Omit<FormControlLabelProps, "control"> & RadioButtonProps> = ({
+  description,
+  label,
+  ...props
+}) => {
   return (
     <FormControlLabel
+      sx={{ alignItems: description ? "flex-start" : "center" }}
       control={
         <Radio
+          sx={{ pt: description ? 0 : undefined }}
           icon={<RadioIcon disabled={props.disabled} />}
           checkedIcon={<RadioIcon checked disabled={props.disabled} />}
         />
+      }
+      label={
+        description ? (
+          <Box>
+            <Typography variant="body1">{label}</Typography>
+            <Typography sx={{ pt: 0.5 }} variant="body2" color="textSecondary">
+              {description}
+            </Typography>
+          </Box>
+        ) : (
+          label
+        )
       }
       {...props}
     />

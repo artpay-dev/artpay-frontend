@@ -9,8 +9,9 @@ export interface ContentCardProps {
 }
 
 const ContentCard: React.FC<ContentCardProps> = ({ icon, title, headerButtons = [], children }) => {
+  // const theme = useTheme();
   return (
-    <Paper>
+    <Paper elevation={1}>
       <Box display="flex" p={2} flexDirection="column">
         <Box gap={2} mb={3} alignItems="center" display="flex">
           {icon}

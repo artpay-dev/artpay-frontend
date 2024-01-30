@@ -1,14 +1,34 @@
-export type OrderRequest = {
+import { BillingData } from "./user.ts";
+
+export type OrderCreateRequest = {
   customer_id: number;
   payment_method: string;
   payment_method_title: string;
   set_paid: boolean;
+  shipping: BillingData;
+  billing?: BillingData;
+  shipping_lines?: ShippingLineUpdateRequest[];
   line_items: LineItemRequest[];
+};
+
+export type OrderUpdateRequest = {
+  customer_id: number;
+  payment_method: string;
+  payment_method_title: string;
+  billing?: BillingData;
+  shipping?: BillingData;
+  shipping_lines?: ShippingLineUpdateRequest[];
+  line_items?: LineItemRequest[];
 };
 
 export type LineItemRequest = {
   product_id: number;
   quantity: number;
+};
+
+export type ShippingLineUpdateRequest = {
+  id: number;
+  method_id: string | null;
 };
 
 export type Order = {
@@ -72,7 +92,7 @@ export type Order = {
   }[];
   line_items: LineItem[];
   tax_lines: any[];
-  shipping_lines: any[];
+  shipping_lines: ShippingLine[];
   fee_lines: any[];
   coupon_lines: any[];
   refunds: any[];
@@ -96,6 +116,30 @@ export type Order = {
       href: string;
     }[];
   };
+};
+
+export type ShippingLine = {
+  id?: number;
+  method_title: string;
+  method_id: string;
+  instance_id?: string;
+  total?: string;
+  total_tax?: string;
+  taxes?: {
+    id: number;
+    total: string;
+    subtotal: string;
+  }[];
+  meta_data?: any[];
+};
+
+export type ShippingMethodOption = {
+  id: number;
+  instance_id: number;
+  title: string;
+  method_id: string;
+  method_title: string;
+  method_description: string;
 };
 
 export type LineItem = {
