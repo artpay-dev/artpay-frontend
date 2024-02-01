@@ -493,15 +493,22 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       return resp.data;
     },
     async getPendingOrder(): Promise<Order | null> {
+      const customerId = auth.user?.id;
+      if (!customerId) {
+        throw "Not authenticated";
+      }
+      console.log("customerId", customerId);
       const resp = await axios.get<unknown, AxiosResponse<Order[]>>(`${baseUrl}/wp-json/wc/v3/orders`, {
         params: {
           status: "pending",
           orderby: "date",
           order: "desc",
           per_page: 1,
+          parent: 0,
+          customer: customerId,
         },
       });
-      return resp.data.length ? resp.data[0] : null;
+      return resp.data.length === 1 ? resp.data[0] : null;
     },
     async createOrder(body: OrderCreateRequest): Promise<Order> {
       const resp = await axios.post<OrderCreateRequest, AxiosResponse<Order>>(`${baseUrl}/wp-json/wc/v3/orders`, body);
@@ -519,6 +526,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       if (!customerId) {
         throw "No customer id";
       }
+      const pendingOrder = await this.getPendingOrder();
       const profile = await this.getUserProfile();
       const body: OrderCreateRequest = {
         customer_id: customerId,
@@ -532,7 +540,22 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         shipping: { ...profile.shipping },
         shipping_lines: [],
       };
-      const resp = await axios.post<OrderCreateRequest, AxiosResponse<Order>>(`${baseUrl}/wp-json/wc/v3/orders`, body);
+      let resp: AxiosResponse<Order>;
+      if (pendingOrder) {
+        pendingOrder.line_items.forEach((item) => {
+          body.line_items.push({
+            id: item.id,
+            product_id: null,
+          });
+        });
+        resp = await axios.put<OrderCreateRequest, AxiosResponse<Order>>(
+          `${baseUrl}/wp-json/wc/v3/orders/${pendingOrder.id}`,
+          body,
+        );
+      } else {
+        resp = await axios.post<OrderCreateRequest, AxiosResponse<Order>>(`${baseUrl}/wp-json/wc/v3/orders`, body);
+      }
+
       return resp.data;
     },
     async createPaymentIntent(body: PaymentIntentRequest): Promise<PaymentIntent> {

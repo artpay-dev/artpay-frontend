@@ -39,7 +39,11 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
   const [pendingOrder, setPendingOrder] = useState<Order>();
   const [artworks, setArtworks] = useState<ArtworkCardProps[]>([]);
 
-  const selectedShippingMethod = pendingOrder?.shipping_lines?.length ? pendingOrder.shipping_lines[0].id : undefined;
+  const currentShippingMethod = pendingOrder?.shipping_lines?.length
+    ? pendingOrder.shipping_lines[0].method_id
+    : undefined;
+
+  console.log("selectedShippingMethod", currentShippingMethod);
 
   const showError = async (err?: unknown, text: string = "Si è verificato un errore") => {
     if (isAxiosError(err) && err.response?.data?.message) {
@@ -146,7 +150,7 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
     }
     setIsSaving(true);
     const updatedOrder: OrderUpdateRequest = {};
-    const existingShippingLine = updatedOrder.shipping_lines?.length ? updatedOrder.shipping_lines[0] : null;
+    const existingShippingLine = pendingOrder.shipping_lines?.length ? pendingOrder.shipping_lines[0] : null;
     const updatedShippingLine: ShippingLineUpdateRequest = {
       instance_id: selectedShippingMethod.instance_id.toString(),
       method_id: selectedShippingMethod.method_id,
@@ -157,6 +161,7 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
     }
     updatedOrder.shipping_lines = [updatedShippingLine];
     try {
+      console.log("updatedShippingLine", updatedShippingLine);
       const updatedOrderResp = await data.updateOrder(pendingOrder.id, updatedOrder);
       setPendingOrder(updatedOrderResp);
     } catch (e) {
@@ -191,7 +196,7 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
   const formattedSubtotal = (+(pendingOrder?.total || 0) - +(pendingOrder?.total_tax || 0)).toFixed(2);
 
   const shoppingBagIcon = <ShoppingBagIcon color="#FFFFFF" />;
-
+  // background={theme.palette.secondary.light}
   return (
     <DefaultLayout pageLoading={!isReady}>
       <Grid mt={16} spacing={3} px={3} container>
@@ -249,7 +254,7 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
                   value={s.method_id}
                   disabled={isSaving}
                   onClick={() => handleSelectShippingMethod(s)}
-                  checked={selectedShippingMethod === s.id}
+                  checked={currentShippingMethod === s.method_id}
                   label={s.method_title}
                   description={s.method_description}
                 />

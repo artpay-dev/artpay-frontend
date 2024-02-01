@@ -78,7 +78,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
             <IconButton onClick={() => handleCheckout()} color="primary">
               <ShoppingBagIcon color="primary" />
             </IconButton>
-            <IconButton onClick={() => auth.logout()} color="primary">
+            <IconButton onClick={() => navigate("/profile")} color="primary">
               <UserIcon color="primary" />
             </IconButton>
           </>

@@ -23,8 +23,8 @@ export type OrderUpdateRequest = {
 
 export type LineItemRequest = {
   id?: number;
-  product_id: number;
-  quantity: number;
+  product_id: number | null;
+  quantity?: number;
 };
 
 export type ShippingLineUpdateRequest = {

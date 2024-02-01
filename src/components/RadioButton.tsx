@@ -13,10 +13,9 @@ const RadioButton: React.FC<Omit<FormControlLabelProps, "control"> & RadioButton
 }) => {
   return (
     <FormControlLabel
-      sx={{ alignItems: description ? "flex-start" : "center" }}
+      sx={{ alignItems: description ? "baseline" : "center" }}
       control={
         <Radio
-          sx={{ pt: description ? 0 : undefined }}
           icon={<RadioIcon disabled={props.disabled} />}
           checkedIcon={<RadioIcon checked disabled={props.disabled} />}
         />
