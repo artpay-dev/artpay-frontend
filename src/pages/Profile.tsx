@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
-import { Box, Button, Tab, Typography } from "@mui/material";
+import { Box, Button, Tab, Typography, useTheme } from "@mui/material";
 import { useData } from "../hoc/DataProvider.tsx";
 import { UserProfile } from "../types/user.ts";
 import countries from "../countries.ts";
 import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
 import TabPanel from "../components/TabPanel.tsx";
 import FavouriteArtworks from "../components/FavouriteArtworks.tsx";
+import FavouriteArtists from "../components/FavouriteArtists.tsx";
 
 export interface ProfileProps {}
 
 const Profile: React.FC<ProfileProps> = ({}) => {
   const data = useData();
+  const theme = useTheme();
 
   const [selectedTabPanel, setSelectedTabPanel] = useState(0);
   const [isReady, setIsReady] = useState(false);
@@ -33,8 +35,13 @@ const Profile: React.FC<ProfileProps> = ({}) => {
     });
   }, [data]);
   return (
-    <DefaultLayout pageLoading={!isReady} authRequired maxWidth="xl">
-      <Box mt={14} display="flex" gap={3} sx={{ px: { xs: 3, md: 6 } }} alignItems="center">
+    <DefaultLayout pageLoading={!isReady} authRequired maxWidth={false}>
+      <Box
+        mt={14}
+        display="flex"
+        gap={3}
+        sx={{ px: { xs: 3, md: 6 }, maxWidth: theme.breakpoints.values.xl, marginLeft: "auto", marginRight: "auto" }}
+        alignItems="center">
         <Box
           sx={{ height: "150px", width: "150px", borderRadius: "5px", backgroundColor: "#D9D9D9", overflow: "hidden" }}>
           <img
@@ -81,7 +88,9 @@ const Profile: React.FC<ProfileProps> = ({}) => {
         <TabPanel value={selectedTabPanel} index={2}>
           <FavouriteArtworks />
         </TabPanel>
-        <TabPanel value={selectedTabPanel} index={3}></TabPanel>
+        <TabPanel value={selectedTabPanel} index={3}>
+          <FavouriteArtists />
+        </TabPanel>
         <TabPanel value={selectedTabPanel} index={4}></TabPanel>
       </Box>
     </DefaultLayout>

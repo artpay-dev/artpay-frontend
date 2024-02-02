@@ -10,6 +10,7 @@ import { HeroSlideItem } from "./components/HeroSlide.tsx";
 import { Cta } from "./types/ui.ts";
 import { PromoComponentType, PromoItemProps } from "./components/PromoItem.tsx";
 import { BillingData, User, UserInfo } from "./types/user.ts";
+import { GalleryCardProps } from "./components/GalleryCard.tsx";
 
 export const getPropertyFromMetadata = (metadata: MetadataItem[], key: string): { [key: string]: string } => {
   const item = metadata.find((p) => p.key === key);
@@ -41,8 +42,8 @@ export const artworkToGalleryItem = (artwork: Artwork, cardSize?: CardSize): Art
   };
 };
 export const artistToGalleryItem = (artist: Artist): ArtistCardProps => {
-  const imgUrl = artist?.featured_img?.length
-    ? artist?.featured_img[0]
+  const imgUrl = artist?.medium_img?.length
+    ? artist?.medium_img[0]
     : artist.artworks?.length && artist.artworks[0].images?.length
       ? artist.artworks[0].images[0]
       : "";
@@ -78,6 +79,13 @@ export const galleryToGalleryContent = (gallery: Gallery): GalleryContent => ({
   description: gallery.message_to_buyers,
   productsCount: gallery.products_count,
 });
+export const galleryToGalleryItem = (gallery: Gallery): GalleryCardProps => ({
+  id: gallery.id,
+  title: gallery.display_name,
+  slug: gallery.nice_name,
+  subtitle: `${gallery.address?.city}`,
+  imgUrl: gallery.shop.banner,
+});
 
 export const artworksToGalleryItems = (artworks: Artwork[], cardSize?: CardSize): ArtworkCardProps[] => {
   return artworks.map((a) => artworkToGalleryItem(a, cardSize));
@@ -85,6 +93,9 @@ export const artworksToGalleryItems = (artworks: Artwork[], cardSize?: CardSize)
 
 export const artistsToGalleryItems = (artists: Artist[]): ArtistCardProps[] => {
   return artists.map((a) => artistToGalleryItem(a));
+};
+export const galleriesToGalleryItems = (galleries: Gallery[]): GalleryCardProps[] => {
+  return galleries.map((a) => galleryToGalleryItem(a));
 };
 
 export const getArtworkDimensions = (artwork?: Artwork): string => {

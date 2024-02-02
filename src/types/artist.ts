@@ -35,6 +35,9 @@ export type Artist = {
   meta: [];
   artworks?: ArtistArtwork[];
   featured_img?: [string, number, number, boolean];
+  full_img?: [string, number, number, boolean];
+  medium_img?: [string, number, number, boolean];
+  thumb_img?: [string, number, number, boolean];
   acf: {
     birth_nation: string;
     birth_year: string;

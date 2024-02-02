@@ -54,6 +54,8 @@ export interface DataContext {
 
   getGallery(id: string): Promise<Gallery>;
 
+  getGalleries(ids: number[]): Promise<Gallery[]>;
+
   getGalleryBySlug(slug: string): Promise<Gallery>;
 
   getArtwork(id: string): Promise<Artwork>;
@@ -90,6 +92,8 @@ export interface DataContext {
 
   getArtist(id: string): Promise<Artist>;
 
+  getArtists(ids: number[]): Promise<Artist[]>;
+
   getUserProfile(): Promise<UserProfile>;
 
   updateUserProfile(data: Partial<UserProfile>): Promise<UserProfile>;
@@ -124,6 +128,7 @@ const defaultContext: DataContext = {
   getHomeContent: () => Promise.reject("Data provider loaded"),
   listGalleries: () => Promise.reject("Data provider loaded"),
   getGallery: () => Promise.reject("Data provider loaded"),
+  getGalleries: () => Promise.reject("Data provider loaded"),
   getGalleryBySlug: () => Promise.reject("Data provider loaded"),
   getArtwork: () => Promise.reject("Data provider loaded"),
   getArtworks: () => Promise.reject("Data provider loaded"),
@@ -135,6 +140,7 @@ const defaultContext: DataContext = {
   listFeaturedArtists: () => Promise.reject("Data provider loaded"),
   listArtistsForGallery: () => Promise.reject("Data provider loaded"),
   getArtist: () => Promise.reject("Data provider loaded"),
+  getArtists: () => Promise.reject("Data provider loaded"),
   getAvailableShippingMethods: () => Promise.reject("Data provider loaded"),
   listPendingOrders: () => Promise.reject("Data provider loaded"),
   getPendingOrder: () => Promise.reject("Data provider loaded"),
@@ -435,6 +441,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       const resp = await axios.get<SignInFormData, AxiosResponse<Gallery>>(`${baseUrl}/wp-json/mvx/v1/vendors/${id}`);
       return resp.data;
     },
+    async getGalleries(ids: number[]): Promise<Gallery[]> {
+      const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(
+        `${baseUrl}/wp-json/mvx/v1/vendors?include=[${ids.join(",")}]`,
+      );
+      return resp.data;
+    },
     async getGalleryBySlug(slug: string): Promise<Gallery> {
       const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(
         `${baseUrl}/wp-json/mvx/v1/vendors?nice_name=${slug}`,
@@ -493,6 +505,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         `${baseUrl}/wp-json/wp/v2/artist/${artistId}`,
       );
       return resp.data;
+    },
+    async getArtists(artistIds: number[]): Promise<Artist[]> {
+      //TODO: filtro "include"
+      const resp = Promise.all(artistIds.map((id) => this.getArtist(id.toString())));
+      /*const resp = await axios.get<SignInFormData, AxiosResponse<Artist[]>>(
+        `${baseUrl}/wp-json/wp/v2/artist?include=[${artistIds.join(",")}]`,
+      );*/
+      return resp;
     },
     async getAvailableShippingMethods(): Promise<ShippingMethodOption[]> {
       return availableShippingMethods.map((s) => ({ ...s }));
