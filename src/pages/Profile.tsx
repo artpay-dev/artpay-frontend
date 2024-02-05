@@ -10,11 +10,13 @@ import FavouriteArtists from "../components/FavouriteArtists.tsx";
 import FavouriteGalleries from "../components/FavouriteGalleries.tsx";
 import ProfileHeader from "../components/ProfileHeader.tsx";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hoc/AuthProvider.tsx";
 
 export interface ProfileProps {}
 
 const Profile: React.FC<ProfileProps> = ({}) => {
   const data = useData();
+  const auth = useAuth();
   const navigate = useNavigate();
 
   const [selectedTabPanel, setSelectedTabPanel] = useState(0);
@@ -23,6 +25,11 @@ const Profile: React.FC<ProfileProps> = ({}) => {
 
   const handleProfileSettings = () => {
     navigate("/profile/settings");
+  };
+
+  const handleLogout = async () => {
+    await auth.logout();
+    navigate("/");
   };
 
   useEffect(() => {
@@ -36,10 +43,12 @@ const Profile: React.FC<ProfileProps> = ({}) => {
       <ProfileHeader
         profile={profile}
         controls={[
-          <Button onClick={() => handleProfileSettings()} variant="outlined">
+          <Button key="settings-btn" onClick={() => handleProfileSettings()} variant="outlined">
             Impostazioni profilo
           </Button>,
-          <Button color="error">Logout</Button>,
+          <Button key="logout-btn" color="error" onClick={() => handleLogout()}>
+            Logout
+          </Button>,
         ]}
       />
       <Box
