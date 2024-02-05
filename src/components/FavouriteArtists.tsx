@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useData } from "../hoc/DataProvider.tsx";
 import { Box, Skeleton, useTheme } from "@mui/material";
-import { artistsToGalleryItems, galleriesToGalleryItems } from "../utils.ts";
+import { artistsToGalleryItems } from "../utils.ts";
 import { ArtistCardProps } from "./ArtistCard.tsx";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import { isAxiosError } from "axios";
-import { GalleryCardProps } from "./GalleryCard.tsx";
 import ListHeader from "./ListHeader.tsx";
-import ArtistsList from "./ArtistsList.tsx";
-import GalleriesList from "./GalleriesList.tsx";
+import ArtistsGrid from "./ArtistsGrid.tsx";
 
 export interface FavouriteArtistsProps {}
 
@@ -18,25 +16,19 @@ const FavouriteArtists: React.FC<FavouriteArtistsProps> = ({}) => {
   const theme = useTheme();
 
   const [favouriteArtists, setFavouriteArtists] = useState<ArtistCardProps[]>([]);
-  const [favouriteGalleries, setFavouriteGalleries] = useState<GalleryCardProps[]>([]);
-
-  const showError = async (err?: unknown, text: string = "Si è verificato un errore") => {
-    if (isAxiosError(err) && err.response?.data?.message) {
-      text = err.response?.data?.message;
-    }
-    return snackbar.error(text, { autoHideDuration: 60000 });
-  };
 
   useEffect(() => {
+    const showError = async (err?: unknown, text: string = "Si è verificato un errore") => {
+      if (isAxiosError(err) && err.response?.data?.message) {
+        text = err.response?.data?.message;
+      }
+      return snackbar.error(text, { autoHideDuration: 60000 });
+    };
+
     Promise.all([
       data.getFavouriteArtists().then((ids) => {
         return data.getArtists(ids).then((resp) => {
           setFavouriteArtists(artistsToGalleryItems(resp));
-        });
-      }),
-      data.getFavouriteGalleries().then((ids) => {
-        return data.getGalleries(ids).then((resp) => {
-          setFavouriteGalleries(galleriesToGalleryItems(resp));
         });
       }),
     ])
@@ -45,7 +37,7 @@ const FavouriteArtists: React.FC<FavouriteArtistsProps> = ({}) => {
         console.log("error!", e);
         showError(e);
       });
-  }, [data, showError]);
+  }, [data, snackbar]);
 
   // <Skeleton variant="rectangular" height={520} width={320} animation="pulse" />
 
@@ -57,7 +49,7 @@ const FavouriteArtists: React.FC<FavouriteArtistsProps> = ({}) => {
         subtitle="In questa sezione troverai tutti gli artisti che stai tenendo d’occhio"
       />
       {favouriteArtists?.length ? (
-        <ArtistsList items={favouriteArtists} />
+        <ArtistsGrid items={favouriteArtists} />
       ) : (
         <Skeleton
           sx={{ borderRadius: "5px", mx: { xs: 0, md: 6 } }}
@@ -67,14 +59,6 @@ const FavouriteArtists: React.FC<FavouriteArtistsProps> = ({}) => {
           animation="pulse"
         />
       )}
-      <ListHeader
-        boxSx={{
-          mt: { xs: 3, md: 6 },
-        }}
-        title="Gallerie che segui"
-        subtitle="In questa sezione troverai tutte le gallerie che stai seguendo"
-      />
-      <GalleriesList items={favouriteGalleries} />
     </Box>
   );
 };

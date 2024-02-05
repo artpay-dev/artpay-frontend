@@ -33,15 +33,16 @@ const availableShippingMethods: ShippingMethodOption[] = [
     method_id: "local_pickup",
     method_title: "Ritiro in sede",
     method_description:
-      "Permetti ai clienti di ritirare gli ordini autonomamente. Per impostazione predefinita, quando si utilizza il ritiro in sede le imposte si applicano indipendentemente dall'indirizzo del cliente",
+      "Selezionando questa opzione l'opera viene ritirata dall'acquirente direttamente alla sede della galleria, senza incorrere in costi aggiuntivi. Una volta completato il processo di acquisto, acquirente e galleria si accorderanno su modalità e tempi di ritiro.",
   },
   {
     id: 7,
     instance_id: 7,
-    title: "Vendor Shipping",
+    title: "Opera spedita dalla galleria",
     method_id: "mvx_vendor_shipping",
     method_title: "Vendor Shipping",
-    method_description: "Charge varying rates based on user defined conditions",
+    method_description:
+      "Selezionando questa opzione l'opera viene direttamente spedita dalla galleria all'acquirente. Per questa opera il costo di spedizione è: ",
   },
 ];
 

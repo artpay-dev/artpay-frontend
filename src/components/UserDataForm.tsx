@@ -8,9 +8,10 @@ export interface UserDataFormProps {
   defaultValues?: BillingData;
   onSubmit?: (formData: BillingData) => Promise<void>;
   showEmail?: boolean;
+  disabled?: boolean;
 }
 
-const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, showEmail }) => {
+const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, showEmail, disabled = false }) => {
   const {
     control,
     handleSubmit,
@@ -42,7 +43,7 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, sh
             rules={{ required: "Nome richiesto" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving}
+                disabled={isSaving || disabled}
                 label="Nome*"
                 variant="outlined"
                 fullWidth
@@ -61,7 +62,7 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, sh
             rules={{ required: "Cognome richiesto" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving}
+                disabled={isSaving || disabled}
                 label="Cognome*"
                 variant="outlined"
                 fullWidth
@@ -103,7 +104,7 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, sh
             rules={{ required: "Indirizzo richiesto" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving}
+                disabled={isSaving || disabled}
                 label="Indirizzo* (linea 1: via/piazza,...)"
                 variant="outlined"
                 fullWidth
@@ -121,7 +122,7 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, sh
             control={control}
             render={({ field }) => (
               <TextField
-                disabled={isSaving}
+                disabled={isSaving || disabled}
                 label="Indirizzo (linea 2: scala, piano)"
                 variant="outlined"
                 fullWidth
@@ -138,7 +139,7 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, sh
             rules={{ required: "Città richiesta" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving}
+                disabled={isSaving || disabled}
                 label="Città*"
                 variant="outlined"
                 fullWidth
@@ -157,7 +158,7 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, sh
             rules={{ required: "CAP richiesto" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving}
+                disabled={isSaving || disabled}
                 label="CAP*"
                 variant="outlined"
                 fullWidth
@@ -177,7 +178,12 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, sh
               control={control}
               rules={{ required: "Paese richiesto" }}
               render={({ field }) => (
-                <Select disabled={isSaving} labelId="country-label" defaultValue="IT" label="Paese" {...field}>
+                <Select
+                  disabled={isSaving || disabled}
+                  labelId="country-label"
+                  defaultValue="IT"
+                  label="Paese"
+                  {...field}>
                   {countries.map((country) => (
                     <MenuItem value={country.code} key={country.code}>
                       {country.name}
@@ -197,7 +203,7 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, sh
             rules={{ required: "Provincia richiesta" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving}
+                disabled={isSaving || disabled}
                 label="Provincia*"
                 variant="outlined"
                 fullWidth
@@ -216,7 +222,7 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, sh
             rules={{ required: "Telefono richiesto" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving}
+                disabled={isSaving || disabled}
                 label="Telefono*"
                 variant="outlined"
                 fullWidth
@@ -236,7 +242,7 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, sh
               rules={{ required: "Email richiesta" }}
               render={({ field }) => (
                 <TextField
-                  disabled={isSaving}
+                  disabled={isSaving || disabled}
                   label="Email"
                   variant="outlined"
                   fullWidth
@@ -258,7 +264,12 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, sh
         </Grid>*/}
 
         <Grid item xs={12}>
-          <Button sx={{ minWidth: "160px" }} type="submit" variant="contained" color="primary">
+          <Button
+            sx={{ minWidth: "160px" }}
+            disabled={isSaving || disabled}
+            type="submit"
+            variant="contained"
+            color="primary">
             Salva
           </Button>
         </Grid>

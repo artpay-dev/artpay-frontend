@@ -1,0 +1,171 @@
+import React, { useEffect, useState } from "react";
+import { useData } from "../hoc/DataProvider.tsx";
+import { BillingData, UserProfile } from "../types/user.ts";
+import DefaultLayout from "../components/DefaultLayout.tsx";
+import ProfileHeader from "../components/ProfileHeader.tsx";
+import { Box, Button, Typography, useTheme } from "@mui/material";
+import UserDataForm from "../components/UserDataForm.tsx";
+import { isAxiosError } from "axios";
+import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
+import Checkbox from "../components/Checkbox.tsx";
+import Avatar from "../components/Avatar.tsx";
+import PasswordChangeForm from "../components/PasswordChangeForm.tsx";
+import PersonalDataForm from "../components/PersonalDataForm.tsx";
+
+export interface ProfileSettingsProps {}
+
+const ProfileSettings: React.FC<ProfileSettingsProps> = ({}) => {
+  const data = useData();
+  const theme = useTheme();
+  const snackbar = useSnackbars();
+
+  const [isReady, setIsReady] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [profile, setProfile] = useState<UserProfile>();
+  const [billingDataEnabled, setBillingDataEnabled] = useState(false);
+
+  const showError = async (err?: unknown, text: string = "Si è verificato un errore") => {
+    if (isAxiosError(err) && err.response?.data?.message) {
+      text = err.response?.data?.message;
+    }
+    return snackbar.error(text, { autoHideDuration: 60000 });
+  };
+
+  const handleProfileDataSubmit = async (formData: BillingData, isBilling = false) => {
+    if (!profile?.id) {
+      return;
+    }
+    try {
+      setIsSaving(true);
+      let updatedProfile: UserProfile;
+      if (isBilling) {
+        updatedProfile = await data.updateUserProfile({ billing: formData });
+      } else {
+        updatedProfile = await data.updateUserProfile({ shipping: formData });
+      }
+      setProfile(updatedProfile);
+    } catch (e) {
+      console.error(e);
+      await showError(e);
+    }
+    setIsSaving(false);
+  };
+
+  const handleEnableBillingData = () => {
+    if (!profile) {
+      return;
+    }
+    if (billingDataEnabled) {
+      setIsSaving(true);
+      setBillingDataEnabled(false);
+      data
+        .updateUserProfile({
+          billing: {
+            address_1: "",
+            address_2: "",
+            city: "",
+            company: "",
+            country: "",
+            first_name: "",
+            last_name: "",
+            phone: "",
+            postcode: "",
+            state: "",
+          },
+        })
+        .then(() => {
+          setIsSaving(false);
+        });
+    } else {
+      setProfile({ ...profile, billing: { ...profile.shipping } });
+      setBillingDataEnabled(true);
+    }
+  };
+
+  useEffect(() => {
+    data.getUserProfile().then((resp) => {
+      setProfile(resp);
+      setIsReady(true);
+    });
+  }, [data]);
+
+  return (
+    <DefaultLayout pageLoading={!isReady} authRequired maxWidth="xl">
+      <ProfileHeader profile={profile} />
+      <Box p={6}>
+        <Typography variant="h3">Impostazioni profilo</Typography>
+        <Typography variant="body1">Qui puoi vedere / modificare i tuoi dati personali</Typography>
+      </Box>
+      <Box px={6} mb={6} sx={{ maxWidth: theme.breakpoints.values.md }}>
+        <Typography variant="h5" sx={{ mb: 2 }}>
+          Impostazioni personali
+        </Typography>
+        <Box display="flex" alignItems="center" gap={3}>
+          <Avatar src={profile?.avatar_url} />
+          <Button variant="link">Modifica immagine profilo</Button>
+        </Box>
+        <Box mt={3}>
+          <PersonalDataForm />
+        </Box>
+      </Box>
+      <Box px={6} mb={6} sx={{ maxWidth: theme.breakpoints.values.md }}>
+        <Typography variant="h5" sx={{ mb: 2 }}>
+          Dati di spedizione
+        </Typography>
+        <UserDataForm
+          defaultValues={profile?.shipping}
+          onSubmit={(formData) => handleProfileDataSubmit(formData, false)}
+          disabled={isSaving}
+        />
+        <Box mt={2}>
+          <Checkbox
+            disabled={isSaving}
+            checked={!billingDataEnabled}
+            onClick={handleEnableBillingData}
+            label="I dati di fatturazione coincidono con quelli di spedizione"
+          />
+        </Box>
+      </Box>
+      {billingDataEnabled && (
+        <Box px={6} mb={6} sx={{ maxWidth: theme.breakpoints.values.md }}>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Dati di fatturazione
+          </Typography>
+          <UserDataForm
+            defaultValues={profile?.billing}
+            disabled={isSaving}
+            onSubmit={(formData) => handleProfileDataSubmit(formData, true)}
+          />
+        </Box>
+      )}
+      <Box px={6} mb={6} sx={{ maxWidth: theme.breakpoints.values.md }}>
+        <Typography variant="h5" sx={{ mb: 2 }}>
+          Cambio password
+        </Typography>
+        <PasswordChangeForm />
+      </Box>
+      <Box px={6} mb={6} sx={{ maxWidth: theme.breakpoints.values.md }}>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Newsletter
+        </Typography>
+        <Checkbox
+          disabled={isSaving}
+          checked={!billingDataEnabled}
+          onClick={() => {}}
+          label="Sei iscrittə alla newsletter di artpay"
+        />
+      </Box>
+      <Box px={6} mt={12} mb={6} sx={{ maxWidth: theme.breakpoints.values.md }}>
+        <Typography variant="h5">Cancellazione account</Typography>
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          Eliminazione permanente account
+        </Typography>
+        <Button color="error" variant="outlined">
+          Cancella account
+        </Button>
+      </Box>
+    </DefaultLayout>
+  );
+};
+
+export default ProfileSettings;

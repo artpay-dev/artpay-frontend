@@ -1,75 +1,47 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
-import { Box, Button, Tab, Typography, useTheme } from "@mui/material";
+import { Box, Button, Tab } from "@mui/material";
 import { useData } from "../hoc/DataProvider.tsx";
 import { UserProfile } from "../types/user.ts";
-import countries from "../countries.ts";
 import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
 import TabPanel from "../components/TabPanel.tsx";
 import FavouriteArtworks from "../components/FavouriteArtworks.tsx";
 import FavouriteArtists from "../components/FavouriteArtists.tsx";
+import FavouriteGalleries from "../components/FavouriteGalleries.tsx";
+import ProfileHeader from "../components/ProfileHeader.tsx";
+import { useNavigate } from "react-router-dom";
 
 export interface ProfileProps {}
 
 const Profile: React.FC<ProfileProps> = ({}) => {
   const data = useData();
-  const theme = useTheme();
+  const navigate = useNavigate();
 
   const [selectedTabPanel, setSelectedTabPanel] = useState(0);
   const [isReady, setIsReady] = useState(false);
   const [profile, setProfile] = useState<UserProfile>();
-  const [joinYear, setJoinYear] = useState<number>();
 
-  const country = countries.find((c) => c.code === profile?.shipping?.country)?.name;
+  const handleProfileSettings = () => {
+    navigate("/profile/settings");
+  };
 
   useEffect(() => {
     data.getUserProfile().then((resp) => {
       setProfile(resp);
-      try {
-        const joinYear = new Date(resp.date_created).getFullYear();
-        setJoinYear(joinYear);
-      } catch (e) {
-        console.warn(e);
-      }
       setIsReady(true);
     });
   }, [data]);
   return (
     <DefaultLayout pageLoading={!isReady} authRequired maxWidth={false}>
-      <Box
-        mt={14}
-        display="flex"
-        gap={3}
-        sx={{
-          px: { xs: 3, md: 6 },
-          mt: { xs: 10, md: 14 },
-          maxWidth: theme.breakpoints.values.xl,
-          marginLeft: "auto",
-          marginRight: "auto",
-          flexDirection: { xs: "column", md: "row" },
-        }}
-        alignItems="center">
-        <Box
-          sx={{ height: "150px", width: "150px", borderRadius: "5px", backgroundColor: "#D9D9D9", overflow: "hidden" }}>
-          <img
-            style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center" }}
-            src={profile?.avatar_url}
-          />
-        </Box>
-        <Box display="flex" flexDirection="column" gap={1}>
-          <Typography variant="h1" sx={{ mt: { xs: 0, md: -1 }, typography: { xs: "h3", md: "h1" } }}>
-            {profile?.username}
-          </Typography>
-          <Typography variant="h6" color="textSecondary" sx={{ textAlign: { xs: "center", md: "left" } }}>
-            membro dal {joinYear}
-            {country && `, ${country}`}
-          </Typography>
-        </Box>
-        <Box sx={{ display: { xs: "none", md: "block" } }} flexGrow={1}></Box>
-        <Box>
-          <Button variant="outlined">Impostazioni profilo</Button>
-        </Box>
-      </Box>
+      <ProfileHeader
+        profile={profile}
+        controls={[
+          <Button onClick={() => handleProfileSettings()} variant="outlined">
+            Impostazioni profilo
+          </Button>,
+          <Button color="error">Logout</Button>,
+        ]}
+      />
       <Box
         sx={{
           borderBottom: 1,
@@ -83,22 +55,26 @@ const Profile: React.FC<ProfileProps> = ({}) => {
             setSelectedTabPanel(newValue);
           }}>
           <Tab label="Home" />
-          <Tab label="In via di acquisizione" />
           <Tab label="Opere preferite" />
-          <Tab label="Seguiti" />
+          <Tab label="Gallerie seguite" />
+          <Tab label="Artisti seguiti" />
           <Tab label="Opere acquistate" />
+          <Tab label="Opere bloccate" />
         </ResponsiveTabs>
       </Box>
       <Box>
         <TabPanel value={selectedTabPanel} index={0}></TabPanel>
-        <TabPanel value={selectedTabPanel} index={1}></TabPanel>
-        <TabPanel value={selectedTabPanel} index={2}>
+        <TabPanel value={selectedTabPanel} index={1}>
           <FavouriteArtworks />
+        </TabPanel>
+        <TabPanel value={selectedTabPanel} index={2}>
+          <FavouriteGalleries />
         </TabPanel>
         <TabPanel value={selectedTabPanel} index={3}>
           <FavouriteArtists />
         </TabPanel>
         <TabPanel value={selectedTabPanel} index={4}></TabPanel>
+        <TabPanel value={selectedTabPanel} index={5}></TabPanel>
       </Box>
     </DefaultLayout>
   );
