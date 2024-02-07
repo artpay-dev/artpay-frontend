@@ -21,6 +21,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import ProfileSettings from "./pages/ProfileSettings.tsx";
 import PaymentProvider from "./hoc/PaymentProvider.tsx";
+import PurchaseComplete from "./pages/PurchaseComplete.tsx";
 
 function AppContent() {
   const baseUrl = ""; // https://artpay.art
@@ -43,6 +44,7 @@ function AppContent() {
                   <Route path="/acquisti" element={<Purchase />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/profile/settings" element={<ProfileSettings />} />
+                  <Route path="/thank-you-page" element={<PurchaseComplete />} />
                 </Routes>
               </PaymentProvider>
             </DataProvider>

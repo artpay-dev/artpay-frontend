@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
 
 export interface PaymentProvider {
   isReady: boolean;
@@ -49,7 +50,9 @@ export const PaymentProvider: React.FC<PaymentProviderProps> = ({ children }) =>
   //
   return (
     <>
-      <Context.Provider value={paymentProvider}>{children}</Context.Provider>
+      <Context.Provider value={paymentProvider}>
+        <Elements stripe={stripe}>{children}</Elements>
+      </Context.Provider>
     </>
   );
 };

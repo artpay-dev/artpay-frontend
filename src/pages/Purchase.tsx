@@ -1,7 +1,7 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
-import { Box, Button, Divider, Grid, RadioGroup, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Divider, Grid, RadioGroup, Typography } from "@mui/material";
 import ContentCard from "../components/ContentCard.tsx";
 import UserIcon from "../components/icons/UserIcon.tsx";
 import { Cancel, Edit } from "@mui/icons-material";
@@ -34,9 +34,12 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
   const navigate = useNavigate();
   const payments = usePayments();
 
+  const checkoutFormRef = useRef<HTMLFormElement>(null);
+
   const [isReady, setIsReady] = useState(false);
   const [paymentsReady, setPaymentsReady] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [checkoutReady, setCheckoutReady] = useState(false);
 
   const [userProfile, setUserProfile] = useState<UserProfile>();
   const [shippingDataEditing, setShippingDataEditing] = useState(false);
@@ -184,6 +187,12 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
     setIsSaving(false);
   };
 
+  const handlePurchase = () => {
+    if (checkoutFormRef?.current) {
+      checkoutFormRef.current.dispatchEvent(new Event("submit"));
+    }
+  };
+
   const contactHeaderButtons: ReactNode[] = [];
   if (auth.isAuthenticated) {
     if (shippingDataEditing) {
@@ -211,7 +220,7 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
   const shoppingBagIcon = <ShoppingBagIcon color="#FFFFFF" />;
   // background={theme.palette.secondary.light}
   return (
-    <DefaultLayout pageLoading={!isReady || !paymentsReady}>
+    <DefaultLayout pageLoading={!isReady || !paymentsReady} pb={6}>
       <Grid mt={16} spacing={3} px={3} container>
         <Grid item gap={3} display="flex" flexDirection="column" xs={12} md={8}>
           <ContentCard title="Informazioni di contatto" icon={<UserIcon />} headerButtons={contactHeaderButtons}>
@@ -281,8 +290,20 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
                 options={{
                   clientSecret: paymentIntent.client_secret || undefined,
                   loader: "always",
+                  appearance: {
+                    theme: "flat",
+                    variables: {
+                      borderRadius: "24px",
+                    },
+                    rules: {
+                      ".AccordionItem": {
+                        border: "none",
+                        paddingLeft: "8px",
+                      },
+                    },
+                  },
                 }}>
-                <CheckoutForm />
+                <CheckoutForm ref={checkoutFormRef} onReady={() => setCheckoutReady(true)} />
               </Elements>
             )}
           </ContentCard>
@@ -306,7 +327,13 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
                 <Typography variant="subtitle1">Totale</Typography>
                 <Typography variant="subtitle1">€ {pendingOrder?.total}</Typography>
               </Box>
-              <Button disabled={isSaving} startIcon={shoppingBagIcon} variant="contained" fullWidth size="large">
+              <Button
+                disabled={isSaving || !checkoutReady}
+                startIcon={checkoutReady ? shoppingBagIcon : <CircularProgress size="20px" />}
+                onClick={handlePurchase}
+                variant="contained"
+                fullWidth
+                size="large">
                 Acquista ora
               </Button>
             </Box>

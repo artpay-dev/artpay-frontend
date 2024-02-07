@@ -12,6 +12,8 @@ export interface DefaultLayoutProps {
   topBar?: ReactNode | ReactNode[];
   pageLoading?: boolean;
   maxWidth?: Breakpoint | false;
+  minHeight?: string;
+  pb?: number;
 }
 
 const DefaultLayout: React.FC<DefaultLayoutProps> = ({
@@ -21,6 +23,8 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
   background,
   pageLoading = false,
   maxWidth = "xl",
+  minHeight = "100vh",
+  pb = 0,
 }) => {
   const auth = useAuth();
   const theme = useTheme();
@@ -58,7 +62,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
     <>
       <Navbar />
       {topBar || ""}
-      <Container sx={{ px: "0!important", pb: 0, minHeight: "100vh" }} maxWidth={maxWidth}>
+      <Container sx={{ px: "0!important", pb: pb, minHeight: minHeight }} maxWidth={maxWidth}>
         {isMobile && <Box mt={8}></Box>}
         {children}
       </Container>

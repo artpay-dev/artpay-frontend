@@ -1,21 +1,21 @@
-import React, { useState } from "react";
+import React, { MutableRefObject, useState } from "react";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { StripePaymentElement } from "@stripe/stripe-js";
-import { Alert, AlertTitle, Box, Button } from "@mui/material";
+import { Alert, AlertTitle, Box, Button, Grid } from "@mui/material";
 
 type CheckoutFormProps = {
   onReady?: (element: StripePaymentElement) => any;
+  ref?: MutableRefObject<HTMLFormElement | null>;
 };
-const CheckoutForm: React.FC<CheckoutFormProps> = ({ onReady }) => {
+const CheckoutForm = React.forwardRef<HTMLFormElement, CheckoutFormProps>(({ onReady }, ref) => {
   const stripe = useStripe();
   const elements = useElements();
 
-  const [message, setMessage] = useState<string>();
   const [error, setError] = useState<string>();
-  const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
+    setError(undefined);
     e.preventDefault();
 
     if (!stripe || !elements) {
@@ -40,16 +40,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onReady }) => {
     // be redirected to an intermediate site first to authorize the payment, then
     // redirected to the `return_url`.
     if (error.type === "card_error" || error.type === "validation_error") {
-      setMessage(error.message);
+      setError(error.message);
     } else {
-      setMessage("An unexpected error occurred.");
+      setError("Si è verificato un errore");
     }
 
     setIsLoading(false);
   };
 
   return (
-    <form id="checkout-form" onSubmit={handleSubmit}>
+    <form id="checkout-form" ref={ref} onSubmit={handleSubmit}>
       {error && (
         <Alert severity="error" sx={{ width: "100%", my: 2 }}>
           <AlertTitle>Errore</AlertTitle>
@@ -58,28 +58,31 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onReady }) => {
       )}
       <PaymentElement
         id="payment-element"
+        options={{
+          layout: "accordion",
+        }}
         onReady={(element) => {
           onReady && onReady(element);
-          console.log("ready", element);
-          setIsReady(true);
         }}
         onLoadError={async ({ error }) => {
           setError(error.message);
         }}
       />
+      <Grid container>
+        <Grid item></Grid>
+      </Grid>
       <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" my={2}>
         <Button
           color="primary"
           variant="contained"
           type="submit"
-          disabled={isLoading || !stripe || !elements || !isReady}
+          disabled={isLoading || !stripe || !elements}
           id="submit">
           <span id="button-text">{isLoading ? <div className="spinner" id="spinner"></div> : "Pay now"}</span>
         </Button>
-        {message && <div id="payment-message">{message}</div>}
       </Box>
     </form>
   );
-};
+});
 
 export default CheckoutForm;
