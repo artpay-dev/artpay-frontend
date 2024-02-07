@@ -183,10 +183,10 @@ export type PaymentIntentResponse = {
   amount: number;
   amount_capturable: number;
   amount_details: {
-    tip: any[];
+    tip: any[]; // or specific type if known
   };
   amount_received: number;
-  application: null | any;
+  application: null | string;
   application_fee_amount: null | number;
   automatic_payment_methods: {
     allow_redirects: string;
@@ -199,35 +199,35 @@ export type PaymentIntentResponse = {
   confirmation_method: string;
   created: number;
   currency: string;
-  customer: null | any;
+  customer: null | string;
   description: string;
-  invoice: null | any;
-  last_payment_error: null | any;
-  latest_charge: null | any;
+  invoice: null | string;
+  last_payment_error: null | string;
+  latest_charge: null | string;
   livemode: boolean;
-  metadata: any[];
-  next_action: null | any;
-  on_behalf_of: null | any;
-  payment_method: null | any;
-  payment_method_configuration_details: null | any;
+  metadata: any[]; // or specific type if known
+  next_action: null | any; // or specific type if known
+  on_behalf_of: null | string;
+  payment_method: null | string;
+  payment_method_configuration_details: null | any; // or specific type if known
   payment_method_options: {
     card: {
-      installments: null | any;
-      mandate_options: null | any;
-      network: null | any;
+      installments: null | string;
+      mandate_options: null | string;
+      network: null | string;
       request_three_d_secure: string;
     };
   };
   payment_method_types: string[];
-  processing: null | any;
+  processing: null | string;
   receipt_email: string;
-  review: null | any;
-  setup_future_usage: null | any;
-  shipping: null | any;
-  source: null | any;
-  statement_descriptor: null | any;
-  statement_descriptor_suffix: null | any;
+  review: null | string;
+  setup_future_usage: null | string;
+  shipping: null | string;
+  source: null | string;
+  statement_descriptor: null | string;
+  statement_descriptor_suffix: null | string;
   status: string;
-  transfer_data: null | any;
-  transfer_group: null | any;
+  transfer_data: null | string;
+  transfer_group: null | string;
 };

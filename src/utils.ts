@@ -173,3 +173,14 @@ export const areBillingFieldsFilled = (data: BillingData): boolean => {
 
   return true;
 };
+
+export const isTimestampAfter = (timestampInSeconds: number, durationInSeconds: number) => {
+  // Get current timestamp in seconds
+  const nowInSeconds = Math.floor(Date.now() / 1000);
+
+  // Calculate the timestamp for one hour ago
+  const oneHourAgoInSeconds = nowInSeconds - durationInSeconds;
+
+  // Check if the given timestamp is in the last hour
+  return timestampInSeconds > oneHourAgoInSeconds;
+};

@@ -8,7 +8,7 @@ import { Category, CategoryGroup, CategoryMap } from "../types/category.ts";
 import { useAuth } from "./AuthProvider.tsx";
 import { FavouritesMap, Post, PostCategory, PostCategoryMap } from "../types/post.ts";
 import { Media } from "../types/media.ts";
-import { postAndMediaToHeroSlide, postAndMediaToPromoItem } from "../utils.ts";
+import { isTimestampAfter, postAndMediaToHeroSlide, postAndMediaToPromoItem } from "../utils.ts";
 import { HomeContent } from "../types/home.ts";
 import { PromoComponentType } from "../components/PromoItem.tsx";
 import {
@@ -40,7 +40,7 @@ const availableShippingMethods: ShippingMethodOption[] = [
     instance_id: 7,
     title: "Opera spedita dalla galleria",
     method_id: "mvx_vendor_shipping",
-    method_title: "Vendor Shipping",
+    method_title: "Opera spedita dalla galleria",
     method_description:
       "Selezionando questa opzione l'opera viene direttamente spedita dalla galleria all'acquirente. Per questa opera il costo di spedizione è: ",
   },
@@ -589,10 +589,23 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       return resp.data;
     },
     async createPaymentIntent(body: PaymentIntentRequest): Promise<PaymentIntent> {
+      const cacheKey = `payment-intents-${body.wc_order_key}`;
+      const cachedItem = localStorage.getItem(cacheKey);
+      if (cachedItem) {
+        try {
+          const paymentIntent: PaymentIntent = JSON.parse(cachedItem);
+          if (isTimestampAfter(paymentIntent.created, 60 * 60)) {
+            return paymentIntent;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
       const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
         `${baseUrl}/wp-json/wc/v3/stripe/payment_intent`,
         body,
       );
+      localStorage.setItem(cacheKey, JSON.stringify(resp.data));
       return resp.data;
     },
     async getUserProfile(): Promise<UserProfile> {

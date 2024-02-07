@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { StripePaymentElement } from "@stripe/stripe-js";
-import { Box, Button } from "@mui/material";
+import { Alert, AlertTitle, Box, Button } from "@mui/material";
 
 type CheckoutFormProps = {
   onReady?: (element: StripePaymentElement) => any;
@@ -11,6 +11,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onReady }) => {
   const elements = useElements();
 
   const [message, setMessage] = useState<string>();
+  const [error, setError] = useState<string>();
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -49,11 +50,21 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onReady }) => {
 
   return (
     <form id="checkout-form" onSubmit={handleSubmit}>
+      {error && (
+        <Alert severity="error" sx={{ width: "100%", my: 2 }}>
+          <AlertTitle>Errore</AlertTitle>
+          {error}
+        </Alert>
+      )}
       <PaymentElement
         id="payment-element"
         onReady={(element) => {
           onReady && onReady(element);
+          console.log("ready", element);
           setIsReady(true);
+        }}
+        onLoadError={async ({ error }) => {
+          setError(error.message);
         }}
       />
       <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" my={2}>

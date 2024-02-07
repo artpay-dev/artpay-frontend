@@ -20,6 +20,7 @@ import SnackbarProvider from "./hoc/SnackbarProvider.tsx";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import ProfileSettings from "./pages/ProfileSettings.tsx";
+import PaymentProvider from "./hoc/PaymentProvider.tsx";
 
 function AppContent() {
   const baseUrl = ""; // https://artpay.art
@@ -29,19 +30,21 @@ function AppContent() {
         <SnackbarProvider>
           <AuthProvider baseUrl={baseUrl}>
             <DataProvider baseUrl={baseUrl}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/showcase" element={<Showcase />} />
-                <Route path="/gallerie/:slug" element={<Gallery selectedTab={0} />} />
-                <Route path="/gallerie/:slug/tutte-le-opere" element={<Artworks />} />
-                <Route path="/gallerie/:slug/tutti-gli-artisti" element={<Gallery selectedTab={1} />} />
-                <Route path="/gallerie/:slug/galleria" element={<Gallery selectedTab={2} />} />
-                <Route path="/gallerie/:slug_galleria/opere/:slug_opera" element={<Artwork />} />
-                <Route path="/artworks" element={<Artworks />} />
-                <Route path="/acquisti" element={<Purchase />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/profile/settings" element={<ProfileSettings />} />
-              </Routes>
+              <PaymentProvider>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/showcase" element={<Showcase />} />
+                  <Route path="/gallerie/:slug" element={<Gallery selectedTab={0} />} />
+                  <Route path="/gallerie/:slug/tutte-le-opere" element={<Artworks />} />
+                  <Route path="/gallerie/:slug/tutti-gli-artisti" element={<Gallery selectedTab={1} />} />
+                  <Route path="/gallerie/:slug/galleria" element={<Gallery selectedTab={2} />} />
+                  <Route path="/gallerie/:slug_galleria/opere/:slug_opera" element={<Artwork />} />
+                  <Route path="/artworks" element={<Artworks />} />
+                  <Route path="/acquisti" element={<Purchase />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/profile/settings" element={<ProfileSettings />} />
+                </Routes>
+              </PaymentProvider>
             </DataProvider>
           </AuthProvider>
         </SnackbarProvider>

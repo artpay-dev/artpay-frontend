@@ -8,9 +8,9 @@ import UserDataForm from "../components/UserDataForm.tsx";
 import { isAxiosError } from "axios";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import Checkbox from "../components/Checkbox.tsx";
-import Avatar from "../components/Avatar.tsx";
-import PasswordChangeForm from "../components/PasswordChangeForm.tsx";
-import PersonalDataForm from "../components/PersonalDataForm.tsx";
+import PasswordChangeForm, { PasswordChangeFormData } from "../components/PasswordChangeForm.tsx";
+import PersonalDataForm, { PersonalDataFormData } from "../components/PersonalDataForm.tsx";
+import AvatarSelector from "../components/AvatarSelector.tsx";
 
 export interface ProfileSettingsProps {}
 
@@ -23,6 +23,11 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({}) => {
   const [isSaving, setIsSaving] = useState(false);
   const [profile, setProfile] = useState<UserProfile>();
   const [billingDataEnabled, setBillingDataEnabled] = useState(false);
+
+  const personalDataDefaultValues: PersonalDataFormData = {
+    first_name: profile?.first_name || "",
+    last_name: profile?.last_name || "",
+  };
 
   const showError = async (err?: unknown, text: string = "Si è verificato un errore") => {
     if (isAxiosError(err) && err.response?.data?.message) {
@@ -82,6 +87,36 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({}) => {
     }
   };
 
+  const handlePersonalDataSubmit = async (formData: PersonalDataFormData) => {
+    if (!profile?.id) {
+      return;
+    }
+    try {
+      setIsSaving(true);
+      const updatedProfile = await data.updateUserProfile({ ...formData });
+      setProfile(updatedProfile);
+    } catch (e) {
+      console.error(e);
+      await showError(e);
+    }
+    setIsSaving(false);
+  };
+  const handlePasswordChange = async (formData: PasswordChangeFormData) => {
+    if (!profile?.id) {
+      return;
+    }
+    try {
+      setIsSaving(true);
+      console.log("formData", formData);
+      // const updatedProfile = await data.updateUserProfile({ ...formData })
+      // setProfile(updatedProfile);
+    } catch (e) {
+      console.error(e);
+      await showError(e);
+    }
+    setIsSaving(false);
+  };
+
   useEffect(() => {
     data.getUserProfile().then((resp) => {
       setProfile(resp);
@@ -100,12 +135,9 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({}) => {
         <Typography variant="h5" sx={{ mb: 2 }}>
           Impostazioni personali
         </Typography>
-        <Box display="flex" alignItems="center" gap={3}>
-          <Avatar src={profile?.avatar_url} />
-          <Button variant="link">Modifica immagine profilo</Button>
-        </Box>
+        <AvatarSelector src={profile?.avatar_url} />
         <Box mt={3}>
-          <PersonalDataForm />
+          <PersonalDataForm defaultValues={personalDataDefaultValues} onSubmit={handlePersonalDataSubmit} />
         </Box>
       </Box>
       <Box px={6} mb={6} sx={{ maxWidth: theme.breakpoints.values.md }}>
@@ -142,7 +174,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({}) => {
         <Typography variant="h5" sx={{ mb: 2 }}>
           Cambio password
         </Typography>
-        <PasswordChangeForm />
+        <PasswordChangeForm onSubmit={handlePasswordChange} />
       </Box>
       <Box px={6} mb={6} sx={{ maxWidth: theme.breakpoints.values.md }}>
         <Typography variant="h6" sx={{ mb: 2 }}>

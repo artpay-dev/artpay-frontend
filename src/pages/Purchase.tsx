@@ -20,6 +20,10 @@ import DisplayImage from "../components/DisplayImage.tsx";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import { PiCreditCardThin, PiTruckThin } from "react-icons/pi";
 import { isAxiosError } from "axios";
+import CheckoutForm from "../components/CheckoutForm.tsx";
+import { Elements } from "@stripe/react-stripe-js";
+import { usePayments } from "../hoc/PaymentProvider.tsx";
+import { PaymentIntent } from "@stripe/stripe-js";
 
 export interface PurchaseProps {}
 
@@ -28,7 +32,10 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
   const auth = useAuth();
   const snackbar = useSnackbars();
   const navigate = useNavigate();
+  const payments = usePayments();
+
   const [isReady, setIsReady] = useState(false);
+  const [paymentsReady, setPaymentsReady] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const [userProfile, setUserProfile] = useState<UserProfile>();
@@ -37,6 +44,7 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
 
   const [availableShippingMethods, setAvailableShippingMethods] = useState<ShippingMethodOption[]>([]);
   const [pendingOrder, setPendingOrder] = useState<Order>();
+  const [paymentIntent, setPaymentIntent] = useState<PaymentIntent>();
   const [artworks, setArtworks] = useState<ArtworkCardProps[]>([]);
 
   const currentShippingMethod = pendingOrder?.shipping_lines?.length
@@ -73,6 +81,8 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
               resp.line_items.map((item) => data.getArtwork(item.product_id.toString())),
             );
             setArtworks(artworksToGalleryItems(artworks));
+            const paymentIntent = await data.createPaymentIntent({ wc_order_key: resp.order_key });
+            setPaymentIntent(paymentIntent);
           }
         }),
       ])
@@ -88,6 +98,12 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
       setIsReady(true);
     }
   }, [auth.isAuthenticated, data]);
+
+  useEffect(() => {
+    if (payments.isReady) {
+      setPaymentsReady(payments.isReady);
+    }
+  }, [payments.isReady]);
 
   const handleEnableBillingData = () => {
     if (!userProfile) {
@@ -195,7 +211,7 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
   const shoppingBagIcon = <ShoppingBagIcon color="#FFFFFF" />;
   // background={theme.palette.secondary.light}
   return (
-    <DefaultLayout pageLoading={!isReady}>
+    <DefaultLayout pageLoading={!isReady || !paymentsReady}>
       <Grid mt={16} spacing={3} px={3} container>
         <Grid item gap={3} display="flex" flexDirection="column" xs={12} md={8}>
           <ContentCard title="Informazioni di contatto" icon={<UserIcon />} headerButtons={contactHeaderButtons}>
@@ -258,7 +274,18 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
               ))}
             </RadioGroup>
           </ContentCard>
-          <ContentCard title="Metodo di pagamento" icon={<PiCreditCardThin size="28px" />}></ContentCard>
+          <ContentCard title="Metodo di pagamento" icon={<PiCreditCardThin size="28px" />}>
+            {paymentIntent && (
+              <Elements
+                stripe={payments.stripe}
+                options={{
+                  clientSecret: paymentIntent.client_secret || undefined,
+                  loader: "always",
+                }}>
+                <CheckoutForm />
+              </Elements>
+            )}
+          </ContentCard>
         </Grid>
         <Grid item xs={12} md={4} sx={{ mb: { xs: 4, md: 0 } }}>
           <ContentCard
