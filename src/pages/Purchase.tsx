@@ -330,7 +330,8 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
             title="Riassunto dell'ordine"
             icon={<ShoppingBagIcon />}
             contentPadding={0}
-            contentPaddingMobile={0}>
+            contentPaddingMobile={0}
+            sx={{ position: "sticky", top: "96px" }}>
             <Box display="flex" flexDirection="column" gap={2} sx={{ px: { xs: 3, md: 5 } }}>
               <Box display="flex" justifyContent="space-between">
                 <Typography variant="body1">Subtotale</Typography>

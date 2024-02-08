@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Paper, PaperProps, Typography } from "@mui/material";
 
 export interface ContentCardProps {
   icon?: ReactNode;
@@ -8,6 +8,7 @@ export interface ContentCardProps {
   headerButtons?: ReactNode[];
   contentPadding?: number;
   contentPaddingMobile?: number;
+  sx?: PaperProps["sx"];
 }
 
 const ContentCard: React.FC<ContentCardProps> = ({
@@ -17,10 +18,11 @@ const ContentCard: React.FC<ContentCardProps> = ({
   children,
   contentPadding = 5,
   contentPaddingMobile = 3,
+  sx,
 }) => {
   // const theme = useTheme();
   return (
-    <Paper elevation={0} sx={{ border: "1px solid #d8ddfa" }}>
+    <Paper elevation={0} sx={{ border: "1px solid #d8ddfa", ...sx }}>
       <Box display="flex" pb={2} flexDirection="column">
         <Box gap={2} mb={1} p={2} alignItems="center" display="flex">
           {icon}
