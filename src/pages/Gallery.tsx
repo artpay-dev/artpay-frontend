@@ -160,6 +160,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
           </Typography>
           <Typography variant="h6" color="textSecondary" sx={{ mt: 2 }}>
             {galleryContent?.subtitle}
+            {galleryContent?.foundationYear ? `, ${galleryContent.foundationYear}` : ""}
           </Typography>
           <Typography variant="subtitle1" sx={{ mt: 2, maxWidth: { md: "560px" } }}>
             {galleryContent?.description}

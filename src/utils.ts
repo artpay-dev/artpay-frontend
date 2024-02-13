@@ -12,7 +12,8 @@ import { PromoComponentType, PromoItemProps } from "./components/PromoItem.tsx";
 import { BillingData, User, UserInfo } from "./types/user.ts";
 import { GalleryCardProps } from "./components/GalleryCard.tsx";
 import { Order } from "./types/order.ts";
-import { OrderCardProps } from "./components/OrderCard.tsx";
+import { OrderHistoryCardProps } from "./components/OrderHistoryCard.tsx";
+import { OrderLoanCardProps } from "./components/OrderLoanCard.tsx";
 
 export const getPropertyFromMetadata = (metadata: MetadataItem[], key: string): { [key: string]: string } => {
   const item = metadata.find((p) => p.key === key);
@@ -38,6 +39,19 @@ export const artworkToGalleryItem = (artwork: Artwork, cardSize?: CardSize): Art
     galleryName: artwork.store_name,
     price: +artwork.price,
     size: cardSize,
+    title: artwork.name,
+    slug: artwork.slug,
+    imgUrl: artwork?.images?.length ? artwork.images[0].src : "",
+    estimatedShippingCost: artwork?.acf?.estimated_shipping_cost,
+  };
+};
+export const artworkToOrderLoanItem = (artwork: Artwork): OrderLoanCardProps => {
+  return {
+    id: artwork.id.toString(),
+    artistName: getPropertyFromMetadata(artwork.meta_data, "artist")?.artist_name,
+    galleryId: artwork.vendor,
+    galleryName: artwork.store_name,
+    price: +artwork.price,
     title: artwork.name,
     slug: artwork.slug,
     imgUrl: artwork?.images?.length ? artwork.images[0].src : "",
@@ -80,6 +94,7 @@ export const galleryToGalleryContent = (gallery: Gallery): GalleryContent => ({
   categories: [],
   description: gallery.message_to_buyers,
   productsCount: gallery.products_count,
+  foundationYear: gallery.shop?.foundation_year,
 });
 export const galleryToGalleryItem = (gallery: Gallery): GalleryCardProps => ({
   id: gallery.id,
@@ -89,7 +104,7 @@ export const galleryToGalleryItem = (gallery: Gallery): GalleryCardProps => ({
   imgUrl: gallery.shop.banner,
 });
 
-export const orderToOrderCardProps = (order: Order): OrderCardProps => {
+export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProps => {
   const lineItem = order.line_items.length ? order.line_items[0] : undefined;
   const galleryName = lineItem?.meta_data.find((m) => m.key?.toLowerCase() === "sold by")?.display_value;
   let datePaid = "";
@@ -121,8 +136,8 @@ export const artistsToGalleryItems = (artists: Artist[]): ArtistCardProps[] => {
 export const galleriesToGalleryItems = (galleries: Gallery[]): GalleryCardProps[] => {
   return galleries.map((a) => galleryToGalleryItem(a));
 };
-export const ordersToOrderCardProps = (orders: Order[]): OrderCardProps[] => {
-  return orders.map((a) => orderToOrderCardProps(a));
+export const ordersToOrderHistoryCardProps = (orders: Order[]): OrderHistoryCardProps[] => {
+  return orders.map((a) => orderToOrderHistoryCardProps(a));
 };
 
 export const getArtworkDimensions = (artwork?: Artwork): string => {

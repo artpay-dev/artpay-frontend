@@ -31,7 +31,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
     if (payments.isReady) {
       const urlParams = new URLSearchParams(window.location.search);
       const clientSecret = urlParams.get("payment_intent_client_secret");
-      const paymentIntent = urlParams.get("redirect_status");
+      const paymentIntent = urlParams.get("payment_intent");
       const redirectStatus = urlParams.get("redirect_status");
 
       if (!clientSecret || !paymentIntent || !redirectStatus) {

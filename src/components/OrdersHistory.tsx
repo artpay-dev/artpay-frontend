@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useData } from "../hoc/DataProvider.tsx";
 import { Grid, Typography } from "@mui/material";
-import OrderCard, { OrderCardProps } from "./OrderCard.tsx";
-import { ordersToOrderCardProps } from "../utils.ts";
+import { ordersToOrderHistoryCardProps } from "../utils.ts";
 import { OrderStatus } from "../types/order.ts";
+import OrderHistoryCard, { OrderHistoryCardProps } from "./OrderHistoryCard.tsx";
 
 export interface OrdersHistoryProps {
   orderStates?: OrderStatus[];
@@ -12,11 +12,11 @@ export interface OrdersHistoryProps {
 const OrdersHistory: React.FC<OrdersHistoryProps> = ({ orderStates = ["completed"] }) => {
   const data = useData();
 
-  const [orders, setOrders] = useState<OrderCardProps[]>();
+  const [orders, setOrders] = useState<OrderHistoryCardProps[]>();
 
   useEffect(() => {
     data.listOrders({ status: orderStates, per_page: 10 }).then((orders) => {
-      setOrders(ordersToOrderCardProps(orders));
+      setOrders(ordersToOrderHistoryCardProps(orders));
     });
   }, [data]);
 
@@ -33,7 +33,7 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ orderStates = ["completed
       </Grid>
       {orders?.map((order, i) => (
         <Grid key={`order-${i}`} xs={12} md={6} item>
-          <OrderCard {...order} />
+          <OrderHistoryCard {...order} />
         </Grid>
       ))}
     </Grid>

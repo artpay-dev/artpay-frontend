@@ -1,9 +1,9 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Box, FormControlLabel, FormControlLabelProps, Radio, Typography } from "@mui/material";
 import RadioIcon from "./icons/RadioIcon.tsx";
 
 export interface RadioButtonProps {
-  description?: string;
+  description?: string | ReactNode;
 }
 
 const RadioButton: React.FC<Omit<FormControlLabelProps, "control"> & RadioButtonProps> = ({

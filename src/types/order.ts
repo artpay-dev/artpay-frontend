@@ -1,4 +1,5 @@
 import { BillingData } from "./user.ts";
+import { ReactNode } from "react";
 
 export type OrderCreateRequest = {
   id?: number;
@@ -143,7 +144,7 @@ export type ShippingMethodOption = {
   title: string;
   method_id: string;
   method_title: string;
-  method_description: string;
+  method_description: (shippingCost?: number) => string | ReactNode;
 };
 
 export type LineItem = {

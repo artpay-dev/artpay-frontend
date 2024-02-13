@@ -96,6 +96,14 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       });
   };
 
+  const handleLoanPurchase = () => {
+    if (!artwork?.slug) {
+      return;
+    }
+    setIsReady(false);
+    navigate(`/blocca-opera/${artwork?.slug}`);
+  };
+
   useEffect(() => {
     //TODO: page loader
     // setIsReady(false);
@@ -220,7 +228,9 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               <Button variant="outlined" onClick={() => handlePurchase(artwork?.id)}>
                 Compra ora
               </Button>
-              <Button variant="contained">Acquista a rate</Button>
+              <Button variant="contained" onClick={handleLoanPurchase}>
+                Acquista a rate
+              </Button>
             </Box>
             <Divider sx={{ my: 3 }} />
             <Box
@@ -261,6 +271,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
           link: "#",
         }}
         imgUrl={heroImgUrl}
+        onClick={handleLoanPurchase}
         sx={{ mt: { xs: 3, sm: 6, md: 15 }, mb: 5 }}
       />
       <Box id="artwork-info" sx={{ top: "-100px", position: "relative" }}></Box>

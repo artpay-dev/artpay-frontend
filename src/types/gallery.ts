@@ -27,6 +27,7 @@ export type Gallery = {
     description: string;
     image: string;
     banner: string;
+    foundation_year?: string;
   };
   address: {
     address_1: string;
@@ -79,4 +80,5 @@ export interface GalleryContent {
   description: string;
   categories: string[];
   productsCount?: number;
+  foundationYear?: string;
 }

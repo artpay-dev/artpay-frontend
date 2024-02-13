@@ -22,6 +22,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import ProfileSettings from "./pages/ProfileSettings.tsx";
 import PaymentProvider from "./hoc/PaymentProvider.tsx";
 import PurchaseComplete from "./pages/PurchaseComplete.tsx";
+import RequireLoan from "./pages/RequireLoan.tsx";
 
 function AppContent() {
   const baseUrl = ""; // https://artpay.art
@@ -43,6 +44,7 @@ function AppContent() {
                   <Route path="/opere/:slug_opera" element={<Artwork />} />
                   <Route path="/artworks" element={<Artworks />} />
                   <Route path="/acquisti" element={<Purchase />} />
+                  <Route path="/blocca-opera/:slug_opera" element={<RequireLoan />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/profile/settings" element={<ProfileSettings />} />
                   <Route path="/thank-you-page" element={<PurchaseComplete />} />

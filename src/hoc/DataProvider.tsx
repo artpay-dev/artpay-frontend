@@ -33,7 +33,7 @@ const availableShippingMethods: ShippingMethodOption[] = [
     title: "Ritiro in sede",
     method_id: "local_pickup",
     method_title: "Ritiro in sede",
-    method_description:
+    method_description: () =>
       "Selezionando questa opzione l'opera viene ritirata dall'acquirente direttamente alla sede della galleria, senza incorrere in costi aggiuntivi. Una volta completato il processo di acquisto, acquirente e galleria si accorderanno su modalità e tempi di ritiro.",
   },
   {
@@ -42,8 +42,10 @@ const availableShippingMethods: ShippingMethodOption[] = [
     title: "Opera spedita dalla galleria",
     method_id: "mvx_vendor_shipping",
     method_title: "Opera spedita dalla galleria",
-    method_description:
-      "Selezionando questa opzione l'opera viene direttamente spedita dalla galleria all'acquirente. Per questa opera il costo di spedizione è: ",
+    method_description: (shippingCost) =>
+      `Selezionando questa opzione l'opera viene direttamente spedita dalla galleria all'acquirente. Per questa opera il costo di spedizione è: €${
+        shippingCost?.toFixed(2) || ""
+      }`,
   },
 ];
 

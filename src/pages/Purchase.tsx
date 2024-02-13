@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
-import { Box, Button, CircularProgress, Divider, Grid, RadioGroup, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Divider, Grid, RadioGroup, Typography, useTheme } from "@mui/material";
 import ContentCard from "../components/ContentCard.tsx";
 import UserIcon from "../components/icons/UserIcon.tsx";
 import { Cancel, Edit } from "@mui/icons-material";
@@ -33,6 +33,7 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
   const snackbar = useSnackbars();
   const navigate = useNavigate();
   const payments = usePayments();
+  const theme = useTheme();
 
   const checkoutButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -53,6 +54,8 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
   const currentShippingMethod = pendingOrder?.shipping_lines?.length
     ? pendingOrder.shipping_lines[0].method_id
     : undefined;
+
+  const estimatedShippingCost = [0, ...artworks.map((a) => +(a.estimatedShippingCost || "0"))].reduce((a, b) => a + b);
 
   const showError = async (err?: unknown, text: string = "Si è verificato un errore") => {
     if (isAxiosError(err) && err.response?.data?.message) {
@@ -290,7 +293,7 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
                   onClick={() => handleSelectShippingMethod(s)}
                   checked={currentShippingMethod === s.method_id}
                   label={s.method_title}
-                  description={s.method_description}
+                  description={s.method_description(estimatedShippingCost)}
                 />
               ))}
             </RadioGroup>
@@ -316,6 +319,14 @@ const Purchase: React.FC<PurchaseProps> = ({}) => {
                         border: "none",
                         paddingLeft: "24px",
                         paddingRight: "24px",
+                      },
+                      ".Input:focus": {
+                        boxShadow: "none",
+                        borderColor: theme.palette.primary.main,
+                        borderWidth: "2px",
+                      },
+                      ".Input:hover": {
+                        borderColor: theme.palette.primary.main,
                       },
                     },
                   },

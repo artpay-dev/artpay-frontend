@@ -27,6 +27,33 @@ type YoastHeadJson = {
   schema: object;
 };
 
+type ArtworkArtist = {
+  ID: number;
+  post_author: string;
+  post_date: string;
+  post_date_gmt: string;
+  post_content: string;
+  post_title: string;
+  post_excerpt: string;
+  post_status: string;
+  comment_status: string;
+  ping_status: string;
+  post_password: string;
+  post_name: string;
+  to_ping: string;
+  pinged: string;
+  post_modified: string;
+  post_modified_gmt: string;
+  post_content_filtered: string;
+  post_parent: number;
+  guid: string;
+  menu_order: number;
+  post_type: string;
+  post_mime_type: string;
+  comment_count: string;
+  filter: string;
+};
+
 export type Artwork = {
   id: number;
   name: string;
@@ -113,6 +140,12 @@ export type Artwork = {
   stock_status: string;
   has_options: boolean;
   post_password: string;
+  acf: {
+    artist: ArtworkArtist[];
+    anno_di_produzione: string;
+    condizioni: string;
+    estimated_shipping_cost: string;
+  };
   vendor: string;
   store_name: string;
   yoast_head?: string;

@@ -16,6 +16,7 @@ export interface ArtworkCardProps {
   price?: number;
   size?: CardSize;
   imgUrl?: string;
+  estimatedShippingCost?: string;
   onClick?: () => void;
   onSetFavourite?: (currentValue: boolean) => void;
   mode?: "grid" | "list";

@@ -20,7 +20,7 @@ const defaultTheme: Theme = createTheme({
       contrastText: "#FFF",
     },
     secondary: {
-      light: "#C5CBF8",
+      light: "#ECEDFC",
       main: "#5366EB",
       dark: "#3F55E9",
     },
