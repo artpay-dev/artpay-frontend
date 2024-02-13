@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useData } from "../hoc/DataProvider.tsx";
-import { BillingData, UserProfile } from "../types/user.ts";
+import { BillingData, User, UserProfile } from "../types/user.ts";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import ProfileHeader from "../components/ProfileHeader.tsx";
 import { Box, Button, Typography, useTheme } from "@mui/material";
@@ -22,6 +22,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({}) => {
   const [isReady, setIsReady] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [profile, setProfile] = useState<UserProfile>();
+  const [userInfo, setUserInfo] = useState<User>();
   const [billingDataEnabled, setBillingDataEnabled] = useState(false);
 
   const personalDataDefaultValues: PersonalDataFormData = {
@@ -60,6 +61,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({}) => {
     if (!profile) {
       return;
     }
+    // userInfo?.acf.same_shipping_billing_address
     if (billingDataEnabled) {
       setIsSaving(true);
       setBillingDataEnabled(false);
@@ -118,8 +120,14 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({}) => {
   };
 
   useEffect(() => {
-    data.getUserProfile().then((resp) => {
-      setProfile(resp);
+    Promise.all([
+      data.getUserInfo().then((resp) => {
+        setUserInfo(resp);
+      }),
+      data.getUserProfile().then((resp) => {
+        setProfile(resp);
+      }),
+    ]).then(() => {
       setIsReady(true);
     });
   }, [data]);
@@ -152,7 +160,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({}) => {
         <Box mt={2}>
           <Checkbox
             disabled={isSaving}
-            checked={!billingDataEnabled}
+            checked={userInfo?.acf.same_shipping_billing_address || false}
             onClick={handleEnableBillingData}
             label="I dati di fatturazione coincidono con quelli di spedizione"
           />

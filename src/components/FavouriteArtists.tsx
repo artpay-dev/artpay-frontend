@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useData } from "../hoc/DataProvider.tsx";
-import { Box, Skeleton, useTheme } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { artistsToGalleryItems } from "../utils.ts";
 import { ArtistCardProps } from "./ArtistCard.tsx";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import { isAxiosError } from "axios";
 import ListHeader from "./ListHeader.tsx";
 import ArtistsGrid from "./ArtistsGrid.tsx";
+import Loader from "./Loader.tsx";
 
 export interface FavouriteArtistsProps {}
 
@@ -16,6 +17,7 @@ const FavouriteArtists: React.FC<FavouriteArtistsProps> = ({}) => {
   const theme = useTheme();
 
   const [favouriteArtists, setFavouriteArtists] = useState<ArtistCardProps[]>([]);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const showError = async (err?: unknown, text: string = "Si è verificato un errore") => {
@@ -32,7 +34,9 @@ const FavouriteArtists: React.FC<FavouriteArtistsProps> = ({}) => {
         });
       }),
     ])
-      .then(() => {})
+      .then(() => {
+        setReady(true);
+      })
       .catch((e) => {
         console.log("error!", e);
         showError(e);
@@ -48,17 +52,7 @@ const FavouriteArtists: React.FC<FavouriteArtistsProps> = ({}) => {
         title="Artisti che segui"
         subtitle="In questa sezione troverai tutti gli artisti che stai tenendo d’occhio"
       />
-      {favouriteArtists?.length ? (
-        <ArtistsGrid items={favouriteArtists} />
-      ) : (
-        <Skeleton
-          sx={{ borderRadius: "5px", mx: { xs: 0, md: 6 } }}
-          variant="rectangular"
-          height={430}
-          width={320}
-          animation="pulse"
-        />
-      )}
+      {ready ? <ArtistsGrid items={favouriteArtists} /> : <Loader sx={{ mx: { xs: 0, md: 6 } }} />}
     </Box>
   );
 };

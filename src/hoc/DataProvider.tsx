@@ -20,7 +20,7 @@ import {
   ShippingMethodOption,
 } from "../types/order.ts";
 import { PaymentIntent } from "@stripe/stripe-js";
-import { UserProfile } from "../types/user.ts";
+import { User, UserProfile } from "../types/user.ts";
 
 export interface ArtworksFilter {
   featured?: boolean;
@@ -100,6 +100,8 @@ export interface DataContext {
 
   getArtists(ids: number[]): Promise<Artist[]>;
 
+  getUserInfo(): Promise<User>;
+
   getUserProfile(): Promise<UserProfile>;
 
   updateUserProfile(data: Partial<UserProfile>): Promise<UserProfile>;
@@ -155,6 +157,7 @@ const defaultContext: DataContext = {
   purchaseArtwork: () => Promise.reject("Data provider loaded"),
   createPaymentIntent: () => Promise.reject("Data provider loaded"),
   clearCachedPaymentIntent: () => Promise.reject("Data provider loaded"),
+  getUserInfo: () => Promise.reject("Data provider loaded"),
   getUserProfile: () => Promise.reject("Data provider loaded"),
   updateUserProfile: () => Promise.reject("Data provider loaded"),
 
@@ -357,7 +360,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         `${baseUrl}/wp-json/wp/v2/getUserFavoriteGalleries`,
       );
       favouritesMap.galleries = resp.data || [];
-      return resp.data;
+      return resp.data || [];
     },
     async addFavouriteGallery(id: string): Promise<number[]> {
       const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
@@ -615,6 +618,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     async clearCachedPaymentIntent(body: PaymentIntentRequest): Promise<void> {
       const cacheKey = `payment-intents-${body.wc_order_key}`;
       localStorage.removeItem(cacheKey);
+    },
+    async getUserInfo(): Promise<User> {
+      const resp = await axios.get<unknown, AxiosResponse<User>>(`${baseUrl}/wp-json/wp/v2/users/me`, {
+        headers: { Authorization: auth.getAuthToken() },
+      });
+      return resp.data;
     },
     async getUserProfile(): Promise<UserProfile> {
       const userId = auth.user?.id;

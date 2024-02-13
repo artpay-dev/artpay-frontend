@@ -6,6 +6,7 @@ import { GalleryCardProps } from "./GalleryCard.tsx";
 import { galleriesToGalleryItems } from "../utils.ts";
 import ListHeader from "./ListHeader.tsx";
 import GalleriesGrid from "./GalleriesGrid.tsx";
+import Loader from "./Loader.tsx";
 
 export interface FavouriteGalleriesProps {}
 
@@ -14,6 +15,7 @@ const FavouriteGalleries: React.FC<FavouriteGalleriesProps> = ({}) => {
   const snackbar = useSnackbars();
 
   const [favouriteGalleries, setFavouriteGalleries] = useState<GalleryCardProps[]>([]);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -21,6 +23,7 @@ const FavouriteGalleries: React.FC<FavouriteGalleriesProps> = ({}) => {
         console.log("getFavouriteGalleries", ids);
         return data.getGalleries(ids).then((resp) => {
           setFavouriteGalleries(galleriesToGalleryItems(resp));
+          setReady(true);
         });
       }),
     ])
@@ -39,7 +42,7 @@ const FavouriteGalleries: React.FC<FavouriteGalleriesProps> = ({}) => {
         title="Gallerie che segui"
         subtitle="In questa sezione troverai tutte le gallerie che stai seguendo"
       />
-      <GalleriesGrid items={favouriteGalleries} />
+      {ready ? <GalleriesGrid items={favouriteGalleries} /> : <Loader sx={{ px: { xs: 0, md: 6 } }} />}
     </Box>
   );
 };

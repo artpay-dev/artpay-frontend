@@ -28,6 +28,7 @@ export interface AuthContext extends AuthState {
   logout: () => Promise<boolean>;
   login: () => void;
   getGuestAuth: () => string;
+  getAuthToken: () => string | undefined;
 }
 
 export interface AuthProviderProps extends React.PropsWithChildren {
@@ -59,6 +60,7 @@ const Context = createContext<AuthContext>({
   logout: () => Promise.reject("Auth not loaded"),
   login: () => {},
   getGuestAuth: () => getGuestAuth(),
+  getAuthToken: () => undefined,
 });
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = "" }) => {
@@ -167,18 +169,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       isLoading: false,
     });
 
-  const state = {
+  const state: AuthContext = {
     ...authValues,
     login: showLoginDialog,
     logout,
     getRole,
     getGuestAuth: () => getGuestAuth(),
+    getAuthToken: () => authValues.wcToken,
   };
 
   // Guest auth interceptor
   useEffect(() => {
     const interceptorId = axios.interceptors.request.use((config) => {
-      const needsWcKey = config.url?.startsWith(`${baseUrl}/wp-json/wc/`);
+      const needsWcKey = config.url?.startsWith(`${baseUrl}/wp-json/wc/`); //
       if (!config.headers.Authorization) {
         if (needsWcKey) {
           config.headers.Authorization = authValues.wcToken;

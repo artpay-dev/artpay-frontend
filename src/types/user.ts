@@ -44,13 +44,15 @@ export type User = {
     "96": string;
   };
   meta: {
-    persisted_preferences: unknown[]; // You might want to replace 'any' with a more specific type
+    persisted_preferences: unknown[];
   };
   wc_api_user_keys: {
     consumer_key: string;
     consumer_secret: string;
   };
-  acf: unknown[]; // You might want to replace 'any' with a more specific type
+  acf: {
+    same_shipping_billing_address?: boolean | null;
+  };
   is_super_admin: boolean;
   woocommerce_meta: {
     [key: string]: string;
