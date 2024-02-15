@@ -9,11 +9,22 @@ import { UserProfile } from "../types/user.ts";
 import PurchaseLoanStepOne from "../components/PurchaseLoanStepOne.tsx";
 import PurchaseLoanStepTwo from "../components/PurchaseLoanStepTwo.tsx";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
-import LoanConditionsCard from "../components/LoanConditionsCard.tsx";
+import LoanConditionsCard, { LoanConditionsCardProps } from "../components/LoanConditionsCard.tsx";
 
 export interface RequireLoanProps {
   step?: number;
 }
+
+const loanConditionsContent: LoanConditionsCardProps = {
+  logoSrc: "/santander_logo_1.svg",
+  isBestChoice: true,
+  monthlyEstimateText: "stima mensile a partire da..",
+  monthlyAmount: "120€ al mese",
+  taegText: "TAEG: 5,91% (Indice sintetico di costo) / TAN: 5,74% (fisso nel tempo) / Spese iniziali: € 16,00",
+  requestQuoteUrl: "https://santanderconsumergs.com/banking4you/",
+  requestQuoteText: "Richiedi preventivo",
+  freeAndNonBindingText: "Gratis e senza impegno",
+};
 
 const RequireLoan: React.FC<RequireLoanProps> = ({ step = 0 }) => {
   const data = useData();
@@ -74,8 +85,9 @@ const RequireLoan: React.FC<RequireLoanProps> = ({ step = 0 }) => {
           ml: "auto",
           mr: "auto",
         }}
+        justifyContent="center"
         container>
-        <Grid xs={12} lg={6} sx={{ pr: { xs: 0, lg: 3 }, mb: { xs: 3, lg: 0 } }} item>
+        <Grid xs={12} lg={6} xl={7} sx={{ pr: { xs: 0, lg: 3 }, mb: { xs: 3, lg: 0 } }} item>
           <Typography sx={{ mb: { xs: 3, md: 6 }, typography: { xs: "h3", sm: "h2" } }} variant="h2">
             Richiedi finanziamento
           </Typography>
@@ -86,7 +98,7 @@ const RequireLoan: React.FC<RequireLoanProps> = ({ step = 0 }) => {
             consectetur odio est interdum.
           </Typography>
         </Grid>
-        <Grid xs={12} lg={6} item>
+        <Grid xs={12} sm={10} md={8} lg={6} xl={5} item>
           {artwork && (
             <OrderLoanCard {...artwork} profile={profile} onClick={handleReserveArtwork} showCta={step === 0} />
           )}
@@ -99,7 +111,7 @@ const RequireLoan: React.FC<RequireLoanProps> = ({ step = 0 }) => {
         container>
         <Grid xs={12} md={12} item>
           <Typography variant="h3">Scegli la finanziaria</Typography>
-          <LoanConditionsCard sx={{ mt: 2, mb: 6 }} />
+          <LoanConditionsCard {...loanConditionsContent} sx={{ mt: 2, mb: 6 }} />
         </Grid>
       </Grid>
     </DefaultLayout>

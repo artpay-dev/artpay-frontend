@@ -1,11 +1,30 @@
 import React from "react";
-import { Box, BoxProps, Button, Typography, useTheme } from "@mui/material";
+import { Box, Typography, Button, useTheme } from "@mui/material";
+import { BoxProps } from "@mui/system";
 
 export interface LoanConditionsCardProps {
   sx?: BoxProps["sx"];
+  logoSrc: string; // Prop for the first image source
+  isBestChoice?: boolean; // Prop for the second image source
+  monthlyEstimateText: string; // Text prop for the monthly estimate
+  monthlyAmount: string; // Text prop for the monthly amount
+  taegText: string; // Text prop for TAEG details
+  requestQuoteUrl: string; // URL for the "Request Quote" button
+  requestQuoteText: string; // Button text
+  freeAndNonBindingText: string; // Text prop for the "Free and without obligation" part
 }
 
-const LoanConditionsCard: React.FC<LoanConditionsCardProps> = ({ sx }) => {
+const LoanConditionsCard: React.FC<LoanConditionsCardProps> = ({
+  sx,
+  logoSrc,
+  isBestChoice = false,
+  monthlyEstimateText,
+  monthlyAmount,
+  taegText,
+  requestQuoteUrl,
+  requestQuoteText,
+  freeAndNonBindingText,
+}) => {
   const theme = useTheme();
   return (
     <Box
@@ -22,8 +41,8 @@ const LoanConditionsCard: React.FC<LoanConditionsCardProps> = ({ sx }) => {
         justifyContent="space-between"
         alignItems="center"
         sx={{ flexDirection: { xs: "column-reverse", sm: "row" } }}>
-        <img style={{ height: "48px" }} src="/santander_logo_1.svg" />
-        <img style={{ height: "30px" }} src="/best_choice.svg" />
+        <img style={{ height: "48px" }} src={logoSrc} />
+        {isBestChoice ? <img style={{ height: "30px" }} src={"/best_choice.svg"} /> : <div />}
       </Box>
       <Box
         mt={3}
@@ -36,20 +55,20 @@ const LoanConditionsCard: React.FC<LoanConditionsCardProps> = ({ sx }) => {
         alignItems="center"
         sx={{ background: theme.palette.contrast.main, borderRadius: "5px" }}>
         <Typography sx={{ mb: 0.5 }} variant="body1">
-          stima mensile a partire da..
+          {monthlyEstimateText}
         </Typography>
         <Typography sx={{ mb: 1 }} variant="h4" color="primary">
-          120€ al mese
+          {monthlyAmount}
         </Typography>
       </Box>
       <Typography sx={{ mt: 1, mb: 2 }} variant="body2">
-        TAEG: 5,91% (Indice sintetico di costo) / TAN: 5,74% (fisso nel tempo) / Spese iniziali: € 16,00
+        {taegText}
       </Typography>
-      <Button variant="contained" href="https://santanderconsumergs.com/banking4you/" target="_blank">
-        Richiedi preventivo
+      <Button variant="contained" href={requestQuoteUrl} target="_blank">
+        {requestQuoteText}
       </Button>
       <Typography sx={{ mt: 0.5 }} color="primary" variant="body1">
-        Gratis e senza impegno
+        {freeAndNonBindingText}
       </Typography>
     </Box>
   );
