@@ -59,6 +59,8 @@ const RequireLoan: React.FC<RequireLoanProps> = ({ step = 0 }) => {
     });
   }, [data, navigate, urlParams.slug_opera]);
 
+  //TODO: modulo prestito con link https://santanderconsumergs.com/banking4you/
+
   return (
     <DefaultLayout pageLoading={!ready} maxWidth={false}>
       <Grid mt={16} sx={{ px: { xs: 3, md: 6 }, maxWidth: maxWidth, ml: "auto", mr: "auto" }} container>

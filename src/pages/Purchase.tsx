@@ -232,7 +232,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
     ? pendingOrder.shipping_lines[0].method_id
     : undefined;
   const estimatedShippingCost = [0, ...artworks.map((a) => +(a.estimatedShippingCost || "0"))].reduce((a, b) => a + b);
-  const formattedSubtotal = (+(pendingOrder?.total || 0) - +(pendingOrder?.total_tax || 0)).toFixed(2);
+  // const formattedSubtotal = (+(pendingOrder?.total || 0) - +(pendingOrder?.total_tax || 0)).toFixed(2);
   const thankYouPage =
     orderMode === "loan" ? `/opera-bloccata/${artworks.length ? artworks[0].slug : ""}` : "/thank-you-page";
   const checkoutEnabled =
@@ -242,6 +242,10 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
     (currentShippingMethod || (orderMode === "loan" && areBillingFieldsFilled(userProfile?.billing)));
 
   const shoppingBagIcon = <ShoppingBagIcon color="#FFFFFF" />;
+
+  const shippingPrice = currentShippingMethod === "local_pickup" ? 0 : estimatedShippingCost || 0;
+
+  console.log("currentShippingMethod", currentShippingMethod);
   // background={theme.palette.secondary.light}
   return (
     <DefaultLayout pageLoading={!isReady || !paymentsReady} pb={6}>
@@ -270,7 +274,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
               </>
             )}
             {userProfile && (billingDataEnabled || orderMode === "loan") && (
-              <Box mt={orderMode === "loan" ? 0 : 4}>
+              <Box pt={orderMode === "loan" ? 0 : 3}>
                 <Typography variant="h6" sx={{ mb: 1 }} color="textSecondary">
                   Dati di fatturazione
                 </Typography>
@@ -348,15 +352,17 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                 <>
                   <Box display="flex" justifyContent="space-between">
                     <Typography variant="body1">Subtotale</Typography>
-                    <Typography variant="body1">€ {formattedSubtotal}</Typography>
+                    <Typography variant="body1">€ {pendingOrder?.total}</Typography>
                   </Box>
                   <Box display="flex" justifyContent="space-between">
-                    <Typography variant="body1">IVA</Typography>
-                    <Typography variant="body1">€ {pendingOrder?.total_tax}</Typography>
+                    <Typography variant="body1">Spedizione</Typography>
+                    <Typography variant="body1">€ {shippingPrice || (0).toFixed(2)}</Typography>
                   </Box>
                   <Box display="flex" justifyContent="space-between">
                     <Typography variant="subtitle1">Totale</Typography>
-                    <Typography variant="subtitle1">€ {pendingOrder?.total}</Typography>
+                    <Typography variant="subtitle1">
+                      € {(+(pendingOrder?.total || 0) + (shippingPrice || 0)).toFixed(2)}
+                    </Typography>
                   </Box>
                 </>
               )}
