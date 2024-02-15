@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Grid, Typography, useTheme } from "@mui/material";
+import { Box, Button, Grid, Typography, useTheme } from "@mui/material";
 import InfoCard from "./InfoCard.tsx";
 
 export interface PurchaseLoanStepOneProps {
@@ -12,9 +12,9 @@ const PurchaseLoanStepOne: React.FC<PurchaseLoanStepOneProps> = ({ onClick }) =>
   const maxWidth = `${theme.breakpoints.values.xl}px`;
 
   return (
-    <Grid spacing={3} sx={{ maxWidth: maxWidth, ml: "auto", mr: "auto", px: 3 }} container>
+    <Grid sx={{ maxWidth: maxWidth, ml: "auto", mr: "auto", px: { xs: 3, md: 6 }, gap: { xs: 3, md: 0 } }} container>
       <Grid xs={12} mb={6} item>
-        <Typography sx={{ mb: { xs: 2 } }} variant="h3">
+        <Typography sx={{ mb: { xs: 2 }, typography: { xs: "h4", sm: "h3" } }} variant="h3">
           Non vuoi farti sfuggire l’opera? Bloccala!
         </Typography>
         <Typography variant="subtitle1">
@@ -22,27 +22,38 @@ const PurchaseLoanStepOne: React.FC<PurchaseLoanStepOneProps> = ({ onClick }) =>
           scappare!
         </Typography>
       </Grid>
-      <Grid xs={12} md={4} alignSelf="stretch" item>
-        <InfoCard
-          title="Versa un acconto"
-          subtitle="Questa operazione blocca l'opera e garantisce l'esclusiva sull'acquisto. Alla ricezione dell'acconto Artpay bloccherà l'opera per 7 giorni."
-          imgSrc="/boat.svg"
-        />
+      <Grid
+        xs={12}
+        sx={{
+          gridTemplateColumns: { xs: undefined, md: "1fr 1fr 1fr" },
+          display: { xs: "flex", md: "grid" },
+          flexDirection: { xs: "column", md: undefined },
+          gap: 3,
+        }}
+        item>
+        <Box>
+          <InfoCard
+            title="Versa un acconto"
+            subtitle="Questa operazione blocca l'opera e garantisce l'esclusiva sull'acquisto. Alla ricezione dell'acconto Artpay bloccherà l'opera per 7 giorni."
+            imgSrc="/boat.svg"
+          />
+        </Box>
+        <Box>
+          <InfoCard
+            title="Richiedi il finanziamento"
+            subtitle="Normalmente viene erogato in poche ore*."
+            imgSrc="/boat.svg"
+          />
+        </Box>
+        <Box>
+          <InfoCard
+            title="Compra l’opera d’arte"
+            subtitle="Completato l'iter di richiesta e ricevuto il finanziamento, l'acquirente può procedere all'acquisto dell'opera dal sito Artpay"
+            imgSrc="/boat.svg"
+          />
+        </Box>
       </Grid>
-      <Grid xs={12} md={4} alignSelf="stretch" item>
-        <InfoCard
-          title="Richiedi il finanziamento"
-          subtitle="Normalmente viene erogato in poche ore*."
-          imgSrc="/boat.svg"
-        />
-      </Grid>
-      <Grid xs={12} md={4} alignSelf="stretch" item>
-        <InfoCard
-          title="Compra l’opera d’arte"
-          subtitle="Completato l'iter di richiesta e ricevuto il finanziamento, l'acquirente può procedere all'acquisto dell'opera dal sito Artpay"
-          imgSrc="/boat.svg"
-        />
-      </Grid>
+
       <Grid xs={12} my={6} p={`0!important`} display="flex" flexDirection="column" alignItems="center" item>
         <Button onClick={onClick} variant="contained">
           Blocca l'opera

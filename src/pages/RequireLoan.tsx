@@ -9,6 +9,7 @@ import { UserProfile } from "../types/user.ts";
 import PurchaseLoanStepOne from "../components/PurchaseLoanStepOne.tsx";
 import PurchaseLoanStepTwo from "../components/PurchaseLoanStepTwo.tsx";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
+import LoanConditionsCard from "../components/LoanConditionsCard.tsx";
 
 export interface RequireLoanProps {
   step?: number;
@@ -63,9 +64,19 @@ const RequireLoan: React.FC<RequireLoanProps> = ({ step = 0 }) => {
 
   return (
     <DefaultLayout pageLoading={!ready} maxWidth={false}>
-      <Grid mt={16} sx={{ px: { xs: 3, md: 6 }, maxWidth: maxWidth, ml: "auto", mr: "auto" }} container>
-        <Grid xs={12} sx={{ mb: { xs: 6, md: 12, lg: 18 } }} item>
-          <Typography sx={{ mb: { xs: 3, md: 6 } }} variant="h2">
+      <Grid
+        mt={16}
+        sx={{
+          px: { xs: 3, md: 6 },
+          mt: { xs: 8, sm: 12, md: 16 },
+          mb: { xs: 6, md: 12, lg: 18 },
+          maxWidth: maxWidth,
+          ml: "auto",
+          mr: "auto",
+        }}
+        container>
+        <Grid xs={12} lg={6} sx={{ pr: { xs: 0, lg: 3 }, mb: { xs: 3, lg: 0 } }} item>
+          <Typography sx={{ mb: { xs: 3, md: 6 }, typography: { xs: "h3", sm: "h2" } }} variant="h2">
             Richiedi finanziamento
           </Typography>
           <Typography variant="subtitle1">
@@ -75,19 +86,20 @@ const RequireLoan: React.FC<RequireLoanProps> = ({ step = 0 }) => {
             consectetur odio est interdum.
           </Typography>
         </Grid>
+        <Grid xs={12} lg={6} item>
+          {artwork && (
+            <OrderLoanCard {...artwork} profile={profile} onClick={handleReserveArtwork} showCta={step === 0} />
+          )}
+        </Grid>
       </Grid>
       {step === 0 ? <PurchaseLoanStepOne onClick={handleReserveArtwork} /> : <PurchaseLoanStepTwo />}
       <Grid
         mb={6}
         sx={{ maxWidth: maxWidth, ml: "auto", mr: "auto", mt: { xs: 4, md: 12 }, px: { xs: 3, md: 6 } }}
         container>
-        <Grid xs={12} md={6} item>
+        <Grid xs={12} md={12} item>
           <Typography variant="h3">Scegli la finanziaria</Typography>
-        </Grid>
-        <Grid xs={12} md={6} item>
-          {artwork && (
-            <OrderLoanCard {...artwork} profile={profile} onClick={handleReserveArtwork} showCta={step === 0} />
-          )}
+          <LoanConditionsCard sx={{ mt: 2, mb: 6 }} />
         </Grid>
       </Grid>
     </DefaultLayout>
