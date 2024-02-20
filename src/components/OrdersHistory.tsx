@@ -6,10 +6,17 @@ import { OrderStatus } from "../types/order.ts";
 import OrderHistoryCard, { OrderHistoryCardProps } from "./OrderHistoryCard.tsx";
 
 export interface OrdersHistoryProps {
+  title?: string;
+  subtitle?: string;
   orderStates?: OrderStatus[];
 }
 
-const OrdersHistory: React.FC<OrdersHistoryProps> = ({ orderStates = ["completed"] }) => {
+const OrdersHistory: React.FC<OrdersHistoryProps> = ({
+  orderStates = ["completed"],
+  title = "Opere acquistate",
+  subtitle = "In questa sezione trovi tutte le tue opere in via di acquisizione, potrai controllarne lo stato di avanzamento\n" +
+    "          e verificare se le tue richieste di finanziamento sono state approvate",
+}) => {
   const data = useData();
 
   const [orders, setOrders] = useState<OrderHistoryCardProps[]>();
@@ -24,12 +31,9 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ orderStates = ["completed
     <Grid sx={{ px: { xs: 0, sm: 3, md: 6 }, width: "100%" }} justifyContent="stretch" spacing={3} container>
       <Grid xs={12} mb={3} item>
         <Typography sx={{ mb: 2 }} variant="h3">
-          Opere acquistate
+          {title}
         </Typography>
-        <Typography variant="body1">
-          Opere acquistateIn questa sezione trovi tutte le tue oper in via di acquisizione, potrai controllarne lo stato
-          di avanzamento e verificare se le tue richieste di finanziamento sono state approvate
-        </Typography>
+        <Typography variant="body1">{subtitle}</Typography>
       </Grid>
       {orders?.map((order, i) => (
         <Grid key={`order-${i}`} xs={12} md={6} item>

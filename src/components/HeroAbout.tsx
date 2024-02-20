@@ -9,13 +9,7 @@ export interface HeroAboutProps {
   imageSrc?: string;
 }
 
-const HeroAbout: React.FC<HeroAboutProps> = ({
-  subtitle = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-  mainTitle = "Siamo artpay, l’arte è per tutti",
-  description = "artpay è un servizio digitale dedicato a coloro che vogliono investire nell opere d’arte ma bla bla bla e che offre in pochi click soluzioni bla bla bla, di acquisto rateali e personalizzabili",
-  buttonText = "Entra nel mondo di artpay",
-  imageSrc = "/hero-about-cover.png",
-}) => {
+const HeroAbout: React.FC<HeroAboutProps> = ({ subtitle, mainTitle, description, buttonText, imageSrc }) => {
   const theme = useTheme();
   return (
     <Box
