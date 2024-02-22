@@ -67,11 +67,24 @@ const Faq: React.FC<FaqProps> = ({}) => {
           <img style={{ maxHeight: "100%" }} src="/illustration-world.svg" />
         </Box>
       </Box>
-      <Box sx={{ pt: { xs: 6, md: 12 }, pb: 6, px: { xs: 3, sm: 6 } }}>
+      <Box sx={{ px: { xs: 3, sm: 6 } }}>
         <Typography variant="h2">Non hai trovato le risposte che cercavi?</Typography>
-        <Typography sx={{ mt: 2, mb: 6 }} variant="subtitle1">
-          Scrivici per avere tutte le informazioni che cerchi
-        </Typography>
+      </Box>
+      <Box display="flex" sx={{ overflow: "hidden" }}>
+        <Box sx={{ px: { xs: 3, sm: 6 }, maxWidth: "800px", flexGrow: 1 }}>
+          <Typography sx={{ mt: 2, mb: 6 }} variant="subtitle1">
+            Scrivici per avere tutte le informazioni che cerchi
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            overflow: "visible",
+            display: { xs: "none", md: "block" },
+            pt: 6,
+            maxWidth: { md: "calc(100vw - 700px)", lg: "30vw", xl: undefined },
+          }}>
+          <img style={{ maxHeight: "100%" }} src="/illustration-form.svg" />
+        </Box>
       </Box>
     </DefaultLayout>
   );
