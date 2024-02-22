@@ -63,6 +63,7 @@ const Faq: React.FC<FaqProps> = ({}) => {
             overflow: "visible",
             display: { xs: "none", md: "block" },
             maxWidth: { md: "calc(100vw - 700px)", xl: undefined },
+            pt: 3,
           }}>
           <img style={{ maxHeight: "100%" }} src="/illustration-world.svg" />
         </Box>
