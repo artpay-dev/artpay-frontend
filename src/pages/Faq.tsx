@@ -19,43 +19,59 @@ const Faq: React.FC<FaqProps> = ({}) => {
           scelerisque. Sit nisl eu sit at consectetur odio est interdum.
         </Typography>
       </Box>
-      <Box sx={{ px: { xs: 3, sm: 6 }, maxWidth: "800px" }}>
-        <Accordion
-          title="Come entro in contatto con artpay?"
-          content={
-            <>
-              <span style={{ color: theme.palette.primary.main }}>Pianifica una call per avere più informazioni</span>:
-              attiva la chat, compila il form o scrivici una email e sarai ricontattato al più presto.
-            </>
-          }
-        />
-        <Accordion
-          title="Come entro in contatto con artpay?"
-          content={
-            <>
-              <span style={{ color: theme.palette.primary.main }}>Pianifica una call per avere più informazioni</span>:
-              attiva la chat, compila il form o scrivici una email e sarai ricontattato al più presto.
-            </>
-          }
-        />
-        <Accordion
-          title="Come entro in contatto con artpay?"
-          content={
-            <>
-              <span style={{ color: theme.palette.primary.main }}>Pianifica una call per avere più informazioni</span>:
-              attiva la chat, compila il form o scrivici una email e sarai ricontattato al più presto.
-            </>
-          }
-        />
-        <Accordion
-          title="Come entro in contatto con artpay?"
-          content={
-            <>
-              <span style={{ color: theme.palette.primary.main }}>Pianifica una call per avere più informazioni</span>:
-              attiva la chat, compila il form o scrivici una email e sarai ricontattato al più presto.
-            </>
-          }
-        />
+      <Box display="flex" sx={{ overflow: "hidden" }}>
+        <Box sx={{ px: { xs: 3, sm: 6 }, maxWidth: "800px", flexGrow: 1 }}>
+          <Accordion
+            title="Come entro in contatto con artpay?"
+            content={
+              <>
+                <span style={{ color: theme.palette.primary.main }}>Pianifica una call per avere più informazioni</span>
+                : attiva la chat, compila il form o scrivici una email e sarai ricontattato al più presto.
+              </>
+            }
+          />
+          <Accordion
+            title="Come entro in contatto con artpay?"
+            content={
+              <>
+                <span style={{ color: theme.palette.primary.main }}>Pianifica una call per avere più informazioni</span>
+                : attiva la chat, compila il form o scrivici una email e sarai ricontattato al più presto.
+              </>
+            }
+          />
+          <Accordion
+            title="Come entro in contatto con artpay?"
+            content={
+              <>
+                <span style={{ color: theme.palette.primary.main }}>Pianifica una call per avere più informazioni</span>
+                : attiva la chat, compila il form o scrivici una email e sarai ricontattato al più presto.
+              </>
+            }
+          />
+          <Accordion
+            title="Come entro in contatto con artpay?"
+            content={
+              <>
+                <span style={{ color: theme.palette.primary.main }}>Pianifica una call per avere più informazioni</span>
+                : attiva la chat, compila il form o scrivici una email e sarai ricontattato al più presto.
+              </>
+            }
+          />
+        </Box>
+        <Box
+          sx={{
+            overflow: "visible",
+            display: { xs: "none", md: "block" },
+            maxWidth: { md: "calc(100vw - 700px)", lg: "30vw", xl: undefined },
+          }}>
+          <img style={{ maxHeight: "100%" }} src="/illustration-world.svg" />
+        </Box>
+      </Box>
+      <Box sx={{ pt: { xs: 6, md: 12 }, pb: 6, px: { xs: 3, sm: 6 } }}>
+        <Typography variant="h2">Non hai trovato le risposte che cercavi?</Typography>
+        <Typography sx={{ mt: 2, mb: 6 }} variant="subtitle1">
+          Scrivici per avere tutte le informazioni che cerchi
+        </Typography>
       </Box>
     </DefaultLayout>
   );

@@ -132,7 +132,13 @@ const Footer: React.FC<FooterProps> = ({}) => {
         </Grid>
       </Grid>
       <Box
-        sx={{ width: "100%", position: "absolute", bottom: { xs: "0", md: "72px" } }}
+        sx={{
+          width: "100%",
+          position: "absolute",
+          bottom: { xs: "0", md: "72px" },
+          right: { xs: undefined, md: "0px" },
+          maxWidth: "100px",
+        }}
         py={2}
         px={3}
         display="flex"
