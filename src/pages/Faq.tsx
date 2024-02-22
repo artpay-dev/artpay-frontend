@@ -19,7 +19,7 @@ const Faq: React.FC<FaqProps> = ({}) => {
           scelerisque. Sit nisl eu sit at consectetur odio est interdum.
         </Typography>
       </Box>
-      <Box display="flex" sx={{ overflow: "hidden" }}>
+      <Box display="flex" justifyContent="space-between" sx={{ overflow: "hidden" }}>
         <Box sx={{ px: { xs: 3, sm: 6 }, maxWidth: "800px", flexGrow: 1 }}>
           <Accordion
             title="Come entro in contatto con artpay?"
@@ -62,7 +62,7 @@ const Faq: React.FC<FaqProps> = ({}) => {
           sx={{
             overflow: "visible",
             display: { xs: "none", md: "block" },
-            maxWidth: { md: "calc(100vw - 700px)", lg: "30vw", xl: undefined },
+            maxWidth: { md: "calc(100vw - 700px)", xl: undefined },
           }}>
           <img style={{ maxHeight: "100%" }} src="/illustration-world.svg" />
         </Box>
@@ -70,7 +70,7 @@ const Faq: React.FC<FaqProps> = ({}) => {
       <Box sx={{ px: { xs: 3, sm: 6 } }}>
         <Typography variant="h2">Non hai trovato le risposte che cercavi?</Typography>
       </Box>
-      <Box display="flex" sx={{ overflow: "hidden" }}>
+      <Box display="flex" sx={{ overflow: "hidden" }} justifyContent="space-between">
         <Box sx={{ px: { xs: 3, sm: 6 }, maxWidth: "800px", flexGrow: 1 }}>
           <Typography sx={{ mt: 2, mb: 6 }} variant="subtitle1">
             Scrivici per avere tutte le informazioni che cerchi
@@ -81,7 +81,7 @@ const Faq: React.FC<FaqProps> = ({}) => {
             overflow: "visible",
             display: { xs: "none", md: "block" },
             pt: 6,
-            maxWidth: { md: "calc(100vw - 700px)", lg: "30vw", xl: undefined },
+            maxWidth: { md: "calc(100vw - 700px)", xl: undefined },
           }}>
           <img style={{ maxHeight: "100%" }} src="/illustration-form.svg" />
         </Box>
