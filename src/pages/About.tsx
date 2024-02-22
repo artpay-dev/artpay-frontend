@@ -122,6 +122,7 @@ const About: React.FC<AboutProps> = ({}) => {
           sx={{
             ...centeredGridSx,
             pr: "0!important",
+            pt: "0!important",
             pl: { xs: "0!important", sm: "undefined" },
             pb: { xs: "0!important", sm: "undefined" },
           }}
@@ -133,7 +134,7 @@ const About: React.FC<AboutProps> = ({}) => {
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
-              px: { xs: 3, sm: 0 },
+              px: { xs: 3, sm: 6 },
               pb: { xs: 3, sm: 0 },
             }}
             item>
@@ -152,7 +153,12 @@ const About: React.FC<AboutProps> = ({}) => {
           <Grid
             xs={12}
             sm={4}
-            sx={{ textAlign: "right", overflow: "hidden", display: { xs: "flex", sm: undefined } }}
+            sx={{
+              textAlign: "right",
+              overflow: "hidden",
+              display: { xs: "flex" },
+              justifyContent: { xs: undefined, sm: "end" },
+            }}
             item>
             <img style={{ width: isMobile ? "100%" : undefined }} src="/image-gallery-about.png" />
           </Grid>
