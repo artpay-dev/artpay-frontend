@@ -44,7 +44,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
   const stripe = useStripe();
   const payments = usePayments();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
   const [ready, setReady] = useState(false);
   const [message, setMessage] = useState<Message>();
@@ -152,14 +152,14 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
           mt={2}
           sx={{
             px: { xs: 2, md: 6 },
-            mt: { xs: 8, md: 12, lg: 8, xl: message.status === "requires_action" ? 8 : 0 },
+            mt: { xs: 8, md: 12, lg: 12, xl: message.status === "requires_action" ? 10 : 0 },
             minHeight: "calc(100vh - 240px)",
             maxWidth: "100vw",
             overflowX: "hidden",
           }}
           alignItems="center"
           container>
-          <Grid xs={12} lg={8} item>
+          <Grid xs={12} lg={9} xl={8} item>
             <Typography variant="h1" sx={{ typography: { xs: "h3", sm: "h1" } }}>
               {message.title}
             </Typography>
@@ -171,32 +171,34 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
                 {message.cta}
               </Typography>
             )}
-            <Box mt={3} sx={{ maxWidth: "500px" }}>
-              <ContentCard
-                title="Dati bonifico"
-                icon={<PiBankThin size="28px" />}
-                contentPadding={3}
-                contentPaddingMobile={3}>
-                <DisplayProperty label="IBAN" value={message?.bankTransferInstructions?.iban || ""} />
-                <DisplayProperty
-                  sx={{ mt: 2 }}
-                  label="Intestatario"
-                  value={message?.bankTransferInstructions?.accountHolderName || ""}
-                />
-                <DisplayProperty
-                  sx={{ mt: 2 }}
-                  label="Causale"
-                  value={message?.bankTransferInstructions?.reference || ""}
-                />
-                <DisplayProperty
-                  sx={{ mt: 2 }}
-                  label="Importo"
-                  value={message?.bankTransferInstructions?.formattedAmount || ""}
-                />
-              </ContentCard>
-            </Box>
+            {message.status === "requires_action" && (
+              <Box mt={3} mb={6} sx={{ maxWidth: "500px" }}>
+                <ContentCard
+                  title="Dati bonifico"
+                  icon={<PiBankThin size="28px" />}
+                  contentPadding={3}
+                  contentPaddingMobile={3}>
+                  <DisplayProperty label="IBAN" value={message?.bankTransferInstructions?.iban || ""} />
+                  <DisplayProperty
+                    sx={{ mt: 2 }}
+                    label="Intestatario"
+                    value={message?.bankTransferInstructions?.accountHolderName || ""}
+                  />
+                  <DisplayProperty
+                    sx={{ mt: 2 }}
+                    label="Causale"
+                    value={message?.bankTransferInstructions?.reference || ""}
+                  />
+                  <DisplayProperty
+                    sx={{ mt: 2 }}
+                    label="Importo"
+                    value={message?.bankTransferInstructions?.formattedAmount || ""}
+                  />
+                </ContentCard>
+              </Box>
+            )}
           </Grid>
-          <Grid display="flex" alignItems="center" justifyContent="center" xs={12} lg={4} item>
+          <Grid display="flex" alignItems="center" justifyContent="center" xs={12} lg={3} xl={4} item>
             {message.status === "success" && <img src="/payment-success.svg" />}
             {message.status === "failure" && (
               <Cancel fontSize="large" sx={{ height: "140px", width: "140px" }} color="error" />
