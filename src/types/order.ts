@@ -243,3 +243,24 @@ export type OrderFilters = {
   parent?: number;
   customer?: number;
 };
+
+export type BankTransferAction = {
+  display_bank_transfer_instructions: {
+    amount_remaining: number;
+    currency: string;
+    financial_addresses: {
+      iban: {
+        account_holder_name: string;
+        bic: string;
+        country: string;
+        iban: string;
+      };
+      supported_networks: string[];
+      type: string;
+    }[];
+    hosted_instructions_url: string;
+    reference: string;
+    type: string;
+  };
+  type: "display_bank_transfer_instructions";
+};

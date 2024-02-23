@@ -4,10 +4,7 @@ import HeroAbout, { HeroAboutProps } from "../components/HeroAbout.tsx";
 import PromoSide from "../components/PromoSide.tsx";
 import { Box, Button, Grid, GridProps, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useData } from "../hoc/DataProvider.tsx";
-import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
-import { artworksToGalleryItems } from "../utils.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
-import ArtworksList from "../components/ArtworksList.tsx";
 
 export interface AboutProps {}
 
@@ -48,10 +45,11 @@ const About: React.FC<AboutProps> = ({}) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [ready, setReady] = useState(false);
-  const [featuredArtworks, setFeaturedArtworks] = useState<ArtworkCardProps[]>();
+  // const [featuredArtworks, setFeaturedArtworks] = useState<ArtworkCardProps[]>();
 
   useEffect(() => {
-    Promise.all([
+    setReady(true);
+    /*Promise.all([
       data.listFeaturedArtworks().then((resp) => {
         setFeaturedArtworks(artworksToGalleryItems(resp));
       }),
@@ -61,7 +59,7 @@ const About: React.FC<AboutProps> = ({}) => {
       })
       .catch((err) => {
         return snackbar.error(err);
-      });
+      });*/
   }, [data, snackbar]);
 
   const imgWidth = isMobile ? "100%" : `calc(100% - ${theme.spacing(6)})`;
@@ -96,7 +94,7 @@ const About: React.FC<AboutProps> = ({}) => {
           </Typography>
         </Grid>
       </Grid>
-      <Grid sx={{ ...centeredGridSx, flexDirection: isMobile ? "column-reverse" : undefined }} maxWidth="xl" container>
+      {/*<Grid sx={{ ...centeredGridSx, flexDirection: isMobile ? "column-reverse" : undefined }} maxWidth="xl" container>
         <Grid xs={12} sm={8} item>
           <Typography variant="h1" sx={{ fontSize: { xs: "3.5rem", sm: "5rem", md: "7rem", lg: "8rem", xl: "9rem" } }}>
             Tante opere d'arte, facilità di acquisto
@@ -113,14 +111,15 @@ const About: React.FC<AboutProps> = ({}) => {
             }}
           />
         </Grid>
-      </Grid>
-      <Grid sx={{ px: { xs: 0 }, mt: 4, justifyContent: "center" }} container>
+      </Grid>*/}
+      {/*<Grid sx={{ px: { xs: 0 }, mt: 4, justifyContent: "center" }} container>
         {featuredArtworks && <ArtworksList items={featuredArtworks || []} showEmpty />}
-      </Grid>
+      </Grid>*/}
       <Box sx={{ width: "100%", background: theme.palette.primary.light }} mt={6}>
         <Grid
           sx={{
             ...centeredGridSx,
+            maxWidth: "1440px",
             pr: "0!important",
             pt: "0!important",
             pl: { xs: "0!important", sm: "undefined" },
