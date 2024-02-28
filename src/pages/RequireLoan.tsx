@@ -90,7 +90,7 @@ const RequireLoan: React.FC<RequireLoanProps> = ({ step = 0 }) => {
         {step === 0 ? (
           <></>
         ) : (
-          <Grid xs={12}>
+          <Grid xs={12} mb={6}>
             <PurchaseLoanStepTwo />
           </Grid>
         )}

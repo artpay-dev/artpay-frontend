@@ -345,7 +345,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                     <Typography variant="body1">€ {pendingOrder?.total}</Typography>
                   </Box>
                   <Box display="flex" justifyContent="space-between">
-                    <Typography variant="subtitle1">Acconto</Typography>
+                    <Typography variant="subtitle1">Caparra</Typography>
                     <Typography variant="subtitle1">€ {(+(pendingOrder?.total || 0) * 0.1).toFixed(2)}</Typography>
                   </Box>
                   <Box display="flex" justifyContent="space-between">
@@ -385,7 +385,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                 variant="contained"
                 fullWidth
                 size="large">
-                {orderMode === "loan" ? "Procedi al pagamento dell'acconto" : "Acquista ora"}
+                {orderMode === "loan" ? "Procedi al pagamento della caparra" : "Acquista ora"}
               </Button>
             </Box>
             <Divider sx={{ my: 3, borderColor: "#d8ddfa" }} />
