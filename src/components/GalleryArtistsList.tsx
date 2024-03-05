@@ -12,7 +12,7 @@ const GalleryArtistsList: React.FC<GalleryArtistsListProps> = ({ artists = [] })
   const navigate = useNavigate();
   const handleSelectArtist = (index: number) => {
     const selectedArtist = artists[index];
-    navigate(`/artist/${selectedArtist.id}`);
+    navigate(`/artisti/${selectedArtist.id}`);
   };
 
   return (

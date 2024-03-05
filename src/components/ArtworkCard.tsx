@@ -73,7 +73,7 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
         onClick={onClick}
         className="borderRadius"
         sx={{
-          objectFit: "contain",
+          objectFit: "cover",
           //backgroundColor: "#D9D9D9",
           cursor: onClick ? "pointer" : "auto",
         }}></CardMedia>

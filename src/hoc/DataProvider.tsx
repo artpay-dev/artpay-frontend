@@ -112,6 +112,8 @@ export interface DataContext {
 
   updateUserProfile(data: Partial<UserProfile>): Promise<UserProfile>;
 
+  subscribeNewsletter(email: string, optIn: string, formUrl: string): Promise<void>;
+
   getCategoryMapValues(artwork: Artwork, key: string): string[];
 
   getArtistCategories(artist: Artist): string[];
@@ -171,6 +173,8 @@ const defaultContext: DataContext = {
   getUserInfo: () => Promise.reject("Data provider loaded"),
   getUserProfile: () => Promise.reject("Data provider loaded"),
   updateUserProfile: () => Promise.reject("Data provider loaded"),
+
+  subscribeNewsletter: () => Promise.reject("Data provider loaded"),
 
   getFavouriteArtists: () => Promise.reject("Data provider loaded"),
   addFavouriteArtist: () => Promise.reject("Data provider loaded"),
@@ -712,6 +716,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         body,
       );
       return resp.data;
+    },
+
+    async subscribeNewsletter(email: string, optIn: string, formUrl: string): Promise<void> {
+      const formData = new FormData();
+      formData.append("EMAIL", email);
+      formData.append("OPT_IN", optIn);
+      await axios.post<FormData, AxiosResponse<unknown>>(formUrl, formData);
     },
 
     getCategoryMapValues(artwork: Artwork, key: string): string[] {

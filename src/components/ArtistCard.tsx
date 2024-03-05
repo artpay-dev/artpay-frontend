@@ -59,7 +59,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
         className="borderRadius"
         onClick={handleClick}
         sx={{
-          objectFit: mode === "list" ? "conver" : "contain",
+          objectFit: mode === "list" ? "cover" : "cover",
           minHeight: "100px",
           backgroundColor: imgUrl ? "" : "#D9D9D9",
           cursor: onClick ? "pointer" : "auto",

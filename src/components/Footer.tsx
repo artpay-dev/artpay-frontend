@@ -5,6 +5,8 @@ import { FaPaypal, FaCcVisa, FaCcMastercard } from "react-icons/fa";
 import TextField from "./TextField.tsx";
 import { ArrowUpward } from "@mui/icons-material";
 import SocialLinks from "./SocialLinks.tsx";
+import NewsletterSmallBrevo from "./NewsletterSmallBrevo.tsx";
+import NewsletterSmall from "./NewsletterSmall.tsx";
 
 export interface FooterProps {}
 
@@ -23,6 +25,7 @@ const FooterRoot = styled("div", {
 }));
 const Footer: React.FC<FooterProps> = ({}) => {
   const gridProps = { maxWidth: "900px", px: { xs: 4, md: 3 }, pt: { xs: 2, md: 6 }, gap: { xs: 2, md: 0 } };
+
   return (
     <FooterRoot>
       <Grid sx={gridProps} container>
@@ -96,7 +99,7 @@ const Footer: React.FC<FooterProps> = ({}) => {
             </Typography>
           </Box>
         </Grid>
-        <Grid xs={12} md={4} py={1} px={2} sx={{ backgroundColor: "rgba(255,255,255,.90)", borderRadius: "8px" }} item>
+        {/*        <Grid xs={12} md={4} py={1} px={2} sx={{ backgroundColor: "rgba(255,255,255,.90)", borderRadius: "8px" }} item>
           <Typography variant="body1" color="textPrimary" fontWeight={600}>
             Newsletter
           </Typography>
@@ -107,7 +110,9 @@ const Footer: React.FC<FooterProps> = ({}) => {
               Lorem ipsum dolor sit amet, consectetur adipiscing elit
             </Typography>
           </Box>
-        </Grid>
+        </Grid>*/}
+        <NewsletterSmallBrevo />
+        <NewsletterSmall />
       </Grid>
       <Divider sx={{ width: "100%", borderColor: "white", pt: 4 }} />
       <Grid sx={{ ...gridProps, pb: 2, pt: 2 }} container>

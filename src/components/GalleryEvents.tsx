@@ -15,14 +15,7 @@ export interface GalleryEventsProps {
   artists: ArtistCardProps[];
 }
 
-const GalleryEvents: React.FC<GalleryEventsProps> = ({
-  imgUrl,
-  title,
-  eventDate,
-  eventText,
-  artists,
-  artworks,
-}) => {
+const GalleryEvents: React.FC<GalleryEventsProps> = ({ imgUrl, title, eventDate, eventText, artists, artworks }) => {
   const navigate = useNavigate();
   const handleSelectArtwork = (index: number) => {
     const selectedArtwork = artworks[index];
@@ -30,7 +23,7 @@ const GalleryEvents: React.FC<GalleryEventsProps> = ({
   };
   const handleSelectArtist = (index: number) => {
     const selectedArtist = artists[index];
-    navigate(`/artist/${selectedArtist.id}`);
+    navigate(`/artisti/${selectedArtist.id}`);
   };
 
   return (
@@ -53,19 +46,10 @@ const GalleryEvents: React.FC<GalleryEventsProps> = ({
         <Divider color="textSecondary" />
       </Grid>
       <Grid xs={12} py={6} sx={{ maxWidth: "100%", overflow: "auto" }} item>
-        <ArtworksList
-          title="Le nostre opere"
-          items={artworks}
-          onSelect={handleSelectArtwork}
-          cardSize="large"
-        />
+        <ArtworksList title="Le nostre opere" items={artworks} onSelect={handleSelectArtwork} cardSize="large" />
       </Grid>
       <Grid xs={12} mt={6} py={6} sx={{ maxWidth: "100%" }} item>
-        <ArtistsList
-          title="I nostri artisti"
-          items={artists}
-          onSelect={handleSelectArtist}
-        />
+        <ArtistsList title="I nostri artisti" items={artists} onSelect={handleSelectArtist} />
       </Grid>
     </Grid>
   );
