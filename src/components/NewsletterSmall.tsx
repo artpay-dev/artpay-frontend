@@ -1,31 +1,15 @@
-import React, { ReactNode, useState } from "react";
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  TextField,
-  Typography, useTheme
-} from "@mui/material";
-import CheckFillIcon from "./icons/CheckFillIcon.tsx";
+import React, { useState } from "react";
+import { Box, Button, Grid, TextField, Typography } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import Checkbox from "./Checkbox.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
-import ErrorIcon from "./icons/ErrorIcon.tsx";
+import { BREVO_FORM_URL, NewsletterFormData, NewsletterFormState } from "../types/newsletter.ts";
+import NewsletterFormMessage from "./NewsletterFormMessage.tsx";
 
-export type FormState = "new" | "saving" | "success" | "error"
 export interface NewsletterSmallProps {}
-
-export interface NewsletterFormData {
-  email: string;
-  optIn: boolean;
-}
-
-const BREVO_FORM_URL = "https://51f5628d.sibforms.com/serve/MUIFAN4KP2y3Y9vz_T41Gc0CugsmkqAXuhJK3fC-GYZ-WZXkEUZ4rpVu9hAoVm4oy64NloGZplSZNeWnFK-DWXmG3bw6ktECUW3rH0bEoIws0c6F7b_jQEZFEt5OIjUpMrPkmBlb4bWDCam7fCEU-5PQEIEIp5DEdhfVXGUNiuqbe_q0COT3_41l652wAjYIVhDbT3DdkNCFHxoD"
 
 const NewsletterSmall: React.FC<NewsletterSmallProps> = ({}) => {
   const data = useData()
-  const theme = useTheme()
   const {
     control,
     handleSubmit,
@@ -38,7 +22,7 @@ const NewsletterSmall: React.FC<NewsletterSmallProps> = ({}) => {
     },
   });
 
-  const [formState, setFormState] = useState<FormState>("new");
+  const [formState, setFormState] = useState<NewsletterFormState>("new");
 
   const handleFormSubmit = (formData: NewsletterFormData) => {
     setFormState("saving")
@@ -49,29 +33,6 @@ const NewsletterSmall: React.FC<NewsletterSmallProps> = ({}) => {
       setFormState("error")
     })
   };
-
-  let icon: ReactNode = <></>
-
-  switch (formState) {
-    case "saving":
-      icon = <CircularProgress sx={{ mt: 2 }} size="80px" />
-      break
-    case "error":
-      icon = <>
-        <ErrorIcon sx={{ height: "80px", width: "80px", mt: 2 }} color="error" />
-        <Typography sx={{mb:1}} variant="body1" color="error">Si è verificato un errore</Typography>
-      </>
-      break
-    case "success":
-      icon = <>
-        <CheckFillIcon sx={{ height: "80px", width: "80px", mt: 2 }} color="success" />
-        <Typography sx={{mb:1}} variant="body1" color={theme.palette.success.main}>Controlla la tua casella email</Typography>
-      </>
-      break
-    default:
-      icon = <></>
-      break
-  }
 
   return (
     <Grid xs={12} md={4} py={1} px={2} sx={{ backgroundColor: "rgba(255,255,255,.90)", borderRadius: "8px" }} item>
@@ -113,7 +74,7 @@ const NewsletterSmall: React.FC<NewsletterSmallProps> = ({}) => {
             <Button variant="contained" color="primary" type="submit" fullWidth>
               Iscriviti
             </Button>
-          </form> :  icon}
+          </form> :  <NewsletterFormMessage formState={formState}/>}
       </Box>
     </Grid>
   );
