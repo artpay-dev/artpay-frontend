@@ -9,7 +9,15 @@ import { Media } from "./types/media.ts";
 import { HeroSlideItem } from "./components/HeroSlide.tsx";
 import { Cta } from "./types/ui.ts";
 import { PromoComponentType, PromoItemProps } from "./components/PromoItem.tsx";
-import { BaseUserData, User, UserInfo } from "./types/user.ts";
+import {
+  BaseUserData,
+  BillingData,
+  UnprocessedBillingData,
+  UnprocessedUserProfile,
+  User,
+  UserInfo,
+  UserProfile
+} from "./types/user.ts";
 import { GalleryCardProps } from "./components/GalleryCard.tsx";
 import { Order } from "./types/order.ts";
 import { OrderHistoryCardProps } from "./components/OrderHistoryCard.tsx";
@@ -237,6 +245,16 @@ export const areBillingFieldsFilled = (data?: BaseUserData): boolean => {
 
   return true;
 };
+
+export const processBillingData = ({ same_as_shipping, ...billingData }: UnprocessedBillingData): BillingData => {
+  const processedBillingData: BillingData = {...billingData}
+  processedBillingData.same_as_shipping = Boolean(same_as_shipping)
+  return processedBillingData
+}
+export const processUserProfile = ({ billing, ...userProfile }: UnprocessedUserProfile): UserProfile => {
+  return { ...userProfile, billing: processBillingData(billing) }
+}
+
 
 export const isTimestampAfter = (timestampInSeconds: number, durationInSeconds: number) => {
   // Get current timestamp in seconds

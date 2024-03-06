@@ -90,11 +90,13 @@ export interface BillingData extends BaseUserData {
   invoice_type?: string;
   PEC?: string;
   private_customer?: string;
-  same_as_shipping?: string;
+  same_as_shipping?: boolean;
 }
-/*	""*/
 
-export type UserProfile = {
+export type UnprocessedBillingData = Exclude<BillingData, 'same_as_shipping'> & {same_as_shipping?: string}
+
+
+export interface UserProfile {
   id: number;
   date_created: string;
   date_created_gmt: string;
@@ -119,6 +121,10 @@ export type UserProfile = {
     }[];
   };
 };
+
+export interface UnprocessedUserProfile extends UserProfile {
+  billing: UnprocessedBillingData;
+}
 export interface UpdateUserProfile {
   id?: number;
   email?: string;

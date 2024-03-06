@@ -12,21 +12,24 @@ import {
   RadioGroup
 } from "@mui/material";
 import countries from "../countries";
-import { BillingData } from "../types/user.ts";
+import { BaseUserData, BillingData, ShippingData } from "../types/user.ts";
 import RadioButton from "./RadioButton.tsx";
+import Checkbox from "./Checkbox.tsx";
 
 export interface UserDataFormProps {
   defaultValues?: BillingData;
+  shippingData?: ShippingData
   onSubmit?: (formData: BillingData) => Promise<void>;
   disabled?: boolean;
 }
 
-const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, disabled = false }) => {
+const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, shippingData={}, onSubmit, disabled = false }) => {
   const {
     control,
     handleSubmit,
     watch,
-    formState: { errors },
+    setValue,
+    formState: { errors, disabled: formDisabled },
   } = useForm<BillingData>({
     defaultValues: {
       ...defaultValues,
@@ -36,6 +39,21 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
   const [isSaving, setIsSaving] = useState(false);
 
   const isPrivateCustomer = watch("private_customer") !== "false"
+  const sameAsShipping = watch("same_as_shipping")
+
+  const handleCopyShippingData = (checked: boolean) => {
+    if (checked) {
+      setIsSaving(true)
+      Object.keys(shippingData).forEach((key: string) => {
+        const userDataKey = key as keyof BaseUserData
+        setValue(userDataKey, shippingData[userDataKey])
+      })
+      setIsSaving(false)
+      console.log('copy shipping data', checked, shippingData)
+    }
+  }
+
+  console.log('sameAsShipping', sameAsShipping)
 
   const handleFormSubmit: SubmitHandler<BillingData> = (data) => {
     if (onSubmit) {
@@ -45,6 +63,9 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
       });
     }
   };
+
+  const isDisabled = disabled || isSaving || formDisabled || (isPrivateCustomer && sameAsShipping)
+  const submitDisabled = disabled || isSaving || formDisabled
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)}>
@@ -65,6 +86,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
             {errors.private_customer && <FormHelperText>{errors.private_customer.message}</FormHelperText>}
           </FormControl>
         </Grid>
+
         <Grid item xs={12} sm={6}>
           <Controller
             name="first_name"
@@ -72,7 +94,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
             rules={{ required: "Nome richiesto" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving || disabled}
+                disabled={isDisabled}
                 label="Nome*"
                 variant="outlined"
                 fullWidth
@@ -91,7 +113,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
             rules={{ required: "Cognome richiesto" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving || disabled}
+                disabled={isDisabled}
                 label="Cognome*"
                 variant="outlined"
                 fullWidth
@@ -133,7 +155,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
             rules={{ required: "Indirizzo richiesto" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving || disabled}
+                disabled={isDisabled}
                 label="Indirizzo* (linea 1: via/piazza,...)"
                 variant="outlined"
                 fullWidth
@@ -151,7 +173,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
             control={control}
             render={({ field }) => (
               <TextField
-                disabled={isSaving || disabled}
+                disabled={isDisabled}
                 label="Indirizzo (linea 2: scala, piano)"
                 variant="outlined"
                 fullWidth
@@ -168,7 +190,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
             rules={{ required: "Città richiesta" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving || disabled}
+                disabled={isDisabled}
                 label="Città*"
                 variant="outlined"
                 fullWidth
@@ -187,7 +209,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
             rules={{ required: "CAP richiesto" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving || disabled}
+                disabled={isDisabled}
                 label="CAP*"
                 variant="outlined"
                 fullWidth
@@ -208,7 +230,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
               rules={{ required: "Paese richiesto" }}
               render={({ field }) => (
                 <Select
-                  disabled={isSaving || disabled}
+                  disabled={isDisabled}
                   labelId="country-label"
                   defaultValue="IT"
                   label="Paese"
@@ -232,7 +254,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
             rules={{ required: "Provincia richiesta" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving || disabled}
+                disabled={isDisabled}
                 label="Provincia*"
                 variant="outlined"
                 fullWidth
@@ -251,7 +273,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
             rules={{ required: "Telefono richiesto" }}
             render={({ field }) => (
               <TextField
-                disabled={isSaving || disabled}
+                disabled={isDisabled}
                 label="Telefono*"
                 variant="outlined"
                 fullWidth
@@ -269,11 +291,11 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
               <Controller
                 name="PEC"
                 control={control}
-                rules={{ required: "PEC o Codice destinatario richiesti" }}
+                rules={{ required: "Codice destinatario richiesti" }}
                 render={({ field }) => (
                   <TextField
-                    disabled={isSaving || disabled}
-                    label="PEC o Codice destinatario"
+                    disabled={isDisabled}
+                    label="Codice destinatario"
                     variant="outlined"
                     fullWidth
                     {...field}
@@ -290,7 +312,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
                 rules={{ required: "Partita iva richiesta" }}
                 render={({ field }) => (
                   <TextField
-                    disabled={isSaving || disabled}
+                    disabled={isDisabled}
                     label="Partita iva"
                     variant="outlined"
                     fullWidth
@@ -300,6 +322,32 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
                   />
                 )}
               />
+            </Grid>
+          </>
+        )}
+        {isPrivateCustomer && (
+          <>
+            <Grid item xs={12}>
+              <FormControl fullWidth error={!!errors.private_customer}>
+                <Controller
+                  name="same_as_shipping"
+                  control={control}
+                  rules={{  }}
+                  render={({ field: {onChange, ...field} }) => (
+                    <Checkbox
+                      disabled={submitDisabled}
+                      label="I dati di fatturazione coincidono con quelli di spedizione"
+                      onChange={(e, checked) => {
+                        handleCopyShippingData(checked)
+                        onChange(e, checked)
+                      }}
+                      checked={sameAsShipping}
+                      {...field}
+                    />
+                  )}
+                />
+                {errors.same_as_shipping && <FormHelperText>{errors.same_as_shipping.message}</FormHelperText>}
+              </FormControl>
             </Grid>
           </>
         )}
@@ -315,7 +363,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit,
         <Grid item xs={12}>
           <Button
             sx={{ minWidth: "160px" }}
-            disabled={isSaving || disabled}
+            disabled={submitDisabled}
             type="submit"
             variant="contained"
             color="primary">

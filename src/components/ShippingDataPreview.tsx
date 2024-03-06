@@ -7,7 +7,7 @@ export interface UserDataPreviewProps {
   value?: ShippingData;
 }
 
-const UserDataPreview: React.FC<UserDataPreviewProps> = ({ value }) => {
+const ShippingDataPreview: React.FC<UserDataPreviewProps> = ({ value }) => {
   const countryName = countries.find((c) => c.code === value?.country)?.name || value?.country || "";
   return (
     <Box display="flex" flexDirection="column" gap={1}>
@@ -25,4 +25,4 @@ const UserDataPreview: React.FC<UserDataPreviewProps> = ({ value }) => {
   );
 };
 
-export default UserDataPreview;
+export default ShippingDataPreview;

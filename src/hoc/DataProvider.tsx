@@ -8,7 +8,7 @@ import { Category, CategoryGroup, CategoryMap } from "../types/category.ts";
 import { useAuth } from "./AuthProvider.tsx";
 import { FavouritesMap, Post, PostCategory, PostCategoryMap } from "../types/post.ts";
 import { Media } from "../types/media.ts";
-import { isTimestampAfter, postAndMediaToHeroSlide, postAndMediaToPromoItem } from "../utils.ts";
+import { isTimestampAfter, postAndMediaToHeroSlide, postAndMediaToPromoItem, processUserProfile } from "../utils.ts";
 import { HomeContent } from "../types/home.ts";
 import { PromoComponentType } from "../components/PromoItem.tsx";
 import {
@@ -20,7 +20,7 @@ import {
   ShippingMethodOption,
 } from "../types/order.ts";
 import { PaymentIntent } from "@stripe/stripe-js";
-import { BillingData, UpdateUserProfile, User, UserProfile } from "../types/user.ts";
+import { BillingData, UnprocessedUserProfile, UpdateUserProfile, User, UserProfile } from "../types/user.ts";
 
 export interface ArtworksFilter {
   featured?: boolean;
@@ -702,33 +702,37 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       if (!userId) {
         throw "Not authenticated";
       }
-      const resp = await axios.get<unknown, AxiosResponse<UserProfile>>(`${baseUrl}/wp-json/wc/v3/customers/${userId}`);
-      return resp.data;
+      const resp = await axios.get<unknown, AxiosResponse<UnprocessedUserProfile>>(`${baseUrl}/wp-json/wc/v3/customers/${userId}`);
+      return processUserProfile(resp.data);
     },
     async updateUserProfile(body: Partial<UpdateUserProfile>): Promise<UserProfile> {
       const userId = auth.user?.id;
       if (!userId) {
         throw "Not authenticated";
       }
-      const billingMetadataProps: (keyof BillingData)[] = ["cf", "invoice_type", "PEC", "private_customer", "same_as_shipping"];
+      const billingMetadataProps: (keyof BillingData)[] = ["cf", "invoice_type", "PEC", "private_customer"];
       if (body?.billing) {
         billingMetadataProps.forEach((prop) => {
           if (!body.billing) {
             return
           }
-          const propValue: string|undefined = body.billing[prop]
+          const propValue: string|boolean|undefined = body.billing[prop]
           if (typeof propValue !== "undefined") {
             body.meta_data = body.meta_data || [];
-            body.meta_data.push({ key: `billing_${prop}`, value: propValue });
+            body.meta_data.push({ key: `billing_${prop}`, value: propValue.toString() });
           }
         })
+        if (typeof body.billing?.same_as_shipping !== 'undefined') {
+          body.meta_data = body.meta_data || [];
+          body.meta_data.push({ key: `billing_same_as_shipping`, value: body.billing?.same_as_shipping ? "1" : "" });
+        }
       }
       body.id = userId;
-      const resp = await axios.put<Partial<UserProfile>, AxiosResponse<UserProfile>>(
+      const resp = await axios.put<Partial<UserProfile>, AxiosResponse<UnprocessedUserProfile>>(
         `${baseUrl}/wp-json/wc/v3/customers/${userId}`,
         body,
       );
-      return resp.data;
+      return processUserProfile(resp.data);
     },
 
     async subscribeNewsletter(email: string, optIn: string, formUrl: string): Promise<void> {

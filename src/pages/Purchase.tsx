@@ -9,7 +9,7 @@ import ShippingDataForm from "../components/ShippingDataForm.tsx";
 import { BillingData, ShippingData, UserProfile } from "../types/user.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import { areBillingFieldsFilled, artworksToGalleryItems } from "../utils.ts";
-import UserDataPreview from "../components/UserDataPreview.tsx";
+import ShippingDataPreview from "../components/ShippingDataPreview.tsx";
 import Checkbox from "../components/Checkbox.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import { Order, OrderUpdateRequest, ShippingLineUpdateRequest, ShippingMethodOption } from "../types/order.ts";
@@ -24,6 +24,7 @@ import { usePayments } from "../hoc/PaymentProvider.tsx";
 import { PaymentIntent } from "@stripe/stripe-js";
 import PaymentCard from "../components/PaymentCard.tsx";
 import BillingDataForm from "../components/BillingDataForm.tsx";
+import BillingDataPreview from "../components/BillingDataPreview.tsx";
 
 export interface PurchaseProps {
   orderMode?: "standard" | "loan";
@@ -69,7 +70,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
           userProfile.billing.email = userProfile.billing.email || userProfile.email || "";
           setShippingDataEditing(!areBillingFieldsFilled(userProfile.shipping));
           setUserProfile(userProfile);
-          if (userProfile?.billing?.same_as_shipping !== "true") {
+          if (userProfile?.billing?.invoice_type !== "") {
             setRequireInvoice(true);
           }
           if (!areBillingFieldsFilled(userProfile.billing) && orderMode === "loan") {
@@ -126,12 +127,12 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
     console.log('handleRequireInvoice', requireInvoice, newVal)
     data.updateUserProfile({
         billing: {
-          same_as_shipping: newVal ? "false" : "true"
+          invoice_type: newVal ? "receipt" : ""
         }
       })
       .then((resp) => {
         setIsSaving(false);
-        setRequireInvoice(resp.billing?.same_as_shipping !== "true");
+        setRequireInvoice(resp.billing?.invoice_type !== "");
       });
   };
 
@@ -259,7 +260,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                       onSubmit={(formData) => handleProfileDataSubmit(formData, false)}
                     />
                   ) : (
-                    <UserDataPreview value={userProfile.shipping} />
+                    <ShippingDataPreview value={userProfile.shipping} />
                   ))}
               </>
             )}
@@ -271,10 +272,11 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                 {shippingDataEditing ? (
                   <BillingDataForm
                     defaultValues={userProfile.billing}
+                    shippingData={userProfile.shipping}
                     onSubmit={(formData) => handleProfileDataSubmit(formData, true)}
                   />
                 ) : (
-                  <UserDataPreview value={userProfile.billing} />
+                  <BillingDataPreview value={userProfile.billing} />
                 )}
               </Box>
             )}
