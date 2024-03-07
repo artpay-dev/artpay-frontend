@@ -23,7 +23,7 @@ const GalleryEvents: React.FC<GalleryEventsProps> = ({ imgUrl, title, eventDate,
   };
   const handleSelectArtist = (index: number) => {
     const selectedArtist = artists[index];
-    navigate(`/artisti/${selectedArtist.id}`);
+    navigate(`/artisti/${selectedArtist.slug}`);
   };
 
   return (

@@ -2,7 +2,7 @@ import { CardSize, MetadataItem } from "./types";
 import { Artwork } from "./types/artwork.ts";
 import { ArtworkCardProps } from "./components/ArtworkCard.tsx";
 import { ArtistCardProps } from "./components/ArtistCard.tsx";
-import { Artist, ArtistPost } from "./types/artist.ts";
+import { Artist } from "./types/artist.ts";
 import { Gallery, GalleryContent } from "./types/gallery.ts";
 import { Post } from "./types/post.ts";
 import { Media } from "./types/media.ts";
@@ -85,23 +85,13 @@ export const artistToGalleryItem = (artist: Artist): ArtistCardProps => {
       : "";
   return {
     id: artist.id.toString(),
+    slug: artist.slug,
     isFavourite: false,
     subtitle: `${artist.acf.location}, ${artist.acf.birth_year}`,
     title: artist.title?.rendered || "",
     description: artist.excerpt?.rendered || "",
     artworksCount: artist.artworks?.length || 0,
     imgUrl: imgUrl,
-  };
-};
-export const artistPostToGalleryItem = (artist: ArtistPost): ArtistCardProps => {
-  return {
-    id: artist.ID.toString(),
-    isFavourite: false,
-    subtitle: "", //manca: luogo e anno di nascita `${artist.acf.location}, ${artist.acf.birth_year}`,
-    title: artist.post_title || "",
-    description: artist.post_excerpt || "",
-    artworksCount: 0, //manca: conteggio opere,
-    imgUrl: "", //manca: url immagine artista
   };
 };
 

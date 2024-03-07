@@ -54,7 +54,7 @@ const ArtistsList: React.FC<ArtistsListProps> = ({ items, title, onSelect, disab
     if (onSelect) {
       onSelect(i);
     } else {
-      navigate(`/artisti/${items[i].id}`);
+      navigate(`/artisti/${items[i].slug}`);
     }
   };
 

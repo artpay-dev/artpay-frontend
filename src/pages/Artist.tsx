@@ -13,31 +13,49 @@ import { artworksToGalleryItems } from "../utils.ts";
 import FavouriteFilledIcon from "../components/icons/FavouriteFilledIcon.tsx";
 import FavouriteIcon from "../components/icons/FavouriteIcon.tsx";
 import { Share } from "@mui/icons-material";
+import { useDialogs } from "../hoc/DialogProvider.tsx";
 
 export interface ArtistProps {}
 
 const Artist: React.FC<ArtistProps> = ({}) => {
   const [isReady, setIsReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [artist, setArtist] = useState<Artist>();
   const [artistCategories, setArtistCategories] = useState<string[]>([]);
   const [artworks, setArtworks] = useState<ArtworkCardProps[]>([]);
   const [isArtistFavourite, setIsArtistFavourite] = useState(false);
 
   const data = useData();
+  const dialogs = useDialogs()
   const snackbar = useSnackbars();
-  const urlParams = useParams<{ id?: string }>();
+  const urlParams = useParams<{ slug?: string }>();
 
   const artistImage = artist?.medium_img?.length ? artist?.medium_img[0] : "";
 
-  const handleShare = () => {};
-  const handleSetArtistFavourite = () => {};
+  const handleShare = async () => {
+    await dialogs.share(window.location.href);
+  };
+  const handleSetArtistFavourite = async () => {
+    if (!artist?.id) {
+      return
+    }
+    setIsLoading(true)
+    if (isArtistFavourite) {
+      await data.removeFavouriteArtist(artist.id.toString())
+      setIsArtistFavourite(false)
+    } else {
+      await data.addFavouriteArtist(artist.id.toString())
+      setIsArtistFavourite(true)
+    }
+    setIsLoading(false)
+  };
 
   useEffect(() => {
-    if (!urlParams.id) {
+    if (!urlParams.slug) {
       return;
     }
     data
-      .getArtist(urlParams.id)
+      .getArtistBySlug(urlParams.slug)
       .then(async (resp) => {
         setArtist(resp);
         const artistCategories = data.getArtistCategories(resp);
@@ -48,8 +66,9 @@ const Artist: React.FC<ArtistProps> = ({}) => {
         const artworksIds = (resp.artworks || []).map((a) => +a.ID);
         const artistArtworks = await data.getArtworks(artworksIds);
         setArtworks(artworksToGalleryItems(artistArtworks));
+        const favouriteArtists = await data.getFavouriteArtists()
 
-        // setIsArtistFavourite(true);
+        setIsArtistFavourite(favouriteArtists.indexOf(resp?.id||0) !== -1 );
 
         setIsReady(true);
       })
@@ -58,7 +77,8 @@ const Artist: React.FC<ArtistProps> = ({}) => {
         snackbar.error("Si è verificato un errore");
         setIsReady(true);
       });
-  }, [data, snackbar, urlParams?.id]);
+  }, [data, snackbar, urlParams?.slug]);
+
 
   return (
     <DefaultLayout pageLoading={!isReady}>
@@ -76,15 +96,15 @@ const Artist: React.FC<ArtistProps> = ({}) => {
         <Box>
           <img className="borderRadius" src={artistImage} style={{ width: "320px" }} />
           <Box display="flex" pt={1} gap={1}>
-            <IconButton onClick={() => handleSetArtistFavourite()}>
+            <IconButton disabled={isLoading} onClick={() => handleSetArtistFavourite()}>
               {isArtistFavourite ? (
-                <FavouriteFilledIcon color="primary" fontSize="small" />
+                <FavouriteFilledIcon color={isLoading ? "disabled" : "primary"} fontSize="small" />
               ) : (
-                <FavouriteIcon fontSize="small" />
+                <FavouriteIcon color={isLoading ? "disabled" : "primary"} fontSize="small" />
               )}
             </IconButton>
-            <IconButton onClick={handleShare}>
-              <Share color="primary" />
+            <IconButton disabled={isLoading} onClick={handleShare}>
+              <Share color={isLoading ? "disabled" : "primary"} />
             </IconButton>
           </Box>
         </Box>

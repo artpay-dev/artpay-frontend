@@ -180,19 +180,22 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
                   icon={<PiBankThin size="28px" />}
                   contentPadding={3}
                   contentPaddingMobile={3}>
-                  <DisplayProperty label="IBAN" value={message?.bankTransferInstructions?.iban || ""} />
+                  <DisplayProperty copy label="IBAN" value={message?.bankTransferInstructions?.iban || ""} />
                   <DisplayProperty
                     sx={{ mt: 2 }}
+                    copy
                     label="Intestatario"
                     value={message?.bankTransferInstructions?.accountHolderName || ""}
                   />
                   <DisplayProperty
                     sx={{ mt: 2 }}
+                    copy
                     label="Causale"
                     value={message?.bankTransferInstructions?.reference || ""}
                   />
                   <DisplayProperty
                     sx={{ mt: 2 }}
+                    copy
                     label="Importo"
                     value={message?.bankTransferInstructions?.formattedAmount || ""}
                   />

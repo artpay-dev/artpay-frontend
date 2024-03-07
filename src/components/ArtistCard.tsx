@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 export interface ArtistCardProps {
   id: string;
   title: string;
+  slug: string;
   subtitle: string;
   description?: string;
   artworksCount?: number;
@@ -18,17 +19,17 @@ export interface ArtistCardProps {
 }
 
 const ArtistCard: React.FC<ArtistCardProps> = ({
-  id,
-  title,
-  subtitle,
-  isFavourite = false,
-  isLoading = false,
-  imgUrl,
-  mode = "list",
-  onClick,
-  onSetFavourite,
-  // artworksCount = 0,
-}) => {
+                                                 slug,
+                                                 title,
+                                                 subtitle,
+                                                 isFavourite = false,
+                                                 isLoading = false,
+                                                 imgUrl,
+                                                 mode = "list",
+                                                 onClick,
+                                                 onSetFavourite
+                                                 // artworksCount = 0,
+                                               }) => {
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -46,7 +47,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
     if (onClick) {
       onClick();
     } else {
-      navigate(`/artisti/${id}`);
+      navigate(`/artisti/${slug}`);
     }
   };
 
@@ -62,7 +63,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
           objectFit: mode === "list" ? "cover" : "cover",
           minHeight: "100px",
           backgroundColor: imgUrl ? "" : "#D9D9D9",
-          cursor: onClick ? "pointer" : "auto",
+          cursor: onClick ? "pointer" : "auto"
         }}></CardMedia>
       <CardContent sx={{ p: 0, mt: 2 }}>
         <Box display="flex">
