@@ -55,7 +55,7 @@ const ArtistsGrid: React.FC<ArtistsGridProps> = ({ title, subtitle, emptyText, i
   };
   const handleSelectArtwork = (index: number) => {
     const selectedArtwork = items[index];
-    navigate(`/artwork/${selectedArtwork.id}`);
+    navigate(`/artisti/${selectedArtwork.slug}`);
   };
   const handleLoadMore = () => {
     if (onLoadMore) {
