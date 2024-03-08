@@ -71,15 +71,38 @@ body {
   }
 }
 
-.swiper {
-  .swiper-pagination{
+.heroSwiper {
+  .swiper-pagination-horizontal{
     text-align: left;
     //--swiper-pagination-bullet-inactive-color: rgba(255,255,255,0.8)
     --swiper-pagination-color: #FFF;
     --swiper-pagination-bottom: 0;
   }
+}
+.verticalResponsiveSwiper{
+
+  &:not(.mobile) {
+    .swiper-pagination-horizontal{
+      --swiper-pagination-top: 0;
+      --swiper-pagination-bottom: unset;
+    }
+  }
+  &.mobile{
+    .swiper-pagination-horizontal{
+      --swiper-pagination-top: unset!important;
+      --swiper-pagination-bottom: 16px;
+    }
+  }
+}
+.swiper {
+  .swiper-pagination{
+    --swiper-pagination-color: #FFF;
+  }
   &.swiper-initialized{
     margin-left: 0;
+  }
+  .swiper-pagination-vertical{
+    --swiper-pagination-right: 24px
   }
 }
 
