@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Box,
@@ -9,7 +9,7 @@ import {
   Theme,
   Typography,
   useMediaQuery,
-  useTheme,
+  useTheme
 } from "@mui/material";
 import Logo from "./icons/Logo";
 import { Search } from "@mui/icons-material";
@@ -17,8 +17,10 @@ import { useAuth } from "../hoc/AuthProvider.tsx";
 import UserIcon from "./icons/UserIcon.tsx";
 import { useNavigate } from "react-router-dom";
 import ShoppingBagIcon from "./icons/ShoppingBagIcon.tsx";
+import MenuIcon from "./icons/MenuIcon.tsx";
 
-export interface NavbarProps {}
+export interface NavbarProps {
+}
 
 const Navbar: React.FC<NavbarProps> = ({}) => {
   const theme = useTheme();
@@ -26,21 +28,34 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
 
+  const [showMenu, setShowMenu] = useState(false);
+
+  const menuOpen = showMenu && isMobile;
+
   const mobileStyleOverrides: SxProps<Theme> = {
     top: 0,
     left: 0,
-    width: "100%",
-    margin: 0,
-    borderRadius: 0,
+    width: "calc(100% - 16px)",
+    margin: "8px",
+    height: menuOpen ? "100vh" : undefined,
+    transition: "all 0.5s",
+    overflow: "hidden"
+    //borderRadius: 0
   };
 
   const handleCheckout = () => {
     navigate("/acquisti");
   };
 
+  const handleLogout = async () => {
+    await auth.logout();
+    navigate("/");
+    setShowMenu(false);
+  };
+
   return (
     <AppBar color="default" sx={isMobile ? mobileStyleOverrides : {}} elevation={0}>
-      <Box display="flex" alignItems="center" sx={{ height: "100%" }}>
+      <Box display="flex" alignItems="center" sx={{}}>
         <Box sx={{ height: "24px", cursor: "pointer" }} onClick={() => navigate("/")}>
           <Logo />
         </Box>
@@ -59,22 +74,24 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
           </Box>
         )}
         {/*<TextField sx={{flexGrow:0, ml: 1}} variant="standard" InputProps={{startAdornment: <InputAdornment position="start"><Search/></InputAdornment>}}/>*/}
-        {!isMobile && (
+        {(!isMobile && false) && (
           <IconButton>
             <Search />
           </IconButton>
         )}
         <Box mx={2} flexGrow={1} />
-        {isMobile && (
+        {(isMobile && false) && (
           <IconButton>
             <Search />
           </IconButton>
         )}
         {auth.isAuthenticated ? (
           <>
-            <Typography sx={{ mr: 2 }} variant="body2" color="primary">
-              Ciao {auth.user?.username}
-            </Typography>
+            {!isMobile &&
+              <Typography sx={{ mr: 2 }} variant="body2" color="primary">
+                Ciao {auth.user?.username}
+              </Typography>
+            }
             <IconButton onClick={() => handleCheckout()} color="primary">
               <ShoppingBagIcon color="primary" />
             </IconButton>
@@ -94,7 +111,30 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
             </Button>
           </>
         )}
+        {isMobile && <IconButton onClick={() => setShowMenu(!showMenu)}><MenuIcon /></IconButton>}
       </Box>
+      {isMobile && <Box flexGrow={1} pt={3} display="flex" flexDirection="column" sx={{ height: "auto" }}>
+        <Button
+          sx={{ ml: { xs: 1, sm: 2, lg: 6 } }}
+          onClick={() => navigate("/artworks")}
+          color="inherit"
+          variant="text">
+          Opere
+        </Button>
+        <Button sx={{ ml: 0 }} color="inherit" variant="text">
+          Come funziona
+        </Button>
+        <Box flexGrow={1}></Box>
+        {auth.isAuthenticated && <>
+          <Typography sx={{ textAlign: "center" }} variant="body2" color="primary">
+            Ciao {auth.user?.username}
+          </Typography>
+          <Button sx={{ mb: 12 }} onClick={() => handleLogout()} color="tertiary" variant="text">
+            Logout
+          </Button>
+        </>}
+
+      </Box>}
     </AppBar>
   );
 };

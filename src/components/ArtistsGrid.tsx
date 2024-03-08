@@ -65,7 +65,7 @@ const ArtistsGrid: React.FC<ArtistsGridProps> = ({ title, subtitle, emptyText, i
   return (
     <Box sx={{ px: { xs: 0, md: 6 }, maxWidth: "100%" }}>
       {title && (
-        <Typography sx={{ mb: subtitle ? 2 : { xs: 3, md: 6 } }} variant="h3">
+        <Typography sx={{ mb: subtitle ? 2 : { xs: 3, md: 6 }, px: { xs: 3, md: 0 } }} variant="h3">
           {title}
         </Typography>
       )}
@@ -80,7 +80,7 @@ const ArtistsGrid: React.FC<ArtistsGridProps> = ({ title, subtitle, emptyText, i
         sx={{
           maxWidth: "100%",
           overflow: "auto",
-          px: { xs: 1, sm: 4, md: 0 },
+          px: { xs: 1, sm: 4, md: 0 }
           /*          minHeight: "318px",
                                               flexDirection: { xs: "column", sm: "row" },
                                               { xs: "repeat(1, 1fr);", sm: "repeat(2, 1fr);", md: "repeat(3, 1fr);" }
@@ -92,7 +92,7 @@ const ArtistsGrid: React.FC<ArtistsGridProps> = ({ title, subtitle, emptyText, i
           sx={{
             gridTemplateColumns: { xs: `repeat(auto-fill, minmax(320px, 1fr))` },
             justifyItems: "center",
-            width: "auto",
+            width: "auto"
           }}
           gap={1}>
           {items.map((item, i) => (

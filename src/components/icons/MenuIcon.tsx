@@ -9,7 +9,7 @@ const MenuIcon: React.FC<SvgIconProps> = (props) => {
         <svg
           width="20"
           height="20"
-          viewBox="0 0 20 20"
+          viewBox="0 0 20 12"
           xmlns="http://www.w3.org/2000/svg">
           <g>
             <path
