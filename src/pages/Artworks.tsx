@@ -6,12 +6,12 @@ import { artworksToGalleryItems } from "../utils.ts";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import ArtworksGrid from "../components/ArtworksGrid.tsx";
 import { useNavigate, useParams } from "react-router-dom";
-import ArtworksFilters from "../components/ArtworksFilters.tsx";
 import { CardItem } from "../types";
 import GalleryHeader from "../components/GalleryHeader.tsx";
 import { Gallery } from "../types/gallery.ts";
 
-export interface ArtworksProps {}
+export interface ArtworksProps {
+}
 
 const Artworks: React.FC<ArtworksProps> = ({}) => {
   const data = useData();
@@ -64,10 +64,10 @@ const Artworks: React.FC<ArtworksProps> = ({}) => {
         <Grid xs={12} sx={{ px: { xs: 3, md: 6 }, mb: { xs: 8, md: 12 } }} item>
           <Typography variant="h1">Tutte le opere</Typography>
         </Grid>
-        <Grid sx={{ px: { xs: 2, md: 4 } }} item xs={12} md={3}>
+        {/*<Grid sx={{ px: { xs: 2, md: 4 } }} item xs={12} md={3}>
           <ArtworksFilters />
-        </Grid>
-        <Grid item xs={12} md={9}>
+        </Grid>*/}
+        <Grid item xs={12} md={12}>
           <ArtworksGrid items={artworks} onSelect={handleSelectArtwork} cardSize="large" />
         </Grid>
       </Grid>

@@ -20,9 +20,10 @@ import ShoppingBagIcon from "./icons/ShoppingBagIcon.tsx";
 import MenuIcon from "./icons/MenuIcon.tsx";
 
 export interface NavbarProps {
+  onMenuToggle?: (isOpen: boolean) => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({}) => {
+const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   const theme = useTheme();
   const auth = useAuth();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -37,7 +38,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
     left: 0,
     width: "calc(100% - 16px)",
     margin: "8px",
-    height: menuOpen ? "100vh" : undefined,
+    height: menuOpen ? "calc(100dvh - 16px)" : undefined,
     transition: "all 0.5s",
     overflow: "hidden"
     //borderRadius: 0
@@ -50,20 +51,47 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   const handleLogout = async () => {
     await auth.logout();
     navigate("/");
-    setShowMenu(false);
+    handleShowMenu(false);
   };
+  const handleLogin = async () => {
+    auth.login();
+    handleShowMenu(false);
+  };
+
+  const handleShowMenu = (newValue: boolean) => {
+    setShowMenu(newValue);
+    if (onMenuToggle) {
+      onMenuToggle(newValue);
+    }
+  };
+
+  const handleNavigate = (link: string) => {
+    handleShowMenu(false);
+    navigate(link);
+  };
+
+  const authButton = <Button sx={{ minWidth: "150px" }} onClick={() => handleLogin()} color="secondary"
+                             variant="outlined">
+    Login/Registrati
+  </Button>;
+
+  const galleryLink = <Link sx={{ mr: isMobile ? 0 : 2, minWidth: "120px" }} href="#" color="tertiary.main">
+    Sei una galleria?
+  </Link>;
+
+  //onMenuToggle
 
   return (
     <AppBar color="default" sx={isMobile ? mobileStyleOverrides : {}} elevation={0}>
       <Box display="flex" alignItems="center" sx={{}}>
-        <Box sx={{ height: "24px", cursor: "pointer" }} onClick={() => navigate("/")}>
+        <Box sx={{ height: "24px", cursor: "pointer" }} onClick={() => handleNavigate("/")}>
           <Logo />
         </Box>
         {!isMobile && (
           <Box>
             <Button
               sx={{ ml: { xs: 1, sm: 2, lg: 6 } }}
-              onClick={() => navigate("/artworks")}
+              onClick={() => handleNavigate("/artworks")}
               color="inherit"
               variant="text">
               Opere
@@ -101,19 +129,13 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
           </>
         ) : (
           <>
-            {!isMobile && (
-              <Link sx={{ mr: 2, minWidth: "120px" }} href="#" color="tertiary.main">
-                Sei una galleria?
-              </Link>
-            )}
-            <Button sx={{ minWidth: "150px" }} onClick={() => auth.login()} color="secondary" variant="outlined">
-              Login/Registrati
-            </Button>
+            {!isMobile && galleryLink}
+            {!isMobile ? authButton : <></>}
           </>
         )}
-        {isMobile && <IconButton onClick={() => setShowMenu(!showMenu)}><MenuIcon /></IconButton>}
+        {isMobile && <IconButton onClick={() => handleShowMenu(!showMenu)}><MenuIcon /></IconButton>}
       </Box>
-      {isMobile && <Box flexGrow={1} pt={3} display="flex" flexDirection="column" sx={{ height: "auto" }}>
+      {menuOpen && <Box flexGrow={1} pt={3} display="flex" flexDirection="column" sx={{ height: "auto" }}>
         <Button
           sx={{ ml: { xs: 1, sm: 2, lg: 6 } }}
           onClick={() => navigate("/artworks")}
@@ -124,16 +146,21 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
         <Button sx={{ ml: 0 }} color="inherit" variant="text">
           Come funziona
         </Button>
+        <Box my={1} sx={{ textAlign: "center" }}>
+          {galleryLink}
+        </Box>
+
         <Box flexGrow={1}></Box>
-        {auth.isAuthenticated && <>
+        {auth.isAuthenticated ? <>
           <Typography sx={{ textAlign: "center" }} variant="body2" color="primary">
             Ciao {auth.user?.username}
           </Typography>
           <Button sx={{ mb: 12 }} onClick={() => handleLogout()} color="tertiary" variant="text">
             Logout
           </Button>
-        </>}
-
+        </> : <Box display="flex" flexDirection="column" alignItems="center" gap={2} sx={{ mb: 12 }}>
+          {authButton}
+        </Box>}
       </Box>}
     </AppBar>
   );

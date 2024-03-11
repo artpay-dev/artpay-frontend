@@ -1,6 +1,16 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
-import { Box, Button, Dialog, DialogContent, Divider, IconButton, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  Divider,
+  IconButton,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from "@mui/material";
 import { Close } from "@mui/icons-material";
 import Logo from "../components/icons/Logo";
 import LinkButton from "../components/LinkButton.tsx";
@@ -58,15 +68,19 @@ const Context = createContext<AuthContext>({
     throw "Auth not loaded";
   },
   logout: () => Promise.reject("Auth not loaded"),
-  login: () => {},
+  login: () => {
+  },
   getGuestAuth: () => getGuestAuth(),
-  getAuthToken: () => undefined,
+  getAuthToken: () => undefined
 });
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = "" }) => {
   const userInfoUrl = `${baseUrl}/api/users/me`;
   const loginUrl = `${baseUrl}/wp-json/wp/v2/users/me`;
   const signUpUrl = `${baseUrl}/wp-json/wp/v2/users`;
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [loginOpen, setLoginOpen] = useState(false);
   const [isSignIn, setIsSignIn] = useState(false);
@@ -76,14 +90,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     isAuthenticated: false,
     isLoading: true,
     user: undefined,
-    wcToken: undefined,
+    wcToken: undefined
   });
 
   const login = async ({ email, password }: SignInFormData) => {
     setIsLoading(true);
     try {
       const resp = await axios.get<SignInFormData, AxiosResponse<User>>(loginUrl, {
-        auth: { username: email, password },
+        auth: { username: email, password }
       });
       /*const userInfoResp = await axios.get<object, AxiosResponse<UserInfo>>(
         userInfoUrl,
@@ -97,7 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         ...authValues,
         isAuthenticated: true,
         user: userToUserInfo(resp.data),
-        wcToken: getWcCredentials(resp.data.wc_api_user_keys),
+        wcToken: getWcCredentials(resp.data.wc_api_user_keys)
       });
       setLoginOpen(false);
       return {};
@@ -108,7 +122,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         return {
           error: data,
           status: err.response.status,
-          message: err.message,
+          message: err.message
         };
       } else {
         setAuthValues({ ...authValues, isAuthenticated: false, user: undefined });
@@ -128,7 +142,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       const resp = await axios.post<SignUpFormData, AxiosResponse<User, RequestError>>(
         signUpUrl,
         { email, username, password },
-        { headers: { Authorization: basicAuth } },
+        { headers: { Authorization: basicAuth } }
       );
       if (resp.status > 299) {
         setIsLoading(false);
@@ -139,7 +153,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         ...authValues,
         isAuthenticated: true,
         user: userToUserInfo(resp.data),
-        wcToken: getWcCredentials(resp.data.wc_api_user_keys),
+        wcToken: getWcCredentials(resp.data.wc_api_user_keys)
       });
       setLoginOpen(false);
     } finally {
@@ -166,7 +180,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     setAuthValues({
       user: undefined,
       isAuthenticated: false,
-      isLoading: false,
+      isLoading: false
     });
 
   const state: AuthContext = {
@@ -175,14 +189,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     logout,
     getRole,
     getGuestAuth: () => getGuestAuth(),
-    getAuthToken: () => authValues.wcToken,
+    getAuthToken: () => authValues.wcToken
   };
 
   // Guest auth interceptor
   useEffect(() => {
     const interceptorId = axios.interceptors.request.use((config) => {
       if (!config.url?.startsWith(`${baseUrl}/wp-json/`)) {
-        return config
+        return config;
       }
       const needsWcKey = config.url?.startsWith(`${baseUrl}/wp-json/wc/`); //
       if (!config.headers.Authorization) {
@@ -204,13 +218,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         user: userToUserInfo(userObj),
         isAuthenticated: true,
         isLoading: false,
-        wcToken: getWcCredentials(userObj.wc_api_user_keys),
+        wcToken: getWcCredentials(userObj.wc_api_user_keys)
       });
     } else {
       setAuthValues({
         user: undefined,
         isAuthenticated: false,
-        isLoading: false,
+        isLoading: false
       });
     }
 
@@ -222,8 +236,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
   return (
     <Context.Provider value={state}>
       {authValues.isLoading ? <></> : children}
-      <Dialog onClose={() => setLoginOpen(false)} aria-labelledby="auth-dialog-title" maxWidth="sm" open={loginOpen}>
-        <Box px={6} pt={6} alignItems="center" display="flex">
+      <Dialog fullScreen={isMobile} onClose={() => setLoginOpen(false)} aria-labelledby="auth-dialog-title"
+              maxWidth="sm"
+              open={loginOpen}>
+        <Box px={6} sx={{ pt: { xs: 3, md: 6 } }} alignItems="center" display="flex">
           <Logo />
           <Box flexGrow={1} />
           <IconButton
@@ -233,7 +249,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
             <Close />
           </IconButton>
         </Box>
-        <DialogContent sx={{ pt: 2, pb: 6 }}>
+        <DialogContent sx={{ pt: 2, pb: { xs: 3, md: 6 } }}>
           <Typography variant="h6">Qui possiamo mettere payoff / claim di artpay</Typography>
           {isSignIn ? (
             <SignInForm disabled={isLoading} onSubmit={login} />

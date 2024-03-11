@@ -4,6 +4,7 @@ import { CardItem, CardSize } from "../types";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Typography } from "@mui/material";
 import { useData } from "../hoc/DataProvider.tsx";
+import { useAuth } from "../hoc/AuthProvider.tsx";
 
 export interface ArtworksGridProps {
   items: ArtworkCardProps[];
@@ -16,22 +17,27 @@ export interface ArtworksGridProps {
 }
 
 const ArtworksGrid: React.FC<ArtworksGridProps> = ({
-  title,
-  items,
-  emptyText,
-  cardSize,
-  onSelect,
-  onLoadMore,
-  disablePadding = false,
-}) => {
+                                                     title,
+                                                     items,
+                                                     emptyText,
+                                                     cardSize,
+                                                     onSelect,
+                                                     onLoadMore,
+                                                     disablePadding = false
+                                                   }) => {
   const navigate = useNavigate();
   const data = useData();
+  const auth = useAuth();
 
   const [favourites, setFavourites] = useState<number[]>([]);
 
   useEffect(() => {
-    data.getFavouriteArtworks().then((resp) => setFavourites(resp));
-  }, [data]);
+    if (auth.isAuthenticated) {
+      data.getFavouriteArtworks().then((resp) => setFavourites(resp));
+    } else {
+      setFavourites([]);
+    }
+  }, [data, auth.isAuthenticated]);
   const handleSelect = (item: ArtworkCardProps) => {
     if (!item.galleryId) {
       navigate(`/opere/${item.slug}`);
@@ -47,6 +53,10 @@ const ArtworksGrid: React.FC<ArtworksGridProps> = ({
     }
   };
   const handleSetFavourite = async (artworkId: string, isFavourite: boolean) => {
+    if (!auth.isAuthenticated) {
+      auth.login();
+      return;
+    }
     if (artworkId) {
       try {
         if (isFavourite) {
@@ -78,7 +88,7 @@ const ArtworksGrid: React.FC<ArtworksGridProps> = ({
         sx={{
           maxWidth: "100%",
           overflow: "auto",
-          px: { xs: 1, sm: 4, md: 0 },
+          px: { xs: 1, sm: 4, md: 0 }
           /*          minHeight: "318px",
                                     flexDirection: { xs: "column", sm: "row" },
                                     { xs: "repeat(1, 1fr);", sm: "repeat(2, 1fr);", md: "repeat(3, 1fr);" }
@@ -90,7 +100,7 @@ const ArtworksGrid: React.FC<ArtworksGridProps> = ({
           sx={{
             gridTemplateColumns: { xs: `repeat(auto-fill, minmax(320px, 1fr))` },
             justifyItems: "center",
-            width: "auto",
+            width: "auto"
           }}
           gap={1}>
           {items.map((item, i) => (
