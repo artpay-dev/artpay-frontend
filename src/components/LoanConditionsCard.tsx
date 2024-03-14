@@ -15,16 +15,16 @@ export interface LoanConditionsCardProps {
 }
 
 const LoanConditionsCard: React.FC<LoanConditionsCardProps> = ({
-  sx,
-  logoSrc,
-  isBestChoice = false,
-  monthlyEstimateText,
-  monthlyAmount,
-  taegText,
-  requestQuoteUrl,
-  requestQuoteText,
-  freeAndNonBindingText,
-}) => {
+                                                                 sx,
+                                                                 logoSrc,
+                                                                 isBestChoice = false,
+                                                                 monthlyEstimateText,
+                                                                 monthlyAmount,
+                                                                 taegText,
+                                                                 requestQuoteUrl,
+                                                                 requestQuoteText,
+                                                                 freeAndNonBindingText
+                                                               }) => {
   const theme = useTheme();
   return (
     <Box
@@ -42,7 +42,7 @@ const LoanConditionsCard: React.FC<LoanConditionsCardProps> = ({
         alignItems="center"
         sx={{ flexDirection: { xs: "column-reverse", sm: "row" } }}>
         <img style={{ height: "48px" }} src={logoSrc} />
-        {isBestChoice ? <img style={{ height: "30px" }} src={"/best_choice.svg"} /> : <div />}
+        {isBestChoice ? <img style={{ height: "30px" }} src={"/images/best_choice.svg"} /> : <div />}
       </Box>
       <Box
         mt={3}

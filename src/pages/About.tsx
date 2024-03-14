@@ -6,7 +6,8 @@ import { Box, Button, Grid, GridProps, Typography, useMediaQuery, useTheme } fro
 import { useData } from "../hoc/DataProvider.tsx";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 
-export interface AboutProps {}
+export interface AboutProps {
+}
 
 const heroContent: HeroAboutProps = {
   subtitle:
@@ -15,7 +16,7 @@ const heroContent: HeroAboutProps = {
   description:
     "artpay è un servizio digitale dedicato a coloro che vogliono investire nell opere d’arte ma bla bla bla e che offre in pochi click soluzioni bla bla bla, di acquisto rateali e personalizzabili",
   buttonText: "Entra nel mondo di artpay",
-  imageSrc: "/hero-about-cover.png",
+  imageSrc: "/images/hero-about-cover.png"
 };
 
 const promoContent = [
@@ -23,20 +24,20 @@ const promoContent = [
     title: "Iscriviti alla piattaforma",
     subtitle: "Lorem ipsum dolor sit amet consectetur. Vitae vel sit sit dictum velit at erat.",
     description: "Lorem ipsum dolor sit amet consectetur. Vitae vel sit sit dictum velit at erat.",
-    imageSrc: "/hero-side-example.png",
+    imageSrc: "/images/hero-side-example.png"
   },
   {
     title: "Iscriviti alla piattaforma",
     subtitle: "Lorem ipsum dolor sit amet consectetur. Vitae vel sit sit dictum velit at erat.",
     description: "Lorem ipsum dolor sit amet consectetur. Vitae vel sit sit dictum velit at erat.",
-    imageSrc: "/hero-side-example.png",
+    imageSrc: "/images/hero-side-example.png"
   },
   {
     title: "Iscriviti alla piattaforma",
     subtitle: "Lorem ipsum dolor sit amet consectetur. Vitae vel sit sit dictum velit at erat.",
     description: "Lorem ipsum dolor sit amet consectetur. Vitae vel sit sit dictum velit at erat.",
-    imageSrc: "/hero-side-example.png",
-  },
+    imageSrc: "/images/hero-side-example.png"
+  }
 ];
 const About: React.FC<AboutProps> = ({}) => {
   const theme = useTheme();
@@ -69,7 +70,7 @@ const About: React.FC<AboutProps> = ({}) => {
     marginRight: "auto",
     px: { xs: 3, md: 6 },
     py: { xs: 6, md: 12 },
-    position: "relative",
+    position: "relative"
     //flexDirection: isMobile ? "column-reverse" : undefined,
   };
 
@@ -83,7 +84,7 @@ const About: React.FC<AboutProps> = ({}) => {
         <Grid xs={12} sm={4} sx={{ pb: { xs: 3, sm: 0 }, height: "auto" }} item>
           <img
             style={{ width: imgWidth, maxWidth: "300px", minHeight: isMobile ? "70px" : undefined }}
-            src="/logo.svg"
+            src="/images/logo.svg"
           />
         </Grid>
         <Grid xs={12} sm={8} item>
@@ -123,7 +124,7 @@ const About: React.FC<AboutProps> = ({}) => {
             pr: "0!important",
             pt: "0!important",
             pl: { xs: "0!important", sm: "undefined" },
-            pb: { xs: "0!important", sm: "undefined" },
+            pb: { xs: "0!important", sm: "undefined" }
           }}
           container>
           <Grid
@@ -134,7 +135,7 @@ const About: React.FC<AboutProps> = ({}) => {
               flexDirection: "column",
               justifyContent: "center",
               px: { xs: 3, sm: 6 },
-              pb: { xs: 3, sm: 0 },
+              pb: { xs: 3, sm: 0 }
             }}
             item>
             <Typography sx={{ maxWidth: "672px", typography: { xs: "h2", sm: "h1" } }} variant="h1">
@@ -156,10 +157,10 @@ const About: React.FC<AboutProps> = ({}) => {
               textAlign: "right",
               overflow: "hidden",
               display: { xs: "flex" },
-              justifyContent: { xs: undefined, sm: "end" },
+              justifyContent: { xs: undefined, sm: "end" }
             }}
             item>
-            <img style={{ width: isMobile ? "100%" : undefined }} src="/image-gallery-about.png" />
+            <img style={{ width: isMobile ? "100%" : undefined }} src="/images/image-gallery-about.png" />
           </Grid>
         </Grid>
       </Box>

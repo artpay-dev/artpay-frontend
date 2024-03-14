@@ -30,13 +30,13 @@ const VerticalSlider: React.FC<VerticalSliderProps> = ({ sx }) => {
   const slides: VerticalSlideProps[] = [
     {
       cta: { link: "/", text: "Scopri l'artista" },
-      imgSrc: "/artists_example.png",
+      imgSrc: "/images/artists_example.png",
       text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
       title: "Loren Gallo"
     },
     {
       cta: { link: "/", text: "Scopri l'artista" },
-      imgSrc: "/artists_example.png",
+      imgSrc: "/images/artists_example.png",
       text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
       title: "Loren Gallo"
     }

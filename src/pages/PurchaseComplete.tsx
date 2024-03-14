@@ -10,7 +10,8 @@ import ContentCard from "../components/ContentCard.tsx";
 import DisplayProperty from "../components/DisplayProperty.tsx";
 import { BankTransferAction } from "../types/order.ts";
 
-export interface PurchaseCompleteProps {}
+export interface PurchaseCompleteProps {
+}
 
 interface BankTransferInstructions {
   iban: string;
@@ -18,6 +19,7 @@ interface BankTransferInstructions {
   reference: string;
   formattedAmount: string;
 }
+
 interface Message {
   title: string;
   text: string | ReactElement;
@@ -61,7 +63,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
           title: "Si è verificato un errore",
           text: "Impossibile caricare le informazioni sul pagamento",
           cta: "",
-          status: "failure",
+          status: "failure"
         });
         setReady(true);
         return;
@@ -71,7 +73,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
           title: "Pagamento in elaborazione",
           text: "Stiamo verificando il tuo pagamento, attendi qualche minuto",
           cta: "",
-          status: "processing",
+          status: "processing"
         });
         setReady(true);
         return;
@@ -84,7 +86,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
               title: `Ciao ${auth.user?.username || ""}, grazie per il tuo acquisto`,
               text: exampleSuccessMessage,
               cta: "",
-              status: "success",
+              status: "success"
             });
             break;
           case "processing":
@@ -92,7 +94,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
               title: "Pagamento in elaborazione",
               text: "Stiamo verificando il tuo pagamento, attendi qualche minuto",
               cta: "",
-              status: "processing",
+              status: "processing"
             });
             break;
           case "requires_action":
@@ -103,7 +105,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
                 title: "Si è verificato un errore",
                 text: "Dati per effettuare il bonifico non trovati",
                 cta: "",
-                status: "failure",
+                status: "failure"
               });
             } else {
               setMessage({
@@ -115,11 +117,11 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
                   accountHolderName:
                     nextAction.display_bank_transfer_instructions.financial_addresses[0].iban.account_holder_name || "",
                   formattedAmount: `€ ${(nextAction.display_bank_transfer_instructions.amount_remaining / 100).toFixed(
-                    2,
+                    2
                   )}`,
                   iban: nextAction.display_bank_transfer_instructions.financial_addresses[0].iban?.iban || "",
-                  reference: nextAction.display_bank_transfer_instructions?.reference || "",
-                },
+                  reference: nextAction.display_bank_transfer_instructions?.reference || ""
+                }
               });
             }
             break;
@@ -128,7 +130,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
               title: "Si è verificato un errore",
               text: "Il tuo pagamento non è andato a buon fine, riprova",
               cta: "",
-              status: "failure",
+              status: "failure"
             });
             break;
           default:
@@ -136,7 +138,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
               title: "Si è verificato un errore",
               text: "",
               cta: "",
-              status: "failure",
+              status: "failure"
             });
             break;
         }
@@ -157,7 +159,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
             mt: { xs: 8, md: 12, lg: 12, xl: message.status === "requires_action" ? 10 : 0 },
             minHeight: "calc(100vh - 240px)",
             maxWidth: "100vw",
-            overflowX: "hidden",
+            overflowX: "hidden"
           }}
           alignItems="center"
           container>
@@ -204,12 +206,12 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
             )}
           </Grid>
           <Grid display="flex" alignItems="center" justifyContent="center" xs={12} lg={3} xl={4} item>
-            {message.status === "success" && <img src="/payment-success.svg" />}
+            {message.status === "success" && <img src="/images/payment-success.svg" />}
             {message.status === "failure" && (
               <Cancel fontSize="large" sx={{ height: "140px", width: "140px" }} color="error" />
             )}
             {message.status === "processing" && <CircularProgress size="140px" />}
-            {message.status === "requires_action" && !isMobile && <img src="/payment-success.svg" />}
+            {message.status === "requires_action" && !isMobile && <img src="/images/payment-success.svg" />}
           </Grid>
         </Grid>
       )}

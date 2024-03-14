@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+/wp/db/
+/wp/wp-data/
+/wp/certs/

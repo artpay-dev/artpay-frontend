@@ -10,12 +10,12 @@ export interface PromoSideProps {
 }
 
 const PromoSide: React.FC<PromoSideProps> = ({
-  reverse = false,
-  title = "Iscriviti alla piattaforma",
-  subtitle = "Lorem ipsum dolor sit amet consectetur. Vitae vel sit sit dictum velit at erat.",
-  description = "Lorem ipsum dolor sit amet consectetur. Vitae vel sit sit dictum velit at erat.",
-  imageSrc = "/hero-side-example.png",
-}) => {
+                                               reverse = false,
+                                               title = "Iscriviti alla piattaforma",
+                                               subtitle = "Lorem ipsum dolor sit amet consectetur. Vitae vel sit sit dictum velit at erat.",
+                                               description = "Lorem ipsum dolor sit amet consectetur. Vitae vel sit sit dictum velit at erat.",
+                                               imageSrc = "/images/hero-side-example.png"
+                                             }) => {
   const theme = useTheme();
   return (
     <Box display="flex" sx={{ flexDirection: { xs: "column", sm: reverse ? "row-reverse" : "row" } }}>

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "wpbuild": "vite build -c vite.config.wp.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -19,6 +20,7 @@
     "@stripe/react-stripe-js": "^2.4.0",
     "@stripe/stripe-js": "^2.4.0",
     "@types/google-map-react": "^2.1.10",
+    "@types/node": "^20.11.27",
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/sanitize-html": "^2.9.5",
     "axios": "^1.4.0",
@@ -36,6 +38,7 @@
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/resolve": "^1.20.6",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react-swc": "^3.3.2",
@@ -45,7 +48,9 @@
     "prettier": "3.1.0",
     "sass": "^1.69.5",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5"
+    "vite": "^4.4.5",
+    "vite-plugin-html": "^3.2.2",
+    "vite-plugin-php": "^1.0.10"
   },
   "prettier": {
     "bracketSameLine": true,

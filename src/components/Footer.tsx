@@ -6,11 +6,12 @@ import { ArrowUpward } from "@mui/icons-material";
 import SocialLinks from "./SocialLinks.tsx";
 import NewsletterSmall from "./NewsletterSmall.tsx";
 
-export interface FooterProps {}
+export interface FooterProps {
+}
 
 const FooterRoot = styled("div", {
   name: "MuiFooter", // The component name
-  slot: "root", // The slot name
+  slot: "root" // The slot name
 })(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -19,7 +20,7 @@ const FooterRoot = styled("div", {
   position: "relative",
   //paddingBottom: "64px",
   backgroundColor: theme.palette.background.paper,
-  color: theme.palette.contrast.main,
+  color: theme.palette.contrast.main
 }));
 const Footer: React.FC<FooterProps> = ({}) => {
   const gridProps = { maxWidth: "900px", px: { xs: 4, md: 3 }, pt: { xs: 2, md: 6 }, gap: { xs: 2, md: 0 } };
@@ -81,10 +82,10 @@ const Footer: React.FC<FooterProps> = ({}) => {
           </Typography>
           <Box display="flex" flexDirection="column" my={1} gap={1}>
             <Typography variant="body2">
-              <a href="#">ArtPay per gallerie</a>
+              <a href="https://artpay.art/artpay-per-gallerie">ArtPay per gallerie</a>
             </Typography>
             <Typography variant="body2">
-              <a href="#">ArtPay per compratori</a>
+              <a href="https://artpay.art/artpay-per-collezionisti/">ArtPay per compratori</a>
             </Typography>
             <Typography variant="body2">
               <a href="#">ArtPay leasing</a>
@@ -139,7 +140,7 @@ const Footer: React.FC<FooterProps> = ({}) => {
           position: "absolute",
           bottom: { xs: "0", md: "72px" },
           right: { xs: undefined, md: "0px" },
-          maxWidth: "100px",
+          maxWidth: "100px"
         }}
         py={2}
         px={3}
@@ -150,7 +151,7 @@ const Footer: React.FC<FooterProps> = ({}) => {
             window.scrollTo({
               top: 0,
               left: 0,
-              behavior: "smooth",
+              behavior: "smooth"
             })
           }
           variant="contained"

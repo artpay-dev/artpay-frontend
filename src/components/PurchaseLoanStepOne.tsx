@@ -28,28 +28,28 @@ const PurchaseLoanStepOne: React.FC<PurchaseLoanStepOneProps> = ({ onClick }) =>
           gridTemplateColumns: { xs: undefined, md: "1fr 1fr 1fr" },
           display: { xs: "flex", md: "grid" },
           flexDirection: { xs: "column", md: undefined },
-          gap: 3,
+          gap: 3
         }}
         item>
         <Box>
           <InfoCard
             title="Versa un acconto"
             subtitle="Questa operazione blocca l'opera e garantisce l'esclusiva sull'acquisto. Alla ricezione dell'acconto Artpay bloccherà l'opera per 7 giorni."
-            imgSrc="/boat.svg"
+            imgSrc="/images/boat.svg"
           />
         </Box>
         <Box>
           <InfoCard
             title="Richiedi il finanziamento"
             subtitle="Normalmente viene erogato in poche ore*."
-            imgSrc="/boat.svg"
+            imgSrc="/images/boat.svg"
           />
         </Box>
         <Box>
           <InfoCard
             title="Compra l’opera d’arte"
             subtitle="Completato l'iter di richiesta e ricevuto il finanziamento, l'acquirente può procedere all'acquisto dell'opera dal sito Artpay"
-            imgSrc="/boat.svg"
+            imgSrc="/images/boat.svg"
           />
         </Box>
       </Grid>

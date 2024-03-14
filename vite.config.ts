@@ -8,7 +8,6 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      // @ts-expect-error __dirname
       "@": path.resolve(__dirname, "src")
     }
   },

@@ -3,7 +3,8 @@ import DefaultLayout from "../components/DefaultLayout.tsx";
 import { Box, Typography, useTheme } from "@mui/material";
 import Accordion from "../components/Accordion.tsx";
 
-export interface FaqProps {}
+export interface FaqProps {
+}
 
 const Faq: React.FC<FaqProps> = ({}) => {
   const theme = useTheme();
@@ -63,9 +64,9 @@ const Faq: React.FC<FaqProps> = ({}) => {
             overflow: "visible",
             display: { xs: "none", md: "block" },
             maxWidth: { md: "calc(100vw - 700px)", xl: undefined },
-            pt: 3,
+            pt: 3
           }}>
-          <img style={{ maxHeight: "100%" }} src="/illustration-world.svg" />
+          <img style={{ maxHeight: "100%" }} src="/images/illustration-world.svg" />
         </Box>
       </Box>
       <Box sx={{ px: { xs: 3, sm: 6 } }}>
@@ -82,9 +83,9 @@ const Faq: React.FC<FaqProps> = ({}) => {
             overflow: "visible",
             display: { xs: "none", md: "block" },
             pt: 6,
-            maxWidth: { md: "calc(100vw - 700px)", xl: undefined },
+            maxWidth: { md: "calc(100vw - 700px)", xl: undefined }
           }}>
-          <img style={{ maxHeight: "100%" }} src="/illustration-form.svg" />
+          <img style={{ maxHeight: "100%" }} src="/images/illustration-form.svg" />
         </Box>
       </Box>
     </DefaultLayout>
