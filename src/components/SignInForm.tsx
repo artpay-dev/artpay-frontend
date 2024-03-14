@@ -80,7 +80,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
           disabled={disabled}
         />
         {error && <Typography variant="body1" color="error" sx={{ mt: 0 }}>{error}</Typography>}
-        <LinkButton sx={{ alignSelf: "flex-start" }} size="small">
+        <LinkButton sx={{ alignSelf: "flex-start" }} href="/recupero-password" size="small">
           Hai perso la password?
         </LinkButton>
         <Button

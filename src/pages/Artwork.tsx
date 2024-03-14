@@ -50,6 +50,8 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const heroImgUrl = artwork?.images.length ? artwork.images[0].src : "";
   const isArtworkFavourite = artwork?.id ? favouriteArtworks.indexOf(artwork.id) !== -1 : false;
 
+  const isOutOfStock = artwork?.stock_status === "outofstock";
+
   const handleGalleryArtworkSelect = (i: number) => {
     if (galleryDetails && galleryArtworks && galleryArtworks[i]) {
       setIsReady(false);
@@ -226,13 +228,14 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               </IconButton>
             </Box>
             <Box mt={2} sx={{ mb: { xs: 0, md: 3 } }} display="flex" gap={1}>
-              <Button variant="outlined" onClick={() => handlePurchase(artwork?.id)}>
+              <Button variant="outlined" disabled={isOutOfStock} onClick={() => handlePurchase(artwork?.id)}>
                 Compra ora
               </Button>
-              <Button variant="contained" onClick={handleLoanPurchase}>
+              <Button variant="contained" disabled={isOutOfStock} onClick={handleLoanPurchase}>
                 Acquista a rate
               </Button>
             </Box>
+            {isOutOfStock && <Typography variant="h6" color="error">Opera non disponibile</Typography>}
             <Divider sx={{ my: 3 }} />
             <Box
               display="flex"

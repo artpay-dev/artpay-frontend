@@ -33,31 +33,32 @@ export interface SignUpFormProps {
 
 const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, disabled }) => {
   const [submitError, setSubmitError] = useState<string | null>(null);
+
   const registrationFormContent: SignUpFormContent = {
     fields: {
       username: { label: "Nome" },
       email: { label: "Email" },
-      password: { label: "Password" },
+      password: { label: "Password" }
     },
     passwordRequirements:
       "La password dovrebbe essere composta da almeno 12 caratteri e una combinazione di almeno i seguenti elementi: lettere maiuscole (A-Z), lettere minuscole (a-z), numeri (0-9), caratteri speciali (come !, @, #, $, %, ecc.)",
     privacyLabel:
       "La tua privacy è importante per noi. Qui trovi l’informativa sulla privacy che spiega come raccogliamo, utilizziamo e proteggiamo le tue informazioni personali.",
     privacyDescription: "",
-    buttonLabel: "Registrati",
+    buttonLabel: "Registrati"
   };
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm({
     //handleSubmit
     defaultValues: {
       username: "",
       email: "",
       password: "",
-      privacy: undefined,
-    } as SignUpFormData,
+      privacy: undefined
+    } as SignUpFormData
   });
 
   const handleSubmitClick = async (data: SignUpFormData) => {
@@ -69,9 +70,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, disabled }) => {
         if (isAxiosError(e)) {
           setSubmitError((e as AxiosError).message);
         } else {
-          // @ts-ignore
-          setSubmitError(e.message);
+          setSubmitError(e?.toString ? e.toString() : "Si è verificato un errore");
         }
+        return;
       }
     }
   };

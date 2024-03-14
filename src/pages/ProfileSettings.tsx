@@ -195,7 +195,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({}) => {
         <Typography variant="h5" sx={{ mb: 2 }}>
           Cambio password
         </Typography>
-        <PasswordChangeForm onSubmit={handlePasswordChange} />
+        <PasswordChangeForm askOldPassword onSubmit={handlePasswordChange} />
       </Box>
       <Box px={6} mb={6} sx={{ maxWidth: theme.breakpoints.values.md }}>
         <Typography variant="h6" sx={{ mb: 2 }}>

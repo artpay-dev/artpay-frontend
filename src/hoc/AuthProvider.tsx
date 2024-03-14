@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import {
   Box,
   Button,
@@ -21,10 +21,17 @@ import GoogleIcon from "../components/icons/GoogleIcon.tsx";
 import FacebookIcon from "../components/icons/FacebookIcon.tsx";
 import { User, UserInfo } from "../types/user.ts";
 import { userToUserInfo } from "../utils.ts";
+import { useDialogs } from "./DialogProvider.tsx";
 
 type RequestError = {
   message?: string;
 };
+
+type PasswordResetParams = {
+  email: string
+  password: string
+  code: string
+}
 
 export interface AuthState {
   isLoading: boolean;
@@ -36,7 +43,9 @@ export interface AuthState {
 export interface AuthContext extends AuthState {
   getRole: () => string;
   logout: () => Promise<boolean>;
-  login: () => void;
+  login: (showSignIn?: boolean) => void;
+  sendPasswordResetLink: (email: string) => Promise<{ error?: unknown }>;
+  resetPassword: (params: PasswordResetParams) => Promise<void>;
   getGuestAuth: () => string;
   getAuthToken: () => string | undefined;
 }
@@ -67,6 +76,8 @@ const Context = createContext<AuthContext>({
   getRole: () => {
     throw "Auth not loaded";
   },
+  sendPasswordResetLink: () => Promise.reject("Auth not loaded"),
+  resetPassword: () => Promise.reject("Auth not loaded"),
   logout: () => Promise.reject("Auth not loaded"),
   login: () => {
   },
@@ -78,9 +89,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
   const userInfoUrl = `${baseUrl}/api/users/me`;
   const loginUrl = `${baseUrl}/wp-json/wp/v2/users/me`;
   const signUpUrl = `${baseUrl}/wp-json/wp/v2/users`;
+  const sendPasswordResetLinkUrl = `${baseUrl}/wp-json/wp/v2/user/reset-password`;
+  const passwordResetUrl = `${baseUrl}/wp-json/wp/v2/user/set-password`;
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const dialogs = useDialogs();
 
   const [loginOpen, setLoginOpen] = useState(false);
   const [isSignIn, setIsSignIn] = useState(false);
@@ -134,7 +148,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       setIsLoading(false);
     }
   };
-
   const register = async ({ email, username, password }: SignUpFormData) => {
     setIsLoading(true);
     const credentials = btoa(GUEST_CONSUMER_KEY + ":" + GUEST_CONSUMER_SECRET);
@@ -146,22 +159,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         { headers: { Authorization: basicAuth } }
       );
       if (resp.status > 299) {
-        setIsLoading(false);
-        throw (resp.data as RequestError)?.message || "Si è verificato un errore";
+        const message = (resp.data as RequestError)?.message || "Si è verificato un errore";
+        throw new AxiosError(message, resp.status?.toString() || "", undefined, resp);
       }
-      localStorage.setItem(userStorageKey, JSON.stringify(resp.data));
-      setAuthValues({
-        ...authValues,
-        isAuthenticated: true,
-        user: userToUserInfo(resp.data),
-        wcToken: getWcCredentials(resp.data.wc_api_user_keys)
-      });
       setLoginOpen(false);
+      await dialogs.okOnly("Registrazione effettuata", "A breve riceverai una email con un link per verificare il tuo account");
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        throw err.response.data.message || "Si è verificato un errore";
+      }
+      throw "Si è verificato un errore";
     } finally {
       setIsLoading(false);
     }
   };
-  const showLoginDialog = () => {
+  const showLoginDialog = (showSignIn: boolean = false) => {
+    if (showSignIn) {
+      setIsSignIn(true);
+    }
     setLoginOpen(true);
   };
   const logout = async () => {
@@ -170,6 +185,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     localStorage.removeItem(userStorageKey);
     resetAuthValues();
     return Promise.resolve(true);
+  };
+
+  const sendPasswordResetLink = async (email: string): Promise<{ error?: unknown }> => {
+    try {
+      await axios.post<SignInFormData, AxiosResponse<User>>(sendPasswordResetLinkUrl, { email: email });
+      return {};
+    } catch (e) {
+      return { error: e?.toString ? e.toString() : "Si è verificato un errore" };
+    }
+  };
+  const resetPassword = async ({ email, password, code }: PasswordResetParams): Promise<void> => {
+    await axios.post<SignInFormData, AxiosResponse<User>>(passwordResetUrl, { email, password, code });
   };
 
   const getRole = () => {
@@ -189,6 +216,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     login: showLoginDialog,
     logout,
     getRole,
+    sendPasswordResetLink,
+    resetPassword,
     getGuestAuth: () => getGuestAuth(),
     getAuthToken: () => authValues.wcToken
   };

@@ -28,6 +28,9 @@ import Faq from "./pages/Faq.tsx";
 import ContentPage from "./pages/ContentPage.tsx";
 import Artist from "./pages/Artist.tsx";
 import Artists from "./pages/Artists.tsx";
+import PasswordRecovery from "./pages/PasswordRecovery.tsx";
+import PasswordReset from "./pages/PasswordReset.tsx";
+import SignUpConfirmation from "./pages/SignUpConfirmation.tsx";
 
 function AppContent() {
   const baseUrl = ""; // https://artpay.art
@@ -59,6 +62,9 @@ function AppContent() {
                   <Route path="/thank-you-page" element={<PurchaseComplete />} />
                   <Route path="/chi-siamo" element={<About />} />
                   <Route path="/faq" element={<Faq />} />
+                  <Route path="/recupero-password" element={<PasswordRecovery />} />
+                  <Route path="/reset-password" element={<PasswordReset />} />
+                  <Route path="/verifica-account" element={<SignUpConfirmation />} />
                   <Route
                     path="/informativa-e-gestione-dei-cookies"
                     element={<ContentPage slug="informativa-e-gestione-dei-cookies" />}
