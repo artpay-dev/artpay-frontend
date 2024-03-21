@@ -17,13 +17,13 @@ const FooterRoot = styled("div", {
   flexDirection: "column",
   alignItems: "center",
   minHeight: "200px",
-  position: "relative",
+  position: "relative"
   //paddingBottom: "64px",
-  backgroundColor: theme.palette.background.paper,
-  color: theme.palette.contrast.main
+  //backgroundColor: theme.palette.background.paper,
+  //color: theme.palette.contrast.main
 }));
 const Footer: React.FC<FooterProps> = ({}) => {
-  const gridProps = { maxWidth: "900px", px: { xs: 4, md: 3 }, pt: { xs: 2, md: 6 }, gap: { xs: 2, md: 0 } };
+  const gridProps = { maxWidth: "1036px", px: { xs: 4, md: 3 }, pt: { xs: 2, md: 6 }, gap: { xs: 2, md: 0 } };
 
   return (
     <FooterRoot>
@@ -111,9 +111,10 @@ const Footer: React.FC<FooterProps> = ({}) => {
           </Box>
         </Grid>*/}
         <NewsletterSmall />
+        <Grid xs={12} item><Divider sx={{ width: "100%", borderColor: "#010F22", pt: 4 }} /></Grid>
       </Grid>
-      <Divider sx={{ width: "100%", borderColor: "white", pt: 4 }} />
-      <Grid sx={{ ...gridProps, pb: 2, pt: 2 }} container>
+
+      <Grid sx={{ ...gridProps, pb: 6, pt: 4 }} container>
         <Grid xs={12} md={4} display="flex" alignItems="center" item>
           <Typography variant="body2" color="textSecondary">
             Tutti i diritti riservati 2023
@@ -131,7 +132,7 @@ const Footer: React.FC<FooterProps> = ({}) => {
           </Typography>
         </Grid>
         <Grid xs={12} md={4} display="flex" sx={{ justifyContent: { xs: "flex-start", md: "flex-end" } }} item>
-          <SocialLinks color="white" instagram="..." facebook="..." twitter="..." youtube="..." />
+          <SocialLinks color="#010F22" instagram="..." facebook="..." twitter="..." youtube="..." />
         </Grid>
       </Grid>
       <Box
@@ -159,6 +160,7 @@ const Footer: React.FC<FooterProps> = ({}) => {
           <ArrowUpward />
         </IconButton>
       </Box>
+
     </FooterRoot>
   );
 };

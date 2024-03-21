@@ -36,17 +36,17 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useEffect } from "react";
 
 function AppContent() {
-  const baseUrl = ""; // https://artpay.art
+  const baseUrl = import.meta.env.VITE_SERVER_URL || ""; // https://artpay.art
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
   const location = useLocation();
 
   const enableGa = import.meta.env.VITE_GA_MEASUREMENT_ID;
 
   useEffect(() => {
-    console.log("location", location);
-    if (enableGa) {
-      ReactGA.send({ hitType: "pageview", page: location.pathname, title: "Custom Title" });
 
+    if (enableGa) {
+      console.log("location", location);
+      ReactGA.send({ hitType: "pageview", page: location.pathname, title: location.pathname });
     }
   }, [enableGa, location.pathname]);
 

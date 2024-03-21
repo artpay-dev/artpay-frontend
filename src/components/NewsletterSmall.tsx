@@ -6,32 +6,33 @@ import { useData } from "../hoc/DataProvider.tsx";
 import { BREVO_FORM_URL, NewsletterFormData, NewsletterFormState } from "../types/newsletter.ts";
 import NewsletterFormMessage from "./NewsletterFormMessage.tsx";
 
-export interface NewsletterSmallProps {}
+export interface NewsletterSmallProps {
+}
 
 const NewsletterSmall: React.FC<NewsletterSmallProps> = ({}) => {
-  const data = useData()
+  const data = useData();
   const {
     control,
     handleSubmit,
     register,
-    formState: { errors },
+    formState: { errors }
   } = useForm<NewsletterFormData>({
     defaultValues: {
       email: "",
-      optIn: false,
-    },
+      optIn: false
+    }
   });
 
   const [formState, setFormState] = useState<NewsletterFormState>("new");
 
   const handleFormSubmit = (formData: NewsletterFormData) => {
-    setFormState("saving")
+    setFormState("saving");
     data.subscribeNewsletter(formData.email, formData.optIn ? "1" : "", BREVO_FORM_URL).then(() => {
-      setFormState("success")
+      setFormState("success");
     }).catch((err) => {
-      console.error(err)
-      setFormState("error")
-    })
+      console.error(err);
+      setFormState("error");
+    });
   };
 
   return (
@@ -39,7 +40,7 @@ const NewsletterSmall: React.FC<NewsletterSmallProps> = ({}) => {
       <Typography variant="body1" color="textPrimary" sx={{ mb: 1 }} fontWeight={600}>
         Newsletter
       </Typography>
-      <Box sx={{ textAlign: "center", pt:1, pb:2 }}>
+      <Box sx={{ textAlign: "center", pt: 1, pb: 2 }}>
         {formState === "new" ?
           <form onSubmit={handleSubmit(handleFormSubmit)} datatype="subscription">
             <Controller
@@ -60,11 +61,11 @@ const NewsletterSmall: React.FC<NewsletterSmallProps> = ({}) => {
             />
             <Checkbox
               alignTop
-              checkboxSx={{p: 0}}
-              sx={{mt: 2, mb:3, textAlign: 'left'}}
-              label={<Typography variant="body2" color={errors.optIn ? "error":"textSecondary"}>
+              checkboxSx={{ p: 0 }}
+              sx={{ mt: 2, mb: 3, textAlign: "left" }}
+              label={<Typography variant="body2" color={errors.optIn ? "error" : "textSecondary"}>
                 * Dichiaro di aver preso visione dell'{" "}
-                <a href="https://www.artpay.art/informativa-sulla-privacy" target="_blank" rel="noopener noreferrer">
+                <a href="https://artpay.art/informativa-sulla-privacy" target="_blank" rel="noopener noreferrer">
                   informativa riguardante il trattamento dei dati personali
                 </a>
               </Typography>}
@@ -74,7 +75,7 @@ const NewsletterSmall: React.FC<NewsletterSmallProps> = ({}) => {
             <Button variant="contained" color="primary" type="submit" fullWidth>
               Iscriviti
             </Button>
-          </form> :  <NewsletterFormMessage formState={formState}/>}
+          </form> : <NewsletterFormMessage formState={formState} />}
       </Box>
     </Grid>
   );

@@ -10,46 +10,46 @@ const defaultTheme: Theme = createTheme({
       sm: 600,
       md: 900,
       lg: 1280,
-      xl: 1440,
-    },
+      xl: 1440
+    }
   },
   palette: {
     primary: {
       light: "#B1BAF6",
       main: "#3E4EEC",
-      contrastText: "#FFF",
+      contrastText: "#FFF"
     },
     secondary: {
       light: "#ECEDFC",
       main: "#5366EB",
-      dark: "#3F55E9",
+      dark: "#3F55E9"
     },
     success: {
-      main: "#42B396",
+      main: "#42B396"
     },
     error: {
-      main: "#EC6F7B",
+      main: "#EC6F7B"
     },
     info: {
       light: "#B4E5FC",
       main: "#1DACF7",
-      dark: "#1DACF7",
+      dark: "#1DACF7"
     },
     text: {
-      secondary: "#666F7A",
+      secondary: "#666F7A"
     },
     tertiary: {
       light: "#999fa7",
       main: "#808791",
       dark: "#595e65",
-      contrastText: "#000000",
+      contrastText: "#000000"
     },
     contrast: {
       main: "#fff",
       light: "#fff",
       dark: "#fff",
-      contrastText: "#fff",
-    },
+      contrastText: "#fff"
+    }
     //tertiary: palette.augmentColor({color: {main: '#808791'}})
   },
   typography: {
@@ -63,7 +63,7 @@ const defaultTheme: Theme = createTheme({
     subtitle1: { fontSize: "20px", lineHeight: "125%", fontWeight: 400 },
     body1: { fontSize: "16px", lineHeight: "125%", fontWeight: 400 },
     body2: { fontSize: "14px", lineHeight: "125%", fontWeight: 400 },
-    caption: { fontSize: "12px", fontWeight: 400 },
+    caption: { fontSize: "12px", fontWeight: 400 }
   },
   components: {
     MuiButton: {
@@ -75,11 +75,11 @@ const defaultTheme: Theme = createTheme({
           height: "36px",
           textTransform: "none",
           boxShadow: "none",
-          fontWeight: 400,
+          fontWeight: 400
         },
         sizeSmall: {
           fontSize: "14px",
-          height: "30px",
+          height: "30px"
         },
         // @ts-expect-error variante custom "contrast
         textContrast: ({ theme }) => {
@@ -89,8 +89,8 @@ const defaultTheme: Theme = createTheme({
             "&:hover": {
               color: theme.palette.primary.main,
               background: theme.palette.contrast.main,
-              opacity: "0.8",
-            },
+              opacity: "0.8"
+            }
           };
         },
         // @ts-expect-error variante custom "link"
@@ -101,22 +101,22 @@ const defaultTheme: Theme = createTheme({
             height: "auto",
             color: theme.palette.text.secondary,
             "&:hover": {
-              backgroundColor: "transparent",
-            },
+              backgroundColor: "transparent"
+            }
           };
         },
         linkSizeSmall: {
           height: "18px",
-          minWidth: 0,
+          minWidth: 0
         },
         sizeLarge: {
           height: "auto!important",
           minHeight: "65px",
           minWidth: "160px",
           borderRadius: "64px",
-          fontSize: "24px",
-        },
-      },
+          fontSize: "24px"
+        }
+      }
     },
     MuiIconButton: {
       styleOverrides: {
@@ -137,43 +137,43 @@ const defaultTheme: Theme = createTheme({
                 background: color,
                 color: contrastColor,
                 "&:hover": {
-                  background: color,
-                },
+                  background: color
+                }
               };
             case "outlined":
               return {
-                border: `1px solid ${color}`,
+                border: `1px solid ${color}`
               };
             default:
               return {};
           }
-        },
-      },
+        }
+      }
     },
     MuiInputBase: {
       styleOverrides: {
         input: {
           fontSize: "16px",
           lineHeight: "20px",
-          height: "auto!important",
+          height: "auto!important"
         },
         root: {
-          height: "40px",
-        },
-      },
+          height: "40px"
+        }
+      }
     },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          borderRadius: "24px",
+          borderRadius: "24px"
         },
         input: {
-          padding: "10px 24px",
+          padding: "10px 24px"
         },
         notchedOutline: {
-          padding: "0 24px",
-        },
-      },
+          padding: "0 24px"
+        }
+      }
     },
     MuiTextField: {
       styleOverrides: {
@@ -182,40 +182,40 @@ const defaultTheme: Theme = createTheme({
             "& .MuiOutlinedInput-root": {},
             "& .MuiInputBase-colorPrimary:not(.Mui-disabled):not(.Mui-error)": {
               "& fieldset": {
-                borderColor: "#B2B7BD",
+                borderColor: "#B2B7BD"
               },
               "&:hover fieldset": {
-                borderColor: theme.palette.secondary.main,
+                borderColor: theme.palette.secondary.main
               },
               "&.Mui-focused fieldset": {
-                borderColor: theme.palette.primary.main,
-              },
+                borderColor: theme.palette.primary.main
+              }
             },
             "& .MuiInputBase-colorSuccess:not(.Mui-disabled):not(.Mui-error)": {
               "& fieldset": {
-                borderColor: theme.palette.success.main,
+                borderColor: theme.palette.success.main
               },
               "&:hover fieldset": {
-                borderColor: theme.palette.success.light,
+                borderColor: theme.palette.success.light
               },
               "&.Mui-focused fieldset": {
-                borderColor: theme.palette.success.main,
-              },
+                borderColor: theme.palette.success.main
+              }
             },
             "& .Mui-error": {
               "& fieldset": {
-                borderColor: "#B2B7BD",
+                borderColor: "#B2B7BD"
               },
               "&:hover fieldset": {
-                borderColor: theme.palette.error.light,
+                borderColor: theme.palette.error.light
               },
               "&.Mui-focused fieldset": {
-                borderColor: theme.palette.error.main,
-              },
-            },
+                borderColor: theme.palette.error.main
+              }
+            }
           };
-        },
-      },
+        }
+      }
     },
     MuiInputLabel: {
       styleOverrides: {
@@ -228,32 +228,35 @@ const defaultTheme: Theme = createTheme({
             left: "16px",
             "&.Mui-focused": {
               top: "0",
-              left: "16px",
+              left: "16px"
             },
-            '&.Mui-error:not([data-shrink="true"])': {
-              color: theme.palette.text.secondary,
+            "&.Mui-error:not([data-shrink=\"true\"])": {
+              color: theme.palette.text.secondary
             },
             "&.MuiInputLabel-shrink": {
-              top: "0",
-            },
+              top: "0"
+            }
           };
         },
         standard: {
           top: "8px",
           padding: "0 8px",
           "&.MuiInputLabel-shrink": {
-            top: "8px",
-          },
-        },
-      },
+            top: "8px"
+          }
+        }
+      }
     },
     MuiCheckbox: {
       styleOverrides: {
-        root: {},
-      },
+        root: {}
+      }
     },
     MuiAppBar: {
       styleOverrides: {
+        root: {
+          boxShadow: "0px 4px 16px 0px rgba(62, 78, 236, 0.15)"
+        },
         positionFixed: {
           background: "white",
           //color: 'black',
@@ -264,9 +267,9 @@ const defaultTheme: Theme = createTheme({
           margin: "0 100px",
           padding: "16px",
           borderRadius: "48px",
-          width: "auto",
-        },
-      },
+          width: "auto"
+        }
+      }
     },
     MuiChip: {
       styleOverrides: {
@@ -276,7 +279,7 @@ const defaultTheme: Theme = createTheme({
             if (palette) {
               return {
                 background: palette.light,
-                color: palette.dark,
+                color: palette.dark
               };
             }
           }
@@ -284,36 +287,36 @@ const defaultTheme: Theme = createTheme({
         },
         sizeSmall: {
           height: "20px",
-          padding: "4px 10px",
+          padding: "4px 10px"
         },
         labelSmall: {
           fontSize: "12px",
-          padding: 0,
-        },
-      },
+          padding: 0
+        }
+      }
     },
     MuiDialog: {
       styleOverrides: {
         paper: {},
         paperWidthSm: {
           borderRadius: "8px!important",
-          maxWidth: "530px",
-        },
-      },
+          maxWidth: "530px"
+        }
+      }
     },
     MuiDialogContent: {
       styleOverrides: {
         root: {
-          padding: "0 48px",
-        },
-      },
+          padding: "0 48px"
+        }
+      }
     },
     MuiDialogTitle: {
       styleOverrides: {
         root: {
-          padding: "8px",
-        },
-      },
+          padding: "8px"
+        }
+      }
     },
     MuiTab: {
       styleOverrides: {
@@ -324,63 +327,65 @@ const defaultTheme: Theme = createTheme({
           fontWeight: 600,
           lineHeight: "125%",
           marginLeft: "8px",
-          marginRight: "8px",
-        },
-      },
+          marginRight: "8px"
+        }
+      }
     },
     MuiPopover: {
       styleOverrides: {
         paper: ({ theme }) => {
           return {
             color: theme.palette.contrast.main,
-            backgroundColor: theme.palette.grey["800"],
+            backgroundColor: theme.palette.grey["800"]
           };
-        },
-      },
+        }
+      }
     },
     MuiFooter: {
       styleOverrides: {
         root: {
-          backgroundColor: "#010F22",
+          //backgroundColor: "#010F22",
           "& a": {
-            color: "white",
+            //color: "white"
+            color: "#010F22",
+            textDecoration: "none"
           },
           "& a:visited": {
-            color: "#96b1d7",
-          },
-        },
-      },
+            //color: "#96b1d7"
+          }
+        }
+      }
     },
     MuiAccordionSummary: {
       styleOverrides: {
         expandIconWrapper: {
           "&.Mui-expanded": {
-            transform: "rotate(225deg)",
-          },
+            transform: "rotate(225deg)"
+          }
         },
         content: {
           fontSize: "39px",
           margin: "48px 0",
           "&.Mui-expanded": {
-            margin: "16px 0",
-          },
-        },
-      },
+            margin: "16px 0"
+          }
+        }
+      }
     },
     MuiAccordion: {
       styleOverrides: {
         root: {
           boxShadow: "none",
           "&::before": {
-            backgroundColor: "black",
+            backgroundColor: "black"
           },
           "&.Mui-expanded::before": {
-            opacity: 1,
-          },
-        },
-      },
-    },
-  },
+            opacity: 1
+          }
+        }
+      }
+    }
+  }
 });
 
 // @ts-expect-error custom theme
@@ -388,30 +393,30 @@ const responsiveTheme = createTheme(defaultTheme, {
   typography: {
     h3: {
       [defaultTheme.breakpoints.only("xs")]: {
-        fontSize: "40px",
-      },
+        fontSize: "40px"
+      }
     },
     h4: {
       [defaultTheme.breakpoints.only("xs")]: {
-        fontSize: "36px",
-      },
+        fontSize: "36px"
+      }
     },
     h5: {
       [defaultTheme.breakpoints.only("xs")]: {
-        fontSize: "25px",
-      },
+        fontSize: "25px"
+      }
     },
     h6: {
       [defaultTheme.breakpoints.only("xs")]: {
-        fontSize: "20px",
-      },
+        fontSize: "20px"
+      }
     },
     subtitle1: {
       [defaultTheme.breakpoints.only("xs")]: {
-        fontSize: "14px",
-      },
-    },
-  },
+        fontSize: "14px"
+      }
+    }
+  }
 });
 
 export default responsiveTheme;

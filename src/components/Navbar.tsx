@@ -109,7 +109,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
         </Box>
         {!isMobile && (
           <Box sx={{ ml: 3 }}>
-            {menuLinks.map((link, i) => <Button key={`btn-link-${i}`} sx={{ px: 1 }}
+            {menuLinks.map((link, i) => <Button key={`btn-link-${i}`} sx={{ px: 2 }}
                                                 onClick={() => handleNavigate(link.href)}
                                                 color="inherit"
                                                 variant="text">
@@ -132,14 +132,14 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
         {auth.isAuthenticated ? (
           <>
             {!isMobile &&
-              <Typography sx={{ mr: 2 }} variant="body2" color="primary">
-                Ciao {auth.user?.username}
+              <Typography variant="body1" fontWeight={500} color="textPrimary">
+                Ciao {auth.user?.username}!
               </Typography>
             }
-            <IconButton onClick={() => handleCheckout()} color="primary">
+            <IconButton sx={{ mr: 4, ml: 1 }} onClick={() => handleCheckout()} color="inherit">
               <ShoppingBagIcon color="primary" />
             </IconButton>
-            <IconButton onClick={() => handleProfileClick()} color="primary">
+            <IconButton onClick={() => handleProfileClick()} color="inherit">
               <UserIcon color="primary" />
             </IconButton>
           </>

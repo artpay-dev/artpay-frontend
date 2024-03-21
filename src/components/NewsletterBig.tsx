@@ -15,30 +15,30 @@ export interface NewsletterBigProps {
 }
 
 const NewsletterBig: React.FC<NewsletterBigProps> = ({ title, subtitle, checkboxText, ctaText = "Prosegui" }) => {
-  const data = useData()
-  const theme = useTheme()
+  const data = useData();
+  const theme = useTheme();
   const {
     control,
     handleSubmit,
     register,
-    formState: { errors },
+    formState: { errors }
   } = useForm<NewsletterFormData>({
     defaultValues: {
       email: "",
-      optIn: false,
-    },
+      optIn: false
+    }
   });
 
   const [formState, setFormState] = useState<NewsletterFormState>("new");
 
   const handleFormSubmit = (formData: NewsletterFormData) => {
-    setFormState("saving")
+    setFormState("saving");
     data.subscribeNewsletter(formData.email, formData.optIn ? "1" : "", BREVO_FORM_URL).then(() => {
-      setFormState("success")
+      setFormState("success");
     }).catch((err) => {
-      console.error(err)
-      setFormState("error")
-    })
+      console.error(err);
+      setFormState("error");
+    });
   };
 
 
@@ -74,21 +74,21 @@ const NewsletterBig: React.FC<NewsletterBigProps> = ({ title, subtitle, checkbox
                   sx={{
                     color: "black",
                     input: { background: "white", borderRadius: "24px" },
-                    mb: 2,
+                    mb: 2
                   }}
                   fullWidth
                   {...field}
                   error={!!errors.email}
                   helperText={errors.email?.message}
                 />
-              )}/>
+              )} />
             <Checkbox
               alignTop
-              checkboxSx={{p: 0}}
-              sx={{textAlign: 'left'}}
-              label={checkboxText || <Typography variant="body2" color={errors.optIn ? "error":"textSecondary"}>
+              checkboxSx={{ p: 0 }}
+              sx={{ textAlign: "left" }}
+              label={checkboxText || <Typography variant="body2" color={errors.optIn ? "error" : "textSecondary"}>
                 * Dichiaro di aver preso visione dell'{" "}
-                <a href="https://www.artpay.art/informativa-sulla-privacy" target="_blank" rel="noopener noreferrer">
+                <a href="https://artpay.art/informativa-sulla-privacy" target="_blank" rel="noopener noreferrer">
                   informativa riguardante il trattamento dei dati personali
                 </a>
               </Typography>}
@@ -96,10 +96,11 @@ const NewsletterBig: React.FC<NewsletterBigProps> = ({ title, subtitle, checkbox
               {...register("optIn", { required: true })}
             />
           </Box>
-          <Button color="contrast" size="large" type="submit" sx={{ color: theme.palette.primary.main }} variant="contained">
+          <Button color="contrast" size="large" type="submit" sx={{ color: theme.palette.primary.main }}
+                  variant="contained">
             {ctaText}
           </Button>
-        </> : <NewsletterFormMessage formState={formState}/>}
+        </> : <NewsletterFormMessage formState={formState} />}
       </Box>
     </form>
   );
