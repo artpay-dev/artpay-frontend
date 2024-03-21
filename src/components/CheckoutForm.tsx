@@ -6,10 +6,11 @@ import { Alert, AlertTitle, Box, Button, Grid } from "@mui/material";
 type CheckoutFormProps = {
   thankYouPage?: string;
   onReady?: (element: StripePaymentElement) => any;
+  onCheckout?: () => void
   ref?: MutableRefObject<HTMLButtonElement | null>;
 };
 const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
-  ({ onReady, thankYouPage = "/thank-you-page" }, ref) => {
+  ({ onReady, thankYouPage = "/thank-you-page", onCheckout }, ref) => {
     const stripe = useStripe();
     const elements = useElements();
 
@@ -32,8 +33,8 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
         elements,
         confirmParams: {
           // Make sure to change this to your payment completion page
-          return_url: window.location.origin + thankYouPage,
-        },
+          return_url: window.location.origin + thankYouPage
+        }
       });
 
       // This point will only be reached if there is an immediate error when
@@ -52,7 +53,9 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
         default:
           setError("Si è verificato un errore");
       }
-
+      if (onCheckout) {
+        onCheckout();
+      }
       setIsLoading(false);
     };
 
@@ -67,7 +70,7 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
         <PaymentElement
           id="payment-element"
           options={{
-            layout: "accordion",
+            layout: "accordion"
           }}
           onReady={(element) => {
             onReady && onReady(element);
@@ -98,7 +101,7 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
         </Box>
       </form>
     );
-  },
+  }
 );
 
 export default CheckoutForm;

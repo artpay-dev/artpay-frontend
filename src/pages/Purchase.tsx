@@ -209,10 +209,14 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
         billing:
           requireInvoice && userProfile?.billing ? { ...userProfile?.billing } : { ...userProfile?.shipping }
       });
+      localStorage.setItem("completed-order", pendingOrder.id.toString());
       checkoutButtonRef.current.click();
       setIsSaving(false);
       setCheckoutReady(true);
     }
+  };
+  const handleSubmitCheckout = () => {
+    console.log("submit checkout", pendingOrder);
   };
 
   const contactHeaderButtons: ReactNode[] = [];
@@ -342,6 +346,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
 
           <PaymentCard
             checkoutButtonRef={checkoutButtonRef}
+            onCheckout={() => handleSubmitCheckout()}
             onReady={() => setCheckoutReady(true)}
             paymentIntent={paymentIntent}
             thankYouPage={thankYouPage}

@@ -9,12 +9,19 @@ import { PaymentIntent, StripePaymentElement } from "@stripe/stripe-js";
 
 export interface PaymentCardProps {
   onReady?: (element: StripePaymentElement) => any;
+  onCheckout?: () => void;
   checkoutButtonRef?: React.RefObject<HTMLButtonElement>;
   paymentIntent?: PaymentIntent;
   thankYouPage?: string;
 }
 
-const PaymentCard: React.FC<PaymentCardProps> = ({ paymentIntent, onReady, checkoutButtonRef, thankYouPage }) => {
+const PaymentCard: React.FC<PaymentCardProps> = ({
+                                                   paymentIntent,
+                                                   onReady,
+                                                   onCheckout,
+                                                   checkoutButtonRef,
+                                                   thankYouPage
+                                                 }) => {
   const payments = usePayments();
   const theme = useTheme();
 
@@ -33,26 +40,26 @@ const PaymentCard: React.FC<PaymentCardProps> = ({ paymentIntent, onReady, check
             appearance: {
               theme: "stripe",
               variables: {
-                borderRadius: "24px",
+                borderRadius: "24px"
               },
               rules: {
                 ".AccordionItem": {
                   border: "none",
                   paddingLeft: "24px",
-                  paddingRight: "24px",
+                  paddingRight: "24px"
                 },
                 ".Input:focus": {
                   boxShadow: "none",
                   borderColor: theme.palette.primary.main,
-                  borderWidth: "2px",
+                  borderWidth: "2px"
                 },
                 ".Input:hover": {
-                  borderColor: theme.palette.primary.main,
-                },
-              },
-            },
+                  borderColor: theme.palette.primary.main
+                }
+              }
+            }
           }}>
-          <CheckoutForm ref={checkoutButtonRef} onReady={onReady} thankYouPage={thankYouPage} />
+          <CheckoutForm ref={checkoutButtonRef} onReady={onReady} onCheckout={onCheckout} thankYouPage={thankYouPage} />
         </Elements>
       )}
     </ContentCard>

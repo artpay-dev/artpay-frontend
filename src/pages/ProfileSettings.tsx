@@ -107,6 +107,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({}) => {
     }
     try {
       setIsSaving(true);
+      await dialogs.okOnly("Modifica password", "Password modificata con successo");
       console.log("formData", formData);
       // const updatedProfile = await data.updateUserProfile({ ...formData })
       // setProfile(updatedProfile);
@@ -125,11 +126,13 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({}) => {
         okButtonVariant: "outlined"
       });
       if (confirmDelete) {
+        await data.deleteUser();
         navigate("/");
         await auth.logout();
         await dialogs.okOnly(accountDeletedContent.title, accountDeletedContent.text);
       }
     } catch (e) { /* empty */
+      await snackbar.error(e);
     }
   };
 

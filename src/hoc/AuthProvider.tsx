@@ -366,7 +366,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
           </IconButton>
         </Box>
         <DialogContent sx={{ pt: 2, pb: { xs: 3, md: 6 } }}>
-          <Typography variant="h6">Qui possiamo mettere payoff / claim di artpay</Typography>
+          {/*<Typography variant="h6">Qui possiamo mettere payoff / claim di artpay</Typography>*/}
           {isSignIn ? (
             <SignInForm disabled={isLoading} onSubmit={login} />
           ) : (

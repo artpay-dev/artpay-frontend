@@ -20,7 +20,7 @@ import { PromoComponentType } from "../components/PromoItem.tsx";
 import {
   Order,
   OrderCreateRequest,
-  OrderFilters,
+  OrderFilters, OrderStatus,
   OrderUpdateRequest,
   PaymentIntentRequest,
   ShippingMethodOption
@@ -98,6 +98,8 @@ export interface DataContext {
 
   updateOrder(orderId: number, body: OrderUpdateRequest): Promise<Order>;
 
+  setOrderStatus(orderId: number, status: OrderStatus, params?: Partial<OrderUpdateRequest>): Promise<Order>;
+
   purchaseArtwork(artworkId: number, loan?: boolean): Promise<Order>;
 
   createPaymentIntent(body: PaymentIntentRequest): Promise<PaymentIntent>;
@@ -115,6 +117,8 @@ export interface DataContext {
   getUserInfo(): Promise<User>;
 
   getUserProfile(): Promise<UserProfile>;
+
+  deleteUser(): Promise<void>;
 
   updateUserProfile(data: Partial<UpdateUserProfile>): Promise<UserProfile>;
 
@@ -172,12 +176,14 @@ const defaultContext: DataContext = {
   getPendingOrder: () => Promise.reject("Data provider loaded"),
   createOrder: () => Promise.reject("Data provider loaded"),
   updateOrder: () => Promise.reject("Data provider loaded"),
+  setOrderStatus: () => Promise.reject("Data provider loaded"),
   purchaseArtwork: () => Promise.reject("Data provider loaded"),
   createPaymentIntent: () => Promise.reject("Data provider loaded"),
   createBlockIntent: () => Promise.reject("Data provider loaded"),
   clearCachedPaymentIntent: () => Promise.reject("Data provider loaded"),
   getUserInfo: () => Promise.reject("Data provider loaded"),
   getUserProfile: () => Promise.reject("Data provider loaded"),
+  deleteUser: () => Promise.reject("Data provider loaded"),
   updateUserProfile: () => Promise.reject("Data provider loaded"),
 
   subscribeNewsletter: () => Promise.reject("Data provider loaded"),
@@ -639,6 +645,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       );
       return resp.data;
     },
+    async setOrderStatus(orderId: number, status: OrderStatus, params = {}): Promise<Order> {
+      const resp = await axios.put<OrderUpdateRequest, AxiosResponse<Order>>(
+        `${baseUrl}/wp-json/wc/v3/orders/${orderId}`,
+        { status: status, ...params }
+      );
+      return resp.data;
+    },
     async purchaseArtwork(artworkId: number): Promise<Order> {
       // , loan = false
       console.log("purchaseArtwork", auth?.isAuthenticated, auth.user?.id);
@@ -732,6 +745,17 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       }
       const resp = await axios.get<unknown, AxiosResponse<UnprocessedUserProfile>>(`${baseUrl}/wp-json/wc/v3/customers/${userId}`);
       return processUserProfile(resp.data);
+    },
+    async deleteUser(): Promise<void> {
+      const userId = auth.user?.id;
+      if (!userId) {
+        throw "Not authenticated";
+      }
+      await axios.post<unknown, AxiosResponse<object>>(`${baseUrl}/wp-json/wp/v2/gdpr-delete`, {}, {
+        headers: {
+          Authorization: auth.getAuthToken()
+        }
+      });
     },
     async updateUserProfile(body: Partial<UpdateUserProfile>): Promise<UserProfile> {
       const userId = auth.user?.id;

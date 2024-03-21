@@ -82,29 +82,47 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, disabled }) => {
       <Box display="flex" flexDirection="column" gap={1.5} my={2}>
         <TextField
           label={registrationFormContent.fields.username.label}
-          {...register("username", { required: true })}
+          {...register("username", { required: "Inserisci uno username" })}
           error={!!errors?.username}
           helperText={errors?.username?.message}
           disabled={disabled}
         />
         <TextField
           label={registrationFormContent.fields.email.label}
-          {...register("email", { required: true })}
+          {...register("email", { required: "Inserisci una email valida" })}
           error={!!errors?.email}
           helperText={errors?.email?.message}
           disabled={disabled}
         />
         <PasswordField
           label={registrationFormContent.fields.password.label}
-          {...register("password", { required: true, minLength: 8 })}
+          {...register("password", {
+            required: "Nuova password richiesta",
+            minLength: {
+              value: 8,
+              message: "La password deve avere almeno 8 caratteri"
+            },
+            maxLength: {
+              value: 50,
+              message: "La password deve avere massimo 50 caratteri"
+            },
+            validate: {
+              hasLetter: (value) => /[A-Za-z]/.test(value) || "La password deve contenere almeno una lettera",
+              hasNumber: (value) => /\d/.test(value) || "La password deve contenere almeno un numero",
+              hasSymbol: (value) =>
+                /[!@#%^*()_+\-=[\]{};':"\\|,.<>/?]+/.test(value) || "La password deve contenere almeno un simbolo",
+              noDisallowedChars: (value) =>
+                !/[$&#<>]/.test(value) || "La password non deve contenere i caratteri: $, &, #, <, >"
+            }
+          })}
           error={!!errors?.password}
-          helperText={errors?.email?.message}
+          helperText={errors?.password?.message}
           disabled={disabled}
         />
         <Typography
           variant="caption"
           color={
-            errors?.password?.type === "minLength" ? "error" : "textSecondary"
+            (!!errors?.password && errors?.password?.type && errors?.password?.type !== "required") ? "error" : "textSecondary"
           }
           sx={{ pb: 1 }}>
           {registrationFormContent.passwordRequirements}

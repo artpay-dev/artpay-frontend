@@ -9,6 +9,7 @@ import { PiBankThin } from "react-icons/pi";
 import ContentCard from "../components/ContentCard.tsx";
 import DisplayProperty from "../components/DisplayProperty.tsx";
 import { BankTransferAction } from "../types/order.ts";
+import { useData } from "../hoc/DataProvider.tsx";
 
 export interface PurchaseCompleteProps {
 }
@@ -43,6 +44,7 @@ const bankTransferMessage = (
 );
 const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
   const auth = useAuth();
+  const data = useData();
   const stripe = useStripe();
   const payments = usePayments();
   const theme = useTheme();
@@ -81,7 +83,9 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
         return;
       }
 
-      stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
+      const completedOrderId = localStorage.getItem("completed-order");
+
+      stripe.retrievePaymentIntent(clientSecret).then(async ({ paymentIntent }) => {
         switch (paymentIntent?.status) {
           case "succeeded":
             setMessage({
@@ -110,6 +114,16 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
                 status: "failure"
               });
             } else {
+              if (completedOrderId) {
+                try {
+                  await data.setOrderStatus(+completedOrderId, "on-hold", { payment_method: "sepa" });
+                } catch (e) {
+                  console.error(e);
+                  // TODO: errore
+                }
+                localStorage.removeItem("completed-order");
+              }
+              //
               setMessage({
                 title: "Grazie per il tuo acquisto!",
                 text: bankTransferMessage,
@@ -147,7 +161,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
         setReady(true);
       });
     }
-  }, [payments.isReady, stripe]);
+  }, [auth.user?.username, payments.isReady, stripe]);
 
   //TODO: pulsanti copia
 
