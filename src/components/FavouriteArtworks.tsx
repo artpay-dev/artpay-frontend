@@ -5,8 +5,10 @@ import { ArtworkCardProps } from "./ArtworkCard.tsx";
 import { artworksToGalleryItems } from "../utils.ts";
 import ArtworksGrid from "./ArtworksGrid.tsx";
 import Loader from "./Loader.tsx";
+import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 
-export interface FavouriteArtworksProps {}
+export interface FavouriteArtworksProps {
+}
 
 const emptyText =
   "Non ci sono opere preferite, clicca sul cuoricino a fianco di ogni opera per salvare in questa sezione le opere che vuoi tenere d'occhio";
@@ -14,17 +16,18 @@ const emptyText =
 const FavouriteArtworks: React.FC<FavouriteArtworksProps> = ({}) => {
   const theme = useTheme();
   const data = useData();
+  const snackbar = useSnackbars();
 
   const [ready, setReady] = useState(false);
   const [favouriteArtworks, setFavouriteArtworks] = useState<ArtworkCardProps[]>([]);
 
   useEffect(() => {
     data.getFavouriteArtworks().then((ids) => {
-      data.getArtworks(ids).then((resp) => {
+      return data.getArtworks(ids).then((resp) => {
         setFavouriteArtworks(artworksToGalleryItems(resp));
         setReady(true);
       });
-    });
+    }).catch((e) => snackbar.error(e));
   }, [data]);
 
   return (

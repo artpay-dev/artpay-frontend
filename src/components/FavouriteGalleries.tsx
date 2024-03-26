@@ -25,7 +25,6 @@ const FavouriteGalleries: React.FC<FavouriteGalleriesProps> = ({}) => {
       data.getFavouriteGalleries().then((ids) => {
         return data.getGalleries(ids).then((resp) => {
           setFavouriteGalleries(galleriesToGalleryItems(resp));
-          setReady(true);
         });
       })
     ])
@@ -34,8 +33,10 @@ const FavouriteGalleries: React.FC<FavouriteGalleriesProps> = ({}) => {
       .catch((e) => {
         console.log("error!", e);
         return snackbar.error(e, { autoHideDuration: 60000 });
-      });
-  }, [data, snackbar]);
+      }).finally(() => {
+      setReady(true);
+    });
+  }, [data]);
 
   // <Skeleton variant="rectangular" height={520} width={320} animation="pulse" />
 

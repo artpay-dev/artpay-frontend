@@ -58,6 +58,16 @@ const RequireLoan: React.FC<RequireLoanProps> = ({ step = 0 }) => {
       navigate("/");
       return;
     }
+    const completedOrderId = localStorage.getItem("completed-order");
+    if (step === 1 && completedOrderId) {
+      data.setOrderStatus(+completedOrderId, "on-hold", {
+        payment_method: "Acconto blocco opera",
+        payment_method_title: "Blocco opera",
+        customer_note: `Versato acconto 5%`
+      }).then(() => {
+        localStorage.removeItem("completed-order");
+      });
+    }
     Promise.all([
       data.getArtworkBySlug(urlParams.slug_opera).then((resp) => {
         const artworkTechnique = artwork ? data.getCategoryMapValues(resp, "tecnica").join(" ") : "";

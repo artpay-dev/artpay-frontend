@@ -4,7 +4,6 @@ import { Box } from "@mui/material";
 import { artistsToGalleryItems } from "../utils.ts";
 import { ArtistCardProps } from "./ArtistCard.tsx";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
-import { isAxiosError } from "axios";
 import ListHeader from "./ListHeader.tsx";
 import ArtistsGrid from "./ArtistsGrid.tsx";
 import Loader from "./Loader.tsx";
@@ -22,12 +21,6 @@ const FavouriteArtists: React.FC<FavouriteArtistsProps> = ({}) => {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const showError = async (err?: unknown, text: string = "Si è verificato un errore") => {
-      if (isAxiosError(err) && err.response?.data?.message) {
-        text = err.response?.data?.message;
-      }
-      return snackbar.error(text, { autoHideDuration: 60000 });
-    };
 
     Promise.all([
       data.getFavouriteArtists().then((ids) => {
@@ -41,9 +34,9 @@ const FavouriteArtists: React.FC<FavouriteArtistsProps> = ({}) => {
       })
       .catch((e) => {
         console.error(e);
-        showError(e);
+        snackbar.error(e, { autoHideDuration: 60000 });
       });
-  }, [data, snackbar]);
+  }, [data]);
 
   // <Skeleton variant="rectangular" height={520} width={320} animation="pulse" />
 

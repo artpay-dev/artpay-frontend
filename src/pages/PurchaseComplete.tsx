@@ -88,6 +88,18 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
       stripe.retrievePaymentIntent(clientSecret).then(async ({ paymentIntent }) => {
         switch (paymentIntent?.status) {
           case "succeeded":
+            if (completedOrderId) {
+              try {
+                await data.setOrderStatus(+completedOrderId, "completed", {
+                  payment_method: "Credit card",
+                  payment_method_title: "Carta di credito"
+                });
+              } catch (e) {
+                console.error(e);
+                // TODO: errore
+              }
+              localStorage.removeItem("completed-order");
+            }
             setMessage({
               title: `Ciao ${auth.user?.username || ""}, grazie per il tuo acquisto`,
               text: exampleSuccessMessage,
@@ -114,9 +126,15 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
                 status: "failure"
               });
             } else {
+              const iban = nextAction.display_bank_transfer_instructions.financial_addresses[0].iban?.iban || "";
+              const reference = nextAction.display_bank_transfer_instructions?.reference || "";
               if (completedOrderId) {
                 try {
-                  await data.setOrderStatus(+completedOrderId, "on-hold", { payment_method: "Stripe SEPA" });
+                  await data.setOrderStatus(+completedOrderId, "on-hold", {
+                    payment_method: "Stripe SEPA",
+                    payment_method_title: "Bonifico bancario",
+                    customer_note: `IBAN: ${iban} - Causale: ${reference}`
+                  });
                 } catch (e) {
                   console.error(e);
                   // TODO: errore
@@ -135,8 +153,8 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
                   formattedAmount: `€ ${(nextAction.display_bank_transfer_instructions.amount_remaining / 100).toFixed(
                     2
                   )}`,
-                  iban: nextAction.display_bank_transfer_instructions.financial_addresses[0].iban?.iban || "",
-                  reference: nextAction.display_bank_transfer_instructions?.reference || ""
+                  iban: iban,
+                  reference: reference
                 }
               });
             }

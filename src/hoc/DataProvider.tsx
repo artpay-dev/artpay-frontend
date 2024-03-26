@@ -379,6 +379,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       if (favouritesMap.artworks !== null) {
         return favouritesMap.artworks;
       }
+      console.log("auth.getAuthToken()", auth.getAuthToken());
       const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
         `${baseUrl}/wp-json/wp/v2/getUserFavoriteArtworks`, { headers: { Authorization: auth.getAuthToken() } }
       );
@@ -681,7 +682,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       };
       if (loan) {
         //body.payment_method = "card";
-        body.customer_note = "Blocco opera";
+        // body.customer_note = "Blocco opera";
       }
       if (pendingOrder) {
         await axios.put<OrderCreateRequest, AxiosResponse<Order>>(

@@ -148,7 +148,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
         invoice_type: newVal ? "receipt" : ""
       }
     })
-      .then((resp) => {
+      .then(async (resp) => {
         setIsSaving(false);
         setRequireInvoice(resp.billing?.invoice_type !== "");
       });

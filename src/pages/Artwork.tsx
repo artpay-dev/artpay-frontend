@@ -131,7 +131,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       setArtwork(resp);
       const [galleryArtworks, favouriteArtworks] = await Promise.all([
         data.listArtworksForGallery(resp.vendor),
-        data.getFavouriteArtworks()
+        data.getFavouriteArtworks().catch(e => [])
         //data.getGallery(resp.vendor),
       ]);
       setFavouriteArtworks(favouriteArtworks);
