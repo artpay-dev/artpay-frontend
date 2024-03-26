@@ -20,10 +20,10 @@ import SignInForm, { SignInFormData } from "../components/SignInForm.tsx";
 import AppleIcon from "../components/icons/AppleIcon.tsx";
 import GoogleIcon from "../components/icons/GoogleIcon.tsx";
 import FacebookIcon from "../components/icons/FacebookIcon.tsx";
-import { GoogleUserInfo, User, UserInfo } from "../types/user.ts";
+import { User, UserInfo } from "../types/user.ts";
 import { userToUserInfo } from "../utils.ts";
 import { useDialogs } from "./DialogProvider.tsx";
-import { TokenResponse, useGoogleLogin } from "@react-oauth/google";
+import { CodeResponse, useGoogleLogin } from "@react-oauth/google";
 import ErrorIcon from "../components/icons/ErrorIcon.tsx";
 
 
@@ -106,7 +106,7 @@ const Context = createContext<AuthContext>({
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = "" }) => {
   const userInfoUrl = `${baseUrl}/api/users/me`;
-  const loginUrl = `${baseUrl}/wp-json/wp/v2/users/me`;
+  const loginUrl = `${baseUrl}/wp-json/wp/v2/rest-login`;
   const signUpUrl = `${baseUrl}/wp-json/wp/v2/users`;
   const sendPasswordResetLinkUrl = `${baseUrl}/wp-json/wp/v2/user/reset-password`;
   const passwordResetUrl = `${baseUrl}/wp-json/wp/v2/user/set-password`;
@@ -139,19 +139,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
 
   const googleLogin = useGoogleLogin({
     // redirect_uri: "https://artpay.art/openidcallback/google",
-    onSuccess: (tokenResponse: TokenResponse) => {
-      console.log("tokenResponse", tokenResponse);
-      axios.get<GoogleUserInfo>(`https://www.googleapis.com/oauth2/v3/userinfo`,
+    onSuccess: (codeResponse: CodeResponse) => {
+      console.log("codeResponse", codeResponse);
+      /*      const redirectTo = new URL(window.location.origin);
+            redirectTo.searchParams.append("authCode", codeResponse.code);
+            redirectTo.searchParams.append("redirectURI", window.location.origin);
+            window.location.href = redirectTo.toString();
+            return;*/
+      axios.post<VerifyTokenData, AxiosResponse<User>>(verifyGoogleTokenUrl, {
+        authCode: codeResponse.code,
+        redirectURI: window.location.origin
+      }).then((resp) => {
+        console.log("RESP", resp.data);
+        localStorage.setItem(userStorageKey, JSON.stringify(resp.data));
+        setAuthValues({
+          ...authValues,
+          isAuthenticated: true,
+          user: userToUserInfo(resp.data),
+          wcToken: getWcCredentials(resp.data.wc_api_user_keys)
+        });
+        setIsLoading(false);
+        setLoginOpen(false);
+      }).catch(handleError);
+      /*axios.get<GoogleUserInfo>(`https://www.googleapis.com/oauth2/v3/userinfo`,
         { headers: { Authorization: `Bearer ${tokenResponse.access_token}` } }).then(resp => {
         console.log("userinfo", resp.data);
-        axios.post<VerifyTokenData, AxiosResponse<User>>(verifyGoogleTokenUrl, {
-          token: tokenResponse.access_token,
-          email: resp.data.email
-        }).then(() => {
-          setIsLoading(false);
-          setLoginOpen(false);
-        }).catch(handleError);
-      }).catch(handleError);
+
+      }).catch(handleError);*/
     },
     onError: (errorResponse) => {
       setIsLoading(false);
@@ -171,7 +185,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       }
       setIsLoading(false);
     },
-    flow: "implicit",
+    flow: "auth-code",
     scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
   });
 
@@ -185,9 +199,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     setError(undefined);
     setIsLoading(true);
     try {
-      const resp = await axios.get<SignInFormData, AxiosResponse<User>>(loginUrl, {
-        auth: { username: email, password }
-      });
+      const resp = await axios.post<SignInFormData, AxiosResponse<User>>(loginUrl, {
+        username: email,
+        password: password
+      }, {});
+      console.log("resp", resp.data);
       /*const userInfoResp = await axios.get<object, AxiosResponse<UserInfo>>(
         userInfoUrl,
         { headers: { Authorization: `Bearer ${resp.data.jwt}` } },
@@ -226,13 +242,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
   };
   const register = async ({ email, username, password }: SignUpFormData) => {
     setIsLoading(true);
-    const credentials = btoa(GUEST_CONSUMER_KEY + ":" + GUEST_CONSUMER_SECRET);
-    const basicAuth = "Basic " + credentials;
+    // const credentials = btoa(GUEST_CONSUMER_KEY + ":" + GUEST_CONSUMER_SECRET);
+    // const basicAuth = "Basic " + credentials;
     try {
       const resp = await axios.post<SignUpFormData, AxiosResponse<User, RequestError>>(
         signUpUrl,
-        { email, username, password },
-        { headers: { Authorization: basicAuth } }
+        { email, username, password }
+        //{ headers: { Authorization: basicAuth } }
       );
       if (resp.status > 299) {
         const message = (resp.data as RequestError)?.message || "Si è verificato un errore";
@@ -303,6 +319,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
 
   // Guest auth interceptor
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const emailVerificationCode = urlParams.get("alg_wc_ev_verify_email");
+
     const interceptorId = axios.interceptors.request.use((config) => {
       const needsWcKey = config.url?.startsWith(`${baseUrl}/wp-json/wc/`); //
       //console.log("auth interceptor", needsWcKey, !!config.headers.Authorization, !!authValues.wcToken, config.url);
@@ -320,22 +339,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       return config;
     });
 
-    const userStr = localStorage.getItem(userStorageKey);
-    if (userStr) {
-      const userObj: User = JSON.parse(userStr);
-
-      setAuthValues({
-        user: userToUserInfo(userObj),
-        isAuthenticated: true,
-        isLoading: false,
-        wcToken: getWcCredentials(userObj.wc_api_user_keys)
-      });
-    } else {
+    if (emailVerificationCode) {
       setAuthValues({
         user: undefined,
         isAuthenticated: false,
-        isLoading: false
+        isLoading: true
       });
+      window.location.href = "/verifica-account";
+    } else {
+      const userStr = localStorage.getItem(userStorageKey);
+      if (userStr) {
+        const userObj: User = JSON.parse(userStr);
+
+        setAuthValues({
+          user: userToUserInfo(userObj),
+          isAuthenticated: true,
+          isLoading: false,
+          wcToken: getWcCredentials(userObj.wc_api_user_keys)
+        });
+      } else {
+        setAuthValues({
+          user: undefined,
+          isAuthenticated: false,
+          isLoading: false
+        });
+      }
     }
 
     return () => {

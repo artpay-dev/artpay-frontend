@@ -22,14 +22,14 @@ const Error: React.FC<ErrorProps> = () => {
     case "404":
       errorText.title = <>Ooooops! Error 404!<br />Page not found!</>;
       errorText.text = <>Non hai trovato quello che cercavi!<br />Tenta una nuova ricerca!</>;
-      // errorText.showSearch = true;
+      errorText.showSearch = true;
       break;
     default:
       errorText.title = <>Ooooops! Error {urlParams.code || ""}!<br />Qualocosa non ha funzionato!</>;
       errorText.text = <>Forse la pagina non esiste più a questo indirizzo o</>;
   }
 
-  return (<DefaultLayout pb={3}>
+  return (<DefaultLayout minHeight="36vh" pb={3}>
     <Box sx={{
       maxWidth: "392px",
       display: "flex",

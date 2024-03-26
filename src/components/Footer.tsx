@@ -66,24 +66,24 @@ const Footer: React.FC<FooterProps> = ({}) => {
         </Grid>
         <Grid xs={12} md={2} item>
           <Typography variant="body1" fontWeight={600}>
-            Chi siamo
+            Artpay
           </Typography>
           <Box display="flex" flexDirection="column" my={1} gap={1}>
             <Typography color="textPrimary" variant="body2">
               <Link className="link" href="/chi-siamo">Chi siamo</Link>
             </Typography>
-            <Typography variant="body2">
+            {/*            <Typography variant="body2">
               <a className="link" href="#">Lavora con noi</a>
-            </Typography>
+            </Typography>*/}
             <Typography variant="body2">
               <a className="link" href="#">Contatti</a>
             </Typography>
-            <Typography variant="body2">
+            {/*            <Typography variant="body2">
               <a className="link" href="#">Press</a>
             </Typography>
             <Typography variant="body2">
               <a className="link" href="#1">Il nostro blog sull’arte</a>
-            </Typography>
+            </Typography>*/}
           </Box>
         </Grid>
         <Grid xs={12} md={2} item>
@@ -97,12 +97,12 @@ const Footer: React.FC<FooterProps> = ({}) => {
             <Typography variant="body2">
               <a className="link" href="https://artpay.art/artpay-per-collezionisti/">ArtPay per compratori</a>
             </Typography>
-            <Typography variant="body2">
+            {/*            <Typography variant="body2">
               <a className="link" href="#">ArtPay leasing</a>
             </Typography>
             <Typography variant="body2">
               <a className="link" href="#">ArtPay per Banche e Fintech</a>
-            </Typography>
+            </Typography>*/}
             <Typography variant="body2">
               <a className="link" href="/faq">FAQ</a>
             </Typography>
