@@ -2,6 +2,11 @@ import React from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { Box, Button, Grid, Link, Typography } from "@mui/material";
 import PromoCard from "./PromoCard.tsx";
+import reservationBackground from "../assets/images/reservation-box-background.png";
+import onboardingBackground from "../assets/images/background-onboarding.svg";
+
+import onboardingImg1 from "../assets/images/gallery-onboarding-img-1.png";
+import onboardingImg2 from "../assets/images/gallery-onboarding-img-2.png";
 
 export interface GalleryOnboardingProps {
 
@@ -23,13 +28,13 @@ const GalleryOnboarding: React.FC<GalleryOnboardingProps> = ({}) => {
       <Grid item xs={12} md={5} sx={{ pl: 8, pt: 9, minHeight: "720px" }}>
         <Box sx={{ position: "relative" }}>
           <img style={{ position: "absolute", top: 0, left: 0, zIndex: 2 }}
-               src="/images/gallery-onboarding-img-2.png" />
+               src={onboardingImg1} />
           <img style={{ position: "absolute", top: "104px", left: "168px" }}
-               src="/images/gallery-onboarding-img-1.png" />
+               src={onboardingImg2} />
         </Box>
       </Grid>
     </Grid>
-    <Box sx={{ py: 12, background: "url(/images/background-onboarding.svg)", px: px }}>
+    <Box sx={{ py: 12, background: `url(${onboardingBackground})`, px: px }}>
       <Box display="flex" flexDirection="column" gap={3}>
         <PromoCard border title={<>Iscriviti<br />ad artpay</>}>
           <Typography variant="body1">La tua area riservata sarà attiva entro 2 giorni lavorativi a partire dalla firma
@@ -65,7 +70,7 @@ const GalleryOnboarding: React.FC<GalleryOnboardingProps> = ({}) => {
         </Box>
       </Grid>
       <Grid item xs={12} md={6}>
-        <Box sx={{ background: "url(/images/reservation-box-background.png)", height: "612px" }} display="flex"
+        <Box sx={{ background: `url(${reservationBackground})`, height: "612px" }} display="flex"
              flexDirection="column"
              alignItems="center" justifyContent="center">
           <Typography>Programma una consulenza con artpay</Typography>

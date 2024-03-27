@@ -7,12 +7,11 @@ import archiver from "archiver";
 
 
 import usePHP from "vite-plugin-php";
+import { PreRenderedChunk } from "rollup";
 
 async function zipDirectory(sourceDir: string, outPath: string): Promise<void> {
-  console.log("zipDirectory", sourceDir, outPath);
   const output = fs.createWriteStream(outPath);
   const archive = archiver("zip", { zlib: { level: 9 } }); // Compression level: 0 (fastest) - 9 (highest)
-  console.log("output", output, archive);
 
   return new Promise((resolve, reject) => {
     output.on("close", () => resolve());
@@ -82,7 +81,32 @@ export default defineConfig({
     outDir: "wp/theme/static",
     //assetsDir: "wp-content/themes/artpay-react/static/assets",
     emptyOutDir: true,
-    minify: true
+    minify: true,
+    rollupOptions: {
+      output: {
+        sanitizeFileName: (fileName) => {
+          if (fileName === "index.php.css") {
+            return "index.css";
+          }
+          return fileName;
+        },
+        entryFileNames: (chunkInfo: PreRenderedChunk) => {
+          console.log("chunkInfo", chunkInfo.name.replace(".php", ""), chunkInfo.type, chunkInfo.facadeModuleId);
+          return `assets/js/${chunkInfo.name.replace(".php", "")}-[hash].js`;
+        },
+        assetFileNames: (assetInfo) => {
+          const extType = assetInfo.name?.split(".").at(-1);
+          if (extType && /png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
+            return `assets/images/[name]-[hash][extname]`;
+          } else if (extType === "css") {
+            return `assets/css/[name]-[hash][extname]`;
+          } else if (extType && /ttf|woff2?|otf|eot/i.test(extType)) {
+            return `assets/fonts/[name]-[hash][extname]`;
+          }
+          return `assets/${extType}/[name]-[hash][extname]`;
+        }
+      }
+    }
   },
   optimizeDeps: {
     include: ["*.js", "*.jsx", "*.ts", "*.tsx", "*.css"]
