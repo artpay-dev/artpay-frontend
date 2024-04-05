@@ -13,9 +13,18 @@ export interface ArtworksListProps {
   onSelect?: (index: number) => void;
   showEmpty?: boolean;
   disablePadding?: boolean;
+  maxItems?: number;
 }
 
-const ArtworksList: React.FC<ArtworksListProps> = ({ title, items, cardSize, onSelect, showEmpty, disablePadding }) => {
+const ArtworksList: React.FC<ArtworksListProps> = ({
+                                                     title,
+                                                     items,
+                                                     cardSize,
+                                                     onSelect,
+                                                     showEmpty,
+                                                     disablePadding,
+                                                     maxItems
+                                                   }) => {
   const data = useData();
   const auth = useAuth();
   const navigate = useNavigate();
@@ -61,7 +70,8 @@ const ArtworksList: React.FC<ArtworksListProps> = ({ title, items, cardSize, onS
   };
 
   return (
-    <CardList title={title} cardSize={cardSize} showEmpty={showEmpty} disablePadding={disablePadding}>
+    <CardList title={title} cardSize={cardSize} showEmpty={showEmpty} disablePadding={disablePadding}
+              maxItems={maxItems}>
       {items.map((item, i) => (
         <ArtworkCard
           key={i}

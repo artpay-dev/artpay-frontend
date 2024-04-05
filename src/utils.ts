@@ -394,4 +394,9 @@ export const isTimestampAfter = (timestampInSeconds: number, durationInSeconds: 
   return timestampInSeconds > oneHourAgoInSeconds;
 };
 
+export const formatCurrency = (value: number) => value.toLocaleString(undefined, {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
+
 export const getDefaultPaddingX = () => ({ xs: 3, sm: 4, md: 10, lg: 12 });

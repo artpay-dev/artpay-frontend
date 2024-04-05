@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Grid, IconButton, Tab, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Divider, Grid, IconButton, Link, Tab, Typography, useMediaQuery, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout";
 import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
@@ -8,7 +8,13 @@ import PromoBig from "../components/PromoBig.tsx";
 import TabPanel from "../components/TabPanel.tsx";
 import ArtworksList from "../components/ArtworksList.tsx";
 import ArtworkDetails from "../components/ArtworkDetails.tsx";
-import { artworksToGalleryItems, getArtworkDimensions, getPropertyFromMetadata } from "../utils.ts";
+import {
+  artworksToGalleryItems,
+  formatCurrency,
+  getArtworkDimensions,
+  getDefaultPaddingX,
+  getPropertyFromMetadata
+} from "../utils.ts";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import { Gallery } from "../types/gallery.ts";
 import GalleryDetails from "../components/GalleryDetails.tsx";
@@ -17,12 +23,12 @@ import ArtistDetails from "../components/ArtistDetails.tsx";
 import { Artist } from "../types/artist.ts";
 import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
 import FavouriteIcon from "../components/icons/FavouriteIcon.tsx";
-import GalleryHeader from "../components/GalleryHeader.tsx";
 import { useDialogs } from "../hoc/DialogProvider.tsx";
 import FavouriteFilledIcon from "../components/icons/FavouriteFilledIcon.tsx";
 import { FavouritesMap } from "../types/post.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
+import artworkLoanBannerIcon from "../assets/images/artwork_loan_banner_icon.svg";
 
 export interface ArtworkProps {
 }
@@ -137,6 +143,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       setFavouriteArtworks(favouriteArtworks);
       if (resp.vendor) {
         const galleryDetails = await data.getGallery(resp.vendor);
+        console.log("galleryDetails", galleryDetails);
         setGalleryDetails(galleryDetails);
       }
       const artistId = getPropertyFromMetadata(resp.meta_data, "artist")?.ID;
@@ -171,7 +178,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
     };
   }, [artwork?.id]);
 
-  let sliderHeight = "720px";
+  let sliderHeight = "800px";
   if (belowSm) {
     sliderHeight = "315px";
   } else if (isMd) {
@@ -179,30 +186,23 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   } else if (isLg) {
     sliderHeight = "720px";
   }
+  const px = getDefaultPaddingX();
 
   return (
     <DefaultLayout
-      pageLoading={!isReady}
-      maxWidth={false}
-      topBar={
-        <GalleryHeader
-          slug={galleryDetails?.shop?.slug || ""}
-          logo={galleryDetails?.shop?.image || ""}
-          displayName={galleryDetails?.display_name || ""}
-        />
-      }>
-      <Box display="flex" justifyContent="center">
-        <Grid sx={{ p: 0, mt: { xs: 0, md: 1 }, justifyContent: "center", alignItems: "center" }} maxWidth="xl"
+      pageLoading={!isReady}>
+      <Box sx={{ px: px, mt: { xs: 12, md: 18 } }} display="flex" justifyContent="center">
+        <Grid sx={{ p: 0, mt: 0, justifyContent: "center", alignItems: "center" }} spacing={3} maxWidth="xl"
               container>
           <Grid
             item
             xs={12}
             md={6}
             sx={{
-              maxHeight: { xs: "315px", sm: "660px", md: "820px" },
+              maxHeight: { xs: "315px", sm: "660px", md: "1820px" },
               overflow: "hidden",
               display: "flex",
-              alignItems: "center",
+              alignItems: "flex-start",
               justifyContent: "center"
             }}>
             <img
@@ -210,33 +210,11 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               style={{ maxHeight: sliderHeight, maxWidth: "100%", objectFit: "contain" }}
             />
           </Grid>
-          <Grid item xs={12} p={3} md display="flex" justifyContent="flex-start" flexDirection="column">
-            <Typography sx={{ typography: { sm: "h1", xs: "h3" }, pr: { xs: 0, md: 5 } }} variant="h3">
-              {artwork?.name}
-            </Typography>
-            <Typography variant="h4" color="textSecondary" sx={{ mt: 2, typography: { sm: "h4", xs: "h5" } }}>
-              {getPropertyFromMetadata(artwork?.meta_data || [], "artist")?.artist_name}
-            </Typography>
-            <Typography color="textSecondary" sx={{ mt: 3, typography: { xs: "h6", md: "subtitle1" } }}>
-              {artworkTechnique}
-            </Typography>
-            <Typography color="textSecondary" sx={{ mt: 1, typography: { xs: "h6", md: "subtitle1" } }}>
-              {getArtworkDimensions(artwork)}
-            </Typography>
-            <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 1 }}>
-              <a href="#artwork-info">Maggiori info sull'opera</a>
-            </Typography>
-            <Box mt={3}>
-              <Typography variant="subtitle1" color="textSecondary">
-                {artworkUnique}
+          <Grid item xs={12} md={6} display="flex" justifyContent="flex-start" flexDirection="column">
+            <Box display="flex">
+              <Typography sx={{ textTransform: "uppercase", mb: 3 }} color="primary" variant="body1">
+                {galleryDetails?.display_name}
               </Typography>
-              <Typography sx={{ mt: 1 }} variant="subtitle1" color="textSecondary">
-                {artworkCertificate}
-              </Typography>
-            </Box>
-            <Divider sx={{ my: 3 }} />
-            <Box display="flex" alignItems="center">
-              <Typography variant="h3">{artwork?.price} €</Typography>
               <Box flexGrow={1} />
               <IconButton onClick={() => handleSetArtworkFavourite()}>
                 {isArtworkFavourite ? (
@@ -249,64 +227,93 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
                 <Share color="primary" />
               </IconButton>
             </Box>
-            <Box mt={2} sx={{ mb: { xs: 0, md: 3 } }} display="flex" gap={1}>
-              <Button variant="outlined" disabled={isOutOfStock} onClick={() => handlePurchase(artwork?.id)}>
-                Compra ora
-              </Button>
-              <Button variant="contained" disabled={isOutOfStock} onClick={handleLoanPurchase}>
-                Acquista a rate
+            <Typography sx={{}} variant="h1">
+              {artwork?.name}
+            </Typography>
+            <Typography variant="h1" color="textSecondary">
+              {getPropertyFromMetadata(artwork?.meta_data || [], "artist")?.artist_name}
+            </Typography>
+            <Typography color="textSecondary" variant="body1" fontWeight={500} sx={{ mt: 2 }}>
+              {artworkTechnique}
+            </Typography>
+            <Typography color="textSecondary" variant="body1" fontWeight={500}>
+              {getArtworkDimensions(artwork)}
+            </Typography>
+            <Box mt={2}>
+              <Typography variant="subtitle1" color="textSecondary">
+                {artworkUnique}
+              </Typography>
+              <Typography sx={{ mt: 0 }} variant="subtitle1" color="textSecondary">
+                {artworkCertificate}
+              </Typography>
+            </Box>
+            <Divider sx={{ mt: 6 }} />
+            <Box display="flex" alignItems="center" my={3}>
+              <Typography variant="h3">€ {artwork?.price}</Typography>
+              <Box flexGrow={1} />
+              <Button variant="contained" disabled={isOutOfStock} onClick={() => handlePurchase(artwork?.id)}>
+                Compra opera
               </Button>
             </Box>
+            <Divider />
+            <Box mt={2} sx={{ my: 3 }} display="flex" gap={1}>
+              <Typography
+                variant="h3">€ {formatCurrency(+(artwork?.price || 0) * data.downpaymentPercentage() / 100)}</Typography>
+              <Box flexGrow={1} />
+              <Box display="flex" flexDirection="column" alignItems="end">
+                <Button variant="outlined" disabled={isOutOfStock} onClick={handleLoanPurchase}>
+                  Prenota l’opera
+                </Button>
+                <Typography sx={{ mt: 1 }} variant="body2">Non sai come funziona? <Link color="inherit" href="#">Scopri
+                  di
+                  più!</Link></Typography>
+              </Box>
+            </Box>
             {isOutOfStock && <Typography variant="h6" color="error">Opera non disponibile</Typography>}
-            <Divider sx={{ my: 3 }} />
-            <Box
-              display="flex"
-              alignItems={{ xs: "flex-start", md: "center" }}
-              flexDirection={{ xs: "column", sm: "row" }}>
-              <Box flexGrow={1} display="flex" flexDirection="column" sx={{ gap: { xs: 1, sm: 0 } }}>
-                <Typography variant="h6" fontWeight={600}>
-                  {galleryDetails?.display_name}
-                </Typography>
-                <Typography variant="h6">{galleryDetails?.address?.city}</Typography>
-              </Box>
-              <Box display="flex" flexDirection={{ xs: "row", sm: "column" }} sx={{ mt: { xs: 2, sm: 0 } }} gap={2}>
-                <Button variant="outlined">Contatta la galleria</Button>
-              </Box>
+            <Divider sx={{ mb: 3 }} />
+            <Box display="flex" alignItems="center" sx={{
+              background: theme.palette.secondary.main,
+              color: theme.palette.secondary.contrastText,
+              py: 3,
+              px: 3,
+              borderRadius: "5px"
+            }}>
+              <img src={artworkLoanBannerIcon} style={{ transform: `translateX(-${theme.spacing(3)})` }} />
+              <Typography variant="body2" color="white" sx={{ maxWidth: "248px" }}>
+                Per i tuoi acquisti d'arte su artpay, puoi scegliere la migliore proposta di prestito tra quelle degli
+                istituti bancari nostri partner.
+              </Typography>
+              <Box flexGrow={1} />
+              <Link variant="body1" color="inherit">Scopri di più</Link>
             </Box>
             <Divider sx={{ mt: 3 }} />
             <Box
               display="flex"
               flexDirection={{ xs: "column", sm: "row" }}
               gap={{ xs: 3, sm: 0 }}
-              mt={{ xs: 3, md: 7 }}
-              sx={{ maxWidth: { md: "560px" } }}
-              alignItems={{ xs: "flex-start", md: "center" }}
-              justifyContent="space-between">
-              <Box display="flex" gap={{ xs: 1, md: 2 }}></Box>
+              mt={{ xs: 3 }}
+              alignItems={{ xs: "flex-start", md: "center" }}>
+              <Box flexGrow={1} display="flex" flexDirection="column" sx={{ gap: { xs: 1, sm: 0 } }}>
+                <Typography variant="subtitle1">
+                  {galleryDetails?.display_name}
+                </Typography>
+                <Typography variant="subtitle1" color="textSecondary">{galleryDetails?.address?.city}</Typography>
+              </Box>
+              <Box display="flex" flexDirection={{ xs: "row", sm: "column" }}
+                   sx={{ mt: { xs: 2, sm: 0 } }}>
+                <Button variant="text">Contatta la galleria</Button>
+              </Box>
             </Box>
+            <Divider sx={{ mt: 3 }} />
           </Grid>
         </Grid>
       </Box>
-      <PromoBig
-        title={"Vuoi acquistare a rate?"}
-        content={
-          "Se ti interessa quest’opera puoi bloccarla in esclusiva per 24 ore. Clicca qui e scegli se procedere all’iter di finanziamento direttamente dalla tua area personale."
-        }
-        cta={{
-          text: "Blocca l'opera",
-          link: "#"
-        }}
-        disabled={isOutOfStock}
-        imgUrl={heroImgUrl}
-        onClick={handleLoanPurchase}
-        sx={{ mt: { xs: 3, sm: 6, md: 15 }, mb: 5 }}
-      />
       <Box id="artwork-info" sx={{ top: "-100px", position: "relative" }}></Box>
-      <Box mt={5}>
+      <Box px={px} mt={5}>
         <Box
           sx={{
             borderBottom: 1,
-            borderColor: "secondary",
+            borderColor: "#CDCFD3",
             mx: { xs: 0 }
           }}>
           <ResponsiveTabs value={selectedTabPanel} onChange={(_, newValue) => setSelectedTabPanel(newValue)}>
@@ -334,15 +341,17 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         </Box>
         <Divider
           sx={{
-            borderColor: "rgba(0, 0, 0, 0.87)",
             mb: { xs: 3, md: 8 },
             mx: { xs: 0 }
           }}
         />
       </Box>
-      <ArtworksList title="Opere dello stesso artista" items={artistArtworks || []} />
-      <ArtworksList title="Opere della galleria" items={galleryArtworks || []} onSelect={handleGalleryArtworkSelect} />
-      <ArtworksList title="Simili per prezzo" items={[]} />
+      <Box sx={{ px: px }}>
+        <ArtworksList disablePadding title="Opere dello stesso artista" items={artistArtworks || []} />
+        <ArtworksList disablePadding title="Opere della galleria" items={galleryArtworks || []}
+                      onSelect={handleGalleryArtworkSelect} />
+        <ArtworksList disablePadding title="Simili per prezzo" items={[]} />
+      </Box>
     </DefaultLayout>
   );
 };

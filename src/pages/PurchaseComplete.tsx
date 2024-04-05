@@ -12,7 +12,7 @@ import { BankTransferAction } from "../types/order.ts";
 import { useData } from "../hoc/DataProvider.tsx";
 
 import paymentSuccess from "../assets/images/payment-success.svg";
-import { getDefaultPaddingX, getPropertyFromMetadata } from "../utils.ts";
+import { getDefaultPaddingX } from "../utils.ts";
 import { useParams } from "react-router-dom";
 
 export interface PurchaseCompleteProps {

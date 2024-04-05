@@ -63,8 +63,8 @@ const defaultTheme: Theme = createTheme({
     h4: { fontSize: "39px", lineHeight: "110%", fontWeight: 400 },
     h5: { fontSize: "31px", lineHeight: "120%", fontWeight: 400 },
     h6: { fontSize: "25px", lineHeight: "115%", fontWeight: 400 },
-    subtitle1: { fontSize: "20px", lineHeight: "125%", fontWeight: 400 },
-    body1: { fontSize: "16px", lineHeight: "125%", fontWeight: 400 },
+    subtitle1: { fontSize: "16px", lineHeight: "125%", fontWeight: 500 },
+    body1: { fontSize: "16px", lineHeight: "125%", fontWeight: 500 },
     body2: { fontSize: "12px", lineHeight: "120%", fontWeight: 500 },
     caption: { fontSize: "12px", fontWeight: 500, display: "inline-block", lineHeight: 1 }
   },
@@ -133,6 +133,17 @@ const defaultTheme: Theme = createTheme({
               ? theme.palette[ownerState?.color as PaletteColor]?.contrastText
               : null) || theme.palette.grey["600"];
 
+          const btnProps: { [key: string]: string | object } = {};
+          if (ownerState.size === "xs") {
+            btnProps["height"] = "20px";
+            btnProps["width"] = "20px";
+            btnProps["padding"] = "4px";
+            btnProps[" .MuiSvgIcon-root"] = {
+              height: "16px",
+              width: "16px"
+            };
+          }
+
           const variant = ownerState.variant || "default";
           switch (variant) {
             case "contained":
@@ -141,14 +152,14 @@ const defaultTheme: Theme = createTheme({
                 color: contrastColor,
                 "&:hover": {
                   background: color
-                }
+                }, ...btnProps
               };
             case "outlined":
               return {
-                border: `1px solid ${color}`
+                border: `1px solid ${color}`, ...btnProps
               };
             default:
-              return {};
+              return { ...btnProps };
           }
         }
       }

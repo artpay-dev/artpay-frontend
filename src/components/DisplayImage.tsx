@@ -6,11 +6,20 @@ export interface DisplayImageProps {
   width?: number | string;
   height?: number | string;
   sx?: SxProps<Theme>;
+  borderRadius?: string;
   onClick?: () => void;
   objectFit?: "contain" | "cover";
 }
 
-const DisplayImage: React.FC<DisplayImageProps> = ({ src, width, height, sx = {}, objectFit, onClick }) => {
+const DisplayImage: React.FC<DisplayImageProps> = ({
+                                                     src,
+                                                     width,
+                                                     height,
+                                                     borderRadius,
+                                                     sx = {},
+                                                     objectFit,
+                                                     onClick
+                                                   }) => {
 
   return (
     <Box
@@ -31,7 +40,8 @@ const DisplayImage: React.FC<DisplayImageProps> = ({ src, width, height, sx = {}
           maxHeight: height || "auto",
           maxWidth: width || "auto",
           cursor: onClick ? "pointer" : "auto",
-          objectFit: objectFit
+          objectFit: objectFit,
+          borderRadius: borderRadius
         }}
         onClick={onClick}
         src={src}

@@ -65,18 +65,18 @@ const GalleryDetails: React.FC<GalleryDetailsProps> = ({ gallery }) => {
   return (
     <Box
       sx={{
-        maxWidth: "920px",
+        maxWidth: "612px",
         width: "100%",
         flexDirection: { xs: "column", md: "row" },
-        alignItems: { xs: "center" }
+        alignItems: { xs: "flex-start" }
       }}
       display="flex">
-      <DisplayImage src={galleryContent.coverImage} onClick={handleClick} width={320} height={320} />
+      <DisplayImage borderRadius="4px" src={galleryContent.coverImage} onClick={handleClick} width={188} height={188} />
       <Box flexGrow={1} px={3} sx={{ mt: { xs: 2, md: 0 }, width: "100%" }}>
-        <Box display="flex" flexDirection="row">
+        <Box display="flex" flexDirection="row" alignItems="center">
           <Box flexGrow={1}>
-            <Typography variant="h6">{galleryContent.title}</Typography>
-            <Typography variant="h6" color="textSecondary">
+            <Typography variant="subtitle1">{galleryContent.title}</Typography>
+            <Typography variant="subtitle1" color="textSecondary">
               {galleryContent.subtitle}
             </Typography>
           </Box>
@@ -88,7 +88,7 @@ const GalleryDetails: React.FC<GalleryDetailsProps> = ({ gallery }) => {
             />
           </Box>
         </Box>
-        <Typography sx={{ mt: 3 }} variant="subtitle1">
+        <Typography sx={{ mt: 3 }} color="textSecondary" variant="subtitle1">
           {galleryContent.description}
         </Typography>
       </Box>

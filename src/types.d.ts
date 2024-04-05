@@ -62,6 +62,10 @@ declare module "@mui/material/styles" {
     large: true;
   }
 
+  interface IconButtonPropsSizeOverrides {
+    xs: true;
+  }
+
   interface TypographyVariants {
     display1: React.CSSProperties;
     display2: React.CSSProperties;
@@ -86,6 +90,12 @@ declare module "@mui/material/Typography" {
 declare module "@mui/material/Chip" {
   interface ChipPropsSizeOverrides {
     large: true;
+  }
+}
+
+declare module "@mui/material/IconButton" {
+  interface IconButtonPropsSizeOverrides {
+    xs: true;
   }
 }
 

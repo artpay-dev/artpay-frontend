@@ -25,8 +25,8 @@ const DisplayProperty: React.FC<DisplayPropertyProps> = ({
         {label}
       </Typography>
       {copy ?
-        <CopyText sx={{ mt: gap }} text={value} variant={variant}/> :
-        <Typography sx={{ mt: gap }} variant={variant}>
+        <CopyText sx={{ mt: gap }} text={value} variant={variant} /> :
+        <Typography sx={{ mt: gap }} variant={variant} color="textSecondary">
           {value || "-"}
         </Typography>}
     </Box>

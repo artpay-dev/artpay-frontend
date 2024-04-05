@@ -64,24 +64,22 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
   return (
     <Box
       sx={{
-        maxWidth: "920px",
+        maxWidth: "612px",
         width: "100%",
         flexDirection: { xs: "column", md: "row" },
         gap: { xs: 2, md: 0 },
         alignItems: { xs: "center" }
       }}
       display="flex">
-      <DisplayImage src={artistContent.imgUrl} onClick={() => navigate(`/artisti/${artistContent.slug}`)} width={320}
-                    height={isMobile ? "auto" : 320} />
+      <DisplayImage borderRadius="4px" src={artistContent.imgUrl}
+                    onClick={() => navigate(`/artisti/${artistContent.slug}`)} width={320}
+                    height={isMobile ? "auto" : 254} />
       <Box flexGrow={1} px={3}>
-        <Box display="flex" flexDirection="row">
+        <Box display="flex" flexDirection="row" alignItems="center">
           <Box flexGrow={1}>
-            <Typography variant="h6">{artistContent.title}</Typography>
-            <Typography variant="h6" color="textSecondary">
+            <Typography variant="subtitle1">{artistContent.title}</Typography>
+            <Typography variant="subtitle1" color="textSecondary">
               {artistContent.subtitle}
-            </Typography>
-            <Typography sx={{ mt: 2 }} variant="subtitle1" color="textSecondary">
-              {artistContent.artworksCount} {artistContent.artworksCount === 1 ? "Opera" : "Opere"}
             </Typography>
           </Box>
           <Box>
@@ -92,10 +90,14 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
             />
           </Box>
         </Box>
+        <Typography sx={{ mt: 2 }} variant="subtitle1" color="textSecondary">
+          {artistContent.artworksCount} {artistContent.artworksCount === 1 ? "Opera" : "Opere"}
+        </Typography>
         <Typography
           sx={{ mt: 3 }}
-          variant="subtitle1"
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(artistContent.description || "") }}
+          variant="body1"
+          color="textSecondary"
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(artistContent.description || "", { allowedAttributes: false }) }}
         />
       </Box>
     </Box>
