@@ -80,7 +80,6 @@ export const DialogProvider: React.FC<DialogProviderProps> = ({ children }) => {
 
   const handleClose = (value?: unknown) => {
     setOpen(false);
-    console.log("handleClose", value, dialog?.resolve);
     dialog?.resolve(value);
     setDialog(undefined);
   };

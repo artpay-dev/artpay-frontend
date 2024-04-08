@@ -1,4 +1,15 @@
-import { Box, Button, Divider, Grid, IconButton, Link, Tab, Typography, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Grid,
+  IconButton,
+  Link,
+  Tab,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout";
 import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
@@ -28,6 +39,12 @@ import { FavouritesMap } from "../types/post.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import artworkLoanBannerIcon from "../assets/images/artwork_loan_banner_icon.svg";
+import PromoCardSmall from "../components/PromoCardSmall.tsx";
+import prenotaOpera from "../assets/images/prenota_opera.svg";
+import richiediPrestito from "../assets/images/richiedi_prestito.svg";
+import completaAcquisto from "../assets/images/completa_acquisto.svg";
+import LoanCard from "../components/LoanCard.tsx";
+import LockIcon from "../components/icons/LockIcon.tsx";
 
 export interface ArtworkProps {
 }
@@ -62,6 +79,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const isArtworkFavourite = artwork?.id ? favouriteArtworks.indexOf(artwork.id) !== -1 : false;
 
   const isOutOfStock = artwork?.stock_status === "outofstock";
+  const isReserved = false;
 
 
   const handleGalleryArtworkSelect = (i: number) => {
@@ -93,7 +111,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         }
       } catch (e) {
         //TODO: notify error
-        console.log(e);
+        console.error(e);
         await snackbar.error(e);
       }
     }
@@ -117,11 +135,17 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   };
 
   const handleLoanPurchase = () => {
-    if (!artwork?.slug) {
+    if (!artwork?.id) {
       return;
     }
     setIsReady(false);
-    navigate(`/blocca-opera/${artwork?.slug}`);
+    data
+      .purchaseArtwork(+artwork.id, true)
+      .then(() => {
+        navigate("/accconto-blocca-opera");
+      })
+      .catch((e) => snackbar.error(e))
+      .finally(() => setIsReady(true));
   };
 
   useEffect(() => {
@@ -145,7 +169,6 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       setFavouriteArtworks(favouriteArtworks);
       if (resp.vendor) {
         const galleryDetails = await data.getGallery(resp.vendor);
-        console.log("galleryDetails", galleryDetails);
         setGalleryDetails(galleryDetails);
       }
       const artistId = getPropertyFromMetadata(resp.meta_data, "artist")?.ID;
@@ -187,7 +210,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
 
   let sliderHeight = "800px";
   if (belowSm) {
-    sliderHeight = "315px";
+    sliderHeight = "auto";
   } else if (isMd) {
     sliderHeight = "660px";
   } else if (isLg) {
@@ -198,15 +221,17 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   return (
     <DefaultLayout
       pageLoading={!isReady}>
-      <Box sx={{ px: px, mt: { xs: 12, md: 18 } }} display="flex" justifyContent="center">
-        <Grid sx={{ p: 0, mt: 0, justifyContent: "center", alignItems: "center" }} spacing={3} maxWidth="xl"
+      <Box sx={{ px: { ...px, xs: 0 }, mt: { xs: 0, sm: 12, md: 18 } }} display="flex" justifyContent="center">
+        <Grid sx={{ p: 0, mt: 0, justifyContent: "center", alignItems: "center" }} spacing={{ xs: 0, sm: 3 }}
+              maxWidth="xl"
               container>
           <Grid
             item
             xs={12}
             md={6}
             sx={{
-              maxHeight: { xs: "315px", sm: "660px", md: "1820px" },
+              maxHeight: { xs: "auto", sm: "660px", md: "1820px" },
+              width: { xs: "100%", sm: "auto" },
               overflow: "hidden",
               display: "flex",
               alignItems: "flex-start",
@@ -217,7 +242,9 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               style={{ maxHeight: sliderHeight, maxWidth: "100%", objectFit: "contain" }}
             />
           </Grid>
-          <Grid item xs={12} md={6} display="flex" justifyContent="flex-start" flexDirection="column">
+          <Grid item xs={12} md={6} sx={{ px: { xs: px.xs, sm: 0 }, pt: { xs: 3, sm: 0 } }} display="flex"
+                justifyContent="flex-start"
+                flexDirection="column">
             <Box display="flex">
               <Typography sx={{ textTransform: "uppercase", mb: 3 }} color="primary" variant="body1">
                 {galleryDetails?.display_name}
@@ -253,21 +280,26 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               <Typography sx={{ mt: 0 }} variant="subtitle1" color="textSecondary">
                 {artworkCertificate}
               </Typography>
+              {(isOutOfStock || isReserved) &&
+                <Typography sx={{ mt: 3 }} variant="subtitle1" color="textSecondary"><LockIcon color="error"
+                                                                                               fontSize="inherit" /> Opera
+                  non disponibile</Typography>}
             </Box>
             <Divider sx={{ mt: 6 }} />
             <Box display="flex" alignItems="center" my={3}>
-              <Typography variant="h3">€ {artwork?.price}</Typography>
+              <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>€ {artwork?.price}</Typography>
               <Box flexGrow={1} />
               <Button variant="contained" disabled={isOutOfStock} onClick={() => handlePurchase(artwork?.id)}>
                 Compra opera
               </Button>
             </Box>
             <Divider />
-            <Box mt={2} sx={{ my: 3 }} display="flex" gap={1}>
-              <Typography
-                variant="h3">€ {formatCurrency(+(artwork?.price || 0) * data.downpaymentPercentage() / 100)}</Typography>
+            <Box mt={2} sx={{ my: 3 }} display="flex" alignItems="center" gap={1}>
+              <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
+                € {formatCurrency(+(artwork?.price || 0) * data.downpaymentPercentage() / 100)}
+              </Typography>
               <Box flexGrow={1} />
-              <Box display="flex" flexDirection="column" alignItems="end">
+              <Box display="flex" flexDirection="column" alignItems="flex-end">
                 <Button variant="outlined" disabled={isOutOfStock} onClick={handleLoanPurchase}>
                   Prenota l’opera
                 </Button>
@@ -276,30 +308,34 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
                   più!</Link></Typography>
               </Box>
             </Box>
-            {isOutOfStock && <Typography variant="h6" color="error">Opera non disponibile</Typography>}
             <Divider sx={{ mb: 3 }} />
-            <Box display="flex" alignItems="center" sx={{
+            <Box display="flex" sx={{
               background: theme.palette.secondary.main,
               color: theme.palette.secondary.contrastText,
+              alignItems: { xs: "flex-start", sm: "center" },
               py: 3,
               px: 3,
               borderRadius: "5px"
             }}>
               <img src={artworkLoanBannerIcon} style={{ transform: `translateX(-${theme.spacing(3)})` }} />
-              <Typography variant="body2" color="white" sx={{ maxWidth: "248px" }}>
-                Per i tuoi acquisti d'arte su artpay, puoi scegliere la migliore proposta di prestito tra quelle degli
-                istituti bancari nostri partner.
-              </Typography>
-              <Box flexGrow={1} />
-              <Link variant="body1" color="inherit">Scopri di più</Link>
+              <Box display="flex"
+                   sx={{ flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" } }}
+                   flexGrow={1}>
+                <Typography variant="body2" color="white" sx={{ maxWidth: "248px" }}>
+                  Per i tuoi acquisti d'arte su artpay, puoi scegliere la migliore proposta di prestito tra quelle degli
+                  istituti bancari nostri partner.
+                </Typography>
+                <Box flexGrow={1} />
+                <Link variant="body1" color="inherit" sx={{ mt: { xs: 3, sm: 0 } }}>Scopri di più</Link>
+              </Box>
             </Box>
             <Divider sx={{ mt: 3 }} />
             <Box
               display="flex"
-              flexDirection={{ xs: "column", sm: "row" }}
+              flexDirection={{ xs: "row", sm: "row" }}
               gap={{ xs: 3, sm: 0 }}
               mt={{ xs: 3 }}
-              alignItems={{ xs: "flex-start", md: "center" }}>
+              alignItems={{ xs: "center", md: "center" }}>
               <Box flexGrow={1} display="flex" flexDirection="column" sx={{ gap: { xs: 1, sm: 0 } }}>
                 <Typography variant="subtitle1">
                   {galleryDetails?.display_name}
@@ -307,7 +343,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
                 <Typography variant="subtitle1" color="textSecondary">{galleryDetails?.address?.city}</Typography>
               </Box>
               <Box display="flex" flexDirection={{ xs: "row", sm: "column" }}
-                   sx={{ mt: { xs: 2, sm: 0 } }}>
+                   sx={{ mt: { xs: 0, sm: 0 } }}>
                 <Button variant="text">Contatta la galleria</Button>
               </Box>
             </Box>
@@ -358,6 +394,59 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         <ArtworksList disablePadding title="Opere della galleria" items={galleryArtworks || []}
                       onSelect={handleGalleryArtworkSelect} />
         <ArtworksList disablePadding title="Simili per prezzo" items={[]} />
+      </Box>
+      <Grid sx={{ pt: 12, px: px }} spacing={3} display="flex" container>
+        <Grid xs={12} item>
+          <Typography variant="h2">
+            Non vuoi farti sfuggire un’opera? <span style={{ color: theme.palette.primary.main }}>Prenotala!</span>
+          </Typography>
+          <Typography variant="subtitle1" sx={{ maxWidth: "400px", mt: 2 }}>
+            Se sei intenzionato ad acquistare un’opera, non devi fare altro che prenotarla e non fartela scappare!
+          </Typography>
+        </Grid>
+        <Grid xs={12} md={4} px={1} item>
+          <PromoCardSmall
+            imgSrc={prenotaOpera}
+            title={
+              <>
+                Prenota <br />
+                l’opera
+              </>
+            }
+            text="Con una piccola quota bloccata sulla tua carta di credito, proporzionale al prezzo d’acquisto, prenoti l’opera che ti interessa e ti garantisci i diritti esclusivi d’acquisto. Dal momento della prenotazione, l’opera sarà riservata a tuo nome per 7 giorni. In caso di mancato acquisto, la somma sarà sbloccata entro 5 giorni lavorativi. "
+          />
+        </Grid>
+        <Grid xs={12} md={4} px={1} item>
+          <PromoCardSmall
+            variant="secondary"
+            imgSrc={richiediPrestito}
+            title={
+              <>
+                Richiedi <br />
+                un prestito
+              </>
+            }
+            link="Scopri i nostri partner"
+            linkHref="https://www.santanderconsumer.it/prestito/partner/artpay"
+            text="Con artpay puoi finalmente accedere a prestiti personalizzati. Per i tuoi acquisti d'arte scegli la migliore proposta di prestito tra quelle degli istituti bancari nostri partner. Di norma l’approvazione avviene in poche ore. "
+          />
+        </Grid>
+        <Grid xs={12} md={4} px={1} item>
+          <PromoCardSmall
+            variant="white"
+            imgSrc={completaAcquisto}
+            title={
+              <>
+                Completa l’acquisto <br />
+                dell’opera
+              </>
+            }
+            text="Ad acquisto avvenuto, l’opera è tua e avrai massima libertà di personalizzare le modalità di consegna, confrontandoti direttamente col personale della galleria d’arte responsabile della vendita."
+          />
+        </Grid>
+      </Grid>
+      <Box sx={{ px: { ...px, xs: 0 }, mt: 3, mb: 12 }}>
+        <LoanCard />
       </Box>
     </DefaultLayout>
   );

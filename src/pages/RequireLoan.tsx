@@ -22,9 +22,9 @@ const loanConditionsContent: LoanConditionsCardProps = {
   monthlyEstimateText: "stima mensile a partire da..",
   monthlyAmount: "120€ al mese",
   taegText: "TAEG: 5,91% (Indice sintetico di costo) / TAN: 5,74% (fisso nel tempo) / Spese iniziali: € 16,00",
-  requestQuoteUrl: "https://santanderconsumergs.com/banking4you/",
+  requestQuoteUrl: "https://www.santanderconsumer.it/prestito/partner/artpay",
   requestQuoteText: "Richiedi preventivo",
-  freeAndNonBindingText: "Gratis e senza impegno",
+  freeAndNonBindingText: "Gratis e senza impegno"
 };
 
 const RequireLoan: React.FC<RequireLoanProps> = ({ step = 0 }) => {
@@ -65,7 +65,7 @@ const RequireLoan: React.FC<RequireLoanProps> = ({ step = 0 }) => {
         .setOrderStatus(+completedOrderId, "on-hold", {
           payment_method: "Acconto blocco opera",
           payment_method_title: "Blocco opera",
-          customer_note: `Versato acconto 5%`,
+          customer_note: `Versato acconto 5%`
         })
         .then(() => {
           localStorage.removeItem("completed-order");
@@ -78,7 +78,7 @@ const RequireLoan: React.FC<RequireLoanProps> = ({ step = 0 }) => {
         artworkForCard.artworkTechnique = artworkTechnique;
         setArtwork(artworkForCard);
       }),
-      data.getUserProfile().then((resp) => setProfile(resp)),
+      data.getUserProfile().then((resp) => setProfile(resp))
     ]).then(() => {
       setReady(true);
     });
@@ -96,7 +96,7 @@ const RequireLoan: React.FC<RequireLoanProps> = ({ step = 0 }) => {
           mb: { xs: 6, md: 12, lg: 18 },
           maxWidth: maxWidth,
           ml: "auto",
-          mr: "auto",
+          mr: "auto"
         }}
         justifyContent="center"
         container>

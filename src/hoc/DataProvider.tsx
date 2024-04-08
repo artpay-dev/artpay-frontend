@@ -385,7 +385,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       if (favouritesMap.artworks !== null) {
         return favouritesMap.artworks;
       }
-      console.log("auth.getAuthToken()", auth.getAuthToken());
       const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
         `${baseUrl}/wp-json/wp/v2/getUserFavoriteArtworks`, { headers: { Authorization: auth.getAuthToken() } }
       );
@@ -668,7 +667,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     },
     async purchaseArtwork(artworkId: number, loan = false): Promise<Order> {
       // , loan = false
-      console.log("purchaseArtwork", auth?.isAuthenticated, auth.user?.id);
       const customerId = auth.user?.id;
       if (!customerId) {
         const artwork = await this.getArtwork(artworkId.toString());
@@ -865,11 +863,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         setIsLoading(true);
 
         dataContext.purchaseArtwork(pendingOrder.line_items[0].product_id).then((resp) => {
-          console.log("purchase artwork", pendingOrder.line_items[0].product_id, resp);
           localStorage.removeItem(PendingOrderStorageKey);
         }).finally(() => {
           setIsLoading(false);
-          console.log("handleUserLoggedIn", pendingOrder.line_items[0].product_id, dataContext.purchaseArtwork);
         });
       }
 

@@ -31,7 +31,7 @@ const PromoCard: React.FC<PromoCardProps> = ({
         background: variant === "contrast" ? theme.palette.primary.main : "white",
         boxShadow: variant === "contrast" ? "none" : "0px 4px 64px 0px rgba(1, 15, 34, 0.08)",
         alignItems: { xs: "flex-start", md: "center" },
-        py: { xs: 6, md: 8 },
+        py: { xs: 6, md: 6 },
         px: { xs: 4, md: 13 }
       }}>
       <Typography

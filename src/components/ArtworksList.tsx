@@ -64,7 +64,7 @@ const ArtworksList: React.FC<ArtworksListProps> = ({
         }
       } catch (e) {
         //TODO: notify error
-        console.log(e);
+        console.error(e);
       }
     }
   };

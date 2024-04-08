@@ -48,7 +48,7 @@ const GalleriesList: React.FC<GalleriesListProps> = ({ items, title, onSelect })
         }
       } catch (e) {
         //TODO: notify error
-        console.log(e);
+        console.error(e);
       }
       setIsLoading(false);
     }

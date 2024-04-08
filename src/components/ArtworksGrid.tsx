@@ -64,7 +64,7 @@ const ArtworksGrid: React.FC<ArtworksGridProps> = ({
         }
       } catch (e) {
         //TODO: notify error
-        console.log(e);
+        console.error(e);
       }
     }
   };

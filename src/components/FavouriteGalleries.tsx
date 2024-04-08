@@ -31,7 +31,7 @@ const FavouriteGalleries: React.FC<FavouriteGalleriesProps> = ({}) => {
       .then(() => {
       })
       .catch((e) => {
-        console.log("error!", e);
+        console.error("error!", e);
         return snackbar.error(e, { autoHideDuration: 60000 });
       }).finally(() => {
       setReady(true);

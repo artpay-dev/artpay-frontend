@@ -100,7 +100,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
         }
       } catch (e) {
         //TODO: notify error
-        console.log(e);
+        console.error(e);
       }
     }
   };

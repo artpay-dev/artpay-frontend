@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout";
-import { Grid } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { useData } from "../hoc/DataProvider.tsx";
 import NewsletterBig from "../components/NewsletterBig.tsx";
 import ArtworksList from "../components/ArtworksList.tsx";
 import { HomeContent } from "../types/home.ts";
 import PromoItem from "../components/PromoItem.tsx";
-import { artistsToGalleryItems, artworksToGalleryItems } from "../utils.ts";
+import { artistsToGalleryItems, artworksToGalleryItems, getDefaultPaddingX } from "../utils.ts";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import { ArtistCardProps } from "../components/ArtistCard.tsx";
 import ArtistsList from "../components/ArtistsList.tsx";
 import { useNavigate } from "react-router-dom";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import HeroHome from "../components/HeroHome.tsx";
+import InfoCard from "../components/InfoCard.tsx";
+import imgRocket from "../assets/images/rocket.svg";
+import OnboardingCards from "../components/OnboardingCards.tsx";
 
 export interface HomeProps {
 }
@@ -60,12 +63,61 @@ const Home: React.FC<HomeProps> = ({}) => {
     // auth, auth.isAuthenticated,
   }, [data, snackbar]);
 
+  const px = getDefaultPaddingX();
+
   return (
     <DefaultLayout pageLoading={!isReady} maxWidth={false}>
       <HeroHome />
-      <Grid sx={{ px: { xs: 0, md: 4, lg: 8 }, mt: 4, justifyContent: "center" }} container>
+      <Box sx={{ px: px, my: { xs: 6, md: 12 } }}>
+        <Typography variant="display3" sx={{ maxWidth: "718px" }}>
+          Value proposition lorem ipsum dolor sit amet
+        </Typography>
+      </Box>
+      <Grid
+        xs={12}
+        sx={{
+          px: px,
+          gridTemplateColumns: { xs: undefined, sm: "1fr 1fr 1fr" },
+          display: { xs: "flex", sm: "grid" },
+          flexDirection: { xs: "column", sm: undefined },
+          gap: 3
+        }}
+        item>
+        <Box>
+          <InfoCard
+            title="Tre Principi"
+            subtitle="Ad acquisto avvenuto, l’opera è tua e avrai massima libertà di personalizzare le modalità di consegna, confrontandoti direttamente col personale della galleria d’arte responsabile della vendita."
+            imgSrc={imgRocket}
+          />
+        </Box>
+        <Box>
+          <InfoCard
+            title="Richiedi il finanziamento"
+            subtitle="Normalmente viene erogato in poche ore*."
+            imgSrc={imgRocket}
+          />
+        </Box>
+        <Box>
+          <InfoCard
+            title="Compra l’opera d’arte"
+            subtitle="Completato l'iter di richiesta e ricevuto il finanziamento, l'acquirente può procedere all'acquisto dell'opera dal sito Artpay"
+            imgSrc={imgRocket}
+          />
+        </Box>
+      </Grid>
+      <OnboardingCards />
+      <Grid sx={{ px: px }} container>
+        <Grid mt={4} xs={12} item>
+          <NewsletterBig title="Iscriviti alla nostra newsletter" />
+        </Grid>
+      </Grid>
+      <Grid sx={{ px: px, my: 12 }} container>
+        <ArtistsList disablePadding items={featuredArtists || []} title="Artisti in evidenza" />
+      </Grid>
+      <Grid sx={{ px: px, my: 12, justifyContent: "center" }} container>
         {featuredArtworks && (
           <ArtworksList
+            disablePadding
             items={featuredArtworks || []}
             onSelect={(i) => handleSelectArtwork(featuredArtworks[i])}
             title="Opere in evidenza"
@@ -73,17 +125,11 @@ const Home: React.FC<HomeProps> = ({}) => {
           />
         )}
       </Grid>
-      <Grid spacing={4} sx={{ mt: 4 }} justifyContent="center" container>
+      {/*      <Grid spacing={4} sx={{ mt: 4 }} justifyContent="center" container>
         {homeContent?.promoItems.map((promoItem, i) => <PromoItem key={`promo-${i}`} {...promoItem} />)}
-      </Grid>
-      <Grid container>
-        <Grid mt={4} xs={12} item>
-          <NewsletterBig title="Iscriviti alla nostra newsletter" />
-        </Grid>
-      </Grid>
-      <Grid sx={{ px: { xs: 0, md: 4, lg: 8 }, my: 6 }} container>
-        <ArtistsList items={featuredArtists || []} title="Artisti in evidenza" />
-      </Grid>
+      </Grid>*/}
+
+
     </DefaultLayout>
   );
 };

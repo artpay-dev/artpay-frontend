@@ -50,7 +50,6 @@ const SignInForm: React.FC<SignInFormProps> = ({
     } as SignInFormData
   });
 
-  console.log("errors", errors);
   const handleSubmitClick = async (data: SignInFormData) => {
     setError(undefined);
     if (onSubmit) {

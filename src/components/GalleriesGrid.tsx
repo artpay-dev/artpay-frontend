@@ -62,7 +62,7 @@ const GaleriesGrid: React.FC<GaleriesGridProps> = ({
         }
       } catch (e) {
         //TODO: notify error
-        console.log(e);
+        console.error(e);
       }
       setIsLoading(false);
     }

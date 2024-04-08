@@ -61,7 +61,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
 
   orderMode = (orderMode === "loan" || pendingOrder?.customer_note === "Blocco opera") ? "loan" : "standard";
 
-  console.log("orderMode", orderMode, pendingOrder?.customer_note);
   const showError = async (err?: unknown, text: string = "Si è verificato un errore") => {
     if (isAxiosError(err) && err.response?.data?.message) {
       text = err.response?.data?.message;
@@ -70,7 +69,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
   };
 
   useEffect(() => {
-    console.log("Purchase", auth.isAuthenticated, auth.user?.id);
 
     if (auth.isAuthenticated) {
 
@@ -93,7 +91,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
         }),
         data.getPendingOrder().then(async (resp) => {
           if (resp) {
-            console.log("resp", resp);
             setPendingOrder(resp);
             const artworks = await Promise.all(
               resp.line_items.map((item) => data.getArtwork(item.product_id.toString()))
@@ -108,7 +105,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
             setPaymentIntent(paymentIntent);
             data.getGalleries(artworks.map(a => +a.vendor)).then(galleries => setGalleries(galleries));
           } else {
-            console.log("No orders");
             setNoPendingOrder(true);
             //TODO: no orders page
           }

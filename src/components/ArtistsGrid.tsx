@@ -63,7 +63,7 @@ const ArtistsGrid: React.FC<ArtistsGridProps> = ({
         }
       } catch (e) {
         //TODO: notify error
-        console.log(e);
+        console.error(e);
       }
       setIsLoading(false);
     }

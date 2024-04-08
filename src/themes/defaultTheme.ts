@@ -59,7 +59,7 @@ const defaultTheme: Theme = createTheme({
     display2: { fontSize: "72px", lineHeight: "100%", fontWeight: 400, display: "inline-block" },
     display3: { fontSize: "56px", lineHeight: "100%", fontWeight: 400, display: "inline-block" },
     h1: { fontSize: "40px", lineHeight: "105%", fontWeight: 400 },
-    h2: { fontSize: "36px", lineHeight: "100%", fontWeight: 500 },
+    h2: { fontSize: "36px", lineHeight: "105%", fontWeight: 500 },
     h3: { fontSize: "32px", lineHeight: "120%", fontWeight: 500 },
     h4: { fontSize: "24px", lineHeight: "110%", fontWeight: 500 },
     h5: { fontSize: "24px", lineHeight: "120%", fontWeight: 400 },
@@ -222,16 +222,19 @@ const defaultTheme: Theme = createTheme({
           "&::after": {
             display: "none"
           },
+          "&:hover": {
+            background: "#ECEDFC"
+          },
           input: {
             paddingTop: "6px"
           },
-          background: "#ECEDFC",
+          background: "#ECEDFC!important",
           borderRadius: "20px"
         },
         adornedEnd: {
-          paddingRight: "0!important",
+          paddingRight: "2px!important",
           button: {
-            height: "40px"
+            height: "36px"
           }
         },
         adornedStart: {
@@ -397,7 +400,7 @@ const defaultTheme: Theme = createTheme({
       styleOverrides: {
         root: {
           textTransform: "none",
-          fontSize: "20px",
+          fontSize: "16px",
           fontStyle: "normal",
           fontWeight: 600,
           lineHeight: "125%",
@@ -479,16 +482,6 @@ const responsiveTheme = createTheme(defaultTheme, {
     display3: {
       [defaultTheme.breakpoints.only("xs")]: {
         fontSize: "40px"
-      }
-    },
-    h3: {
-      [defaultTheme.breakpoints.only("xs")]: {
-        fontSize: "40px"
-      }
-    },
-    h4: {
-      [defaultTheme.breakpoints.only("xs")]: {
-        fontSize: "36px"
       }
     },
     h5: {

@@ -50,7 +50,7 @@ const GalleryDetails: React.FC<GalleryDetailsProps> = ({ gallery }) => {
         }
       } catch (e) {
         //TODO: notify error
-        console.log(e);
+        console.error(e);
       }
       setIsLoading(false);
     }
@@ -67,8 +67,8 @@ const GalleryDetails: React.FC<GalleryDetailsProps> = ({ gallery }) => {
       sx={{
         maxWidth: "612px",
         width: "100%",
-        flexDirection: { xs: "column", md: "row" },
-        alignItems: { xs: "flex-start" }
+        flexDirection: { xs: "column", sm: "row" },
+        alignItems: { xs: "center", sm: "flex-start" }
       }}
       display="flex">
       <DisplayImage borderRadius="4px" src={galleryContent.coverImage} onClick={handleClick} width={188} height={188} />

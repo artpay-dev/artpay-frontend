@@ -60,7 +60,7 @@ const ArtistsList: React.FC<ArtistsListProps> = ({
         }
       } catch (e) {
         //TODO: notify error
-        console.log(e);
+        console.error(e);
       }
       setIsLoading(false);
     }

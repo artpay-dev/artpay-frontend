@@ -19,7 +19,7 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
   const artistContent = artistToGalleryItem(artist);
   const theme = useTheme();
   const navigate = useNavigate();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const data = useData();
   const auth = useAuth();
 
@@ -55,7 +55,7 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
         }
       } catch (e) {
         //TODO: notify error
-        console.log(e);
+        console.error(e);
       }
       setIsLoading(false);
     }
@@ -66,14 +66,14 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
       sx={{
         maxWidth: "612px",
         width: "100%",
-        flexDirection: { xs: "column", md: "row" },
+        flexDirection: { xs: "column", sm: "row" },
         gap: { xs: 2, md: 0 },
         alignItems: { xs: "center" }
       }}
       display="flex">
       <DisplayImage borderRadius="4px" src={artistContent.imgUrl}
                     onClick={() => navigate(`/artisti/${artistContent.slug}`)} width={320}
-                    height={isMobile ? "auto" : 254} />
+                    height={isMobile ? 320 : 254} />
       <Box flexGrow={1} px={3}>
         <Box display="flex" flexDirection="row" alignItems="center">
           <Box flexGrow={1}>

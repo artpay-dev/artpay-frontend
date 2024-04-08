@@ -140,7 +140,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
   const googleLogin = useGoogleLogin({
     // redirect_uri: "https://artpay.art/openidcallback/google",
     onSuccess: (codeResponse: CodeResponse) => {
-      console.log("codeResponse", codeResponse);
       /*      const redirectTo = new URL(window.location.origin);
             redirectTo.searchParams.append("authCode", codeResponse.code);
             redirectTo.searchParams.append("redirectURI", window.location.origin);
@@ -150,7 +149,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         authCode: codeResponse.code,
         redirectURI: window.location.origin
       }).then((resp) => {
-        console.log("RESP", resp.data);
         localStorage.setItem(userStorageKey, JSON.stringify(resp.data));
         setAuthValues({
           ...authValues,
@@ -170,7 +168,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     onError: (errorResponse) => {
       setIsLoading(false);
       setError(errorResponse.error_description);
-      console.log("errorResponse", errorResponse);
     },
     onNonOAuthError: (errorResponse) => {
       switch (errorResponse.type) {
@@ -203,7 +200,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         username: email,
         password: password
       }, {});
-      console.log("resp", resp.data);
       /*const userInfoResp = await axios.get<object, AxiosResponse<UserInfo>>(
         userInfoUrl,
         { headers: { Authorization: `Bearer ${resp.data.jwt}` } },
@@ -235,7 +231,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       return { error: err?.toString() };
     } finally {
       setTimeout(() => {
-        console.log("login done");
         setIsLoading(false);
       }, 500);
     }

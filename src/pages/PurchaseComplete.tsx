@@ -95,7 +95,6 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
           if (order?.line_items.length) {
             galleryName = order?.line_items[0].meta_data.find(({ key }) => key === "Venduto da")?.display_value || "";
           }
-          console.log("order state", order?.status);
         }
 
         switch (paymentIntent?.status) {
