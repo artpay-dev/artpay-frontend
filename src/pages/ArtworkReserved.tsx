@@ -78,8 +78,18 @@ const ArtworkReserved: React.FC<ArtworkReservedProps> = ({}) => {
       <Grid item xs={12} md={7} lg={6}>
         <Box sx={{ borderRadius: "5px", border: border, flexDirection: { xs: "column", sm: "row" } }} p={3}
              display="flex">
-          <img src={artwork?.imgUrl}
-               style={{ height: "260px", width: "294px", objectFit: "cover", borderRadius: "5px", maxWidth: "100%" }} />
+          <Box sx={{
+            maxHeight: "260px",
+            maxWidth: "294px"
+          }}>
+            <img src={artwork?.imgUrl}
+                 style={{
+                   borderRadius: "5px",
+                   objectFit: "cover",
+                   height: "100%",
+                   width: "100%"
+                 }} />
+          </Box>
           <Box px={2} sx={{ pt: { xs: 2, sm: 0 } }} display="flex" justifyContent="center" flexDirection="column">
             <Typography variant="body1" fontWeight={500}>{artwork?.title}</Typography>
             <Typography variant="body1" fontWeight={500} color="textSecondary">{artwork?.artistName}</Typography>
@@ -92,7 +102,7 @@ const ArtworkReserved: React.FC<ArtworkReservedProps> = ({}) => {
                                                                                        fontSize="inherit" /> Opera
               prenotata</Typography>
             <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}><HourglassIcon fontSize="inherit" /> Opera
-              bloccata fino a</Typography>
+              bloccata fino a {artwork?.reservedUntil}</Typography>
           </Box>
         </Box>
       </Grid>

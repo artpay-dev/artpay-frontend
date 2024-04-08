@@ -12,6 +12,7 @@ export interface OrderLoanCardProps {
   galleryId: string;
   artworkSize: string;
   artworkTechnique?: string;
+  reservedUntil?: string;
   isFavourite?: boolean;
   price?: number;
   imgUrl?: string;
@@ -21,17 +22,17 @@ export interface OrderLoanCardProps {
 }
 
 const OrderLoanCard: React.FC<OrderLoanCardProps> = ({
-  title,
-  artistName,
-  galleryName,
-  price,
-  imgUrl,
-  profile,
-  onClick,
-  showCta,
-  artworkSize,
-  artworkTechnique,
-}) => {
+                                                       title,
+                                                       artistName,
+                                                       galleryName,
+                                                       price,
+                                                       imgUrl,
+                                                       profile,
+                                                       onClick,
+                                                       showCta,
+                                                       artworkSize,
+                                                       artworkTechnique
+                                                     }) => {
   const cta = (
     <Box display="flex" flexDirection="column" alignItems="center" mt={2}>
       <Button sx={{ mb: 2 }} onClick={onClick} variant="outlined">
@@ -40,7 +41,8 @@ const OrderLoanCard: React.FC<OrderLoanCardProps> = ({
       <Typography variant="body1" color="textSecondary">
         Non sai come funziona?
       </Typography>
-      <Link href="" color="textSecondary" onClick={() => {}}>
+      <Link href="" color="textSecondary" onClick={() => {
+      }}>
         Scopri di più!
       </Link>
     </Box>
@@ -77,7 +79,8 @@ const OrderLoanCard: React.FC<OrderLoanCardProps> = ({
         <Typography variant="body1">
           {profile?.shipping?.address_1}, {profile?.shipping?.city}
         </Typography>
-        <Link href="/profile/settings" sx={{ mt: 1 }} color="textSecondary" onClick={() => {}}>
+        <Link href="/profile/settings" sx={{ mt: 1 }} color="textSecondary" onClick={() => {
+        }}>
           Modifica dati personali
         </Link>
       </Box>

@@ -77,7 +77,8 @@ export const artworkToOrderItem = (artwork: Artwork, valueMatcher?: categoryValu
     slug: artwork.slug,
     imgUrl: artwork?.images?.length ? artwork.images[0].src : "",
     artworkSize: getArtworkDimensions(artwork),
-    artworkTechnique: valueMatcher?.getCategoryMapValues(artwork, "tecnica").join(" ") || ""
+    artworkTechnique: valueMatcher?.getCategoryMapValues(artwork, "tecnica").join(" ") || "",
+    reservedUntil: parseDate(artwork?.acf?.customer_reserved_until)
   };
 };
 export const artistToGalleryItem = (artist: Artist, size: CardSize = "medium"): ArtistCardProps => {
