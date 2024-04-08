@@ -22,6 +22,7 @@ import { GalleryCardProps } from "./components/GalleryCard.tsx";
 import { Order } from "./types/order.ts";
 import { OrderHistoryCardProps } from "./components/OrderHistoryCard.tsx";
 import { OrderLoanCardProps } from "./components/OrderLoanCard.tsx";
+import * as dayjs from "dayjs";
 
 
 interface categoryValueMatcher {
@@ -400,3 +401,15 @@ export const formatCurrency = (value: number) => value.toLocaleString(undefined,
 });
 
 export const getDefaultPaddingX = () => ({ xs: 3, sm: 4, md: 10, lg: 12 });
+
+export const parseDate = (dt?: string) => {
+  if (!dt) {
+    return "";
+  }
+  try {
+    return dayjs(dt).format("DD MMMM YYYY");
+  } catch (e) {
+    console.warn(e);
+    return "";
+  }
+};

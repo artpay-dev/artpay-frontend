@@ -145,6 +145,8 @@ export type Artwork = {
     anno_di_produzione: string;
     condizioni: string;
     estimated_shipping_cost: string;
+    customer_buy_reserved: boolean;
+    customer_reserved_until: string;
   };
   vendor: string;
   store_name: string;

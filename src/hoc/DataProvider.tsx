@@ -565,7 +565,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
 
       return resp.data;
     },
-    async listArtworksForArtist(artistId: string): Promise<Artwork[]> {
+    async listArtworksForArtist(/*artistId: string*/): Promise<Artwork[]> {
       //TODO: listArtworksForArtist filter
       const resp = await axios.get<SignInFormData, AxiosResponse<Artwork[]>>(`${baseUrl}/wp-json/wc/v3/products`, { headers: { Authorization: auth.getGuestAuth() } });
       return resp.data;
@@ -862,7 +862,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       if (pendingOrder.line_items.length) {
         setIsLoading(true);
 
-        dataContext.purchaseArtwork(pendingOrder.line_items[0].product_id).then((resp) => {
+        dataContext.purchaseArtwork(pendingOrder.line_items[0].product_id).then(() => {
           localStorage.removeItem(PendingOrderStorageKey);
         }).finally(() => {
           setIsLoading(false);

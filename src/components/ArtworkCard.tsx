@@ -27,7 +27,7 @@ export interface ArtworkCardProps {
 
 const cardSizes: { [key in CardSize]: string } = {
   small: "180px",
-  medium: "230px",
+  medium: "294px",
   large: "320px"
 };
 

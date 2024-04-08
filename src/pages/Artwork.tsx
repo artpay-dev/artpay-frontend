@@ -23,7 +23,7 @@ import {
   formatCurrency,
   getArtworkDimensions,
   getDefaultPaddingX,
-  getPropertyFromMetadata
+  getPropertyFromMetadata, parseDate
 } from "../utils.ts";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import { Gallery } from "../types/gallery.ts";
@@ -45,6 +45,7 @@ import richiediPrestito from "../assets/images/richiedi_prestito.svg";
 import completaAcquisto from "../assets/images/completa_acquisto.svg";
 import LoanCard from "../components/LoanCard.tsx";
 import LockIcon from "../components/icons/LockIcon.tsx";
+import HourglassIcon from "../components/icons/HourglassIcon.tsx";
 
 export interface ArtworkProps {
 }
@@ -79,7 +80,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const isArtworkFavourite = artwork?.id ? favouriteArtworks.indexOf(artwork.id) !== -1 : false;
 
   const isOutOfStock = artwork?.stock_status === "outofstock";
-  const isReserved = false;
+  const isReserved = artwork?.acf.customer_buy_reserved || false;
 
 
   const handleGalleryArtworkSelect = (i: number) => {
@@ -280,16 +281,27 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               <Typography sx={{ mt: 0 }} variant="subtitle1" color="textSecondary">
                 {artworkCertificate}
               </Typography>
-              {(isOutOfStock || isReserved) &&
+              {(isOutOfStock && !isReserved) &&
                 <Typography sx={{ mt: 3 }} variant="subtitle1" color="textSecondary"><LockIcon color="error"
                                                                                                fontSize="inherit" /> Opera
                   non disponibile</Typography>}
+              {(isReserved) &&
+                <>
+                  <Typography sx={{ mt: 3 }} variant="subtitle1" color="textSecondary">
+                    <LockIcon color="error" fontSize="inherit" /> Opera prenotata. Trattativa in corso
+                  </Typography>
+                  <Typography sx={{ mt: 1 }} variant="subtitle1" color="textSecondary">
+                    <HourglassIcon fontSize="inherit" /> Bloccata fino
+                    al {parseDate(artwork?.acf.customer_reserved_until)}
+                  </Typography>
+                </>}
             </Box>
             <Divider sx={{ mt: 6 }} />
             <Box display="flex" alignItems="center" my={3}>
               <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>€ {artwork?.price}</Typography>
               <Box flexGrow={1} />
-              <Button variant="contained" disabled={isOutOfStock} onClick={() => handlePurchase(artwork?.id)}>
+              <Button variant="contained" disabled={isOutOfStock || isReserved}
+                      onClick={() => handlePurchase(artwork?.id)}>
                 Compra opera
               </Button>
             </Box>
@@ -300,10 +312,11 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               </Typography>
               <Box flexGrow={1} />
               <Box display="flex" flexDirection="column" alignItems="flex-end">
-                <Button variant="outlined" disabled={isOutOfStock} onClick={handleLoanPurchase}>
+                <Button variant="outlined" disabled={isOutOfStock || isReserved} onClick={handleLoanPurchase}>
                   Prenota l’opera
                 </Button>
-                <Typography sx={{ mt: 1 }} variant="body2">Non sai come funziona? <Link color="inherit" href="#">Scopri
+                <Typography sx={{ mt: 1 }} variant="body2">Non sai come funziona? <Link color="inherit"
+                                                                                        href="#scopri-di-piu">Scopri
                   di
                   più!</Link></Typography>
               </Box>
@@ -326,7 +339,8 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
                   istituti bancari nostri partner.
                 </Typography>
                 <Box flexGrow={1} />
-                <Link variant="body1" color="inherit" sx={{ mt: { xs: 3, sm: 0 } }}>Scopri di più</Link>
+                <Link variant="body1" color="inherit" href="#scopri-di-piu" sx={{ mt: { xs: 3, sm: 0 } }}>Scopri di
+                  più</Link>
               </Box>
             </Box>
             <Divider sx={{ mt: 3 }} />
@@ -445,6 +459,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
           />
         </Grid>
       </Grid>
+      <div style={{ top: "-80px", position: "relative", visibility: "hidden" }} id="scopri-di-piu" />
       <Box sx={{ px: { ...px, xs: 0 }, mt: 3, mb: 12 }}>
         <LoanCard />
       </Box>

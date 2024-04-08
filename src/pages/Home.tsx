@@ -4,8 +4,6 @@ import { Box, Grid, Typography } from "@mui/material";
 import { useData } from "../hoc/DataProvider.tsx";
 import NewsletterBig from "../components/NewsletterBig.tsx";
 import ArtworksList from "../components/ArtworksList.tsx";
-import { HomeContent } from "../types/home.ts";
-import PromoItem from "../components/PromoItem.tsx";
 import { artistsToGalleryItems, artworksToGalleryItems, getDefaultPaddingX } from "../utils.ts";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import { ArtistCardProps } from "../components/ArtistCard.tsx";
@@ -27,7 +25,7 @@ const Home: React.FC<HomeProps> = ({}) => {
 
   const [featuredArtworks, setFeaturedArtworks] = useState<ArtworkCardProps[]>();
   const [featuredArtists, setFeaturedArtists] = useState<ArtistCardProps[]>();
-  const [homeContent, setHomeContent] = useState<HomeContent>();
+  // const [homeContent, setHomeContent] = useState<HomeContent>();
   const [isReady, setIsReady] = useState(false);
 
   const handleSelectArtwork = (item?: ArtworkCardProps) => {
@@ -38,7 +36,7 @@ const Home: React.FC<HomeProps> = ({}) => {
 
   useEffect(() => {
     Promise.all([
-      data.getHomeContent().then((resp) => setHomeContent(resp)),
+      // data.getHomeContent().then((resp) => setHomeContent(resp)),
       data.listFeaturedArtworks().then((resp) => setFeaturedArtworks(artworksToGalleryItems(resp))),
       data.listFeaturedArtists().then((resp) => setFeaturedArtists(artistsToGalleryItems(resp)))
     ])
@@ -112,7 +110,7 @@ const Home: React.FC<HomeProps> = ({}) => {
         </Grid>
       </Grid>
       <Grid sx={{ px: px, my: 12 }} container>
-        <ArtistsList disablePadding items={featuredArtists || []} title="Artisti in evidenza" />
+        <ArtistsList disablePadding size="medium" items={featuredArtists || []} title="Artisti in evidenza" />
       </Grid>
       <Grid sx={{ px: px, my: 12, justifyContent: "center" }} container>
         {featuredArtworks && (
