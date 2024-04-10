@@ -95,7 +95,7 @@ const GaleriesGrid: React.FC<GaleriesGridProps> = ({
         <Box
           display="grid"
           sx={{
-            gridTemplateColumns: { xs: `repeat(auto-fill, minmax(320px, 1fr))` },
+            gridTemplateColumns: { xs: `repeat(auto-fill, minmax(294px, 1fr))` },
             justifyItems: "center",
             width: "auto"
           }}

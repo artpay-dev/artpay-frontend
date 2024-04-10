@@ -334,7 +334,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
 
 
   const loadMedia = async (ids: number[]): Promise<Media[]> => {
-    // https://artpay.art/wp-json/wp/v2/media?include=622,648
     const mediaResp = await axios.get<unknown, AxiosResponse<Media[]>>(
       `${baseUrl}/wp-json/wp/v2/media?include=${ids.join(",")}`,
       {
@@ -502,8 +501,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     },
     async getArtworks(ids: number[]): Promise<Artwork[]> {
       const resp = await axios.get<SignInFormData, AxiosResponse<Artwork[]>>(
-        `${baseUrl}/wp-json/wc/v3/products?include=[${ids.join(",")}]`,
-        { headers: { Authorization: auth.getGuestAuth() } }
+        `${baseUrl}/wp-json/wc/v3/products`,
+        {
+          headers: { Authorization: auth.getGuestAuth() },
+          params: {
+            include: ids.join(",") //include=${ids.join(",")}
+          }
+        }
       );
       return resp.data;
     },
@@ -522,9 +526,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       return resp.data;
     },
     async getGalleries(ids: number[]): Promise<Gallery[]> {
-      /*const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(
-              `${baseUrl}/wp-json/mvx/v1/vendors?include=[${ids.join(",")}]`,
-            );*/
       return Promise.all(ids.map((id) => this.getGallery(id.toString())));
     },
     async getGalleryBySlug(slug: string): Promise<Gallery> {

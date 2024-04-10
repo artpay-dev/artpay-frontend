@@ -22,7 +22,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import ProfileSettings from "./pages/ProfileSettings.tsx";
 import PaymentProvider from "./hoc/PaymentProvider.tsx";
 import PurchaseComplete from "./pages/PurchaseComplete.tsx";
-import RequireLoan from "./pages/RequireLoan.tsx";
 import About from "./pages/About.tsx";
 import Faq from "./pages/Faq.tsx";
 import ContentPage from "./pages/ContentPage.tsx";
@@ -83,7 +82,6 @@ function AppContent() {
                     <Route path="/artworks" element={<Artworks />} />
                     <Route path="/acquisti" element={<Purchase />} />
                     <Route path="/accconto-blocca-opera" element={<Purchase orderMode="loan" />} />
-                    <Route path="/blocca-opera/:slug_opera" element={<RequireLoan />} />
                     <Route path="/opera-bloccata/:slug_opera" element={<ArtworkReserved />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/profile/settings" element={<ProfileSettings />} />

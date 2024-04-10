@@ -16,19 +16,19 @@ export interface GalleryCardProps {
 }
 
 const GalleryCard: React.FC<GalleryCardProps> = ({
-  title,
-  subtitle,
-  isFavourite = false,
-  isLoading = false,
-  imgUrl,
-  mode = "list",
-  onClick,
-  onSetFavourite,
-  // artworksCount = 0,
-}) => {
+                                                   title,
+                                                   subtitle,
+                                                   isFavourite = false,
+                                                   isLoading = false,
+                                                   imgUrl,
+                                                   mode = "list",
+                                                   onClick,
+                                                   onSetFavourite
+                                                   // artworksCount = 0,
+                                                 }) => {
   const theme = useTheme();
   const imgHeight = "230px";
-  const cardWidth = "320px";
+  const cardWidth = "300px";
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleSetFavourite = () => {
@@ -49,7 +49,7 @@ const GalleryCard: React.FC<GalleryCardProps> = ({
           objectFit: mode === "list" ? "conver" : "contain",
           minHeight: "100px",
           backgroundColor: imgUrl ? "" : "#D9D9D9",
-          cursor: onClick ? "pointer" : "auto",
+          cursor: onClick ? "pointer" : "auto"
         }}></CardMedia>
       <CardContent sx={{ p: 0, mt: 2 }}>
         <Box display="flex">

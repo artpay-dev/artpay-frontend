@@ -43,7 +43,7 @@ const FavouriteArtworks: React.FC<FavouriteArtworksProps> = ({}) => {
         </Typography>
       </Box>
       {ready ? (
-        <ArtworksGrid disablePadding cardSize="large" items={favouriteArtworks} emptyText={emptyText} />
+        <ArtworksGrid disablePadding cardSize="medium" items={favouriteArtworks} emptyText={emptyText} />
       ) : (
         <Loader />
       )}
