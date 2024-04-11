@@ -4,6 +4,7 @@ import { styled } from "@mui/material/styles";
 import { ArrowUpward } from "@mui/icons-material";
 import SocialLinks from "./SocialLinks.tsx";
 import NewsletterSmall from "./NewsletterSmall.tsx";
+import { useNavigate } from "react-router-dom";
 
 export interface FooterProps {
 }
@@ -23,6 +24,7 @@ const FooterRoot = styled("div", {
 }));
 const Footer: React.FC<FooterProps> = ({}) => {
   const gridProps = { maxWidth: "1036px", px: { xs: 4, md: 3, lg: 0 }, pt: { xs: 2, md: 6 }, gap: { xs: 2, md: 0 } };
+  const navigate = useNavigate();
 
   return (
     <FooterRoot>
@@ -76,7 +78,7 @@ const Footer: React.FC<FooterProps> = ({}) => {
               <a className="link" href="#">Lavora con noi</a>
             </Typography>*/}
             <Typography variant="body2">
-              <a className="link" href="/contatti">Contatti</a>
+              <Link className="link" sx={{ cursor: "pointer" }} onClick={() => navigate("/contatti")}>Contatti</Link>
             </Typography>
             {/*            <Typography variant="body2">
               <a className="link" href="#">Press</a>

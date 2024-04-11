@@ -41,7 +41,7 @@ const Contacts: React.FC<ContactsProps> = ({}) => {
           Vai alle FAQ
         </Button>
       </Grid>
-      <Grid item display="flex" justifyContent="flex-end" pt={{ xs: 12, md: 0 }}
+      <Grid item display="flex" justifyContent="flex-end" pt={{ xs: 12, md: 0, zIndex: -1 }}
             sx={{ display: { xs: "none", sm: "flex" } }} xs={12}>
         <Box sx={{ transform: { xs: undefined, md: "translate(240px,-36px)", lg: "translate(120px,-84px)" } }}>
           <img src={imgContacts} />
