@@ -76,7 +76,7 @@ const Footer: React.FC<FooterProps> = ({}) => {
               <a className="link" href="#">Lavora con noi</a>
             </Typography>*/}
             <Typography variant="body2">
-              <a className="link" href="#">Contatti</a>
+              <a className="link" href="/contatti">Contatti</a>
             </Typography>
             {/*            <Typography variant="body2">
               <a className="link" href="#">Press</a>

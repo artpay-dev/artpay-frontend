@@ -38,6 +38,7 @@ import GalleryOnboarding from "./pages/GalleryOnboarding.tsx";
 import CustomerOnboarding from "./pages/CustomerOnboarding.tsx";
 import ArtworkReserved from "./pages/ArtworkReserved.tsx";
 import * as dayjs from "dayjs";
+import Contacts from "./pages/Contacts.tsx";
 
 import("dayjs/locale/it");
 
@@ -107,6 +108,7 @@ function AppContent() {
                     />
                     <Route path="/artpay-per-collezionisti" element={<CustomerOnboarding />} />
                     <Route path="/artpay-per-gallerie" element={<GalleryOnboarding />} />
+                    <Route path="/contatti" element={<Contacts />} />
                     <Route path="/errore/:code" element={<Error />} />
                     <Route path="/errore" element={<Error />} />
                   </Routes>
