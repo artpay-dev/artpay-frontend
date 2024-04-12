@@ -1,63 +1,62 @@
 import React from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Link, Typography } from "@mui/material";
 import Accordion from "../components/Accordion.tsx";
 
 import illustrationWorld from "../assets/images/illustration-world.svg";
 import illustrationForm from "../assets/images/illustration-form.svg";
+import { getDefaultPaddingX } from "../utils.ts";
 
 export interface FaqProps {
 }
 
 const Faq: React.FC<FaqProps> = ({}) => {
-  const theme = useTheme();
+
+
+  const px = getDefaultPaddingX();
 
   return (
     <DefaultLayout>
-      <Box sx={{ px: { xs: 3, sm: 6 }, pt: { xs: 8, md: 12 } }} mb={6}>
+      <Box sx={{ px: px, pt: { xs: 12, md: 16, lg: 18 } }} mb={6}>
         <Typography variant="h1">Faq</Typography>
         <Typography sx={{ mt: 3 }} variant="subtitle1">
-          Qui troverai una serie di risposte alle domande più comuni su artpay, bla bla bla lorem ipsum dolor sit amet
-          consectetur. Euismod metus pellentesque porta aliquam ipsum aliquam aliquam consectetur dui. Massa diam
-          egestas ultrices diam et eget et quis. Enim ipsum praesent venenatis auctor ultrices morbi posuere sit
-          scelerisque. Sit nisl eu sit at consectetur odio est interdum.
+          Qui troverai una serie di risposte alle domande più comuni per i collezionisti e appassionati d’arte
+          interessati al servizio offerto da Artpay.
+          Se sei un gallerista, puoi consultare le FAQ nella <Link href="https://gallerie.artpay.art/faq/">
+          pagina di Artpay dedicata alle gallerie</Link>
         </Typography>
       </Box>
       <Box display="flex" justifyContent="space-between" sx={{ overflow: "hidden" }}>
-        <Box sx={{ px: { xs: 3, sm: 6 }, maxWidth: "800px", flexGrow: 1 }}>
+        <Box sx={{ px: px, maxWidth: "800px", flexGrow: 1 }}>
           <Accordion
-            title="Come entro in contatto con artpay?"
+            title="Ci sono costi di abbonamento al servizio?"
             content={
               <>
-                <span style={{ color: theme.palette.primary.main }}>Pianifica una call per avere più informazioni</span>
-                : attiva la chat, compila il form o scrivici una email e sarai ricontattato al più presto.
+                No, Artpay è gratuito per i collezionisti.
               </>
             }
           />
           <Accordion
-            title="Come entro in contatto con artpay?"
+            title="Ci sono limiti al numero di opere che posso visualizzare o acquistare?"
             content={
               <>
-                <span style={{ color: theme.palette.primary.main }}>Pianifica una call per avere più informazioni</span>
-                : attiva la chat, compila il form o scrivici una email e sarai ricontattato al più presto.
+                No, puoi visualizzare tutte le opere disponibili sulla piattaforma e acquistarne quante desideri.
               </>
             }
           />
           <Accordion
-            title="Come entro in contatto con artpay?"
+            title="Posso negoziare privatamente il prezzo delle opere?"
             content={
               <>
-                <span style={{ color: theme.palette.primary.main }}>Pianifica una call per avere più informazioni</span>
-                : attiva la chat, compila il form o scrivici una email e sarai ricontattato al più presto.
+                Sì, puoi contattare direttamente il gallerista per trattare il prezzo dell'opera.
               </>
             }
           />
           <Accordion
-            title="Come entro in contatto con artpay?"
+            title="Artpay si occupa di spedizione e installazione delle opere?"
             content={
               <>
-                <span style={{ color: theme.palette.primary.main }}>Pianifica una call per avere più informazioni</span>
-                : attiva la chat, compila il form o scrivici una email e sarai ricontattato al più presto.
+                No, la spedizione e l'installazione delle opere sono gestite direttamente dal gallerista.
               </>
             }
           />
@@ -72,13 +71,13 @@ const Faq: React.FC<FaqProps> = ({}) => {
           <img style={{ maxHeight: "100%" }} src={illustrationWorld} />
         </Box>
       </Box>
-      <Box sx={{ px: { xs: 3, sm: 6 } }}>
+      <Box sx={{ px: px }}>
         <Typography variant="h2">Non hai trovato le risposte che cercavi?</Typography>
       </Box>
-      <Box display="flex" sx={{ overflow: "hidden" }} justifyContent="space-between">
-        <Box sx={{ px: { xs: 3, sm: 6 }, maxWidth: "800px", flexGrow: 1 }}>
+      <Box display="flex" sx={{ overflow: "hidden", px: px }} justifyContent="space-between">
+        <Box sx={{ maxWidth: "800px", flexGrow: 1 }}>
           <Typography sx={{ mt: 2, mb: 6 }} variant="subtitle1">
-            Scrivici per avere tutte le informazioni che cerchi
+            <Link href="mailto:hello@artpay.art">Scrivici</Link> per avere tutte le informazioni che cerchi
           </Typography>
         </Box>
         <Box

@@ -21,7 +21,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ src, buttonText = "Modi
     if (event.target.files?.length) {
       const file = event.target.files[0];
       const reader = new FileReader();
-      reader.onload = function () {
+      reader.onload = function() {
         if (typeof reader.result === "string") {
           setSelectedImg(reader.result);
         }
@@ -34,7 +34,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ src, buttonText = "Modi
   return (
     <Box display="flex" alignItems="center" gap={3}>
       <Avatar src={selectedImg} />
-      <Button variant="link" onClick={() => handleSelectImage()}>
+      <Button variant="link" disabled onClick={() => handleSelectImage()}>
         {buttonText}
       </Button>
       <input

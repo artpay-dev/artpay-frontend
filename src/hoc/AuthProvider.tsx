@@ -397,18 +397,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
           {error && <Alert variant="outlined" color="error" onClose={() => setError(undefined)}
                            icon={<ErrorIcon sx={{ transform: "translateY(-1px)" }} color="error" />}>{error}</Alert>}
           <Box display="flex" flexDirection="column" gap={1} py={2}>
-            <Button variant="outlined" disabled={isLoading}
+            {/*<Button variant="outlined" disabled={isLoading}
                     endIcon={<AppleIcon color={isLoading ? "disabled" : "primary"} />}>
               Continua con Apple
-            </Button>
+            </Button>*/}
             <Button variant="outlined" disabled={isLoading} onClick={() => handleGoogleLogin()}
                     endIcon={<GoogleIcon color={isLoading ? "disabled" : "primary"} />}>
               Continua con Google
             </Button>
-            <Button variant="outlined" disabled={isLoading}
+            {/*<Button variant="outlined" disabled={isLoading}
                     endIcon={<FacebookIcon color={isLoading ? "disabled" : "primary"} />}>
               Continua con Facebook
-            </Button>
+            </Button>*/}
           </Box>
           <Box display="flex" mt={1} gap={1} alignItems="center">
             <Typography variant="body2" color="textSecondary">

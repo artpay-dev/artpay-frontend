@@ -65,6 +65,7 @@ const Profile: React.FC<ProfileProps> = ({}) => {
           onChange={(_, newValue) => {
             setSelectedTabPanel(newValue);
           }}>
+          {/*gallerie-artisti-oepre-bloccate-acquistate*/}
           <Tab label="Opere preferite" />
           <Tab label="Gallerie seguite" />
           <Tab label="Artisti seguiti" />

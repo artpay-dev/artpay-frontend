@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { Box, Button, Grid, Typography, useTheme } from "@mui/material";
 import PromoCard from "../components/PromoCard.tsx";
@@ -12,30 +12,28 @@ import PromoCardSmall from "../components/PromoCardSmall.tsx";
 import prenotaOpera from "../assets/images/prenota_opera.svg";
 import richiediPrestito from "../assets/images/richiedi_prestito.svg";
 import completaAcquisto from "../assets/images/completa_acquisto.svg";
-import ArtistsList from "../components/ArtistsList.tsx";
 import LoanCard from "../components/LoanCard.tsx";
-import { ArtistCardProps } from "../components/ArtistCard.tsx";
-import { artistsToGalleryItems, getDefaultPaddingX } from "../utils.ts";
-import { useData } from "../hoc/DataProvider.tsx";
+import { getDefaultPaddingX } from "../utils.ts";
+// import { useData } from "../hoc/DataProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 
 export interface CustomerOnboardingProps {
 }
 
 const CustomerOnboarding: React.FC<CustomerOnboardingProps> = ({}) => {
-  const data = useData();
+  // const data = useData();
   const auth = useAuth();
 
   const theme = useTheme();
 
-  const [featuredArtists, setFeaturedArtists] = useState<ArtistCardProps[]>();
+  //const [featuredArtists, setFeaturedArtists] = useState<ArtistCardProps[]>();
 
   const handleRegistration = () => {
     auth.login(false);
   };
 
   useEffect(() => {
-    data.listFeaturedArtists().then((resp) => setFeaturedArtists(artistsToGalleryItems(resp)));
+    // data.listFeaturedArtists().then((resp) => setFeaturedArtists(artistsToGalleryItems(resp)));
   }, []);
 
   const px = getDefaultPaddingX();
@@ -199,13 +197,13 @@ const CustomerOnboarding: React.FC<CustomerOnboardingProps> = ({}) => {
         <LoanCard />
       </Box>
       <Box sx={{ px: px, mb: { xs: 12 } }}>
-        <ArtistsList
+        {/*<ArtistsList
           items={featuredArtists || []}
           disablePadding
           maxItems={4}
           size="medium"
           title="Artisti in evidenza"
-        />
+        />*/}
       </Box>
     </DefaultLayout>
   );

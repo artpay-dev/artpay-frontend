@@ -3,12 +3,7 @@ import DefaultLayout from "../components/DefaultLayout";
 import { Box, Grid, Typography, useTheme } from "@mui/material";
 import { useData } from "../hoc/DataProvider.tsx";
 import NewsletterBig from "../components/NewsletterBig.tsx";
-import ArtworksList from "../components/ArtworksList.tsx";
-import { artistsToGalleryItems, artworksToGalleryItems, getDefaultPaddingX } from "../utils.ts";
-import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
-import { ArtistCardProps } from "../components/ArtistCard.tsx";
-import ArtistsList from "../components/ArtistsList.tsx";
-import { useNavigate } from "react-router-dom";
+import { getDefaultPaddingX } from "../utils.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import HeroHome from "../components/HeroHome.tsx";
 import InfoCard from "../components/InfoCard.tsx";
@@ -20,23 +15,24 @@ export interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({}) => {
   const data = useData();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const snackbar = useSnackbars();
   const theme = useTheme();
 
-  const [featuredArtworks, setFeaturedArtworks] = useState<ArtworkCardProps[]>();
-  const [featuredArtists, setFeaturedArtists] = useState<ArtistCardProps[]>();
+  // const [featuredArtworks, setFeaturedArtworks] = useState<ArtworkCardProps[]>();
+  // const [featuredArtists, setFeaturedArtists] = useState<ArtistCardProps[]>();
   // const [homeContent, setHomeContent] = useState<HomeContent>();
   const [isReady, setIsReady] = useState(false);
 
-  const handleSelectArtwork = (item?: ArtworkCardProps) => {
+  /*const handleSelectArtwork = (item?: ArtworkCardProps) => {
     if (item) {
       navigate(`/opere/${item.slug}`);
     }
-  };
+  };*/
 
   useEffect(() => {
-    Promise.all([
+    setIsReady(true);
+    /*Promise.all([
       // data.getHomeContent().then((resp) => setHomeContent(resp)),
       data.listFeaturedArtworks().then((resp) => setFeaturedArtworks(artworksToGalleryItems(resp))),
       data.listFeaturedArtists().then((resp) => setFeaturedArtists(artistsToGalleryItems(resp)))
@@ -46,7 +42,7 @@ const Home: React.FC<HomeProps> = ({}) => {
       })
       .catch(async (err) => {
         await snackbar.error(err, { autoHideDuration: 60000 });
-      });
+      });*/
     /*if (auth.isAuthenticated) {
       data
         .listGalleries()
@@ -105,13 +101,13 @@ const Home: React.FC<HomeProps> = ({}) => {
         </Box>
       </Box>
       <OnboardingCards />
-      <Grid sx={{ px: px, ml: "auto", mr: "auto" }} maxWidth="xl" container>
+      <Grid sx={{ px: px, ml: "auto", mr: "auto", mb: 12 }} maxWidth="xl" container>
         <Grid mt={4} xs={12} item>
           <NewsletterBig
             title="Iscriviti ora per ricevere aggiornamenti esclusivi su Artpay direttamente nella tua casella di posta" />
         </Grid>
       </Grid>
-      <Grid sx={{ px: px, my: 12, ml: "auto", mr: "auto" }} maxWidth="xl" container>
+      {/*<Grid sx={{ px: px, my: 12, ml: "auto", mr: "auto" }} maxWidth="xl" container>
         <ArtistsList disablePadding size="medium" items={featuredArtists || []} title="Artisti in evidenza" />
       </Grid>
       <Grid sx={{ px: px, my: 12, justifyContent: "flexStart", ml: "auto", mr: "auto" }} maxWidth="xl" container>
@@ -124,7 +120,7 @@ const Home: React.FC<HomeProps> = ({}) => {
             showEmpty
           />
         )}
-      </Grid>
+      </Grid>*/}
       {/*      <Grid spacing={4} sx={{ mt: 4 }} justifyContent="center" container>
         {homeContent?.promoItems.map((promoItem, i) => <PromoItem key={`promo-${i}`} {...promoItem} />)}
       </Grid>*/}

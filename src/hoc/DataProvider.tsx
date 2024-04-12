@@ -500,6 +500,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       return resp.data;
     },
     async getArtworks(ids: number[]): Promise<Artwork[]> {
+      if (ids.length === 0) {
+        return [];
+      }
       const resp = await axios.get<SignInFormData, AxiosResponse<Artwork[]>>(
         `${baseUrl}/wp-json/wc/v3/products`,
         {
