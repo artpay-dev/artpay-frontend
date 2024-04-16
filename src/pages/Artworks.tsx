@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useData } from "../hoc/DataProvider.tsx";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { Box, Grid, Link, Typography } from "@mui/material";
-import { artworksToGalleryItems, getDefaultPaddingX } from "../utils.ts";
+import { artworksToGalleryItems, getDefaultPaddingX, useNavigate } from "../utils.ts";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import ArtworksGrid from "../components/ArtworksGrid.tsx";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { CardItem } from "../types";
 import { Gallery } from "../types/gallery.ts";
 

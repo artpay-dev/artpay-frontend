@@ -13,7 +13,7 @@ import {
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout";
 import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Artwork } from "../types/artwork.ts";
 import TabPanel from "../components/TabPanel.tsx";
 import ArtworksList from "../components/ArtworksList.tsx";
@@ -23,7 +23,7 @@ import {
   formatCurrency,
   getArtworkDimensions,
   getDefaultPaddingX,
-  getPropertyFromMetadata, parseDate
+  getPropertyFromMetadata, parseDate, useNavigate
 } from "../utils.ts";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import { Gallery } from "../types/gallery.ts";

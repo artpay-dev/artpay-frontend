@@ -5,13 +5,13 @@ import TabPanel from "../components/TabPanel.tsx";
 import GalleryInfo, { GalleryInfoProps } from "../components/GalleryInfo.tsx";
 import { GalleryContactsProps } from "../components/GalleryContacts.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import {
   artistsToGalleryItems,
   artworksToGalleryItems,
   galleryToGalleryContent,
-  getDefaultPaddingX
+  getDefaultPaddingX, useNavigate
 } from "../utils.ts";
 import GalleryArtworksList from "../components/GalleryArtworksList.tsx";
 import GalleryArtistsList from "../components/GalleryArtistsList.tsx";
