@@ -38,6 +38,7 @@ import GalleryOnboarding from "./pages/GalleryOnboarding.tsx";
 import CustomerOnboarding from "./pages/CustomerOnboarding.tsx";
 import ArtworkReserved from "./pages/ArtworkReserved.tsx";
 import * as dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat";
 import Contacts from "./pages/Contacts.tsx";
 
 import("dayjs/locale/it");
@@ -47,7 +48,8 @@ function AppContent() {
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
   const location = useLocation();
 
-  dayjs.locale("it");
+  dayjs.extend(localizedFormat);
+  dayjs.locale("it", {}, true);
 
   const enableGa = import.meta.env.VITE_GA_MEASUREMENT_ID;
 

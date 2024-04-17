@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useData } from "../hoc/DataProvider.tsx";
 import { OrderLoanCardProps } from "../components/OrderLoanCard.tsx";
 import DefaultLayout from "../components/DefaultLayout.tsx";
-import { artworkToOrderItem, getDefaultPaddingX } from "../utils.ts";
+import { artworkToOrderItem, galleryToGalleryContent, getDefaultPaddingX } from "../utils.ts";
 import { Box, Button, Chip, Grid, Typography } from "@mui/material";
 import LockIcon from "../components/icons/LockIcon.tsx";
 import HourglassIcon from "../components/icons/HourglassIcon.tsx";
@@ -13,6 +13,8 @@ import richiediPrestito from "../assets/images/richiedi_prestito.svg";
 import completaAcquisto from "../assets/images/completa_acquisto_white.svg";
 import LoanCard from "../components/LoanCard.tsx";
 import { UserProfile } from "../types/user.ts";
+import { GalleryContent } from "../types/gallery.ts";
+import dayjs from "dayjs";
 
 export interface ArtworkReservedProps {
 
@@ -25,6 +27,7 @@ const ArtworkReserved: React.FC<ArtworkReservedProps> = ({}) => {
   const [ready, setReady] = useState(false);
   const [artwork, setArtwork] = useState<OrderLoanCardProps>();
   const [profile, setProfile] = useState<UserProfile>();
+  const [galleryInfo, setGalleryInfo] = useState<GalleryContent>();
 
   const px = getDefaultPaddingX();
   const border = "1px solid #CDCFD3";
@@ -52,11 +55,16 @@ const ArtworkReserved: React.FC<ArtworkReservedProps> = ({}) => {
     }
 
     Promise.all([
-      data.getArtworkBySlug(urlParams.slug_opera).then((resp) => {
+      data.getArtworkBySlug(urlParams.slug_opera).then(async (resp) => {
         const artworkTechnique = data.getCategoryMapValues(resp, "tecnica").join(" ");
         const artworkForCard = artworkToOrderItem(resp);
         artworkForCard.artworkTechnique = artworkTechnique;
+        artworkForCard.reservedUntil = artworkForCard.reservedUntil || dayjs().add(7, "day").format("DD/MM/YYYY");
         setArtwork(artworkForCard);
+        data.getGallery(resp.vendor).then(gallery => {
+          setGalleryInfo(galleryToGalleryContent(gallery));
+        });
+
       }),
       data.getUserProfile().then((resp) => setProfile(resp))
     ]).then(() => {
@@ -96,8 +104,9 @@ const ArtworkReserved: React.FC<ArtworkReservedProps> = ({}) => {
             <Typography variant="body2" fontWeight={500} color="textSecondary"
                         sx={{ mt: 2 }}>{artwork?.artworkTechnique}</Typography>
             <Typography variant="body2" fontWeight={500} color="textSecondary">{artwork?.artworkSize}</Typography>
-            <Typography variant="body1" fontWeight={500} sx={{ mt: 2 }}>{artwork?.galleryName}</Typography>
-            <Typography variant="body1" fontWeight={500} color="textSecondary">{artwork?.galleryName}</Typography>
+            <Typography variant="subtitle1" sx={{ mt: 2 }}>{artwork?.galleryName}</Typography>
+            <Typography variant="subtitle1"
+                        color="textSecondary">{galleryInfo?.subtitle || ""}</Typography>
             <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}><LockIcon color="error"
                                                                                        fontSize="inherit" /> Opera
               prenotata</Typography>

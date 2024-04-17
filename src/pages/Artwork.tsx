@@ -46,6 +46,7 @@ import LoanCard from "../components/LoanCard.tsx";
 import LockIcon from "../components/icons/LockIcon.tsx";
 import HourglassIcon from "../components/icons/HourglassIcon.tsx";
 import ShareIcon from "../components/icons/ShareIcon.tsx";
+import MessageDialog from "../components/MessageDialog.tsx";
 
 export interface ArtworkProps {
 }
@@ -92,6 +93,12 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
 
   const handleShare = async () => {
     await dialogs.share(window.location.href);
+  };
+
+  const handleSendMessage = async () => {
+    await dialogs.custom("Invia un messaggio alla galleria", (closeDialog) => {
+      return <MessageDialog galleryName={galleryDetails?.display_name} closeDialog={closeDialog} />;
+    });
   };
 
   const handleSetArtworkFavourite = async () => {
@@ -194,7 +201,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       }
       throw err;
     });
-  }, [navigate, urlParams.id, urlParams.slug_opera, urlParams.slug_galleria]);
+  }, [urlParams.id, urlParams.slug_opera]);
 
   useEffect(() => {
     const handleFavouritesUpdated = (e: CustomEvent<FavouritesMap>) => {
@@ -361,7 +368,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               </Box>
               <Box display="flex" flexDirection={{ xs: "row", sm: "column" }}
                    sx={{ mt: { xs: 0, sm: 0 } }}>
-                <Button variant="text">Contatta la galleria</Button>
+                <Button disabled variant="text" onClick={() => handleSendMessage()}>Contatta la galleria</Button>
               </Box>
             </Box>
             <Divider sx={{ mt: 3 }} />

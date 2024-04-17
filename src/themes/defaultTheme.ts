@@ -401,7 +401,7 @@ const defaultTheme: Theme = createTheme({
     MuiDialogTitle: {
       styleOverrides: {
         root: {
-          padding: "8px"
+          //padding: "8px",
         }
       }
     },

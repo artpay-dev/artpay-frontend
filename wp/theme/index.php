@@ -10,10 +10,6 @@
     <link rel="shortcut icon" href="/wp-content/themes/artpay-react/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-wptheme"
-    />
     <link rel="apple-touch-icon" href="<?php echo $TEMPLATE_PATH; ?>/logo192.png" />
     <link rel="manifest" href="<?php echo $TEMPLATE_PATH; ?>/manifest.json" />
 
@@ -23,7 +19,7 @@
     <meta name="stripe-key" content="pk_test_51OEuLgBVvRJjw4FGCIWYwitCW6xe6KYOfIjoZwENwGLj22ZkaZEg60csVTAg4ZTDwXW1ZksSqY4mXliEPDWVYZ0z00EaPOowQS" />
     <title>Artpay</title>
     <?php wp_head(); ?>
-      <script type="module" crossorigin src="/wp-content/themes/artpay-react/static/assets/js/index-7549239c.js"></script>
+      <script type="module" crossorigin src="/wp-content/themes/artpay-react/static/assets/js/index-20fe6a73.js"></script>
       <link rel="stylesheet" href="/wp-content/themes/artpay-react/static/assets/css/index-244fb1a6.css">
     </head>
     <body>

@@ -37,7 +37,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, controls }) => {
       gap={3}
       sx={{
         px: px,
-        mt: { xs: 10, md: 14 },
+        mt: { xs: 10, sm: 14 },
         maxWidth: theme.breakpoints.values.xl,
         marginLeft: "auto",
         marginRight: "auto",
@@ -45,8 +45,14 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, controls }) => {
       }}
       alignItems="center">
       <Avatar src={profile?.avatar_url} />
-      <Box display="flex" flexDirection="column" gap={1}>
-        <Typography variant="h1" sx={{ mt: { xs: 0, md: -1 }, typography: { xs: "h3", md: "h1" } }}>
+      <Box display="flex" flexDirection="column" gap={1} sx={{ maxWidth: "100%" }}>
+        <Typography variant="h1" sx={{
+          mt: { xs: 0, md: -1 },
+          typography: { xs: "h4", sm: "h3", md: "h1" },
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          maxWidth: "100%"
+        }}>
           {profile?.username}
         </Typography>
         <Typography variant="h6" color="textSecondary" sx={{ textAlign: { xs: "center", md: "left" } }}>

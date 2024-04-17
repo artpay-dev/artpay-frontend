@@ -1,4 +1,4 @@
-import { Close, CopyAll } from "@mui/icons-material";
+import { CopyAll } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -8,16 +8,19 @@ import {
   DialogTitle,
   IconButton,
   Popover,
-  Typography,
-  useTheme
+  Typography
 } from "@mui/material";
 import React, { createContext, ReactNode, useContext, useRef, useState } from "react";
 import { FaFacebook, FaWhatsapp } from "react-icons/fa6";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { ButtonProps } from "@mui/material/Button/Button";
+import CloseIcon from "../components/icons/CloseIcon.tsx";
+import { Breakpoint } from "@mui/system";
 
 export interface DialogOptions {
   showActions?: boolean;
+  fullWidth?: boolean;
+  maxWidth?: false | Breakpoint;
 }
 
 export interface OkOnlyDialogOptions {
@@ -57,8 +60,9 @@ interface DialogState<T> {
   actions: ReactNode[];
   resolve: (value?: T | PromiseLike<T>) => void;
   reject: (reason?: unknown) => void;
-  maxWidth?: string;
+  maxWidth?: false | Breakpoint;
   padding?: number;
+  fullWidth?: boolean;
 }
 
 export interface DialogProviderProps extends React.PropsWithChildren {
@@ -74,7 +78,6 @@ const defaultContext: DialogProvider = {
 const Context = createContext<DialogProvider>({ ...defaultContext });
 
 export const DialogProvider: React.FC<DialogProviderProps> = ({ children }) => {
-  const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [dialog, setDialog] = useState<DialogState<any>>();
 
@@ -98,7 +101,7 @@ export const DialogProvider: React.FC<DialogProviderProps> = ({ children }) => {
         resolve,
         reject,
         showActions: true,
-        maxWidth: "400px",
+        maxWidth: "sm",
         padding: 3,
         actions: [
           <Button
@@ -155,7 +158,7 @@ export const DialogProvider: React.FC<DialogProviderProps> = ({ children }) => {
 
       const DialogTitle = (
         <Box>
-          <Typography variant="h5">{title || "Condividi"}</Typography>
+          <Typography variant="h4">{title || "Condividi"}</Typography>
           <Typography variant="subtitle1" color="textSecondary">
             {subtitle || "Condividi la pagina sui social"}
           </Typography>
@@ -229,7 +232,9 @@ export const DialogProvider: React.FC<DialogProviderProps> = ({ children }) => {
           reject,
           showActions: options?.showActions || false,
           actions: [],
-          padding: 0
+          padding: 0,
+          maxWidth: options?.maxWidth,
+          fullWidth: options?.fullWidth
         });
         setOpen(true);
       });
@@ -239,23 +244,25 @@ export const DialogProvider: React.FC<DialogProviderProps> = ({ children }) => {
   return (
     <>
       <Context.Provider value={dialogs}>{children}</Context.Provider>
-      <Dialog open={open} PaperProps={{ sx: { borderRadius: "16px" } }}>
+      <Dialog open={open} PaperProps={{ sx: { borderRadius: "16px" } }} maxWidth={dialog?.maxWidth}
+              fullWidth={dialog?.fullWidth}>
         <DialogTitle sx={{ m: 0, border: "none", minWidth: { xs: "200px", sm: "400px" } }}>
           <Box display="flex" flexDirection="row" alignItems="flex-start">
-            <Box flexGrow={1} mr={1} pl={3} pt={3}>
-              {dialog?.title}
+            <Box flexGrow={1} mr={2}>
+              {typeof dialog?.title === "string" ?
+                <Typography variant="h4">{dialog?.title}</Typography> : dialog?.title}
             </Box>
             <IconButton
               aria-label="close"
+              color="secondary"
               size="small"
-              onClick={() => handleClose()}
-              sx={{ color: theme.palette.grey[600] }}>
-              <Close />
+              onClick={() => handleClose()}>
+              <CloseIcon fontSize="inherit" color="secondary" />
             </IconButton>
           </Box>
         </DialogTitle>
 
-        <DialogContent sx={{ maxWidth: dialog?.maxWidth, p: dialog?.padding, border: "none" }} dividers>
+        <DialogContent sx={{ p: dialog?.padding, border: "none" }} dividers>
           <div>
             {typeof dialog?.content === "string"
               ? (dialog?.content as string)?.split("\n").map((line, index) => <p key={index}>{line}</p>)

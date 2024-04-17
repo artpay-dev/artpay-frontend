@@ -9,7 +9,7 @@ import FavouriteArtworks from "../components/FavouriteArtworks.tsx";
 import FavouriteArtists from "../components/FavouriteArtists.tsx";
 import FavouriteGalleries from "../components/FavouriteGalleries.tsx";
 import ProfileHeader from "../components/ProfileHeader.tsx";
-import { useNavigate } from "../utils.ts";
+import { getDefaultPaddingX, useNavigate } from "../utils.ts";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import OrdersHistory from "../components/OrdersHistory.tsx";
 
@@ -34,6 +34,8 @@ const Profile: React.FC<ProfileProps> = ({}) => {
     navigate("/");
   };
 
+  const px = getDefaultPaddingX();
+
   useEffect(() => {
     data.getUserProfile().then((resp) => {
       setProfile(resp);
@@ -53,25 +55,26 @@ const Profile: React.FC<ProfileProps> = ({}) => {
           </Button>
         ]}
       />
-      <Box
-        sx={{
-          borderBottom: 1,
-          borderColor: "secondary",
-          mx: { xs: 0 },
-          mt: { xs: 3, md: 6 }
-        }}>
-        <ResponsiveTabs
-          value={selectedTabPanel}
-          onChange={(_, newValue) => {
-            setSelectedTabPanel(newValue);
+      <Box px={{ ...px, xs: 0, sm: 0 }}>
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: "#CDCFD3",
+            mt: { xs: 3, md: 6 }
           }}>
-          {/*gallerie-artisti-oepre-bloccate-acquistate*/}
-          <Tab label="Gallerie seguite" />
-          <Tab label="Artisti seguiti" />
-          <Tab label="Opere preferite" />
-          <Tab label="Opere bloccate" />
-          <Tab label="Opere acquistate" />
-        </ResponsiveTabs>
+          <ResponsiveTabs
+            value={selectedTabPanel}
+            onChange={(_, newValue) => {
+              setSelectedTabPanel(newValue);
+            }}>
+            {/*gallerie-artisti-oepre-bloccate-acquistate*/}
+            <Tab label="Gallerie seguite" />
+            <Tab label="Artisti seguiti" />
+            <Tab label="Opere preferite" />
+            <Tab label="Opere bloccate" />
+            <Tab label="Opere acquistate" />
+          </ResponsiveTabs>
+        </Box>
       </Box>
       <Box>
         <TabPanel value={selectedTabPanel} index={0}>

@@ -7,14 +7,16 @@ import { useParams } from "react-router-dom";
 import { Box, Chip, IconButton, Typography } from "@mui/material";
 import sanitizeHtml from "sanitize-html";
 import ReadMoreTypography from "../components/ReadMoreTypography.tsx";
-import ArtworksGrid from "../components/ArtworksGrid.tsx";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
-import { artworksToGalleryItems, getDefaultPaddingX } from "../utils.ts";
+import { artistsToGalleryItems, artworksToGalleryItems, getDefaultPaddingX } from "../utils.ts";
 import FavouriteFilledIcon from "../components/icons/FavouriteFilledIcon.tsx";
 import FavouriteIcon from "../components/icons/FavouriteIcon.tsx";
 import { useDialogs } from "../hoc/DialogProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import ShareIcon from "../components/icons/ShareIcon.tsx";
+import ArtworksList from "../components/ArtworksList.tsx";
+import { ArtistCardProps } from "../components/ArtistCard.tsx";
+import ArtistsList from "../components/ArtistsList.tsx";
 
 export interface ArtistProps {
 }
@@ -25,6 +27,7 @@ const Artist: React.FC<ArtistProps> = ({}) => {
   const [artist, setArtist] = useState<Artist>();
   const [artistCategories, setArtistCategories] = useState<string[]>([]);
   const [artworks, setArtworks] = useState<ArtworkCardProps[]>([]);
+  const [featuredArtists, setFeaturedArtists] = useState<ArtistCardProps[]>([]);
   const [isArtistFavourite, setIsArtistFavourite] = useState(false);
 
   const data = useData();
@@ -61,29 +64,33 @@ const Artist: React.FC<ArtistProps> = ({}) => {
     if (!urlParams.slug) {
       return;
     }
-    data
-      .getArtistBySlug(urlParams.slug)
-      .then(async (resp) => {
-        setArtist(resp);
-        const artistCategories = data.getArtistCategories(resp);
-        // const artworks = data.getArt
-        setArtistCategories(artistCategories);
-        // console.log("resp.artworks", resp.artworks);
+    Promise.all([
+      data
+        .getArtistBySlug(urlParams.slug)
+        .then(async (resp) => {
+          setArtist(resp);
+          const artistCategories = data.getArtistCategories(resp);
+          // const artworks = data.getArt
+          setArtistCategories(artistCategories);
+          // console.log("resp.artworks", resp.artworks);
 
-        const artworksIds = (resp.artworks || []).map((a) => +a.ID);
-        const artistArtworks = await data.getArtworks(artworksIds);
-        setArtworks(artworksToGalleryItems(artistArtworks));
-        const favouriteArtists = await data.getFavouriteArtists();
+          const artworksIds = (resp.artworks || []).map((a) => +a.ID);
+          const artistArtworks = await data.getArtworks(artworksIds);
+          setArtworks(artworksToGalleryItems(artistArtworks));
+          const favouriteArtists = await data.getFavouriteArtists();
 
-        setIsArtistFavourite(favouriteArtists.indexOf(resp?.id || 0) !== -1);
+          setIsArtistFavourite(favouriteArtists.indexOf(resp?.id || 0) !== -1);
+        }),
+      data.listFeaturedArtists().then(resp => setFeaturedArtists(artistsToGalleryItems(resp)))
+    ]).then(() => {
+      setIsReady(true);
+    }).catch((e) => {
+      console.error(e);
+      snackbar.error("Si è verificato un errore");
+      setIsReady(true);
+    });
 
-        setIsReady(true);
-      })
-      .catch((e) => {
-        console.error(e);
-        snackbar.error("Si è verificato un errore");
-        setIsReady(true);
-      });
+
   }, [data, urlParams?.slug]);
 
   const px = getDefaultPaddingX();
@@ -140,7 +147,10 @@ const Artist: React.FC<ArtistProps> = ({}) => {
       </Box>
 
       <Box sx={{ px: px, mt: { xs: 3, md: 6 } }} mt={8} pb={6}>
-        <ArtworksGrid disablePadding title="Opere dello stesso artista" items={artworks} />
+        <ArtworksList disablePadding title="Opere dello stesso artista" items={artworks} />
+      </Box>
+      <Box sx={{ px: px, mt: { xs: 3, md: 6 } }} mt={8} pb={6}>
+        <ArtistsList disablePadding size="medium" title="Artisti in evidenza" items={featuredArtists} />
       </Box>
     </DefaultLayout>
   );

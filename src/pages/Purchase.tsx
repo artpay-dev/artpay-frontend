@@ -10,8 +10,7 @@ import { BillingData, ShippingData, UserProfile } from "../types/user.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import {
   areBillingFieldsFilled,
-  artworksToGalleryItems,
-  getPropertyFromOrderMetadata
+  artworksToGalleryItems
 } from "../utils.ts";
 import ShippingDataPreview from "../components/ShippingDataPreview.tsx";
 import Checkbox from "../components/Checkbox.tsx";
@@ -104,9 +103,9 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
               resp.line_items.map((item) => data.getArtwork(item.product_id.toString()))
             );
             setArtworks(artworksToGalleryItems(artworks, undefined, data));
-            const existingIntentId = getPropertyFromOrderMetadata(resp.meta_data, "_stripe_intent_id");
-            console.log("existingIntentId", existingIntentId);
-            // pi_3P6BQWBVvRJjw4FG2haAHL3D
+            // const existingIntentId = getPropertyFromOrderMetadata(resp.meta_data, "_stripe_intent_id");
+            // console.log("existingIntentId", existingIntentId);
+
             let paymentIntent: PaymentIntent;
             if (orderMode === "loan") {
               paymentIntent = await data.createBlockIntent({ wc_order_key: resp.order_key });
@@ -271,7 +270,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
     !isSaving &&
     (currentShippingMethod || (orderMode === "loan" && areBillingFieldsFilled(userProfile?.billing)));
 
-  console.log("currentShippingMethod");
 
   const shippingPrice = (currentShippingMethod === "local_pickup" || !currentShippingMethod) ? 0 : estimatedShippingCost || 0;
 

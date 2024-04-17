@@ -102,7 +102,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
       });
     //data.getGallery()
     // TODO: loadData
-  }, [navigate, urlParams.slug]);
+  }, [urlParams.slug]);
 
   const handleSetFavourite = async (isFavourite: boolean) => {
     if (!auth.isAuthenticated) {
@@ -139,6 +139,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
   const handleShare = async () => {
     await dialogs.share(window.location.href);
   };
+
 
   /*const galleryContacts: GalleryContactsProps = {
         address: "via della Rocca 39/A 10100, Torino",
