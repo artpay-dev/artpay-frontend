@@ -1,3 +1,5 @@
+import { Dayjs } from "dayjs";
+
 export interface UserInfo {
   id: number;
   username: string;
@@ -121,7 +123,7 @@ export interface UserProfile {
       href: string;
     }[];
   };
-};
+}
 
 export interface UnprocessedUserProfile extends UserProfile {
   billing: UnprocessedBillingData;
@@ -149,3 +151,37 @@ export type GoogleUserInfo = {
   email: string;
   email_verified: boolean;
 };
+
+export type CustomerQuestion = {
+  product_id: number;
+  text: string
+}
+export type CustomerQuestionResponse = {
+  message: string
+}
+
+export type VendorAnswer = {
+  ans_ID: string;
+  ques_ID: string;
+  ans_details: string;
+  ans_by: string;
+  ans_created: string;
+  ans_vote: string;
+}
+
+export type QuestionWithAnswer = {
+  ques_ID: string;
+  product_ID: string;
+  ques_details: string;
+  ques_by: string;
+  ques_created: string;
+  ques_vote: string;
+  status: "verified" | string;
+  answer?: VendorAnswer;
+}
+
+export type Message = {
+  userMessage: boolean;
+  text: string;
+  date: Dayjs;
+}

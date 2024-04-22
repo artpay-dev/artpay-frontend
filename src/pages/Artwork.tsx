@@ -107,7 +107,9 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       return;
     }
     await dialogs.custom("Invia un messaggio alla galleria", (closeDialog) => {
-      return <MessageDialog galleryName={galleryDetails?.display_name} userProfile={userProfile}
+      return <MessageDialog galleryName={galleryDetails?.display_name}
+                            data={data}
+                            userProfile={userProfile}
                             artwork={artworkToGalleryItem(artwork)}
                             closeDialog={closeDialog} />;
     }, { maxWidth: "md", fullScreen: belowSm });

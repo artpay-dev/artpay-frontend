@@ -26,7 +26,15 @@ import {
   ShippingMethodOption
 } from "../types/order.ts";
 import { PaymentIntent } from "@stripe/stripe-js";
-import { BillingData, UnprocessedUserProfile, UpdateUserProfile, User, UserProfile } from "../types/user.ts";
+import {
+  BillingData,
+  CustomerQuestion, CustomerQuestionResponse, Message, QuestionWithAnswer,
+  UnprocessedUserProfile,
+  UpdateUserProfile,
+  User,
+  UserProfile
+} from "../types/user.ts";
+import dayjs from "dayjs";
 
 
 const availableShippingMethods: ShippingMethodOption[] = [
@@ -123,6 +131,10 @@ export interface DataContext {
 
   updateUserProfile(data: Partial<UpdateUserProfile>): Promise<UserProfile>;
 
+  sendQuestionToVendor(data: CustomerQuestion): Promise<CustomerQuestionResponse>;
+
+  getChatHistory(productId: number): Promise<Message[]>;
+
   subscribeNewsletter(email: string, optIn: string, formUrl: string): Promise<void>;
 
   getCategoryMapValues(artwork: Artwork, key: string): string[];
@@ -190,6 +202,8 @@ const defaultContext: DataContext = {
   getUserProfile: () => Promise.reject("Data provider loaded"),
   deleteUser: () => Promise.reject("Data provider loaded"),
   updateUserProfile: () => Promise.reject("Data provider loaded"),
+  sendQuestionToVendor: () => Promise.reject("Data provider loaded"),
+  getChatHistory: () => Promise.reject("Data provider loaded"),
 
   subscribeNewsletter: () => Promise.reject("Data provider loaded"),
 
@@ -528,7 +542,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       return resp.data[0];
     },
     async getGallery(id: string): Promise<Gallery> {
-      const resp = await axios.get<SignInFormData, AxiosResponse<Gallery>>(`${baseUrl}/wp-json/mvx/v1/vendors/${id}`);
+      const resp = await axios.get<SignInFormData, AxiosResponse<Gallery>>(`${baseUrl}/wp-json/mvx/v1/vendors/${id}`, { headers: { Authorization: auth.getGuestAuth() } });
       return resp.data;
     },
     async getGalleries(ids: number[]): Promise<Gallery[]> {
@@ -536,7 +550,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     },
     async getGalleryBySlug(slug: string): Promise<Gallery> {
       const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(
-        `${baseUrl}/wp-json/mvx/v1/vendors?nice_name=${slug}`
+        `${baseUrl}/wp-json/mvx/v1/vendors?nice_name=${slug}`,
+        { headers: { Authorization: auth.getGuestAuth() } }
       );
       const gallery = resp.data.find((g) => g.shop?.slug === slug);
       if (!gallery) {
@@ -830,7 +845,42 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       );
       return processUserProfile(resp.data);
     },
+    async sendQuestionToVendor(data: CustomerQuestion): Promise<CustomerQuestionResponse> {
+      const resp = await axios.post<CustomerQuestion, AxiosResponse<CustomerQuestionResponse>>(
+        `${baseUrl}/wp-json/wc/v3/customer-question`,
+        data,
+        { headers: { Authorization: auth.getAuthToken() } }
+      );
+      return resp.data;
+    },
+    async getChatHistory(productId: number): Promise<Message[]> {
+      const resp = await axios.get<QuestionWithAnswer[]>(
+        `${baseUrl}/wp-json/wc/v3/customer-question`,
+        {
+          params: {
+            product_id: productId
+          },
+          headers: { Authorization: auth.getAuthToken() }
+        }
+      );
 
+      const messages: Message[] = [];
+      resp.data.forEach((msg) => {
+        try {
+          messages.push({ text: msg.ques_details, userMessage: true, date: dayjs((msg.ques_created)) });
+        } catch (e) {
+          console.error("chat message error", e);
+        }
+        if (msg.answer) {
+          try {
+            messages.push({ text: msg.answer.ans_details, userMessage: false, date: dayjs((msg.answer.ans_created)) });
+          } catch (e) {
+            console.error("chat message error", e);
+          }
+        }
+      });
+      return messages.sort((a, b) => a.date.diff(b.date));
+    },
     async subscribeNewsletter(email: string, optIn: string, formUrl: string): Promise<void> {
       const formData = new FormData();
       formData.append("EMAIL", email);

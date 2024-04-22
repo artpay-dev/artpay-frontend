@@ -37,19 +37,15 @@ import Error from "./pages/Error.tsx";
 import GalleryOnboarding from "./pages/GalleryOnboarding.tsx";
 import CustomerOnboarding from "./pages/CustomerOnboarding.tsx";
 import ArtworkReserved from "./pages/ArtworkReserved.tsx";
-import * as dayjs from "dayjs";
-import localizedFormat from "dayjs/plugin/localizedFormat";
 import Contacts from "./pages/Contacts.tsx";
+import Messages from "./pages/Messages.tsx";
 
-import("dayjs/locale/it");
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || ""; // https://artpay.art
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
   const location = useLocation();
 
-  dayjs.extend(localizedFormat);
-  dayjs.locale("it", {}, true);
 
   const enableGa = import.meta.env.VITE_GA_MEASUREMENT_ID;
 
@@ -112,6 +108,7 @@ function AppContent() {
                     <Route path="/artpay-per-collezionisti" element={<CustomerOnboarding />} />
                     <Route path="/artpay-per-gallerie" element={<GalleryOnboarding />} />
                     <Route path="/contatti" element={<Contacts />} />
+                    <Route path="/messaggi" element={<Messages />} />
                     <Route path="/errore/:code" element={<Error />} />
                     <Route path="/errore" element={<Error />} />
                   </Routes>

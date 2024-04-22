@@ -23,7 +23,21 @@ import { Order } from "./types/order.ts";
 import { OrderHistoryCardProps } from "./components/OrderHistoryCard.tsx";
 import { OrderLoanCardProps } from "./components/OrderLoanCard.tsx";
 import dayjs from "dayjs";
+import isToday from "dayjs/plugin/isToday";
+import isYesterday from "dayjs/plugin/isYesterday";
+import weekday from "dayjs/plugin/weekday";
+import localeData from "dayjs/plugin/localeData";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+import localeIt from "dayjs/locale/it";
 
+dayjs.extend(localizedFormat);
+dayjs.locale(localeIt, {}, false);
+dayjs.extend(isToday);
+dayjs.extend(isYesterday);
+dayjs.extend(weekday);
+dayjs.extend(localeData);
+
+console.log("localeIt", localeIt);
 
 interface categoryValueMatcher {
   getCategoryMapValues(artwork: Artwork, key: string): string[];
@@ -424,6 +438,25 @@ export const parseDate = (dt?: string) => {
     return dayjs(dt).format("DD MMMM YYYY");
   } catch (e) {
     console.warn("Date parse error: ", e);
+    return "";
+  }
+};
+export const formatMessageDate = (dt?: string | Date) => {
+  if (!dt) {
+    return "";
+  }
+  try {
+    const parsedDate = dayjs(dt);
+    if (parsedDate.isToday()) {
+      return parsedDate.format("hh:mm");
+    } else if (parsedDate.isYesterday()) {
+      return "Ieri";
+    } else if (dayjs(new Date()).diff(parsedDate, "days") < 7) {
+      return dayjs.weekdays(true)[parsedDate.weekday()];
+    }
+    return dayjs(dt).format("DD/MM/YYYY");
+  } catch (e) {
+    console.error("Date parse error: ", e);
     return "";
   }
 };

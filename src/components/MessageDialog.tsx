@@ -6,23 +6,44 @@ import UserIcon from "./icons/UserIcon.tsx";
 import SuccessIcon from "./icons/SuccessIcon.tsx";
 import AlertIcon from "./icons/AlertIcon.tsx";
 import { UserProfile } from "../types/user.ts";
+import { DataContext } from "../hoc/DataProvider.tsx";
 
 export interface MessageDialogProps {
   closeDialog: (value: unknown) => void;
   galleryName?: string;
   artwork?: ArtworkCardProps;
   userProfile?: UserProfile;
+  data: DataContext;
 }
 
-const MessageDialog: React.FC<MessageDialogProps> = ({ galleryName, artwork, userProfile, closeDialog }) => {
+const MessageDialog: React.FC<MessageDialogProps> = ({ data, galleryName, artwork, userProfile, closeDialog }) => {
   const [messageSent, setMessageSent] = useState(false);
   const [error, setError] = useState(false);
   const [messageText, setMessageText] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
 
   const handleSendMessage = () => {
-    setMessageSent(true);
-    setError(true);
+    if (!artwork) {
+      setError(true);
+      console.log("no artwork");
+      return;
+    }
+    setIsSaving(true);
+    if (error) {
+      setError(false);
+    }
+
+    data.sendQuestionToVendor({
+      product_id: +artwork.id,
+      text: messageText
+    }).then(() => {
+      console.log("handleSendMessage ok");
+      setMessageSent(true);
+    }).catch((e) => {
+      console.log("handleSendMessage error", e);
+      setError(true);
+    }).finally(() => setIsSaving(false));
   };
 
   const handleClose = () => {
@@ -64,6 +85,7 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ galleryName, artwork, use
         </> :
         <>
           <TextField placeholder="Il tuo messaggio"
+                     disabled={isSaving}
                      onChange={(e) => setMessageText(e.currentTarget.value)} multiline
                      rows={8} />
         </>
@@ -72,7 +94,7 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ galleryName, artwork, use
         area riservata puoi controllare tutti messaggi inviati e ricevuti.</Typography>
       {messageSent ?
         <Button sx={{ mt: 4 }} color="primary" variant="outlined" fullWidth onClick={handleClose}> Chiudi</Button> :
-        <Button sx={{ mt: 4 }} color="primary" variant="contained" disabled={!messageText} fullWidth
+        <Button sx={{ mt: 4 }} color="primary" variant="contained" disabled={!messageText || isSaving} fullWidth
                 onClick={handleSendMessage}>Invia
           messaggio</Button>
       }
