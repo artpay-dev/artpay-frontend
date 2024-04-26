@@ -2,16 +2,17 @@ import React from "react";
 import {
   TextFieldProps,
   TextField as BaseTextField,
-  InputAdornment
+  InputAdornment, InputProps
 } from "@mui/material";
 import ErrorIcon from "./icons/ErrorIcon.tsx";
 import CheckIcon from "./icons/CheckIcon.tsx";
 
 export interface ExtendedTextFieldProp {
+
 }
 
 const TextField: React.FC<TextFieldProps & ExtendedTextFieldProp> =
-  React.forwardRef((props, ref) => {
+  React.forwardRef(({ ...props }, ref) => {
     const extraProps: Partial<TextFieldProps> = {};
     if (props.error) {
       extraProps.InputProps = {
@@ -31,6 +32,7 @@ const TextField: React.FC<TextFieldProps & ExtendedTextFieldProp> =
         )
       };
     }
+
     return <BaseTextField ref={ref} {...props} {...extraProps} />;
   });
 

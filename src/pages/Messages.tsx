@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
-import { Box, Button, Grid, IconButton, Typography } from "@mui/material";
-import { artworkToGalleryItem, galleryToGalleryItem, getDefaultPaddingX } from "../utils.ts";
-import { ArrowLeft } from "@mui/icons-material";
+import { Box, Button, Divider, Grid, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { galleryToGalleryItem, getDefaultPaddingX, useNavigate } from "../utils.ts";
 import CloseIcon from "../components/icons/CloseIcon.tsx";
 import ChatList, { ChatMessage } from "../components/ChatList.tsx";
 import dayjs from "dayjs";
-import { Message } from "../types/user.ts";
+import { Message, UserProfile } from "../types/user.ts";
 import { GalleryCardProps } from "../components/GalleryCard.tsx";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
-import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import ChatContent from "../components/ChatContent.tsx";
+import ArtworkMessageDetails from "../components/ArtworkMessageDetails.tsx";
+import { Artwork } from "../types/artwork.ts";
+import ArrowLeftIcon from "../components/icons/ArrowLeftIcon.tsx";
 
 export interface MessagesProps {
 
@@ -19,15 +20,19 @@ export interface MessagesProps {
 
 const Messages: React.FC<MessagesProps> = ({}) => {
   const data = useData();
+  const navigate = useNavigate();
   const snackbar = useSnackbars();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [ready, setReady] = useState(false);
   const [chatReady, setChatReady] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [showDetailsAnimationEnded, setShowDetailsAnimationEnded] = useState(false);
   const [loadedMessages, setLoadedMessages] = useState<Message[]>([]);
   const [selectedGallery, setSelectedGallery] = useState<GalleryCardProps>();
-  const [selectedArtwork, setSelectedArtwork] = useState<ArtworkCardProps>();
-
+  const [selectedArtwork, setSelectedArtwork] = useState<Artwork>();
+  const [userProfile, setUserProfile] = useState<UserProfile>();
 
   const dummyMessages: ChatMessage[] = [
     {
@@ -64,24 +69,45 @@ const Messages: React.FC<MessagesProps> = ({}) => {
   ];
 
   useEffect(() => {
-    setReady(true);
+    data.getUserProfile().then(resp => {
+      setUserProfile(resp);
+      setReady(true);
+    });
+
   }, []);
 
   const handleSelectChat = async (msg: ChatMessage) => {
+    const wasReady = chatReady;
     setChatReady(false);
     setLoadedMessages([]);
     setSelectedGallery(undefined);
     try {
       const selectedArtwork = await data.getArtwork(msg.id.toString());
-      setSelectedArtwork(artworkToGalleryItem(selectedArtwork));
+      setSelectedArtwork(selectedArtwork);
       const selectedGallery = await data.getGallery(selectedArtwork.vendor);
+      console.log("selectedGallery", selectedGallery);
       setSelectedGallery(galleryToGalleryItem(selectedGallery));
 
       const messages = await data.getChatHistory(msg.id);
-      console.log("messages", messages);
       setLoadedMessages(messages);
-      setShowDetails(true);
+      if (!wasReady) {
+        setShowDetails(true);
+      }
+
       setChatReady(true);
+    } catch (e) {
+      await snackbar.error(e);
+    }
+  };
+
+  const handleSendMessage = async (text: string) => {
+    if (!selectedArtwork?.id) {
+      return;
+    }
+    try {
+      await data.sendQuestionToVendor({ product_id: selectedArtwork?.id, question: text });
+      const messages = await data.getChatHistory(selectedArtwork?.id);
+      setLoadedMessages(messages);
     } catch (e) {
       await snackbar.error(e);
     }
@@ -89,12 +115,43 @@ const Messages: React.FC<MessagesProps> = ({}) => {
 
   const px = getDefaultPaddingX();
 
-  return (<DefaultLayout pageLoading={!ready} sx={{ overflowX: "hidden" }}>
-    <Grid sx={{ px: px, mt: { xs: 0, sm: 12, md: 12 }, mb: 12 }} container>
-      <Grid sx={{ borderBottom: "1px solid #CDCFD3", py: 5 }} item xs={12}>
-        <Button startIcon={<ArrowLeft />} variant="text" color="secondary">Torna al profilo</Button>
+  const backButton = <Button startIcon={<ArrowLeftIcon fontSize="inherit" color="secondary" />}
+                             sx={{ px: 2, mx: -2 }}
+                             variant="text" color="secondary"
+                             onClick={() => navigate("/profile")}>Torna al profilo</Button>;
+
+  if (isMobile) {
+    return (<DefaultLayout pageLoading={!ready} sx={{ overflowX: "hidden", minHeight: "30vh" }}>
+      <Grid sx={{ px: px, mt: { xs: 11, sm: 12, md: 12 }, mb: 12 }} container>
+        <Grid sx={{ borderBottom: "1px solid #CDCFD3", py: { xs: 1, md: 5 } }} item xs={12}>
+          {chatReady ?
+            <Button variant="text" color="secondary" sx={{ px: 2, mx: -2 }} onClick={() => setChatReady(false)}
+                    startIcon={<ArrowLeftIcon fontSize="inherit" color="secondary" />}>
+              Torna ai messaggi</Button> :
+            backButton}
+        </Grid>
+        {chatReady ?
+          <Grid item sx={{ minHeight: { xs: 0 } }} xs={12}>
+            <ChatContent ready={chatReady} messages={loadedMessages} userProfile={userProfile}
+                         galleryImage={selectedGallery?.logoUrl}
+                         onSendMessage={handleSendMessage} />
+          </Grid> :
+          <Grid item sx={{ minHeight: { xs: 0 } }} xs={12}>
+            <ChatList onClick={handleSelectChat} messages={dummyMessages} />
+          </Grid>
+        }
       </Grid>
-      <Grid item sx={{ borderRight: "1px solid #CDCFD3", minHeight: "60vh" }} xs={12} md={3}>
+
+    </DefaultLayout>);
+  }
+
+  return (<DefaultLayout pageLoading={!ready} sx={{ overflowX: "hidden" }}>
+    <Grid sx={{ px: px, mt: { xs: 10, sm: 12, md: 12 }, mb: 12 }} container>
+      <Grid sx={{ borderBottom: "1px solid #CDCFD3", py: { xs: 2, md: 5 } }} item xs={12}>
+        {backButton}
+      </Grid>
+
+      <Grid item sx={{ borderRight: "1px solid #CDCFD3", minHeight: isMobile ? undefined : "60vh" }} xs={12} md={3}>
         <Box sx={{ borderBottom: "1px solid #CDCFD3", height: "68px" }} display="flex" alignItems="center"
              justifyContent="flex-start">
           <Typography variant="subtitle1">Messaggi</Typography>
@@ -103,30 +160,46 @@ const Messages: React.FC<MessagesProps> = ({}) => {
           <ChatList onClick={handleSelectChat} messages={dummyMessages} />
         </Box>
       </Grid>
-      <Grid item sx={{ borderRight: "1px solid #CDCFD3", transition: "all 0.3s" }} xs={12} md={showDetails ? 6 : 9}>
+
+      <Grid item sx={{ borderRight: "1px solid #CDCFD3", transition: "all 0.3s" }}
+            onTransitionEnd={() => setTimeout(() => setShowDetailsAnimationEnded(showDetails), 50)} xs={12}
+            md={showDetails ? 6 : 9}>
         <Box sx={{ px: 3, borderBottom: "1px solid #CDCFD3", height: "68px" }} display="flex" alignItems="center"
              justifyContent="center">
           <Typography variant="subtitle1">{selectedGallery?.title || ""}</Typography>
           <Box flexGrow={1} />
-          <Button variant="text"
-                  color="primary"
-                  onClick={() => setShowDetails(!showDetails)}>
+          {(selectedArtwork && !isMobile) && <Button variant="text"
+                                                     color="primary"
+                                                     disabled={showDetails !== showDetailsAnimationEnded}
+                                                     onClick={() => setShowDetails(!showDetails)}>
             {showDetails ? "Nascondi dettagli" : "Mostra dettagli"}
-          </Button>
+          </Button>}
         </Box>
         <Box>
-          <ChatContent ready={chatReady} messages={loadedMessages} />
+          <ChatContent ready={chatReady} messages={loadedMessages} galleryImage={selectedGallery?.logoUrl}
+                       onSendMessage={handleSendMessage}
+                       userProfile={userProfile} />
         </Box>
       </Grid>
-      {showDetails && <Grid item sx={{}} xs={12} md={3}>
-        <Box display="flex" alignItems="center" justifyContent="center"
-             sx={{ borderBottom: "1px solid #CDCFD3", pl: 3, height: "68px" }}>
-          <Typography variant="subtitle1">Dettagli</Typography>
-          <Box flexGrow={1} />
-          <IconButton onClick={() => setShowDetails(false)} color="primary"><CloseIcon
-            fontSize="inherit" /></IconButton>
-        </Box>
-      </Grid>}
+      {(showDetails && !isMobile) &&
+        <Grid item xs={12} md={3}>
+          {showDetailsAnimationEnded &&
+            <>
+              <Box display="flex" alignItems="center" justifyContent="center"
+                   sx={{ borderBottom: "1px solid #CDCFD3", pl: 3, height: "68px" }}>
+                <Typography variant="subtitle1">Dettagli</Typography>
+                <Box flexGrow={1} />
+                <IconButton onClick={() => {
+                  setShowDetailsAnimationEnded(false);
+                  setShowDetails(false);
+                }} color="primary"><CloseIcon
+                  fontSize="inherit" /></IconButton>
+              </Box>
+              <ArtworkMessageDetails artwork={selectedArtwork} />
+              <Divider sx={{ mx: 3 }} />
+            </>
+          }
+        </Grid>}
     </Grid>
   </DefaultLayout>);
 };

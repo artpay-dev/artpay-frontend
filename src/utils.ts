@@ -139,7 +139,8 @@ export const galleryToGalleryItem = (gallery: Gallery): GalleryCardProps => ({
   title: gallery.display_name,
   slug: gallery.nice_name,
   subtitle: `${gallery.address?.city}`,
-  imgUrl: gallery.shop.banner
+  imgUrl: gallery.shop.banner,
+  logoUrl: gallery.shop.image
 });
 
 export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProps => {

@@ -26,7 +26,7 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ data, galleryName, artwor
   const handleSendMessage = () => {
     if (!artwork) {
       setError(true);
-      console.log("no artwork");
+      console.error("no artwork");
       return;
     }
     setIsSaving(true);
@@ -34,14 +34,13 @@ const MessageDialog: React.FC<MessageDialogProps> = ({ data, galleryName, artwor
       setError(false);
     }
 
+
     data.sendQuestionToVendor({
       product_id: +artwork.id,
-      text: messageText
+      question: messageText
     }).then(() => {
-      console.log("handleSendMessage ok");
       setMessageSent(true);
     }).catch((e) => {
-      console.log("handleSendMessage error", e);
       setError(true);
     }).finally(() => setIsSaving(false));
   };

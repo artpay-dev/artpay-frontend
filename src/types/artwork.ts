@@ -126,6 +126,8 @@ export type Artwork = {
     date_modified: string;
     date_modified_gmt: string;
     src: string;
+    woocommerce_thumbnail: string; //300x300
+    woocommerce_gallery_thumbnail: string; //100x100
     name: string;
     alt: string;
   }[];

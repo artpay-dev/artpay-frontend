@@ -67,9 +67,11 @@ const About: React.FC<AboutProps> = ({}) => {
         <Grid xs={12} sm={8} lg={7} item>
           <Typography variant="h2">
             La nostra missione è rendere l'arte accessibile a tutti, trasformando radicalmente il modo in cui le opere
-            d'arte vengono scoperte, acquisite e apprezzate. Con Artpay, vogliamo connettere gallerie di fama mondiale,
+            d'arte vengono scoperte, acquisite e apprezzate.<br /> Con Artpay, vogliamo connettere gallerie di fama
+            mondiale,
             artisti emergenti e collezionisti ed appassionati, creando un ecosistema innovativo che celebra la diversità
-            e l'unicità dell'arte contemporanea. Siamo impegnati a fornire un'esperienza senza pari, dove la tecnologia
+            e l'unicità dell'arte contemporanea.<br />Siamo impegnati a fornire un'esperienza senza pari, dove la
+            tecnologia
             incontra la creatività per ispirare e contribuire a trasformare il mercato dell'arte.
           </Typography>
           <Typography sx={{ mt: 6 }} variant="h4">

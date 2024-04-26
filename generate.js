@@ -29,7 +29,7 @@ export default ${componentName};
 
   console.log(`Component "${componentName}" generated successfully!`);
 }
-function generateIcon(baseDir, componentName) {
+function generateIcon(baseDir, componentName, content) {
   const componentDir = path.join(baseDir, "icons"); // toLowerCamelCase(componentName)
   const componentTemplate = `import React from "react";
 import { SvgIconProps } from "@mui/material";
@@ -40,12 +40,12 @@ const ${componentName}Icon: React.FC<SvgIconProps> = (props) => {
     <Icon
       render={(color) => (
         <svg
-          width="19"
-          height="19"
-          viewBox="0 0 19 19"
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
           xmlns="http://www.w3.org/2000/svg">
           <g>
-            <path d="" fill={color} />
+            <path d="${content}" fill={color} />
           </g>
         </svg>
       )}
@@ -70,9 +70,11 @@ if (!componentName) {
   process.exit(1);
 }
 
+console.log('process.argv', process.argv)
+
 switch (command) {
   case "icon":
-    generateIcon(path.join(__dirname, "src", "components"), componentName);
+    generateIcon(path.join(__dirname, "src", "components"), componentName, process.argv.length > 4 ? process.argv[4] : "");
     break;
   case "component":
     generateComponent(path.join(__dirname, "src", "components"), componentName);

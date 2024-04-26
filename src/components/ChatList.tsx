@@ -39,7 +39,7 @@ const ChatList: React.FC<ChatListProps> = ({ messages, onClick }) => {
       }
     }} onClick={() => handleClick(message)} key={`msg-${i}`} py={2}>
       <AvatarCircle imgUrl={message.imgUrl} alt={message.title} />
-      <Box display="flex" flexDirection="column" justifyContent="space-between">
+      <Box display="flex" flexDirection="column" flexGrow={1} justifyContent="space-between">
         <Box display="flex">
           <Typography variant="body2" fontWeight={500} flexGrow={1}>{message.title}</Typography>
           <Typography variant="body2" fontWeight={500}

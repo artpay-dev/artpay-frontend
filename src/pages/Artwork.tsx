@@ -387,7 +387,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               </Box>
               <Box display="flex" flexDirection={{ xs: "row", sm: "column" }}
                    sx={{ mt: { xs: 0, sm: 0 } }}>
-                <Button variant="text" onClick={() => handleSendMessage()}>Contatta la galleria</Button>
+                <Button variant="text" disabled onClick={() => handleSendMessage()}>Contatta la galleria</Button>
               </Box>
             </Box>
             <Divider sx={{ mt: 3 }} />

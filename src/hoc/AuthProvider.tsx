@@ -23,7 +23,10 @@ import { userToUserInfo } from "../utils.ts";
 import { useDialogs } from "./DialogProvider.tsx";
 import { CodeResponse, useGoogleLogin } from "@react-oauth/google";
 import ErrorIcon from "../components/icons/ErrorIcon.tsx";
-
+import FacebookLogin from "@greatsumini/react-facebook-login";
+import FacebookIcon from "../components/icons/FacebookIcon.tsx";
+import { appleAuthHelpers } from "react-apple-signin-auth";
+import AppleIcon from "../components/icons/AppleIcon.tsx";
 
 type RequestError = {
   message?: string;
@@ -187,6 +190,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     setIsLoading(true);
     setError(undefined);
     googleLogin();
+  };
+
+  const handleAppleLogin = async () => {
+    // Service id AJ95CY4HRQ.art.artpay
+    // Identifier art.artpay.login
+    const response = await appleAuthHelpers.signIn({
+      authOptions: {
+        clientId: "art.artpay.login",
+        redirectURI: "https://artpay.art",
+        scope: "name email"
+
+        // same as above
+      },
+      onError: (error: any) => console.error(error)
+    });
+
+    if (response) {
+      console.log(response);
+    } else {
+      console.error("Error performing apple signin.");
+    }
   };
 
   const login = async ({ email, password }: SignInFormData) => {
@@ -399,14 +423,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
           {error && <Alert variant="outlined" color="error" onClose={() => setError(undefined)}
                            icon={<ErrorIcon sx={{ transform: "translateY(-1px)" }} color="error" />}>{error}</Alert>}
           <Box display="flex" flexDirection="column" gap={1} py={2}>
-            {/*<Button variant="outlined" disabled={isLoading}
+            <Button variant="outlined" disabled={isLoading}
+                    onClick={() => handleAppleLogin()}
                     endIcon={<AppleIcon color={isLoading ? "disabled" : "primary"} />}>
               Continua con Apple
-            </Button>*/}
+            </Button>
             <Button variant="outlined" disabled={isLoading} onClick={() => handleGoogleLogin()}
                     endIcon={<GoogleIcon color={isLoading ? "disabled" : "primary"} />}>
               Continua con Google
             </Button>
+            <FacebookLogin
+              appId="1088597931155576"
+              useRedirect={true}
+              onSuccess={(response) => {
+                console.log("Login Success!", response);
+              }}
+              onFail={(error) => {
+                console.log("Login Failed!", error);
+              }}
+              onProfileSuccess={(response) => {
+                console.log("Get Profile Success!", response);
+              }}
+              render={({ onClick, logout }) => (
+                // @greatsumini/react-facebook-login
+                <Button variant="outlined" disabled={isLoading}
+                        onClick={onClick}
+                        endIcon={<FacebookIcon color={isLoading ? "disabled" : "primary"} />}>
+                  Continua con Facebook
+                </Button>
+              )}
+            />
             {/*<Button variant="outlined" disabled={isLoading}
                     endIcon={<FacebookIcon color={isLoading ? "disabled" : "primary"} />}>
               Continua con Facebook

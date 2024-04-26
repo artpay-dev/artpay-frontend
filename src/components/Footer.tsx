@@ -117,7 +117,8 @@ const Footer: React.FC<FooterProps> = ({}) => {
             © artpay srl 2024 - Tutti i diritti riservati
           </Typography>
         </Grid>
-        <Grid xs={12} md={6} display="flex" gap={2} alignItems="center" item>
+        <Grid xs={12} md={6} display="flex" flexDirection={{ xs: "column", sm: "row" }} gap={2} alignItems="center"
+              item>
           <a href="https://www.iubenda.com/privacy-policy/71113702"
              className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe " title="Privacy Policy ">Privacy
             Policy</a>
@@ -134,10 +135,9 @@ const Footer: React.FC<FooterProps> = ({}) => {
           <Typography variant="body2">
 
           </Typography>
-
         </Grid>
         <Grid xs={12} md={3} display="flex" sx={{ justifyContent: { xs: "flex-start", md: "flex-end" } }} item>
-          <SocialLinks color="#010F22" instagram="..." facebook="..." twitter="..." youtube="..." sx={{ my: -1 }} />
+          {/*<SocialLinks color="#010F22" instagram="..." facebook="..." twitter="..." youtube="..." sx={{ my: -1 }} />*/}
         </Grid>
         <Grid xs={12} item><Divider sx={{ width: "100%", borderColor: "#CDCFD3", my: 2 }} /> </Grid>
         <Grid xs={12} item>

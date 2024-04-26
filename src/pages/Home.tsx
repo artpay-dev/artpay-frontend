@@ -8,6 +8,8 @@ import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import HeroHome from "../components/HeroHome.tsx";
 import InfoCard from "../components/InfoCard.tsx";
 import imgRocket from "../assets/images/rocket.svg";
+import imgEye from "../assets/images/eye.svg";
+import imgArtwork from "../assets/images/abstact-artwork.svg";
 import OnboardingCards from "../components/OnboardingCards.tsx";
 
 export interface HomeProps {
@@ -82,7 +84,7 @@ const Home: React.FC<HomeProps> = ({}) => {
           <InfoCard
             title="Esplora l'arte dei top galleristi italiani su Artpay!"
             subtitle="Artpay collabora con i più autorevoli galleristi italiani per offrire una selezione eccezionale di opere d'arte, garantendo la qualità e l'autenticità di ogni pezzo presente sulla nostra piattaforma."
-            imgSrc={imgRocket}
+            imgSrc={imgEye}
           />
         </Box>
         <Box>
@@ -96,7 +98,7 @@ const Home: React.FC<HomeProps> = ({}) => {
           <InfoCard
             title="Collezioni selezionate"
             subtitle="Artpay collabora con i più autorevoli galleristi italiani per offrire una selezione eccezionale di opere d'arte, che ne garantiscono la qualità e l'autenticità di ogni pezzo presente sulla nostra piattaforma."
-            imgSrc={imgRocket}
+            imgSrc={imgArtwork}
           />
         </Box>
       </Box>

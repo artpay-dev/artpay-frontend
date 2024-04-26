@@ -12,6 +12,7 @@ export interface GalleryCardProps {
   onClick?: () => void;
   onSetFavourite?: (currentValue: boolean) => void;
   imgUrl?: string;
+  logoUrl?: string;
   mode?: "grid" | "list";
 }
 

@@ -154,7 +154,7 @@ export type GoogleUserInfo = {
 
 export type CustomerQuestion = {
   product_id: number;
-  text: string
+  question: string
 }
 export type CustomerQuestionResponse = {
   message: string

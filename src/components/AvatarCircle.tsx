@@ -14,14 +14,15 @@ const AvatarCircle: React.FC<AvatarCircleProps> = ({ imgUrl = "", alt = "" }) =>
     p: 1,
     borderRadius: "24px",
     border: "1px solid #CDCFD3",
+    background: "white",
     textAlign: "center"
   }}>
     <img src={imgUrl} alt={alt}
          style={{
            maxWidth: "32px",
            maxHeight: "32px",
-           overflow: "visible"
-           //objectFit: "cover"
+           overflow: "visible",
+           objectFit: "cover"
          }} />
   </Box>);
 };
