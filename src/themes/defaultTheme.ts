@@ -502,6 +502,16 @@ const defaultTheme: Theme = createTheme({
           }
         }
       }
+    },
+    MuiTypography: {
+      defaultProps: {
+        variantMapping: {
+          display1: "h1",
+          display2: "h2",
+          display3: "h3",
+          subtitle1: "p"
+        }
+      }
     }
   }
 });
