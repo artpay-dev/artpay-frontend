@@ -54,16 +54,34 @@ const defaultTheme: Theme = createTheme({
     //tertiary: palette.augmentColor({color: {main: '#808791'}})
   },
   typography: {
-    fontFamily: "intertight",
-    display1: { fontSize: "88px", lineHeight: "100%", fontWeight: 400, display: "inline-block" },
-    display2: { fontSize: "72px", lineHeight: "100%", fontWeight: 400, display: "inline-block" },
-    display3: { fontSize: "56px", lineHeight: "100%", fontWeight: 400, display: "inline-block" },
-    h1: { fontSize: "40px", lineHeight: "105%", fontWeight: 400 },
-    h2: { fontSize: "36px", lineHeight: "105%", fontWeight: 500 },
-    h3: { fontSize: "32px", lineHeight: "120%", fontWeight: 500 },
-    h4: { fontSize: "24px", lineHeight: "110%", fontWeight: 500 },
-    h5: { fontSize: "24px", lineHeight: "120%", fontWeight: 400 },
-    h6: { fontSize: "24px", lineHeight: "115%", fontWeight: 400 },
+    fontFamily: "inter",
+    display1: {
+      fontSize: "88px",
+      lineHeight: "100%",
+      fontWeight: 400,
+      fontFamily: "intertight",
+      display: "inline-block"
+    },
+    display2: {
+      fontSize: "72px",
+      lineHeight: "100%",
+      fontWeight: 400,
+      fontFamily: "intertight",
+      display: "inline-block"
+    },
+    display3: {
+      fontSize: "56px",
+      lineHeight: "100%",
+      fontWeight: 400,
+      fontFamily: "intertight",
+      display: "inline-block"
+    },
+    h1: { fontSize: "40px", lineHeight: "105%", fontWeight: 400, fontFamily: "intertight" },
+    h2: { fontSize: "36px", lineHeight: "105%", fontWeight: 500, fontFamily: "intertight" },
+    h3: { fontSize: "32px", lineHeight: "120%", fontWeight: 500, fontFamily: "intertight" },
+    h4: { fontSize: "24px", lineHeight: "110%", fontWeight: 500, fontFamily: "intertight" },
+    h5: { fontSize: "24px", lineHeight: "120%", fontWeight: 400, fontFamily: "intertight" },
+    h6: { fontSize: "24px", lineHeight: "115%", fontWeight: 400, fontFamily: "intertight" },
     subtitle1: { fontSize: "16px", lineHeight: "125%", fontWeight: 500 },
     body1: { fontSize: "16px", lineHeight: "125%", fontWeight: 500 },
     body2: { fontSize: "12px", lineHeight: "120%", fontWeight: 500 },
@@ -333,7 +351,10 @@ const defaultTheme: Theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          boxShadow: "0px 4px 16px 0px rgba(62, 78, 236, 0.15)"
+          boxShadow: "0px 4px 16px 0px rgba(62, 78, 236, 0.15)",
+          ".MuiSvgIcon-root": {
+            fill: "#010F22"
+          }
         },
         positionFixed: {
           background: "white",

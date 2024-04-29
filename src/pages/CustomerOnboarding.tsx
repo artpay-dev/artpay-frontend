@@ -117,7 +117,7 @@ const CustomerOnboarding: React.FC<CustomerOnboardingProps> = ({}) => {
           </PromoCard>
 
           <PromoCard titleVariant="h2" title="Cosa aspetti? Entra subito a far parte di artpay!" variant="contrast">
-            <Typography variant="body1" color="white" sx={{ maxWidth: "600px", mb: 2 }}>
+            <Typography variant="body1" color="white" sx={{ mb: 2 }}>
               Ad acquisto avvenuto, l’opera è tua e avrai massima libertà di personalizzare la tua esperienza di
               consegna già a partire dal carrello di acquisto o prenotare il ritiro presso la galleria che vende l’opera
               confrontandoti direttamente, attraverso il sistema di messaggistica integrato all’interno della

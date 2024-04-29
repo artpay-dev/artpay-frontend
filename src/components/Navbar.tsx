@@ -154,11 +154,11 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
               </Typography>
             )}
             <IconButton sx={{ mr: 4, ml: 1 }} onClick={() => handleProfileClick()} color="inherit">
-              <UserIcon fontSize="inherit" color="secondary" />
+              <UserIcon fontSize="inherit" color="inherit" />
             </IconButton>
             <IconButton sx={{ mr: 0, transform: { xs: undefined, md: "translateX(8px)" } }}
-                        onClick={() => handleCheckout()} color="inherit">
-              <ShoppingBagIcon color="secondary" />
+                        onClick={() => handleCheckout()} color="primary">
+              <ShoppingBagIcon color="inherit" />
             </IconButton>
           </>
         ) : (
@@ -175,7 +175,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
         )}
         {isMobile && (
           <IconButton sx={{ transform: "translateX(8px)" }} onClick={() => handleShowMenu(!showMenu)}>
-            <MenuIcon />
+            <MenuIcon color="inherit" />
           </IconButton>
         )}
       </Box>

@@ -19,8 +19,8 @@
     <meta name="stripe-key" content="pk_test_51OEuLgBVvRJjw4FGCIWYwitCW6xe6KYOfIjoZwENwGLj22ZkaZEg60csVTAg4ZTDwXW1ZksSqY4mXliEPDWVYZ0z00EaPOowQS" />
     <title>Artpay</title>
     <?php wp_head(); ?>
-      <script type="module" crossorigin src="/wp-content/themes/artpay-react/static/assets/js/index-447a2b91.js"></script>
-      <link rel="stylesheet" href="/wp-content/themes/artpay-react/static/assets/css/index-244fb1a6.css">
+      <script type="module" crossorigin src="/wp-content/themes/artpay-react/static/assets/js/index-4ab78d4b.js"></script>
+      <link rel="stylesheet" href="/wp-content/themes/artpay-react/static/assets/css/index-6b99bca8.css">
     </head>
     <body>
     <noscript>
