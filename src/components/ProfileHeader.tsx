@@ -48,6 +48,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, controls }) => {
       <Box display="flex" flexDirection="column" gap={1} sx={{ maxWidth: "100%" }}>
         <Typography variant="h1" sx={{
           mt: { xs: 0, md: -1 },
+          pb: 0.5,
           typography: { xs: "h4", sm: "h3", md: "h1" },
           overflow: "hidden",
           textOverflow: "ellipsis",

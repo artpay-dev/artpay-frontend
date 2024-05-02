@@ -107,7 +107,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({}) => {
     }
     try {
       setIsSaving(true);
-      console.log("TODO: modifica password", formData);
+      console.error("TODO: modifica password", formData);
       await dialogs.okOnly("Modifica password", "Password modificata con successo");
       // const updatedProfile = await data.updateUserProfile({ ...formData })
       // setProfile(updatedProfile);

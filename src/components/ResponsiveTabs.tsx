@@ -1,17 +1,20 @@
 import React from "react";
 import { Tabs, useMediaQuery, useTheme } from "@mui/material";
 import { TabsOwnProps } from "@mui/material/Tabs/Tabs";
+import { Breakpoint } from "@mui/system";
 
 export interface ResponsiveTabsProps {
+  breakpoint?: Breakpoint;
 }
 
-const ResponsiveTabs: React.FC<Pick<TabsOwnProps, "value" | "onChange" | "children">> = ({
-                                                                                           value,
-                                                                                           onChange,
-                                                                                           children
-                                                                                         }) => {
+const ResponsiveTabs: React.FC<Pick<TabsOwnProps, "value" | "onChange" | "children"> & ResponsiveTabsProps> = ({
+                                                                                                                 value,
+                                                                                                                 onChange,
+                                                                                                                 children,
+                                                                                                                 breakpoint = "sm"
+                                                                                                               }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down(breakpoint));
 
   return (
     <Tabs

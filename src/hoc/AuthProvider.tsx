@@ -23,8 +23,8 @@ import { userToUserInfo } from "../utils.ts";
 import { useDialogs } from "./DialogProvider.tsx";
 import { CodeResponse, useGoogleLogin } from "@react-oauth/google";
 import ErrorIcon from "../components/icons/ErrorIcon.tsx";
-import FacebookLogin from "@greatsumini/react-facebook-login";
-import FacebookIcon from "../components/icons/FacebookIcon.tsx";
+//import FacebookLogin from "@greatsumini/react-facebook-login";
+//import FacebookIcon from "../components/icons/FacebookIcon.tsx";
 import { appleAuthHelpers } from "react-apple-signin-auth";
 import AppleIcon from "../components/icons/AppleIcon.tsx";
 
@@ -111,6 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
   const sendPasswordResetLinkUrl = `${baseUrl}/wp-json/wp/v2/user/reset-password`;
   const passwordResetUrl = `${baseUrl}/wp-json/wp/v2/user/set-password`;
   const verifyGoogleTokenUrl = `${baseUrl}/wp-json/wp/v2/verifyGoogleToken`;
+  const verifyAppleTokenUrl = `${baseUrl}/wp-json/wp/v2/verifyGoogleToken`;
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -195,20 +196,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
   const handleAppleLogin = async () => {
     // Service id AJ95CY4HRQ.art.artpay
     // Identifier art.artpay.login
+    setIsLoading(true);
+    setError(undefined);
     const response = await appleAuthHelpers.signIn({
       authOptions: {
         clientId: "art.artpay.login",
         redirectURI: "https://artpay.art",
-        scope: "name email"
+        scope: "name email",
+        usePopup: true
 
         // same as above
       },
-      onError: (error: any) => console.error(error)
+      onError: (error: any) => {
+        console.error(error);
+        setError("Si è verificato un errore");
+        setIsLoading(false);
+      }
     });
 
     if (response) {
-      console.log(response);
+      const authResp = await axios.post<VerifyTokenData, AxiosResponse<User>>(verifyAppleTokenUrl, {
+        token: response.authorization.id_token
+      });
+      console.log("apple auth resp", authResp.data);
+      /*localStorage.setItem(userStorageKey, JSON.stringify(authResp.data));
+      setAuthValues({
+        ...authValues,
+        isAuthenticated: true,
+        user: userToUserInfo(authResp.data),
+        wcToken: getWcCredentials(authResp.data.wc_api_user_keys)
+      });*/
+      setIsLoading(false);
+      setLoginOpen(false);
+
     } else {
+      setError("Si è verificato un errore");
+      setIsLoading(false);
       console.error("Error performing apple signin.");
     }
   };
@@ -364,8 +387,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       if (userStr) {
         const userObj: User = JSON.parse(userStr);
 
-        console.log("userObj", userToUserInfo(userObj));
-
         setAuthValues({
           user: userToUserInfo(userObj),
           isAuthenticated: true,
@@ -432,7 +453,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
                     endIcon={<GoogleIcon color={isLoading ? "disabled" : "primary"} />}>
               Continua con Google
             </Button>
-            <FacebookLogin
+            {/*<FacebookLogin
               appId="1088597931155576"
               useRedirect={true}
               onSuccess={(response) => {
@@ -444,7 +465,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
               onProfileSuccess={(response) => {
                 console.log("Get Profile Success!", response);
               }}
-              render={({ onClick, logout }) => (
+              render={({ onClick }) => (
                 // @greatsumini/react-facebook-login
                 <Button variant="outlined" disabled={isLoading}
                         onClick={onClick}
@@ -452,11 +473,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
                   Continua con Facebook
                 </Button>
               )}
-            />
-            {/*<Button variant="outlined" disabled={isLoading}
-                    endIcon={<FacebookIcon color={isLoading ? "disabled" : "primary"} />}>
-              Continua con Facebook
-            </Button>*/}
+            />*/}
           </Box>
           <Box display="flex" mt={1} gap={1} alignItems="center">
             <Typography variant="body2" color="textSecondary">

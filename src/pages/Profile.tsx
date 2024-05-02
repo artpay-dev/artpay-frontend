@@ -63,6 +63,7 @@ const Profile: React.FC<ProfileProps> = ({}) => {
             mt: { xs: 3, md: 6 }
           }}>
           <ResponsiveTabs
+            breakpoint="md"
             value={selectedTabPanel}
             onChange={(_, newValue) => {
               setSelectedTabPanel(newValue);
@@ -73,6 +74,7 @@ const Profile: React.FC<ProfileProps> = ({}) => {
             <Tab label="Opere preferite" />
             <Tab label="Opere bloccate" />
             <Tab label="Opere acquistate" />
+            <Tab label="Messaggi" onClick={() => navigate("/messaggi")} />
           </ResponsiveTabs>
         </Box>
       </Box>

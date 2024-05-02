@@ -68,7 +68,6 @@ const Messages: React.FC<MessagesProps> = ({}) => {
       const selectedArtwork = await data.getArtwork(msg.id.toString());
       setSelectedArtwork(selectedArtwork);
       const selectedGallery = await data.getGallery(selectedArtwork.vendor);
-      console.log("selectedGallery", selectedGallery);
       setSelectedGallery(galleryToGalleryItem(selectedGallery));
 
       const messages = await data.getProductChatHistory(msg.id);

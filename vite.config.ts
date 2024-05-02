@@ -23,5 +23,9 @@ export default defineConfig({
         }
       }
     }
+    /*https: {
+      key: fs.readFileSync("./local_certs/artpay.art-key.pem"),
+      cert: fs.readFileSync("./local_certs/artpay.art.pem")
+    }*/
   }
 });
