@@ -27,15 +27,20 @@ const GalleryOnboarding: React.FC<GalleryOnboardingProps> = ({}) => {
           Hai una galleria d’arte? Scopri come potenziare le sue vendite con Artpay!
         </Typography>
         <Typography variant="body1" sx={{ mt: 6, pr: { xs: 0, lg: 6 } }}>
-          Artpay nasce per supportare e far crescere la tua galleria. Con Artpay la tua galleria acquisisce un nuovo
-          pubblico qualificato di appassionati e collezionisti d’arte, potrai allargare la base dei potenziali clienti
-          grazie ai prodotti finanziari offerti direttamente online per rendere l’arte accessibile a tutti tramite
-          prestiti rateali da parte di istituti bancari partner. Artpay è utile anche alle vendite direttamente in
-          galleria. Ti basta esporre il logo/marker/qr-code (presto in dotazione) per le opera in vendita e i tuoi
-          clienti potranno accedere al suo acquisto diretto online e ai servizi finanziari rateali, a loro dedicati.
+          Artpay nasce per supportare e far crescere la tua galleria.
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 1 }}>Con Artpay la tua galleria acquisisce un nuovo pubblico qualificato
+          di appassionati e collezionisti d’arte: potrai allargare la base dei potenziali clienti grazie ai PRODOTTI
+          FINANZIARI offerti direttamente online per rendere l’arte accessibile a tutti tramite PRESTITI RATEALI da
+          parte di istituti bancari partner.
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 1 }}>Artpay è utile anche alle vendite nella tua galleria. Ti basta
+          esporre il logo/marker/qr-code (presto in dotazione) per le opere in vendita e i tuoi clienti potranno
+          accedere al suo acquisto diretto online e ai servizi finanziari rateali, a loro dedicati.
         </Typography>
         <Typography variant="body1" sx={{ mt: 1 }}>Entra a fare parte di Artpay in 3 soli semplici
-          passaggi.</Typography>
+          passaggi.
+        </Typography>
       </Hero>
       <Box sx={{ py: 12, background: `url(${onboardingBackground})`, px: px }}>
         <Box display="flex" flexDirection="column" gap={3}>

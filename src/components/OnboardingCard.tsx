@@ -1,9 +1,9 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Box, Button, Grid, GridProps, Typography } from "@mui/material";
 
 export interface OnboardingCardProps {
   title: string;
-  subtitle: string;
+  subtitle: string | ReactNode;
   ctaText: string;
   onClick?: () => void;
   ctaVariant?: "outlined" | "contained";

@@ -67,7 +67,7 @@ const Home: React.FC<HomeProps> = ({}) => {
 
       <Box sx={{ px: px, my: { xs: 6, md: 12 }, maxWidth: theme.breakpoints.values["xl"], ml: "auto", mr: "auto" }}>
         <Typography variant="display3" sx={{}}>
-          Scopri l’eccellenza dei migliori galleristi Italiani e le loro collezioni selezionate, da oggi a portata di
+          Scopri l’eccellenza dei migliori galleristi italiani e le loro collezioni. L’arte, con Artpay, è a portata di
           mano.
         </Typography>
       </Box>
@@ -82,22 +82,22 @@ const Home: React.FC<HomeProps> = ({}) => {
         }}>
         <Box>
           <InfoCard
-            title="Esplora l'arte dei top galleristi italiani su Artpay!"
-            subtitle="Artpay collabora con i più autorevoli galleristi italiani per offrire una selezione eccezionale di opere d'arte, garantendo la qualità e l'autenticità di ogni pezzo presente sulla nostra piattaforma."
+            title="Esplora le opere delle migliori gallerie d’arte italiane su Artpay!"
+            subtitle="Artpay è partner delle più autorevoli gallerie italiane, per offrire in vendita una selezione unica di opere d&#39;arte, garantendo la qualità e l&#39;autenticità di ogni articolo presente sulla nostra piattaforma."
             imgSrc={imgEye}
           />
         </Box>
         <Box>
           <InfoCard
             title="Tecnologia innovativa per l’arte a portata di click!"
-            subtitle="Artpay utilizza tecnologie all'avanguardia per semplificare il processo di acquisto e vendita d'arte, offrendo transazioni rapide, sicure e convenienti attraverso la nostra intuitiva piattaforma online."
+            subtitle="Artpay utilizza tecnologie all&#39;avanguardia per semplificare il processo di acquisto e vendita di opere d’arte, offrendo transazioni rapide, sicure e convenienti attraverso una piattaforma online facile e veloce da utilizzare."
             imgSrc={imgRocket}
           />
         </Box>
         <Box>
           <InfoCard
-            title="Collezioni selezionate"
-            subtitle="Artpay collabora con i più autorevoli galleristi italiani per offrire una selezione eccezionale di opere d'arte, che ne garantiscono la qualità e l'autenticità di ogni pezzo presente sulla nostra piattaforma."
+            title="Collezioni autorevoli"
+            subtitle="Grazie alla partnership con le più autorevoli gallerie italiane, Artpay offre in acquisto e vendita online una selezione straordinaria di opere d&#39;arte curate, garantite e autenticate dai più rinomati galleristi."
             imgSrc={imgArtwork}
           />
         </Box>

@@ -1,10 +1,10 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Box, Button, Grid, Typography, useTheme } from "@mui/material";
 import { getDefaultPaddingX } from "../utils.ts";
 
 export interface HeroAboutProps {
-  mainTitle?: string;
-  description?: string;
+  mainTitle?: string | ReactNode;
+  description?: string | ReactNode;
   buttonText?: string;
   buttonAction?: () => void;
   imageSrc?: string;
@@ -17,7 +17,7 @@ const HeroAbout: React.FC<HeroAboutProps> = ({ mainTitle, description, buttonTex
 
   return <>
     <Box
-      sx={{ background: theme.palette.primary.main, pt: { xs: 18, sm: 20, md: 24, lg: 32 } }}
+      sx={{ background: theme.palette.primary.main, pt: { xs: 18, sm: 20, md: 24, lg: 24 } }}
       display="flex"
       flexDirection="column"
       justifyContent="center"

@@ -16,14 +16,6 @@ import EmailContactBox from "../components/EmailContactBox.tsx";
 export interface AboutProps {
 }
 
-const heroContent: HeroAboutProps = {
-  mainTitle: "Con Artpay l’arte è per tutti",
-  description:
-    "Artpay è una start-up innovativa fondata da un team di esperti appassionati di arte e tecnologia. Ci impegniamo per l'eccellenza, collegando i migliori galleristi italiani, artisti emergenti e collezionisti attraverso una piattaforma digitale all'avanguardia. Unisciti a noi per far parte di questa rivoluzione nel mondo dell'arte.",
-  buttonText: "Entra nel mondo di artpay",
-  imageSrc: imgAboutCover
-};
-
 
 const About: React.FC<AboutProps> = ({}) => {
   const theme = useTheme();
@@ -43,6 +35,23 @@ const About: React.FC<AboutProps> = ({}) => {
   const imgWidth = isMobile ? "100%" : `calc(100% - ${theme.spacing(6)})`;
 
   const px = getDefaultPaddingX();
+
+  const heroContent: HeroAboutProps = {
+    mainTitle: "Con Artpay l’arte è per tutti",
+    description: <>Artpay è una start-up innovativa, fondata da un team di appassionati di arte ed esperti di
+      tecnologia. Il nostro obiettivo è far incontrare online la domanda e l’offerta d’arte, rendendo la vendita (e
+      l’acquisto) di opere più facile, veloce, sicuro e accessibile. Artpay permette alle gallerie più autorevoli di
+      offrire in vendita online le proprie opere a un pubblico vasto di appassionati d’arte. Questi possono acquistare
+      le opere di loro interesse in modo diretto o attraverso strumenti finanziari rateali, erogati da istituti bancari
+      partner di Artpay.<br />
+      La possibilità di poter acquistare opere attraverso strumenti finanziari rateali allarga in modo significativo la
+      base di utenti, portando l’arte ben oltre i consueti circuiti del collezionismo, verso un pubblico più ampio,
+      giovane e diversificato.<br /><br />
+      Rivoluziona il mercato dell’arte con noi!
+    </>,
+    buttonText: "Entra nel mondo di artpay",
+    imageSrc: imgAboutCover
+  };
 
   const centeredGridSx: GridProps["sx"] = {
     marginLeft: "auto",

@@ -38,7 +38,7 @@ const LoanCard: React.FC<LoanCardProps> = ({ sx = {} }) => {
           potrai personalizzare il prestito in ogni suo aspetto.
         </Typography>
         <Typography color="white" sx={{ opacity: 0.75 }} variant="body1">
-          *il prestito non garantisce la prenotazione dell’opera.
+          *la richiesta di prestito non garantisce la prenotazione dell'opera.”
         </Typography>
       </Box>
       <Box

@@ -44,12 +44,12 @@ const CustomerOnboarding: React.FC<CustomerOnboardingProps> = ({}) => {
           Artpay per gli appassionati d'arte
         </Typography>
         <Typography variant="display1" color="primary" sx={{ mt: 1 }}>
-          Scopri come acquistare online opere d’arte in modo più accessibile e veloce, con artpay.
+          Scopri come ACQUISTARE ONLINE OPERE D’ARTE CERTIFICATE in modo più accessibile e veloce, con artpay.
         </Typography>
         <Typography variant="body1" sx={{ mt: 6, maxWidth: "400px" }}>
-          Vivi la tua passione per l’arte in modo ancora più soddisfacente. Con Artpay puoi acquistare online opere
-          d’arte dalle più rinomate gallerie d’arte italiane e pagarle con tutta la flessibilità dei servizi
-          finanziari delle nostre banche partner.
+          Vivi la tua passione per l’arte in modo ancora più soddisfacente.<br />
+          Con Artpay puoi acquistare online opere d’arte dalle più rinomate gallerie d’arte italiane e pagarle
+          direttamente o tramite alla flessibilità dei SERVIZI FINANZIARI RATEALI delle nostre banche partner.
         </Typography>
       </Hero>
       <Box sx={{ py: 12, background: `url(${onboardingBackground})`, px: px }}>

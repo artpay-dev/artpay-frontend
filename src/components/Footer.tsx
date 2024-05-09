@@ -98,7 +98,7 @@ const Footer: React.FC<FooterProps> = ({}) => {
               <a className="link" href="https://artpay.art/artpay-per-gallerie">ArtPay per gallerie</a>
             </Typography>
             <Typography variant="body1">
-              <a className="link" href="https://artpay.art/artpay-per-collezionisti/">ArtPay per compratori</a>
+              <a className="link" href="https://artpay.art/artpay-per-collezionisti/">ArtPay per collezionisti</a>
             </Typography>
             <Typography variant="body1">
               <a className="link" href="/faq">FAQ</a>

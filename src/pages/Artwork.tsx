@@ -50,6 +50,7 @@ import MessageDialog from "../components/MessageDialog.tsx";
 import { UserProfile } from "../types/user.ts";
 import ArtworkIcon from "../components/icons/ArtworkIcon.tsx";
 import CertificateIcon from "../components/icons/CertificateIcon.tsx";
+import { Send } from "@mui/icons-material";
 
 export interface ArtworkProps {
 }
@@ -389,7 +390,8 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               </Box>
               <Box display="flex" flexDirection={{ xs: "row", sm: "column" }}
                    sx={{ mt: { xs: 0, sm: 0 } }}>
-                <Button variant="text" onClick={() => handleSendMessage()}>Contatta la galleria</Button>
+                <Button variant="outlined" endIcon={<Send />} onClick={() => handleSendMessage()}>Contatta la
+                  galleria</Button>
               </Box>
             </Box>
             <Divider sx={{ mt: 3 }} />

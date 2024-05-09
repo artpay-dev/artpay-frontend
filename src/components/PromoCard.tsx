@@ -35,14 +35,14 @@ const PromoCard: React.FC<PromoCardProps> = ({
         px: { xs: 4, md: 6, lg: 13 }
       }}>
       <Typography
-        sx={{ flexGrow: 1, pr: { xs: 0, md: 3, lg: 3, xl: 16 }, pl: { xs: 0, md: 0, lg: 3 } }}
+        sx={{ flexGrow: 1, pr: { xs: 0, md: 3, lg: 3, xl: 8 }, pl: { xs: 0, md: 0, lg: 3 } }}
         color={variant === "contrast" ? theme.palette.primary.contrastText : undefined}
         variant={titleVariant}>
         {title}
       </Typography>
       <Box
         sx={{
-          maxWidth: { xs: undefined, md: "320px", lg: "400px" },
+          maxWidth: { xs: undefined, md: "380px", lg: "400px", xl: "500px" },
           mt: { xs: 3, md: 0 }
         }}>
         {children}

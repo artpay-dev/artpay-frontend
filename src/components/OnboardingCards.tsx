@@ -20,14 +20,25 @@ const OnboardingCards: React.FC<OnboardingCardsProps> = ({ sx = {} }) => {
     <Grid sx={{ px: px, my: 9, ml: "auto", mr: "auto", maxWidth: theme.breakpoints.values["xl"], ...sx }} spacing={0}
           container>
       <OnboardingCard title="Sei un gallerista?"
-                      subtitle="Entra in Artpay e trasforma la tua galleria in un punto di riferimento globale. Attiva subito la tua iscrizione e accedi a strumenti esclusivi per ampliare la tua presenza sul mercato, raggiungere nuovi clienti e massimizzare i tuoi guadagni. Non perdere tempo, il futuro dell'arte è adesso."
+                      subtitle={<>Iscriviti ad Artpay e trasforma la tua galleria in un punto di riferimento globale
+                        online e offline.<br />
+                        Potrai accedere a strumenti esclusivi, facili e immediati, per ampliare la presenza della tua
+                        galleria sul mercato, raggiungere nuovi clienti online, VENDERE PIÙ OPERE e
+                        massimizzare i tuoi guadagni.<br />
+                        Il futuro dell&#39;arte è adesso. Approfittane!</>}
                       ctaText="Scopri di più"
                       sx={{ pr: { xs: 0, md: 1.5 } }}
                       onClick={() => navigate("/artpay-per-gallerie")}
                       background={bgOnboardingGallery} />
 
-      <OnboardingCard title="Sei un collezionista?"
-                      subtitle="Esplora il mondo dell'arte come mai prima d'ora con Artpay! Accedi a una selezione esclusiva di opere curate dai principali galleristi italiani. Entra nel cuore dell'arte contemporanea e scopri capolavori unici. La tua collezione artistica inizia qui, con Artpay. Unisciti a noi oggi stesso e scopri un nuovo modo di vivere e comprare l'arte."
+      <OnboardingCard title="Sei un appassionato d’arte?"
+                      subtitle={<>Esplora il mondo dell&#39;arte come mai prima d&#39;ora, con Artpay!<br />
+                        Accedi a una selezione esclusiva di opere curate dai principali galleristi italiani. Entra nel
+                        cuore dell&#39;arte contemporanea, SCOPRI E ACQUISTA CAPOLAVORI UNICI, direttamente o con piani
+                        rateali personalizzati.<br />
+                        La tua collezione d’arte inizia qui, con Artpay. Iscriviti subito e scopri un nuovo modo di
+                        vivere l’arte.
+                      </>}
                       ctaText="Scopri di più"
                       sx={{ pl: { xs: 0, md: 1.5 }, pt: { xs: 3, md: 0 } }}
                       onClick={() => navigate("/artpay-per-collezionisti")}
