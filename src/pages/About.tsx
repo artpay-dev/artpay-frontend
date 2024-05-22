@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import HeroAbout, { HeroAboutProps } from "../components/HeroAbout.tsx";
-import { Box, Grid, GridProps, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Grid, GridProps, Link, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useData } from "../hoc/DataProvider.tsx";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import imgLogo from "../assets/images/logo.svg";
@@ -113,6 +113,38 @@ const About: React.FC<AboutProps> = ({}) => {
         </PromoCard>
       </Box>
       <OnboardingCards sx={{ my: 8 }} />
+      <Grid sx={{ px: px }} my={12} container>
+        <Grid xs={12} mb={{ xs: 4, md: 6 }} item>
+          <Typography variant="display3">Artpay in persona</Typography>
+        </Grid>
+        <Grid xs={12} md={6} item>
+          <Typography
+            sx={{ maxWidth: { xs: undefined, md: "506px" }, pr: { xs: undefined, md: 6, lg: 0 } }}
+            variant="h4">
+            Artpay è una fintech innovativa che nasce da un team di appassionati di arte e tecnologie e che semplifica e
+            accelera la vendita di opere d'arte offrendo una soluzione concreta alle nuove modalità di acquisto di
+            collezionisti affermati ed emergenti; artpay è partner di primari istituti bancari come Banca Santander ed è
+            operante presso The Net Value, incubatore certificato
+          </Typography>
+        </Grid>
+        <Grid xs={12} md={6} item>
+          <Typography sx={{ mt: { xs: 3, md: 0 }, maxWidth: { xs: undefined, md: "400px" } }} variant="subtitle1">
+            Artpay è fondata e diretta da Luca Pineider, imprenditore nel digital e nella comunicazione dal 2002, che ha
+            lavorato per molti anni a progetti legati al mondo dell’arte e del web (tra cui Artissima, Luci d’Artista,
+            Giulio Paolini, Fondazione Torino Musei, Reggia di Venaria) a cui si aggiungono molteplici esperienze e
+            progetti in ambito marketing & comunicazione, media e sviluppo tecnologico per primari clienti nazionali e
+            multinazionali.
+          </Typography>
+          <Typography sx={{ mt: { xs: 3, md: 6 }, maxWidth: { xs: undefined, md: "400px" } }} variant="subtitle1">
+            Il team di Artpay è composto da più di 6 professionisti, che curano gli aspetti tecnologici, contenutistici
+            e manageriali della piattaforma. Per contatti con il management, business development e media relation,
+            scrivete a{" "}
+            <Link color="primary" href="mailto:luca@artpay.art">
+              luca@artpay.art
+            </Link>
+          </Typography>
+        </Grid>
+      </Grid>
       <Box sx={{ px: px }}>
         <NewsletterBig />
       </Box>

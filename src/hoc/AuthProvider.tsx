@@ -10,7 +10,7 @@ import {
   IconButton,
   Typography,
   useMediaQuery,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import Logo from "../components/icons/Logo";
@@ -33,15 +33,15 @@ type RequestError = {
 };
 
 type PasswordResetParams = {
-  email: string
-  password: string
-  code: string
-}
+  email: string;
+  password: string;
+  code: string;
+};
 
 type VerifyTokenData = {
   email: string;
   token: string;
-}
+};
 
 export interface AuthState {
   isLoading: boolean;
@@ -75,8 +75,8 @@ export const USER_LOGOUT_EVENT = "user:logout";
 const dispatchUserEvent = (event: "user:login" | "user:logout", userId: number) =>
   document.dispatchEvent(
     new CustomEvent<{ userId: number }>(event, {
-      detail: { userId }
-    })
+      detail: { userId },
+    }),
   );
 
 const getGuestAuth = () => {
@@ -98,10 +98,9 @@ const Context = createContext<AuthContext>({
   sendPasswordResetLink: () => Promise.reject("Auth not loaded"),
   resetPassword: () => Promise.reject("Auth not loaded"),
   logout: () => Promise.reject("Auth not loaded"),
-  login: () => {
-  },
+  login: () => {},
   getGuestAuth: () => getGuestAuth(),
-  getAuthToken: () => undefined
+  getAuthToken: () => undefined,
 });
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = "" }) => {
@@ -126,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     isAuthenticated: false,
     isLoading: true,
     user: undefined,
-    wcToken: undefined
+    wcToken: undefined,
   });
 
   const handleError = (err: unknown) => {
@@ -146,20 +145,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
             redirectTo.searchParams.append("redirectURI", window.location.origin);
             window.location.href = redirectTo.toString();
             return;*/
-      axios.post<VerifyTokenData, AxiosResponse<User>>(verifyGoogleTokenUrl, {
-        authCode: codeResponse.code,
-        redirectURI: window.location.origin
-      }).then((resp) => {
-        localStorage.setItem(userStorageKey, JSON.stringify(resp.data));
-        setAuthValues({
-          ...authValues,
-          isAuthenticated: true,
-          user: userToUserInfo(resp.data),
-          wcToken: getWcCredentials(resp.data.wc_api_user_keys)
-        });
-        setIsLoading(false);
-        setLoginOpen(false);
-      }).catch(handleError);
+      axios
+        .post<VerifyTokenData, AxiosResponse<User>>(verifyGoogleTokenUrl, {
+          authCode: codeResponse.code,
+          redirectURI: window.location.origin,
+        })
+        .then((resp) => {
+          localStorage.setItem(userStorageKey, JSON.stringify(resp.data));
+          setAuthValues({
+            ...authValues,
+            isAuthenticated: true,
+            user: userToUserInfo(resp.data),
+            wcToken: getWcCredentials(resp.data.wc_api_user_keys),
+          });
+          setIsLoading(false);
+          setLoginOpen(false);
+        })
+        .catch(handleError);
       /*axios.get<GoogleUserInfo>(`https://www.googleapis.com/oauth2/v3/userinfo`,
         { headers: { Authorization: `Bearer ${tokenResponse.access_token}` } }).then(resp => {
         console.log("userinfo", resp.data);
@@ -184,7 +186,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       setIsLoading(false);
     },
     flow: "auth-code",
-    scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
+    scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
   });
 
   const handleGoogleLogin = () => {
@@ -203,7 +205,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         clientId: "art.artpay.login",
         redirectURI: "https://artpay.art",
         scope: "name email",
-        usePopup: true
+        usePopup: false,
 
         // same as above
       },
@@ -211,12 +213,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         console.error(error);
         setError("Si è verificato un errore");
         setIsLoading(false);
-      }
+      },
     });
 
     if (response) {
       const authResp = await axios.post<VerifyTokenData, AxiosResponse<User>>(verifyAppleTokenUrl, {
-        token: response.authorization.id_token
+        token: response.authorization.id_token,
       });
       console.log("apple auth resp", authResp.data);
       /*localStorage.setItem(userStorageKey, JSON.stringify(authResp.data));
@@ -228,7 +230,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       });*/
       setIsLoading(false);
       setLoginOpen(false);
-
     } else {
       setError("Si è verificato un errore");
       setIsLoading(false);
@@ -241,7 +242,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     setIsLoading(true);
     try {
       const resp = await axios.get<SignInFormData, AxiosResponse<User>>(loginUrl, {
-        auth: { username: email, password }
+        auth: { username: email, password },
       });
       // await storage.set('auth', JSON.stringify({jwt: resp.data.jwt, user: userInfoResp.data})) //TODO: local storage
       localStorage.setItem(userStorageKey, JSON.stringify(resp.data));
@@ -249,7 +250,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         ...authValues,
         isAuthenticated: true,
         user: userToUserInfo(resp.data),
-        wcToken: getWcCredentials(resp.data.wc_api_user_keys)
+        wcToken: getWcCredentials(resp.data.wc_api_user_keys),
       });
       setLoginOpen(false);
       return {};
@@ -260,7 +261,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         return {
           error: err.message || JSON.stringify(data),
           status: err.response.status,
-          message: err.message
+          message: err.message,
         };
       } else {
         setAuthValues({ ...authValues, isAuthenticated: false, user: undefined });
@@ -280,7 +281,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     try {
       const resp = await axios.post<SignUpFormData, AxiosResponse<User, RequestError>>(
         signUpUrl,
-        { email, username, password }
+        { email, username, password },
         //{ headers: { Authorization: basicAuth } }
       );
       if (resp.status > 299) {
@@ -289,7 +290,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         throw new AxiosError(message, resp.status?.toString() || "", undefined, resp);
       }
       setLoginOpen(false);
-      await dialogs.okOnly("Registrazione effettuata", "A breve riceverai una email con un link per verificare il tuo account");
+      await dialogs.okOnly(
+        "Registrazione effettuata",
+        "A breve riceverai una email con un link per verificare il tuo account",
+      );
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
         throw err.response.data.message || "Si è verificato un errore";
@@ -339,7 +343,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     setAuthValues({
       user: undefined,
       isAuthenticated: false,
-      isLoading: false
+      isLoading: false,
     });
 
   const state: AuthContext = {
@@ -350,7 +354,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     sendPasswordResetLink,
     resetPassword,
     getGuestAuth: () => getGuestAuth(),
-    getAuthToken: () => authValues.wcToken
+    getAuthToken: () => authValues.wcToken,
   };
 
   // Guest auth interceptor
@@ -379,7 +383,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       setAuthValues({
         user: undefined,
         isAuthenticated: false,
-        isLoading: true
+        isLoading: true,
       });
       window.location.href = "/verifica-account";
     } else {
@@ -391,13 +395,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
           user: userToUserInfo(userObj),
           isAuthenticated: true,
           isLoading: false,
-          wcToken: getWcCredentials(userObj.wc_api_user_keys)
+          wcToken: getWcCredentials(userObj.wc_api_user_keys),
         });
       } else {
         setAuthValues({
           user: undefined,
           isAuthenticated: false,
-          isLoading: false
+          isLoading: false,
         });
       }
     }
@@ -419,10 +423,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
 
   return (
     <Context.Provider value={state}>
-      {(authValues.isLoading || isLoading) ? <></> : children}
-      <Dialog fullScreen={isMobile} onClose={() => handleClose()} aria-labelledby="auth-dialog-title"
-              maxWidth="sm"
-              open={loginOpen}>
+      {authValues.isLoading || isLoading ? <></> : children}
+      <Dialog
+        fullScreen={isMobile}
+        onClose={() => handleClose()}
+        aria-labelledby="auth-dialog-title"
+        maxWidth="sm"
+        open={loginOpen}>
         <Box px={6} sx={{ pt: { xs: 3, md: 6 } }} alignItems="center" display="flex">
           <Logo />
           <Box flexGrow={1} />
@@ -441,16 +448,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
             <SignUpForm disabled={isLoading} onSubmit={register} />
           )}
           <Divider sx={{ maxWidth: "80%", marginLeft: "10%" }} />
-          {error && <Alert variant="outlined" color="error" onClose={() => setError(undefined)}
-                           icon={<ErrorIcon sx={{ transform: "translateY(-1px)" }} color="error" />}>{error}</Alert>}
+          {error && (
+            <Alert
+              variant="outlined"
+              color="error"
+              onClose={() => setError(undefined)}
+              icon={<ErrorIcon sx={{ transform: "translateY(-1px)" }} color="error" />}>
+              {error}
+            </Alert>
+          )}
           <Box display="flex" flexDirection="column" gap={1} py={2}>
-            <Button variant="outlined" disabled={isLoading}
-                    onClick={() => handleAppleLogin()}
-                    endIcon={<AppleIcon color={isLoading ? "disabled" : "primary"} />}>
+            <Button
+              variant="outlined"
+              disabled={isLoading}
+              onClick={() => handleAppleLogin()}
+              endIcon={<AppleIcon color={isLoading ? "disabled" : "primary"} />}>
               Continua con Apple
             </Button>
-            <Button variant="outlined" disabled={isLoading} onClick={() => handleGoogleLogin()}
-                    endIcon={<GoogleIcon color={isLoading ? "disabled" : "primary"} />}>
+            <Button
+              variant="outlined"
+              disabled={isLoading}
+              onClick={() => handleGoogleLogin()}
+              endIcon={<GoogleIcon color={isLoading ? "disabled" : "primary"} />}>
               Continua con Google
             </Button>
             {/*<FacebookLogin
