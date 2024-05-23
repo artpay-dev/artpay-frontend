@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
   const sendPasswordResetLinkUrl = `${baseUrl}/wp-json/wp/v2/user/reset-password`;
   const passwordResetUrl = `${baseUrl}/wp-json/wp/v2/user/set-password`;
   const verifyGoogleTokenUrl = `${baseUrl}/wp-json/wp/v2/verifyGoogleToken`;
-  const verifyAppleTokenUrl = `${baseUrl}/wp-json/wp/v2/verifyGoogleToken`;
+  const verifyAppleTokenUrl = `${baseUrl}/wp-json/wp/v2/verifyAppleToken`;
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -205,7 +205,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         clientId: "art.artpay.login",
         redirectURI: "https://artpay.art",
         scope: "name email",
-        usePopup: false,
+        usePopup: true,
 
         // same as above
       },
@@ -220,14 +220,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       const authResp = await axios.post<VerifyTokenData, AxiosResponse<User>>(verifyAppleTokenUrl, {
         token: response.authorization.id_token,
       });
-      console.log("apple auth resp", authResp.data);
-      /*localStorage.setItem(userStorageKey, JSON.stringify(authResp.data));
+      localStorage.setItem(userStorageKey, JSON.stringify(authResp.data));
       setAuthValues({
         ...authValues,
         isAuthenticated: true,
         user: userToUserInfo(authResp.data),
-        wcToken: getWcCredentials(authResp.data.wc_api_user_keys)
-      });*/
+        wcToken: getWcCredentials(authResp.data.wc_api_user_keys),
+      });
       setIsLoading(false);
       setLoginOpen(false);
     } else {
