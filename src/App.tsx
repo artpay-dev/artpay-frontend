@@ -39,6 +39,7 @@ import CustomerOnboarding from "./pages/CustomerOnboarding.tsx";
 import ArtworkReserved from "./pages/ArtworkReserved.tsx";
 import Contacts from "./pages/Contacts.tsx";
 import Messages from "./pages/Messages.tsx";
+import Galleries from "./pages/Galleries.tsx";
 
 
 function AppContent() {
@@ -70,6 +71,7 @@ function AppContent() {
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/showcase" element={<Showcase />} />
+                    <Route path="/gallerie" element={<Galleries />} />
                     <Route path="/gallerie/:slug" element={<Gallery selectedTab={0} />} />
                     <Route path="/gallerie/:slug/tutte-le-opere" element={<Artworks />} />
                     <Route path="/gallerie/:slug/tutti-gli-artisti" element={<Gallery selectedTab={1} />} />

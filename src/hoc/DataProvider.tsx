@@ -71,7 +71,7 @@ export interface DataContext {
 
   getGallery(id: string): Promise<Gallery>;
 
-  getGalleries(ids: number[]): Promise<Gallery[]>;
+  getGalleries(ids?: number[]): Promise<Gallery[]>;
 
   getGalleryBySlug(slug: string): Promise<Gallery>;
 
@@ -548,7 +548,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       const resp = await axios.get<SignInFormData, AxiosResponse<Gallery>>(`${baseUrl}/wp-json/mvx/v1/vendors/${id}`, { headers: { Authorization: auth.getGuestAuth() } });
       return resp.data;
     },
-    async getGalleries(ids: number[]): Promise<Gallery[]> {
+    async getGalleries(ids?: number[]): Promise<Gallery[]> {
+      if (!ids) {
+        const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(
+          `${baseUrl}/wp-json/mvx/v1/vendors`,
+          { headers: { Authorization: auth.getGuestAuth() } }
+        );
+        return resp.data;
+      }
       return Promise.all(ids.map((id) => this.getGallery(id.toString())));
     },
     async getGalleryBySlug(slug: string): Promise<Gallery> {

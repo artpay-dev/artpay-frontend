@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import GalleryCard, { GalleryCardProps } from "./GalleryCard.tsx";
-import CardList from "./CardList.tsx";
+import CardList, { CardListProps } from "./CardList.tsx";
 import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
 import { useNavigate } from "../utils.ts";
 import { useAuth } from "../hoc/AuthProvider.tsx";
@@ -9,9 +9,16 @@ export interface GalleriesListProps {
   items: GalleryCardProps[];
   title?: string;
   onSelect?: (index: number) => void;
+  cardSize?: "small" | "medium" | "large";
 }
 
-const GalleriesList: React.FC<GalleriesListProps> = ({ items, title, onSelect }) => {
+const GalleriesList: React.FC<GalleriesListProps & Omit<CardListProps, "children">> = ({
+                                                                                         items,
+                                                                                         title,
+                                                                                         onSelect,
+                                                                                         cardSize = "large",
+                                                                                         ...props
+                                                                                       }) => {
   const data = useData();
   const auth = useAuth();
   const navigate = useNavigate();
@@ -65,7 +72,7 @@ const GalleriesList: React.FC<GalleriesListProps> = ({ items, title, onSelect })
   };
 
   return (
-    <CardList title={title} cardSize="large">
+    <CardList title={title} cardSize={cardSize} {...props}>
       {items.map((item, i) => (
         <GalleryCard
           key={i}

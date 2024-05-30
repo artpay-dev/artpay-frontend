@@ -242,21 +242,24 @@ const defaultTheme: Theme = createTheme({
     },
     MuiFilledInput: {
       styleOverrides: {
-        root: {
-          "&::before": {
-            display: "none"
-          },
-          "&::after": {
-            display: "none"
-          },
-          "&:hover": {
-            background: "#ECEDFC"
-          },
-          input: {
-            paddingTop: "6px"
-          },
-          background: "#ECEDFC!important",
-          borderRadius: "20px"
+        root: ({ ownerState }) => {
+
+          return {
+            "&::before": {
+              display: "none"
+            },
+            "&::after": {
+              display: "none"
+            },
+            "&:hover": {
+              background: "#ECEDFC"
+            },
+            input: {
+              paddingTop: "6px"
+            },
+            background: ownerState.color === "secondary" ? "" : "#ECEDFC!important",
+            borderRadius: "20px"
+          };
         },
         adornedEnd: {
           paddingRight: "2px!important",
