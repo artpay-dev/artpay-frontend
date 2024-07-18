@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
-import { Gallery } from "../types/gallery.ts";
 import { galleriesToGalleryItems, getDefaultPaddingX } from "../utils.ts";
 import { Box, Button, Chip, Grid, Typography } from "@mui/material";
 import SearchIcon from "../components/icons/SearchIcon.tsx";
 import TextField from "../components/TextField.tsx";
-import GalleriesList from "../components/GalleriesList.tsx";
 import { GalleryCardProps } from "../components/GalleryCard.tsx";
 import GalleriesGrid from "../components/GalleriesGrid.tsx";
 import SortIcon from "../components/icons/SortIcon.tsx";

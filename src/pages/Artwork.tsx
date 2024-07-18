@@ -1,15 +1,4 @@
-import {
-  Box,
-  Button,
-  Divider,
-  Grid,
-  IconButton,
-  Link,
-  Tab,
-  Typography,
-  useMediaQuery,
-  useTheme
-} from "@mui/material";
+import { Box, Button, Divider, Grid, IconButton, Link, Tab, Typography, useMediaQuery, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout";
 import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
@@ -19,11 +8,14 @@ import TabPanel from "../components/TabPanel.tsx";
 import ArtworksList from "../components/ArtworksList.tsx";
 import ArtworkDetails from "../components/ArtworkDetails.tsx";
 import {
-  artworksToGalleryItems, artworkToGalleryItem,
+  artworksToGalleryItems,
+  artworkToGalleryItem,
   formatCurrency,
   getArtworkDimensions,
   getDefaultPaddingX,
-  getPropertyFromMetadata, parseDate, useNavigate
+  getPropertyFromMetadata,
+  parseDate,
+  useNavigate,
 } from "../utils.ts";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
 import { Gallery } from "../types/gallery.ts";
@@ -51,9 +43,9 @@ import { UserProfile } from "../types/user.ts";
 import ArtworkIcon from "../components/icons/ArtworkIcon.tsx";
 import CertificateIcon from "../components/icons/CertificateIcon.tsx";
 import { Send } from "@mui/icons-material";
+import QrCodeIcon from "../components/icons/QrCodeIcon.tsx";
 
-export interface ArtworkProps {
-}
+export interface ArtworkProps {}
 
 const Artwork: React.FC<ArtworkProps> = ({}) => {
   const data = useData();
@@ -74,7 +66,6 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const [favouriteArtworks, setFavouriteArtworks] = useState<number[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile>();
 
-
   const belowSm = useMediaQuery(theme.breakpoints.down("sm"));
   const isMd = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const isLg = useMediaQuery(theme.breakpoints.only("lg"));
@@ -89,7 +80,6 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const isOutOfStock = artwork?.stock_status === "outofstock";
   const isReserved = artwork?.acf.customer_buy_reserved || false;
 
-
   const handleGalleryArtworkSelect = (i: number) => {
     if (galleryArtworks && galleryArtworks[i]) {
       setIsReady(false);
@@ -101,6 +91,11 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
     await dialogs.share(window.location.href);
   };
 
+  const handleShowQrCode = () => {
+    const qrUrl = `${window.location.protocol}//${window.location.host}/opere/${artwork?.slug}`;
+    dialogs.qrCode(qrUrl);
+  };
+
   const handleSendMessage = async () => {
     if (!artwork) {
       return;
@@ -109,13 +104,21 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       auth.login();
       return;
     }
-    await dialogs.custom("Invia un messaggio alla galleria", (closeDialog) => {
-      return <MessageDialog galleryName={galleryDetails?.display_name}
-                            data={data}
-                            userProfile={userProfile}
-                            artwork={artworkToGalleryItem(artwork)}
-                            closeDialog={closeDialog} />;
-    }, { maxWidth: "md", fullScreen: belowSm });
+    await dialogs.custom(
+      "Invia un messaggio alla galleria",
+      (closeDialog) => {
+        return (
+          <MessageDialog
+            galleryName={galleryDetails?.display_name}
+            data={data}
+            userProfile={userProfile}
+            artwork={artworkToGalleryItem(artwork)}
+            closeDialog={closeDialog}
+          />
+        );
+      },
+      { maxWidth: "md", fullScreen: belowSm },
+    );
   };
 
   const handleSetArtworkFavourite = async () => {
@@ -180,48 +183,51 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       navigate("/");
       return;
     }
-    data.getArtworkBySlug(urlParams.slug_opera).then(async (resp) => {
-      // setIsReady(false);
-      setArtwork(resp);
-      const [galleryArtworks, favouriteArtworks] = await Promise.all([
-        data.listArtworksForGallery(resp.vendor),
-        data.getFavouriteArtworks().catch((e) => {
-          snackbar.error(e);
-          return [];
-        })
-        //data.getGallery(resp.vendor),
-      ]);
-      setFavouriteArtworks(favouriteArtworks);
-      if (resp.vendor) {
-        const galleryDetails = await data.getGallery(resp.vendor);
-        setGalleryDetails(galleryDetails);
-      }
-      const artistId = getPropertyFromMetadata(resp.meta_data, "artist")?.ID;
-      if (artistId) {
-        const artistDetails = await data.getArtist(artistId);
-        setArtistDetails(artistDetails);
-        //TODO: filtro per artista
-        const artworksIds = (artistDetails.artworks || []).map((a) => a.ID.toString());
-        setArtistArtworks(
-          artworksToGalleryItems(galleryArtworks.filter((a) => artworksIds.indexOf(a.id.toString()) !== -1))
-        );
-      }
+    data
+      .getArtworkBySlug(urlParams.slug_opera)
+      .then(async (resp) => {
+        // setIsReady(false);
+        setArtwork(resp);
+        const [galleryArtworks, favouriteArtworks] = await Promise.all([
+          data.listArtworksForGallery(resp.vendor),
+          data.getFavouriteArtworks().catch((e) => {
+            snackbar.error(e);
+            return [];
+          }),
+          //data.getGallery(resp.vendor),
+        ]);
+        setFavouriteArtworks(favouriteArtworks);
+        if (resp.vendor) {
+          const galleryDetails = await data.getGallery(resp.vendor);
+          setGalleryDetails(galleryDetails);
+        }
+        const artistId = getPropertyFromMetadata(resp.meta_data, "artist")?.ID;
+        if (artistId) {
+          const artistDetails = await data.getArtist(artistId);
+          setArtistDetails(artistDetails);
+          //TODO: filtro per artista
+          const artworksIds = (artistDetails.artworks || []).map((a) => a.ID.toString());
+          setArtistArtworks(
+            artworksToGalleryItems(galleryArtworks.filter((a) => artworksIds.indexOf(a.id.toString()) !== -1)),
+          );
+        }
 
-      if (auth.isAuthenticated) {
-        data.getUserProfile().then(resp => setUserProfile(resp));
-      }
+        if (auth.isAuthenticated) {
+          data.getUserProfile().then((resp) => setUserProfile(resp));
+        }
 
-      // setGalleryDetails(galleryDetails);
-      //const galleryArtworks = await data.listArtworksForArtist(resp.vendor);
-      setGalleryArtworks(artworksToGalleryItems(galleryArtworks));
+        // setGalleryDetails(galleryDetails);
+        //const galleryArtworks = await data.listArtworksForArtist(resp.vendor);
+        setGalleryArtworks(artworksToGalleryItems(galleryArtworks));
 
-      setIsReady(true);
-    }).catch(err => {
-      if (err === "Not found") {
-        navigate("/errore/404");
-      }
-      throw err;
-    });
+        setIsReady(true);
+      })
+      .catch((err) => {
+        if (err === "Not found") {
+          navigate("/errore/404");
+        }
+        throw err;
+      });
   }, [urlParams.id, urlParams.slug_opera]);
 
   useEffect(() => {
@@ -248,12 +254,13 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const px = getDefaultPaddingX();
 
   return (
-    <DefaultLayout
-      pageLoading={!isReady}>
+    <DefaultLayout pageLoading={!isReady}>
       <Box sx={{ px: { ...px, xs: 0 }, mt: { xs: 0, sm: 12, md: 18 } }} display="flex" justifyContent="center">
-        <Grid sx={{ p: 0, mt: 0, justifyContent: "center", alignItems: "flex-start" }} spacing={{ xs: 0, sm: 3 }}
-              maxWidth="xl"
-              container>
+        <Grid
+          sx={{ p: 0, mt: 0, justifyContent: "center", alignItems: "flex-start" }}
+          spacing={{ xs: 0, sm: 3 }}
+          maxWidth="xl"
+          container>
           <Grid
             item
             xs={12}
@@ -264,22 +271,31 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               overflow: "hidden",
               display: "flex",
               alignItems: "flex-start",
-              justifyContent: "center"
+              justifyContent: "center",
             }}>
             <img
               src={artwork?.images?.length ? artwork.images[0].src : ""}
               style={{ maxHeight: sliderHeight, maxWidth: "100%", objectFit: "contain" }}
             />
           </Grid>
-          <Grid item xs={12} md={6} sx={{ px: { xs: px.xs, sm: 0 }, pt: { xs: 3, sm: 0 } }} display="flex"
-                justifyContent="flex-start"
-                flexDirection="column">
+          <Grid
+            item
+            xs={12}
+            md={6}
+            sx={{ px: { xs: px.xs, sm: 0 }, pt: { xs: 3, sm: 0 } }}
+            display="flex"
+            justifyContent="flex-start"
+            flexDirection="column">
             <Box alignItems="center" mb={1} display="flex">
               <Typography
                 sx={{ textTransform: "uppercase", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
-                color="primary" variant="body1">
-                <Link sx={{ textDecoration: "none" }}
-                      onClick={() => navigate(`/gallerie/${galleryDetails?.shop?.slug}`)}>{galleryDetails?.display_name}</Link>
+                color="primary"
+                variant="body1">
+                <Link
+                  sx={{ textDecoration: "none" }}
+                  onClick={() => navigate(`/gallerie/${galleryDetails?.shop?.slug}`)}>
+                  {galleryDetails?.display_name}
+                </Link>
               </Typography>
               <Box flexGrow={1} />
               <IconButton onClick={() => handleSetArtworkFavourite()}>
@@ -291,6 +307,9 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               </IconButton>
               <IconButton onClick={handleShare}>
                 <ShareIcon />
+              </IconButton>
+              <IconButton onClick={handleShowQrCode} size="medium">
+                <QrCodeIcon />
               </IconButton>
             </Box>
             <Typography sx={{}} variant="h1">
@@ -312,67 +331,81 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               <Typography sx={{ mt: 0 }} variant="subtitle1" color="textSecondary">
                 <CertificateIcon sx={{ mr: 0.5 }} fontSize="inherit" /> {artworkCertificate}
               </Typography>
-              {(isOutOfStock && !isReserved) &&
-                <Typography sx={{ mt: 3 }} variant="subtitle1" color="textSecondary"><LockIcon color="error"
-                                                                                               fontSize="inherit" /> Opera
-                  non disponibile</Typography>}
-              {(isReserved) &&
+              {isOutOfStock && !isReserved && (
+                <Typography sx={{ mt: 3 }} variant="subtitle1" color="textSecondary">
+                  <LockIcon color="error" fontSize="inherit" /> Opera non disponibile
+                </Typography>
+              )}
+              {isReserved && (
                 <>
                   <Typography sx={{ mt: 3 }} variant="subtitle1" color="textSecondary">
                     <LockIcon color="error" fontSize="inherit" /> Opera prenotata. Trattativa in corso
                   </Typography>
                   <Typography sx={{ mt: 1 }} variant="subtitle1" color="textSecondary">
-                    <HourglassIcon fontSize="inherit" /> Bloccata fino
-                    al {parseDate(artwork?.acf.customer_reserved_until)}
+                    <HourglassIcon fontSize="inherit" /> Bloccata fino al{" "}
+                    {parseDate(artwork?.acf.customer_reserved_until)}
                   </Typography>
-                </>}
+                </>
+              )}
             </Box>
             <Divider sx={{ mt: 6 }} />
             <Box display="flex" alignItems="center" my={3}>
-              <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>€ {artwork?.price}</Typography>
+              <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
+                € {artwork?.price}
+              </Typography>
               <Box flexGrow={1} />
-              <Button variant="contained" disabled={isOutOfStock || isReserved}
-                      onClick={() => handlePurchase(artwork?.id)}>
+              <Button
+                variant="contained"
+                disabled={isOutOfStock || isReserved}
+                onClick={() => handlePurchase(artwork?.id)}>
                 Compra opera
               </Button>
             </Box>
             <Divider />
             <Box mt={2} sx={{ my: 3 }} display="flex" alignItems="center" gap={1}>
               <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
-                € {formatCurrency(+(artwork?.price || 0) * data.downpaymentPercentage() / 100)}
+                € {formatCurrency((+(artwork?.price || 0) * data.downpaymentPercentage()) / 100)}
               </Typography>
               <Box flexGrow={1} />
               <Box display="flex" flexDirection="column" alignItems="flex-end">
                 <Button variant="outlined" disabled={isOutOfStock || isReserved} onClick={handleLoanPurchase}>
                   Prenota l’opera
                 </Button>
-                <Typography sx={{ mt: 1 }} variant="body2">Non sai come funziona? <Link color="inherit"
-                                                                                        href="#prenota-opera">Scopri
-                  di
-                  più!</Link></Typography>
+                <Typography sx={{ mt: 1 }} variant="body2">
+                  Non sai come funziona?{" "}
+                  <Link color="inherit" href="#prenota-opera">
+                    Scopri di più!
+                  </Link>
+                </Typography>
               </Box>
             </Box>
             <Divider sx={{ mb: 3 }} />
-            <Box display="flex" sx={{
-              background: theme.palette.secondary.main,
-              color: theme.palette.secondary.contrastText,
-              alignItems: { xs: "flex-start", sm: "center" },
-              py: 3,
-              px: 3,
-              borderRadius: "5px"
-            }}>
+            <Box
+              display="flex"
+              sx={{
+                background: theme.palette.secondary.main,
+                color: theme.palette.secondary.contrastText,
+                alignItems: { xs: "flex-start", sm: "center" },
+                py: 3,
+                px: 3,
+                borderRadius: "5px",
+              }}>
               <img src={artworkLoanBannerIcon} style={{ transform: `translateX(-${theme.spacing(3)})` }} />
-              <Box display="flex"
-                   sx={{ flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" } }}
-                   flexGrow={1}>
-                <Typography variant="body2" color="white"
-                            sx={{ maxWidth: { xs: undefined, sm: "calc(100% - 150px)", md: "180px", lg: "248px" } }}>
+              <Box
+                display="flex"
+                sx={{ flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" } }}
+                flexGrow={1}>
+                <Typography
+                  variant="body2"
+                  color="white"
+                  sx={{ maxWidth: { xs: undefined, sm: "calc(100% - 150px)", md: "180px", lg: "248px" } }}>
                   Per i tuoi acquisti d'arte su artpay, puoi scegliere la migliore proposta di prestito tra quelle degli
                   istituti bancari nostri partner.
                 </Typography>
                 <Box flexGrow={1} />
-                <Link variant="body1" color="inherit" href="#scopri-di-piu" sx={{ mt: { xs: 3, sm: 0 } }}>Scopri di
-                  più</Link>
+                <Link variant="body1" color="inherit" href="#scopri-di-piu" sx={{ mt: { xs: 3, sm: 0 } }}>
+                  Scopri di più
+                </Link>
               </Box>
             </Box>
             <Divider sx={{ mt: 3 }} />
@@ -383,15 +416,15 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               mt={{ xs: 3 }}
               alignItems={{ xs: "center", md: "center" }}>
               <Box flexGrow={1} display="flex" flexDirection="column" sx={{ gap: { xs: 1, sm: 0 } }}>
-                <Typography variant="subtitle1">
-                  {galleryDetails?.display_name}
+                <Typography variant="subtitle1">{galleryDetails?.display_name}</Typography>
+                <Typography variant="subtitle1" color="textSecondary">
+                  {galleryDetails?.address?.city}
                 </Typography>
-                <Typography variant="subtitle1" color="textSecondary">{galleryDetails?.address?.city}</Typography>
               </Box>
-              <Box display="flex" flexDirection={{ xs: "row", sm: "column" }}
-                   sx={{ mt: { xs: 0, sm: 0 } }}>
-                <Button variant="outlined" endIcon={<Send />} onClick={() => handleSendMessage()}>Contatta la
-                  galleria</Button>
+              <Box display="flex" flexDirection={{ xs: "row", sm: "column" }} sx={{ mt: { xs: 0, sm: 0 } }}>
+                <Button variant="outlined" endIcon={<Send />} onClick={() => handleSendMessage()}>
+                  Contatta la galleria
+                </Button>
               </Box>
             </Box>
             <Divider sx={{ mt: 3 }} />
@@ -403,7 +436,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
           sx={{
             borderBottom: 1,
             borderColor: "#CDCFD3",
-            mx: { xs: 0 }
+            mx: { xs: 0 },
           }}>
           <ResponsiveTabs value={selectedTabPanel} onChange={(_, newValue) => setSelectedTabPanel(newValue)}>
             <Tab label="Opera" />
@@ -431,14 +464,18 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         <Divider
           sx={{
             mb: { xs: 3, md: 8 },
-            mx: { xs: 0 }
+            mx: { xs: 0 },
           }}
         />
       </Box>
       <Box sx={{ px: px }}>
         <ArtworksList disablePadding title="Opere dello stesso artista" items={artistArtworks || []} />
-        <ArtworksList disablePadding title="Opere della galleria" items={galleryArtworks || []}
-                      onSelect={handleGalleryArtworkSelect} />
+        <ArtworksList
+          disablePadding
+          title="Opere della galleria"
+          items={galleryArtworks || []}
+          onSelect={handleGalleryArtworkSelect}
+        />
         <ArtworksList disablePadding title="Simili per prezzo" items={[]} />
       </Box>
       <Box id="prenota-opera" sx={{ top: "-20px", position: "relative" }}></Box>

@@ -9,6 +9,7 @@ import {
   IconButton,
   Popover,
   Typography,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import React, { createContext, ReactNode, useContext, useRef, useState } from "react";
@@ -17,6 +18,8 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import { ButtonProps } from "@mui/material/Button/Button";
 import CloseIcon from "../components/icons/CloseIcon.tsx";
 import { Breakpoint } from "@mui/system";
+import LogoWhite from "../components/icons/LogoWhite.tsx";
+import QRCode from "react-qr-code";
 
 export interface DialogOptions {
   showActions?: boolean;
@@ -30,6 +33,10 @@ export interface OkOnlyDialogOptions {
   txtOk?: string;
   okButtonVariant?: ButtonProps["variant"];
   okButtonColor?: ButtonProps["color"];
+}
+
+export interface QrCodeDialogOptions {
+  variant?: "primary" | "secondary";
 }
 
 export interface ShareDialogOptions {
@@ -46,6 +53,8 @@ export interface DialogProvider {
   okOnly(title: string | ReactNode, content: string | ReactNode, options?: OkOnlyDialogOptions): Promise<boolean>;
 
   share(link: string, title?: string, subtitle?: string, options?: ShareDialogOptions): Promise<boolean>;
+
+  qrCode(link: string, text?: string, options?: QrCodeDialogOptions): Promise<boolean>;
 
   yesNo(title: string | ReactNode, content: string | ReactNode, options?: YesNoDialogOptions): Promise<boolean>;
 
@@ -75,6 +84,7 @@ export interface DialogProviderProps extends React.PropsWithChildren {}
 const defaultContext: DialogProvider = {
   okOnly: () => Promise.reject("Dialogs not loaded"),
   yesNo: () => Promise.reject("Dialogs not loaded"),
+  qrCode: () => Promise.reject("Dialogs not loaded"),
   share: () => Promise.reject("Dialogs not loaded"),
   custom: () => Promise.reject("Dialogs not loaded"),
 };
@@ -83,6 +93,7 @@ const Context = createContext<DialogProvider>({ ...defaultContext });
 
 export const DialogProvider: React.FC<DialogProviderProps> = ({ children }) => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [open, setOpen] = useState(false);
   const [dialog, setDialog] = useState<DialogState<any>>();
 
@@ -215,6 +226,49 @@ export const DialogProvider: React.FC<DialogProviderProps> = ({ children }) => {
           resolve,
           reject,
           showActions: false,
+          padding: 3,
+          actions: [],
+        });
+        setOpen(true);
+      });
+    },
+    qrCode: (link, text, options = {}) => {
+      // eslint-disable-next-line no-empty-pattern
+      const {} = options;
+
+      const QrDialogContent = ({}) => {
+        return (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            flexDirection="column"
+            sx={{ height: "100%" }}
+            pb={12}>
+            <Box mb={6}>
+              <LogoWhite />
+            </Box>
+            <QRCode
+              value={link}
+              bgColor={theme.palette.primary.main}
+              fgColor={theme.palette.primary.contrastText}
+              size={256}
+            />
+            <Typography color="white" variant="h4" sx={{ mt: 6, px: 6, textAlign: "center" }}>
+              {text || "Inquadra il QR code per acquistare l'opera"}
+            </Typography>
+          </Box>
+        );
+      };
+      return new Promise((resolve, reject) => {
+        setDialog({
+          title: "",
+          content: <QrDialogContent />,
+          resolve,
+          reject,
+          showActions: false,
+          fullScreen: isMobile,
+          background: "primary",
           padding: 3,
           actions: [],
         });

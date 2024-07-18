@@ -1,13 +1,10 @@
 import React from "react";
-import { Box, Card, CardContent, CardMedia, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Card, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
 import FavouriteIcon from "./icons/FavouriteIcon.tsx";
 import { CardSize } from "../types";
 import FavouriteFilledIcon from "./icons/FavouriteFilledIcon.tsx";
 import QrCodeIcon from "./icons/QrCodeIcon.tsx";
 import { useDialogs } from "../hoc/DialogProvider.tsx";
-import QRCode from "react-qr-code";
-
-import LogoWhite from "./icons/LogoWhite.tsx";
 
 export interface ArtworkCardProps {
   id: string;
@@ -51,8 +48,6 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
   fitWidth = false,
 }) => {
   const dialogs = useDialogs();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const cardSize = fitWidth ? "100%" : cardSizes[size];
   const cardSizeClass = fitWidth ? `SwiperCard-fit` : `SwiperCard-${size}`;
@@ -74,34 +69,7 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
 
   const handleShowQrCode = () => {
     const qrUrl = `${window.location.protocol}//${window.location.host}/opere/${slug}`;
-    dialogs.custom(
-      "",
-      () => {
-        return (
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            flexDirection="column"
-            sx={{ height: "100%" }}
-            pb={12}>
-            <Box mb={6}>
-              <LogoWhite />
-            </Box>
-            <QRCode
-              value={qrUrl}
-              bgColor={theme.palette.primary.main}
-              fgColor={theme.palette.primary.contrastText}
-              size={256}
-            />
-            <Typography color="white" variant="h4" sx={{ mt: 6, px: 6, textAlign: "center" }}>
-              Inquadra il QR code per acquistare l'opera
-            </Typography>
-          </Box>
-        );
-      },
-      { background: "primary", fullScreen: isMobile },
-    );
+    dialogs.qrCode(qrUrl);
   };
 
   const cardStyles =
