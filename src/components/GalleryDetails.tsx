@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Gallery } from "../types/gallery";
-import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Link, Typography, useMediaQuery, useTheme } from "@mui/material";
 import DisplayImage from "./DisplayImage.tsx";
 import { galleryToGalleryContent } from "../utils.ts";
 import { useNavigate } from "../utils.ts";
@@ -70,15 +70,22 @@ const GalleryDetails: React.FC<GalleryDetailsProps> = ({ gallery }) => {
         maxWidth: { xs: undefined, md: "612px" },
         width: "100%",
         flexDirection: { xs: "column", sm: "row" },
-        alignItems: { xs: "center", sm: "flex-start" }
+        alignItems: { xs: "center", sm: "flex-start" },
       }}
       display="flex">
-      <DisplayImage borderRadius="4px" src={galleryContent.coverImage} onClick={handleClick}
-                    width={isMobile ? "100%" : 188} height={isMobile ? "auto" : 188} />
+      <DisplayImage
+        borderRadius="4px"
+        src={galleryContent.coverImage}
+        onClick={handleClick}
+        width={isMobile ? "100%" : 188}
+        height={isMobile ? "auto" : 188}
+      />
       <Box flexGrow={1} pl={{ xs: 0, sm: 3 }} pr={{ xs: 0, md: 3 }} sx={{ mt: { xs: 2, sm: 0 }, width: "100%" }}>
         <Box display="flex" flexDirection="row" alignItems="center">
           <Box flexGrow={1}>
-            <Typography variant="subtitle1">{galleryContent.title}</Typography>
+            <Typography variant="subtitle1">
+              <Link href={`/gallerie/${gallery.shop?.slug}`}>{galleryContent.title}</Link>
+            </Typography>
             <Typography variant="subtitle1" color="textSecondary">
               {galleryContent.subtitle}
             </Typography>

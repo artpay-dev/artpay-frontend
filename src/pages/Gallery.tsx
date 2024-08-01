@@ -11,7 +11,8 @@ import {
   artistsToGalleryItems,
   artworksToGalleryItems,
   galleryToGalleryContent,
-  getDefaultPaddingX, useNavigate
+  getDefaultPaddingX,
+  useNavigate,
 } from "../utils.ts";
 import GalleryArtworksList from "../components/GalleryArtworksList.tsx";
 import GalleryArtistsList from "../components/GalleryArtistsList.tsx";
@@ -51,7 +52,6 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
 
   const [galleryInfo, setGalleryInfo] = useState<GalleryInfoProps>();
 
-
   useEffect(() => {
     if (!urlParams.slug) {
       navigate("/");
@@ -73,7 +73,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
           email: gallery.email,
           phoneNumbers: [gallery.address.phone],
           website: gallery.shop.url,
-          social: { linkedin: gallery.social.linkdin, ...gallery.social }
+          social: { linkedin: gallery.social.linkdin, ...gallery.social },
         });
 
         const [artworks, artists, favouriteGalleries] = await Promise.all([
@@ -87,7 +87,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
               snackbars.error(err);
             }
             return [] as number[];
-          })
+          }),
         ]);
         setGalleryArtworks(artworksToGalleryItems(artworks, "large"));
         setGalleryArtists(artistsToGalleryItems(artists));
@@ -96,6 +96,12 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
         }
         const galleryDescription = (gallery.shop?.description || "").split("\r\n").filter((val) => !!val);
         setGalleryInfo({ description: galleryDescription });
+      })
+      .catch((err) => {
+        console.log("ERR", err);
+        if (err === "Gallery not found") {
+          navigate("/errore/404");
+        }
       })
       .finally(() => {
         setIsReady(true);
@@ -140,7 +146,6 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
     await dialogs.share(window.location.href);
   };
 
-
   /*const galleryContacts: GalleryContactsProps = {
         address: "via della Rocca 39/A 10100, Torino",
         email: "info@galleria.it",
@@ -153,19 +158,18 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
   return (
     <DefaultLayout pageLoading={!isReady || !galleryContent}>
       <Grid sx={{ px: { ...px, xs: 0, sm: 0 }, mt: { xs: 0, md: 16 } }} container>
-        <Grid
-          item
-          xs={12}
-          md="auto"
-          sx={{ position: "relative" }}>
-          <Box sx={{
-            width: { xs: "100%", md: "420px", lg: "612px", xl: "612px" },
-            height: { xs: "100%", md: "420px", lg: "612px", xl: "612px" },
-            maxWidth: "100%",
-            objectFit: "contain"
-          }}>
-            <img src={galleryContent?.coverImage}
-                 style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: isMobile ? "0" : "4px" }} />
+        <Grid item xs={12} md="auto" sx={{ position: "relative" }}>
+          <Box
+            sx={{
+              width: { xs: "100%", md: "420px", lg: "612px", xl: "612px" },
+              height: { xs: "100%", md: "420px", lg: "612px", xl: "612px" },
+              maxWidth: "100%",
+              objectFit: "contain",
+            }}>
+            <img
+              src={galleryContent?.coverImage}
+              style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: isMobile ? "0" : "4px" }}
+            />
           </Box>
           <Box
             position="absolute"
@@ -174,10 +178,13 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
               maxWidth: { xs: "64px", sm: "100px" },
               bottom: { xs: "24px" },
               left: { xs: "24px" },
-              display: { xs: "block" }
+              display: { xs: "block" },
             }}>
-            <img className="borderRadius" src={galleryContent?.logoImage}
-                 style={{ width: "100%", maxHeight: "100px" }} />
+            <img
+              className="borderRadius"
+              src={galleryContent?.logoImage}
+              style={{ width: "100%", maxHeight: "100px" }}
+            />
           </Box>
         </Grid>
         <Grid
@@ -195,9 +202,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
               <ShareIcon />
             </IconButton>
           </Box>
-          <Typography variant="h1">
-            {galleryContent?.title}
-          </Typography>
+          <Typography variant="h1">{galleryContent?.title}</Typography>
           <Typography variant="h4" color="textSecondary" sx={{ mt: 3 }}>
             {galleryContent?.subtitle}
             {galleryContent?.foundationYear ? `, ${galleryContent.foundationYear}` : ""}
@@ -216,7 +221,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
         <Box
           sx={{
             borderBottom: 1,
-            borderColor: "#CDCFD3"
+            borderColor: "#CDCFD3",
           }}>
           <ResponsiveTabs
             value={selectedTabPanel}

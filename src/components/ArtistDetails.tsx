@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Link, Typography, useMediaQuery, useTheme } from "@mui/material";
 import DisplayImage from "./DisplayImage.tsx";
 import { artistToGalleryItem } from "../utils.ts";
 import { Artist } from "../types/artist.ts";
@@ -22,7 +22,6 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
 
   const [favourites, setFavourites] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,17 +68,23 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
         width: "100%",
         flexDirection: { xs: "column", sm: "row" },
         gap: { xs: 2, md: 0 },
-        alignItems: { xs: "center", sm: "flex-start" }
+        alignItems: { xs: "center", sm: "flex-start" },
         //justifyContent: { xs: "flex-start" }
       }}
       display="flex">
-      <DisplayImage borderRadius="4px" src={artistContent.imgUrl}
-                    onClick={() => navigate(`/artisti/${artistContent.slug}`)} width={isMobile ? "100%" : 320}
-                    height={isMobile ? "auto" : 254} />
+      <DisplayImage
+        borderRadius="4px"
+        src={artistContent.imgUrl}
+        onClick={() => navigate(`/artisti/${artistContent.slug}`)}
+        width={isMobile ? "100%" : 320}
+        height={isMobile ? "auto" : 254}
+      />
       <Box flexGrow={1} pl={{ xs: 0, sm: 3 }} pr={{ xs: 0, md: 3 }}>
         <Box display="flex" flexDirection="row" alignItems="center">
           <Box flexGrow={1}>
-            <Typography variant="subtitle1">{artistContent.title}</Typography>
+            <Typography variant="subtitle1">
+              <Link href={`/artisti/${artistContent.slug}`}>{artistContent.title}</Link>
+            </Typography>
             <Typography variant="subtitle1" color="textSecondary">
               {artistContent.subtitle}
             </Typography>
@@ -99,7 +104,9 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
           sx={{ mt: 3 }}
           variant="body1"
           color="textSecondary"
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(artistContent.description || "", { allowedAttributes: false }) }}
+          dangerouslySetInnerHTML={{
+            __html: sanitizeHtml(artistContent.description || "", { allowedAttributes: false }),
+          }}
         />
       </Box>
     </Box>
