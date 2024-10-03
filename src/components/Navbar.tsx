@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Box,
@@ -20,6 +20,7 @@ import ShoppingBagIcon from "./icons/ShoppingBagIcon.tsx";
 import MenuIcon from "./icons/MenuIcon.tsx";
 import BetaLabel from "./icons/BetaLabel.tsx";
 import { useNavigate } from "../utils.ts";
+import { useData } from "../hoc/DataProvider.tsx";
 
 export interface NavbarProps {
   onMenuToggle?: (isOpen: boolean) => void;
@@ -28,10 +29,19 @@ export interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   const theme = useTheme();
   const auth = useAuth();
+  const data = useData();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
 
   const [showMenu, setShowMenu] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+  useEffect(() => {
+    data.getPendingOrder().then(pendingOrder => {
+      if (pendingOrder) {
+        setShowCheckout(true);
+      }
+    });
+  }, []);
 
   const menuOpen = showMenu && isMobile;
 
@@ -153,13 +163,15 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
                 Ciao {auth.user?.username}!
               </Typography>
             )}
-            <IconButton sx={{ mr: 4, ml: 1 }} onClick={() => handleProfileClick()} color="inherit">
+            <IconButton sx={{ mr: showCheckout ? 4 : 0, ml: 1 }} onClick={() => handleProfileClick()} color="inherit">
               <UserIcon fontSize="inherit" color="inherit" />
             </IconButton>
-            <IconButton sx={{ mr: 0, transform: { xs: undefined, md: "translateX(8px)" } }}
-                        onClick={() => handleCheckout()} color="primary">
-              <ShoppingBagIcon color="inherit" />
-            </IconButton>
+            {
+              showCheckout && <IconButton sx={{ mr: 0, transform: { xs: undefined, md: "translateX(8px)" } }}
+                                          onClick={() => handleCheckout()} color="primary">
+                <ShoppingBagIcon color="inherit" />
+              </IconButton>
+            }
           </>
         ) : (
           <>
