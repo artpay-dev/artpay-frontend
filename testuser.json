@@ -1,0 +1,46 @@
+{
+  "id": 28,
+  "username": "niccolo_castelli_1",
+  "name": "niccolo_castelli_1",
+  "first_name": "",
+  "last_name": "",
+  "email": "nicco.castelli@gmail.com",
+  "url": "",
+  "link": "https://artpay.art/author/niccolo_castelli_1/",
+  "locale": "it_IT",
+  "nickname": "niccolo_castelli_1",
+  "roles": [
+    "customer"
+  ],
+  "registered_date": "2023-11-24T08:54:23+00:00",
+  "capabilities": {
+    "edit_shop_order": true,
+    "edit_shop_orders": true,
+    "edit_users": true,
+    "list_roles": true,
+    "list_users": true,
+    "publish_shop_orders": true,
+    "read": true,
+    "read_private_products": true,
+    "read_private_shop_coupons": true,
+    "read_product": true,
+    "read_shop_coupon": true,
+    "read_shop_order": true,
+    "customer": true
+  },
+  "extra_capabilities": {
+    "customer": true
+  },
+  "_links": {
+    "self": [
+      {
+        "href": "https://artpay.art/wp-json/wp/v2/users/28"
+      }
+    ],
+    "collection": [
+      {
+        "href": "https://artpay.art/wp-json/wp/v2/users"
+      }
+    ]
+  }
+}

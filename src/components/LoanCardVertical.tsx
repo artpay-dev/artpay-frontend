@@ -7,7 +7,6 @@ export interface LoanCardVerticalProps {
 }
 
 const LoanCardVertical: React.FC<LoanCardVerticalProps> = ({ sx = {} }) => {
-
   return (
     <Box
       sx={{
@@ -19,16 +18,16 @@ const LoanCardVertical: React.FC<LoanCardVerticalProps> = ({ sx = {} }) => {
         alignItems: "flex-start",
         justifyContent: "space-between",
         flexDirection: "column",
-        ...sx
+        ...sx,
       }}
       display="flex">
-
-      <Box sx={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 3,
-        px: 5
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+          px: 5,
+        }}>
         <Typography fontWeight={500} variant="h5">
           Scegli tra i nostri partner
         </Typography>
@@ -42,9 +41,7 @@ const LoanCardVertical: React.FC<LoanCardVerticalProps> = ({ sx = {} }) => {
         </Typography>
       </Box>
 
-      <SantanderCard sx={{ width: "auto", p: 3, px: 5, mt: 3 }} background="#DDDDDD" />
-
-
+      <SantanderCard sx={{ width: "auto", p: 3, px: 5, mt: 3 }} />
     </Box>
   );
 };

@@ -1,0 +1,18 @@
+[
+  {
+    "id": 3,
+    "instance_id": 3,
+    "title": "Ritiro in sede",
+    "method_id": "local_pickup",
+    "method_title": "Ritiro in sede",
+    "method_description": "<p>Permetti ai clienti di ritirare gli ordini autonomamente. Per impostazione predefinita, quando si utilizza il ritiro in sede le imposte si applicano indipendentemente dall'indirizzo del cliente.<\/p>\n"
+  },
+  {
+    "id": 7,
+    "instance_id": 7,
+    "title": "Vendor Shipping",
+    "method_id": "mvx_vendor_shipping",
+    "method_title": "Vendor Shipping",
+    "method_description": "<p>Charge varying rates based on user defined conditions<\/p>\n"
+  }
+]

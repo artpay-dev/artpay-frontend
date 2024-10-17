@@ -1,0 +1,64 @@
+{
+  "id": "pi_3OmvJvBVvRJjw4FG0weRZjCM",
+  "object": "payment_intent",
+  "amount": 601700,
+  "amount_details": {
+    "tip": {}
+  },
+  "automatic_payment_methods": {
+    "allow_redirects": "always",
+    "enabled": true
+  },
+  "canceled_at": null,
+  "cancellation_reason": null,
+  "capture_method": "automatic",
+  "client_secret": "pi_3OmvJvBVvRJjw4FG0weRZjCM_secret_Cq1gRrYGmhYmzPqfaGG25XgfY",
+  "confirmation_method": "automatic",
+  "created": 1708681531,
+  "currency": "eur",
+  "description": "Artpay - pagamento ordine #1488",
+  "last_payment_error": null,
+  "livemode": false,
+  "next_action": {
+    "display_bank_transfer_instructions": {
+      "amount_remaining": 601700,
+      "currency": "eur",
+      "financial_addresses": [
+        {
+          "iban": {
+            "account_holder_name": "M5UXCR1",
+            "bic": "IRBBIE12XXX",
+            "country": "IE",
+            "iban": "IE888789609121601551018"
+          },
+          "supported_networks": [
+            "sepa"
+          ],
+          "type": "iban"
+        }
+      ],
+      "hosted_instructions_url": "https://payments.stripe.com/bank_transfers/instructions/test_YWNjdF8xT0V1TGdCVnZSSmp3NEZHLF9QYzlqNnd4d2RmWWNuQXhnUUNSb00yZDNEaE5wVHU10100GkML0eDa",
+      "reference": "G3PJWQRNTWXH",
+      "type": "eu_bank_transfer"
+    },
+    "type": "display_bank_transfer_instructions"
+  },
+  "payment_method": "pm_1OmvPbBVvRJjw4FGjpjv1fTB",
+  "payment_method_configuration_details": {
+    "id": "pmc_1OhBvgBVvRJjw4FGNxe2jJTA",
+    "parent": null
+  },
+  "payment_method_types": [
+    "card",
+    "sepa_debit",
+    "customer_balance",
+    "link",
+    "paypal"
+  ],
+  "processing": null,
+  "receipt_email": "nicco.castelli@gmail.com",
+  "setup_future_usage": null,
+  "shipping": null,
+  "source": null,
+  "status": "requires_action"
+}
