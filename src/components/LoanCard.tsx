@@ -13,7 +13,7 @@ const LoanCard: React.FC<LoanCardProps> = ({ sx = {} }) => {
     <Box
       sx={{
         background: theme.palette.secondary.main,
-        borderRadius: "24px",
+        borderRadius: theme.spacing(3),
         px: { xs: 4, md: 8, lg: 13 },
         py: 5,
         alignItems: "center",

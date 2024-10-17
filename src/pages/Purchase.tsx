@@ -485,10 +485,8 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
               </Button>
             </Box>
           </ContentCard>
-          {orderMode === "loan" && !isMobile && <Box sx={{ px: { xs: 0 }, mt: 3, mb: 12 }}>
-            <ContentCard title="Richiedi finanziamento" contentPadding={0} contentPaddingMobile={0}>
-              <LoanCardVertical />
-            </ContentCard>
+          {!isMobile && <Box sx={{ px: { xs: 0 }, mt: 3, mb: 12 }}>
+            <LoanCardVertical />
           </Box>}
           {/*orderMode === "loan" &&
             <ContentCard sx={{ mt: 3, pb: 1, pt: 3 }} contentPadding={3} hideHeader>
@@ -504,7 +502,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
           }
         </Grid>
       </Grid>
-      {orderMode === "loan" && isMobile && <Box sx={{ px: { ...px, xs: 0 }, mt: 3, mb: 12 }}>
+      {isMobile && <Box sx={{ px: { ...px, xs: 0 }, mt: 3, mb: 12 }}>
         <LoanCard />
       </Box>}
     </DefaultLayout>
