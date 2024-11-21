@@ -18,7 +18,6 @@ import UserIcon from "./icons/UserIcon.tsx";
 
 import ShoppingBagIcon from "./icons/ShoppingBagIcon.tsx";
 import MenuIcon from "./icons/MenuIcon.tsx";
-import BetaLabel from "./icons/BetaLabel.tsx";
 import { useNavigate } from "../utils.ts";
 import { useData } from "../hoc/DataProvider.tsx";
 
@@ -128,7 +127,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
         <Box sx={{ height: "24px", cursor: "pointer" }} display="flex" alignItems="center"
              onClick={() => handleNavigate("/")}>
           <Logo />
-          <BetaLabel ml={1} mt={0.5} />
+          {/*<BetaLabel ml={1} mt={0.5} />*/}
         </Box>
         {!isMobile && (
           <Box sx={{ ml: 3 }}>
