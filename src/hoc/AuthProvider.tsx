@@ -60,10 +60,9 @@ export interface AuthContext extends AuthState {
   getRole: () => string;
   logout: () => Promise<boolean>;
   login: (showSignIn?: boolean) => void;
-  addTemporaryOrder: (sku: string, email_EXT: string) => void;
-  checkIfExternalOrderLoggedIn: (email: string,sku: string, email_EXT: string) => void;
   sendPasswordResetLink: (email: string) => Promise<{ error?: unknown }>;
   resetPassword: (params: PasswordResetParams) => Promise<void>;
+  checkIfExternalOrder: (email: string) => Promise<void>;
   getGuestAuth: () => string;
   getAuthToken: () => string | undefined;
 }
@@ -104,11 +103,10 @@ const Context = createContext<AuthContext>({
     throw "Auth not loaded";
   },
   sendPasswordResetLink: () => Promise.reject("Auth not loaded"),
-  checkIfExternalOrderLoggedIn: () => Promise.reject("Auth not loaded"),
   resetPassword: () => Promise.reject("Auth not loaded"),
   logout: () => Promise.reject("Auth not loaded"),
   login: () => {},
-  addTemporaryOrder:() =>{},
+  checkIfExternalOrder: () => Promise.reject("Auth not loaded"),
   getGuestAuth: () => getGuestAuth(),
   getAuthToken: () => undefined,
 });
@@ -131,7 +129,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
   const [isSignIn, setIsSignIn] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
-  const [temporaryOrder, setTemporaryOrder] = useState<TemporaryOrder | undefined>();
 
   const [authValues, setAuthValues] = React.useState<AuthState>({
     isAuthenticated: false,
@@ -290,7 +287,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
   };
 
   const checkIfExternalOrder = async (email: string) : Promise<void> => {
-    if (temporaryOrder) {
+    const temporaryOrderLocal = localStorage.getItem('temporaryOrder');
+    console.log(temporaryOrderLocal);
+    if (temporaryOrderLocal) {
+      const temporaryOrder = JSON.parse(temporaryOrderLocal);
       try {
         const request: TemporaryOrderCreateRequest = {
           ...temporaryOrder,
@@ -307,6 +307,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
           }
         );
 
+        localStorage.removeItem('temporaryOrder');
 
         console.log("Temporary order created successfully:", response.status);
       } catch (error) {
@@ -323,42 +324,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         }
       }
     }
-  }
-
-  const checkIfExternalOrderLoggedIn = async (email: string,sku: string, email_EXT: string) : Promise<void> => {
-    debugger;
-    try {
-        const request: TemporaryOrderCreateRequest = {
-          sku,
-          email_EXT,
-          email_ART: email
-        };
-
-        const response = await axios.post(
-          addTemporaryOrderUrl,
-          request,
-          {
-            headers: {
-              Authorization: getGuestAuth(),
-            },
-          }
-        );
-
-
-        console.log("Temporary order created successfully:", response.status);
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          if (error.response) {
-            console.error("Errore API:", error.response.status, error.response.data);
-          } else if (error.request) {
-            console.error("Nessuna risposta ricevuta dal server:", error.request);
-          } else {
-            console.error("Errore nella configurazione della richiesta:", error.message);
-          }
-        } else {
-          console.error("Errore imprevisto:", error);
-        }
-      }
   }
 
   const register = async ({ email, username, password }: SignUpFormData) => {
@@ -438,8 +403,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
   const state: AuthContext = {
     ...authValues,
     login: showLoginDialog,
-    checkIfExternalOrderLoggedIn,
-    addTemporaryOrder: (sku: string, email_EXT: string) => setTemporaryOrder({sku,email_EXT}),
+    checkIfExternalOrder,
     logout,
     getRole,
     sendPasswordResetLink,

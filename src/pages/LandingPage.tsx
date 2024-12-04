@@ -23,21 +23,20 @@ const Home: React.FC<HomeProps> = ({}) => {
   useEffect(() => {
     setIsReady(false);
     if(sku && email){
-      auth.addTemporaryOrder(sku,email);
+      localStorage.setItem('temporaryOrder', JSON.stringify({sku,email}));
     }
     if (!auth.isAuthenticated) {
       auth.login();
     }
     else{
         data.getUserProfile().then((userInfo) => {
-          if(sku && email) {
-            auth.checkIfExternalOrderLoggedIn(userInfo.email,sku,email);
-          }
-          const checkedExternalOrderKey = localStorage.getItem(CheckedExternalOrderKey);
-          if(checkedExternalOrderKey){
-            localStorage.removeItem(CheckedExternalOrderKey);
-          }
-          navigate('/');
+          auth.checkIfExternalOrder(userInfo.email).then(() =>{
+            const checkedExternalOrderKey = localStorage.getItem(CheckedExternalOrderKey);
+            if(checkedExternalOrderKey){
+              localStorage.removeItem(CheckedExternalOrderKey);
+            }
+            navigate('/');
+          });
         })
     }
   }, [auth.isAuthenticated, sku, email]);
