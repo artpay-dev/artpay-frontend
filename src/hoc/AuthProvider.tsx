@@ -61,6 +61,7 @@ export interface AuthContext extends AuthState {
   logout: () => Promise<boolean>;
   login: (showSignIn?: boolean) => void;
   addTemporaryOrder: (sku: string, email_EXT: string) => void;
+  checkIfExternalOrderLoggedIn: (email: string,sku: string, email_EXT: string) => void;
   sendPasswordResetLink: (email: string) => Promise<{ error?: unknown }>;
   resetPassword: (params: PasswordResetParams) => Promise<void>;
   getGuestAuth: () => string;
@@ -103,6 +104,7 @@ const Context = createContext<AuthContext>({
     throw "Auth not loaded";
   },
   sendPasswordResetLink: () => Promise.reject("Auth not loaded"),
+  checkIfExternalOrderLoggedIn: () => Promise.reject("Auth not loaded"),
   resetPassword: () => Promise.reject("Auth not loaded"),
   logout: () => Promise.reject("Auth not loaded"),
   login: () => {},
@@ -287,7 +289,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     }
   };
 
-  async function checkIfExternalOrder(email: string) {
+  const checkIfExternalOrder = async (email: string) : Promise<void> => {
     if (temporaryOrder) {
       try {
         const request: TemporaryOrderCreateRequest = {
@@ -321,6 +323,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         }
       }
     }
+  }
+
+  const checkIfExternalOrderLoggedIn = async (email: string,sku: string, email_EXT: string) : Promise<void> => {
+    debugger;
+    try {
+        const request: TemporaryOrderCreateRequest = {
+          sku,
+          email_EXT,
+          email_ART: email
+        };
+
+        const response = await axios.post(
+          addTemporaryOrderUrl,
+          request,
+          {
+            headers: {
+              Authorization: getGuestAuth(),
+            },
+          }
+        );
+
+
+        console.log("Temporary order created successfully:", response.status);
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          if (error.response) {
+            console.error("Errore API:", error.response.status, error.response.data);
+          } else if (error.request) {
+            console.error("Nessuna risposta ricevuta dal server:", error.request);
+          } else {
+            console.error("Errore nella configurazione della richiesta:", error.message);
+          }
+        } else {
+          console.error("Errore imprevisto:", error);
+        }
+      }
   }
 
   const register = async ({ email, username, password }: SignUpFormData) => {
@@ -400,6 +438,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
   const state: AuthContext = {
     ...authValues,
     login: showLoginDialog,
+    checkIfExternalOrderLoggedIn,
     addTemporaryOrder: (sku: string, email_EXT: string) => setTemporaryOrder({sku,email_EXT}),
     logout,
     getRole,

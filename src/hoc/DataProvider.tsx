@@ -238,7 +238,7 @@ const ArtistCategoryMapStorageKey = "ArtistCategoryMap";
 const CategoryMapStorageKey = "CategoryMap";
 
 const PendingOrderStorageKey = "PendingOrder";
-const CheckedExternalOrderKey = "externalOrderChecked";
+export const CheckedExternalOrderKey = "externalOrderChecked";
 
 const Context = createContext<DataContext>({ ...defaultContext });
 const categoryMap: CategoryMap = {};
@@ -1055,6 +1055,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
   // Auth event listeners
   useEffect(() => {
     const handleUserLoggedIn = () => {
+      const checkedExternalOrderKey = localStorage.getItem(CheckedExternalOrderKey);
+      if(checkedExternalOrderKey){
+        localStorage.removeItem(CheckedExternalOrderKey);
+      }
       const pendingOrderStr = localStorage.getItem(PendingOrderStorageKey);
       if (!pendingOrderStr) {
         return;
@@ -1065,7 +1069,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
 
         dataContext.purchaseArtwork(pendingOrder.line_items[0].product_id).then(() => {
           localStorage.removeItem(PendingOrderStorageKey);
-          localStorage.removeItem(CheckedExternalOrderKey);
         }).finally(() => {
           setIsLoading(false);
         });

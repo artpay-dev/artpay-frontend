@@ -4,6 +4,7 @@ import HeroHome from "../components/HeroHome.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "../utils.ts";
+import { CheckedExternalOrderKey, useData } from "../hoc/DataProvider.tsx";
 
 export interface HomeProps {
 }
@@ -13,7 +14,7 @@ const Home: React.FC<HomeProps> = ({}) => {
   const auth = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-
+  const data = useData();
 
   const sku = searchParams.get("sku");
   const email = searchParams.get("email");
@@ -28,7 +29,16 @@ const Home: React.FC<HomeProps> = ({}) => {
       auth.login();
     }
     else{
-      navigate('/');
+        data.getUserProfile().then((userInfo) => {
+          if(sku && email) {
+            auth.checkIfExternalOrderLoggedIn(userInfo.email,sku,email);
+          }
+          const checkedExternalOrderKey = localStorage.getItem(CheckedExternalOrderKey);
+          if(checkedExternalOrderKey){
+            localStorage.removeItem(CheckedExternalOrderKey);
+          }
+          navigate('/');
+        })
     }
   }, [auth.isAuthenticated, sku, email]);
 
