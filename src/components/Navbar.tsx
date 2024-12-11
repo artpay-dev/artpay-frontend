@@ -21,6 +21,7 @@ import MenuIcon from "./icons/MenuIcon.tsx";
 import BetaLabel from "./icons/BetaLabel.tsx";
 import { useNavigate } from "../utils.ts";
 import { useData } from "../hoc/DataProvider.tsx";
+import { useLocation } from "react-router-dom";
 
 export interface NavbarProps {
   onMenuToggle?: (isOpen: boolean) => void;
@@ -32,6 +33,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   const data = useData();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [showMenu, setShowMenu] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
@@ -46,15 +48,18 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
     try {
       if (auth.isAuthenticated) {
         await data.getExternalOrder();
-        navigate('/acquisto-esterno');
+
+        if (location.pathname !== '/acquisto-esterno') {
+          navigate('/acquisto-esterno');
+        }
       } else {
         await handlePendingOrder();
       }
     } catch (error) {
-      console.error('No external order found:', error);
       await handlePendingOrder();
     }
   };
+
 
   useEffect(() => {
     handleOrders();

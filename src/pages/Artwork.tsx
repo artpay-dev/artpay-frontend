@@ -351,7 +351,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
             <Divider sx={{ mt: 6 }} />
             <Box display="flex" alignItems="center" my={3}>
               <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
-                € {artwork?.price}
+                € {formatCurrency((+(artwork?.price || 0)))}
               </Typography>
               <Box flexGrow={1} />
               <Button

@@ -1,6 +1,7 @@
 import React from "react";
 import santanderLogo from "../assets/images/santander_logo_1.svg";
 import { Box, BoxProps, Button, Typography } from "@mui/material";
+import { useAuth } from "../hoc/AuthProvider.tsx";
 
 export interface SantanderCardProps {
   background?: string;
@@ -8,6 +9,25 @@ export interface SantanderCardProps {
 }
 
 const SantanderCard: React.FC<SantanderCardProps> = ({ background = "#F5F5F5", sx = {} }) => {
+
+  const { user } = useAuth();
+
+  const handleButtonClick = () => {
+    if (window.Brevo) {
+
+      const event_name = 'santander_click';
+      const properties = {
+            id: user?.id || "anonimo",
+            username: user?.username || "non fornito",
+        };
+      window.Brevo.push([
+        "track",
+        event_name,
+        properties,
+      ]);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -32,7 +52,8 @@ const SantanderCard: React.FC<SantanderCardProps> = ({ background = "#F5F5F5", s
         sx={{ textAlign: "center" }}
         href="https://www.santanderconsumer.it/prestito/partner/artpay"
         target="_blank"
-        variant="contained">
+        variant="contained"
+        onClick={handleButtonClick}>
         Calcola la rata
       </Button>
       <Typography sx={{ textAlign: "center", width: "100%", mt: 1 }} fontWeight={500} variant="caption">

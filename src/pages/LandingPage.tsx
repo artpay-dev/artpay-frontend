@@ -30,12 +30,13 @@ const Home: React.FC<HomeProps> = ({}) => {
     }
     else{
         data.getUserProfile().then((userInfo) => {
-          auth.checkIfExternalOrder(userInfo.email).then(() =>{
+          auth.checkIfExternalOrder(userInfo.email).then((resp: any) =>{
             const checkedExternalOrderKey = localStorage.getItem(CheckedExternalOrderKey);
             if(checkedExternalOrderKey){
               localStorage.removeItem(CheckedExternalOrderKey);
             }
-            navigate('/');
+            if(resp.status === 200) navigate('/acquisto-esterno');
+
           });
         })
     }

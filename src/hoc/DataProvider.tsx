@@ -691,7 +691,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
           localStorage.setItem(CheckedExternalOrderKey, 'true');
 
         } catch (error) {
-          console.error('Error fetching external order:', error);
           throw 'order not found';
         }
       }

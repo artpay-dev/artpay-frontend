@@ -115,7 +115,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/wp-json": {
-        target: "https://artpay.art",
+        target: "https://staging2.artpay.art",
         changeOrigin: true,
         secure: true,
         ws: true,

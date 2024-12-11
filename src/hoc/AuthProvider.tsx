@@ -62,7 +62,7 @@ export interface AuthContext extends AuthState {
   login: (showSignIn?: boolean) => void;
   sendPasswordResetLink: (email: string) => Promise<{ error?: unknown }>;
   resetPassword: (params: PasswordResetParams) => Promise<void>;
-  checkIfExternalOrder: (email: string) => Promise<void>;
+  checkIfExternalOrder: (email: string) => Promise<any>;
   getGuestAuth: () => string;
   getAuthToken: () => string | undefined;
 }
@@ -286,7 +286,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     }
   };
 
-  const checkIfExternalOrder = async (email: string) : Promise<void> => {
+  const checkIfExternalOrder = async (email: string) : Promise<any> => {
     const temporaryOrderLocal = localStorage.getItem('temporaryOrder');
     console.log(temporaryOrderLocal);
     if (temporaryOrderLocal) {
@@ -308,7 +308,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         );
 
         localStorage.removeItem('temporaryOrder');
-
+        return response;
         console.log("Temporary order created successfully:", response.status);
       } catch (error) {
         if (axios.isAxiosError(error)) {

@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { PiCreditCardThin } from "react-icons/pi";
+import { Tabs, Tab, Box, Typography } from "@mui/material";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "./CheckoutForm.tsx";
 import ContentCard from "./ContentCard.tsx";
 import { usePayments } from "../hoc/PaymentProvider.tsx";
 import { useTheme } from "@mui/material";
 import { PaymentIntent, StripePaymentElement } from "@stripe/stripe-js";
+import LoanCardVertical from "./LoanCardVertical.tsx";
 
 export interface PaymentCardProps {
+  tabTitles: string[]; // Nuova proprietà per i titoli delle tab
   onReady?: (element: StripePaymentElement) => any;
   onCheckout?: () => void;
   checkoutButtonRef?: React.RefObject<HTMLButtonElement>;
@@ -16,52 +19,93 @@ export interface PaymentCardProps {
 }
 
 const PaymentCard: React.FC<PaymentCardProps> = ({
+                                                   tabTitles, // Ricezione dei titoli come prop
                                                    paymentIntent,
                                                    onReady,
                                                    onCheckout,
                                                    checkoutButtonRef,
-                                                   thankYouPage
+                                                   thankYouPage,
                                                  }) => {
   const payments = usePayments();
   const theme = useTheme();
+
+  const [selectedTab, setSelectedTab] = useState(0);
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setSelectedTab(newValue);
+  };
 
   return (
     <ContentCard
       title="Metodo di pagamento"
       icon={<PiCreditCardThin size="28px" />}
       contentPadding={0}
-      contentPaddingMobile={0}>
-      {paymentIntent && (
-        <Elements
-          stripe={payments.stripe}
-          options={{
-            clientSecret: paymentIntent.client_secret || undefined,
-            loader: "always",
-            appearance: {
-              theme: "stripe",
-              variables: {
-                borderRadius: "24px"
-              },
-              rules: {
-                ".AccordionItem": {
-                  border: "none",
-                  paddingLeft: "24px",
-                  paddingRight: "24px"
-                },
-                ".Input:focus": {
-                  boxShadow: "none",
-                  borderColor: theme.palette.primary.main,
-                  borderWidth: "2px"
-                },
-                ".Input:hover": {
-                  borderColor: theme.palette.primary.main
-                }
-              }
-            }
-          }}>
-          <CheckoutForm ref={checkoutButtonRef} onReady={onReady} onCheckout={onCheckout} thankYouPage={thankYouPage} />
-        </Elements>
-      )}
+      contentPaddingMobile={0}
+    >
+      {/* Tabs for switching payment methods */}
+      <Tabs
+        value={selectedTab}
+        onChange={handleTabChange}
+        indicatorColor="primary"
+        textColor="primary"
+        variant="fullWidth"
+      >
+        {tabTitles.map((title, index) => (
+          <Tab key={index} label={title} />
+        ))}
+      </Tabs>
+
+      <Box sx={{ mt: 3 }}>
+        {selectedTab === 0 && (
+          <>
+            {paymentIntent && (
+              <Elements
+                stripe={payments.stripe}
+                options={{
+                  clientSecret: paymentIntent.client_secret || undefined,
+                  loader: "always",
+                  appearance: {
+                    theme: "stripe",
+                    variables: {
+                      borderRadius: "24px",
+                    },
+                    rules: {
+                      ".AccordionItem": {
+                        border: "none",
+                        paddingLeft: "24px",
+                        paddingRight: "24px",
+                      },
+                      ".Input:focus": {
+                        boxShadow: "none",
+                        borderColor: theme.palette.primary.main,
+                        borderWidth: "2px",
+                      },
+                      ".Input:hover": {
+                        borderColor: theme.palette.primary.main,
+                      },
+                    },
+                  },
+                }}
+              >
+                <CheckoutForm
+                  ref={checkoutButtonRef}
+                  onReady={onReady}
+                  onCheckout={onCheckout}
+                  thankYouPage={thankYouPage}
+                />
+              </Elements>
+            )}
+          </>
+        )}
+
+        {selectedTab === 1 && (
+          <Box>
+            <Typography variant="body1">
+              <LoanCardVertical />
+            </Typography>
+          </Box>
+        )}
+      </Box>
     </ContentCard>
   );
 };

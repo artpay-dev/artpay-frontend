@@ -10,7 +10,6 @@ import {
   Link,
   RadioGroup,
   Typography,
-  useMediaQuery, useTheme
 } from "@mui/material";
 import ContentCard from "../components/ContentCard.tsx";
 import UserIcon from "../components/icons/UserIcon.tsx";
@@ -40,9 +39,7 @@ import BillingDataForm from "../components/BillingDataForm.tsx";
 import BillingDataPreview from "../components/BillingDataPreview.tsx";
 import ErrorIcon from "../components/icons/ErrorIcon.tsx";
 import { Gallery } from "../types/gallery.ts";
-import LoanCard from "../components/LoanCard.tsx";
 import { useParams } from "react-router-dom";
-import LoanCardVertical from "../components/LoanCardVertical.tsx";
 
 export interface PurchaseProps {
   orderMode?: "standard" | "loan" | "redeem" | "external";
@@ -55,7 +52,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
   const navigate = useNavigate();
   const payments = usePayments();
   const urlParams = useParams();
-  const theme = useTheme();
 
   const checkoutButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -77,7 +73,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
   const [galleries, setGalleries] = useState<Gallery[]>([]);
 
   orderMode = (orderMode === "loan" || pendingOrder?.customer_note === "Blocco opera") ? "loan" : orderMode;
-  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
   const showError = async (err?: unknown, text: string = "Si è verificato un errore") => {
     if (isAxiosError(err) && err.response?.data?.message) {
@@ -136,6 +131,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                 paymentIntent = await data.createPaymentIntent({ wc_order_key: resp.order_key });
               }
             }
+            debugger;
             setPaymentIntent(paymentIntent);
             data.getGalleries(artworks.map(a => +a.vendor)).then(galleries => setGalleries(galleries));
           } else {
@@ -326,6 +322,20 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
               </Typography>
             </Box>
           }
+          <PaymentCard
+            checkoutButtonRef={checkoutButtonRef}
+            onCheckout={() => handleSubmitCheckout()}
+            onReady={() => setCheckoutReady(true)}
+            paymentIntent={paymentIntent}
+            thankYouPage={thankYouPage}
+            tabTitles={[
+              paymentIntent != undefined ? paymentIntent.payment_method_types
+                .map((method) => method.charAt(0).toUpperCase() + method.slice(1))
+                .join(", ") : "Metodi classici",
+              "Santander",
+            ]}
+          />
+
           <ContentCard title="Informazioni di contatto" icon={<UserIcon />} headerButtons={contactHeaderButtons}>
             {!auth.isAuthenticated && (
               <Button onClick={() => auth.login()} sx={{ maxWidth: "320px", mb: 2 }} variant="contained" fullWidth>
@@ -393,14 +403,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
               </RadioGroup>
             </ContentCard>
           )}
-
-          <PaymentCard
-            checkoutButtonRef={checkoutButtonRef}
-            onCheckout={() => handleSubmitCheckout()}
-            onReady={() => setCheckoutReady(true)}
-            paymentIntent={paymentIntent}
-            thankYouPage={thankYouPage}
-          />
         </Grid>
         <Grid item xs={12} md={4} sx={{ mb: { xs: 4, md: 0 } }}>
           <ContentCard
@@ -494,9 +496,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
               </Button>
             </Box>
           </ContentCard>
-          {!isMobile && <Box sx={{ px: { xs: 0 }, mt: 3, mb: 12 }}>
-            <LoanCardVertical />
-          </Box>}
           {/*orderMode === "loan" &&
             <ContentCard sx={{ mt: 3, pb: 1, pt: 3 }} contentPadding={3} hideHeader>
               <Typography variant="body2">
@@ -511,9 +510,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
           }
         </Grid>
       </Grid>
-      {isMobile && <Box sx={{ px: { ...px, xs: 0 }, mt: 3, mb: 12 }}>
-        <LoanCard />
-      </Box>}
     </DefaultLayout>
   );
 };
