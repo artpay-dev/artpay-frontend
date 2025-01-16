@@ -23,7 +23,8 @@ import {
   OrderFilters, OrderStatus,
   OrderUpdateRequest,
   PaymentIntentRequest,
-  ShippingMethodOption
+  ShippingMethodOption,
+  UpdatePaymentIntentRequest
 } from "../types/order.ts";
 import { PaymentIntent } from "@stripe/stripe-js";
 import {
@@ -68,6 +69,8 @@ export interface DataContext {
   getPageBySlug(slug: string): Promise<Post>;
 
   listGalleries(): Promise<Gallery[]>;
+
+  updatePaymentIntent: (data: UpdatePaymentIntentRequest) => Promise<PaymentIntent>;
 
   getGallery(id: string): Promise<Gallery>;
 
@@ -230,7 +233,7 @@ const defaultContext: DataContext = {
   getFavouriteGalleries: () => Promise.reject("Data provider loaded"),
   addFavouriteGallery: () => Promise.reject("Data provider loaded"),
   removeFavouriteGallery: () => Promise.reject("Data provider loaded"),
-
+  updatePaymentIntent: () => Promise.reject("Data provider loaded"),
   getCategoryMapValues: () => [],
   getArtistCategories: () => [],
   downpaymentPercentage: () => 0
@@ -854,7 +857,16 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       localStorage.setItem(cacheKey, JSON.stringify(resp.data));
       return resp.data;
     },
-
+    async updatePaymentIntent (data: UpdatePaymentIntentRequest): Promise<PaymentIntent> {
+      const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
+        `${baseUrl}/wp-json/wc/v3/stripe/upd_payment_intent_fee`,
+        data,
+        {headers: {
+          Authorization: auth.getAuthToken()
+        }}
+      );
+      return resp.data;
+    },
     async createRedeemIntent(body: PaymentIntentRequest): Promise<PaymentIntent> {
       const cacheKey = `payment-intents-redeem-${body.wc_order_key}`;
       const cachedItem = localStorage.getItem(cacheKey);

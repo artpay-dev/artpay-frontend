@@ -9,11 +9,12 @@ import { Alert, AlertTitle, Box, Button, Grid } from "@mui/material";
 type CheckoutFormProps = {
   thankYouPage?: string;
   onReady?: (element: StripePaymentElement) => any;
-  onCheckout?: () => void
+  onCheckout?: () => void;
+  onChange?: (payment_method: string) => void;
   ref?: MutableRefObject<HTMLButtonElement | null>;
 };
 const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
-  ({ onReady, thankYouPage = "/thank-you-page", onCheckout }, ref) => {
+  ({ onReady, thankYouPage = "/thank-you-page", onCheckout, onChange}, ref) => {
     const stripe = useStripe();
     const elements = useElements();
 
@@ -72,8 +73,8 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
         )}
         <PaymentElement
           id="payment-element"
-          onChange={(event:StripePaymentElementChangeEvent) => {
-            console.log('EVENTO STRIPE: ',event.value.type);
+          onChange={async (event: StripePaymentElementChangeEvent) => {
+            if (onChange) await onChange(event.value.type);
           }}
           options={{
             layout: "accordion"

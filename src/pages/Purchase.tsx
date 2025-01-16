@@ -61,6 +61,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
 
   const [isReady, setIsReady] = useState(false);
   const [paymentsReady, setPaymentsReady] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [checkoutReady, setCheckoutReady] = useState(false);
   const [noPendingOrder, setNoPendingOrder] = useState(false);
@@ -69,12 +70,15 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
   const [shippingDataEditing, setShippingDataEditing] = useState(false);
   const [requireInvoice, setRequireInvoice] = useState(false);
   const [privacyChecked, setPrivacyChecked] = useState(false);
+  const [showCommissioni, setShowCommissioni] = useState(false);
+
 
   const [availableShippingMethods, setAvailableShippingMethods] = useState<ShippingMethodOption[]>([]);
   const [pendingOrder, setPendingOrder] = useState<Order>();
   const [paymentIntent, setPaymentIntent] = useState<PaymentIntent>();
   const [artworks, setArtworks] = useState<ArtworkCardProps[]>([]);
   const [galleries, setGalleries] = useState<Gallery[]>([]);
+
 
   orderMode = (orderMode === "loan" || pendingOrder?.customer_note === "Blocco opera") ? "loan" : orderMode;
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -238,8 +242,15 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
     }
     updatedOrder.shipping_lines = [updatedShippingLine];
     try {
-      const updatedOrderResp = await data.updateOrder(pendingOrder.id, updatedOrder);
-      setPendingOrder(updatedOrderResp);
+      await data.updateOrder(pendingOrder.id, updatedOrder);
+      let paymentMethodForUpdate = "Santander"
+      if (paymentMethod === "Carta") {
+        paymentMethodForUpdate = "card";
+      } else if (paymentMethod === "Klarna") {
+        paymentMethodForUpdate = "klarna";
+      }
+      await onChangePaymentMethod(paymentMethodForUpdate);
+      //setPendingOrder(updatedOrderResp);
     } catch (e) {
       console.error(e);
       await showError(e);
@@ -264,6 +275,39 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
   };
   const handleSubmitCheckout = () => {
     console.log("submit checkout", pendingOrder);
+  };
+
+  const onChangePaymentMethod = async (payment: string): Promise<void> => {
+    if (pendingOrder) {
+      const wc_order_key = pendingOrder.order_key;
+      console.log("Payment method: ", payment, wc_order_key);
+      try {
+        const newPaymentIntent = await data.updatePaymentIntent({ wc_order_key, payment_method: payment });
+        console.log(newPaymentIntent);
+        setPaymentIntent(newPaymentIntent);
+        if (payment === "card") {
+          setPaymentMethod("Carta");
+        } else if (payment === "klarna") {
+          setPaymentMethod("Klarna");
+        } else if (payment === "Santander") {
+          setPaymentMethod("Santander");
+        }
+
+        const getOrderFunction =
+        orderMode === "redeem" && urlParams.order_id
+          ? data.getOrder(+urlParams.order_id)
+          : orderMode === "onHold"
+            ? data.getOnHoldOrder()
+            : data.getPendingOrder();
+            
+        const order = await getOrderFunction;
+        if (order) setPendingOrder(order);
+        setShowCommissioni(true);
+      } catch (e) {
+        console.error('Update payment method error: ', e);
+        setShowCommissioni(false);
+      }
+    }
   };
 
   const contactHeaderButtons: ReactNode[] = [];
@@ -324,33 +368,37 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
     <DefaultLayout pageLoading={!isReady || !paymentsReady} pb={6}>
       <Grid mt={16} spacing={3} sx={{ px: px }} container>
         <Grid item gap={3} display="flex" flexDirection="column" xs={12} md={8}>
-          {orderMode === "loan" &&
+          {orderMode === "loan" && (
             <Box sx={{ borderTop: `1px solid #d8ddfa`, borderBottom: `1px solid #d8ddfa` }} py={3} mb={8}>
-              <Typography
-                variant="h1">Prenota {artworks?.length ? artworks[0].title : "l'opera"}{artworks?.length && artworks[0].year ? `, ${artworks[0].year}` : ""}</Typography>
+              <Typography variant="h1">
+                Prenota {artworks?.length ? artworks[0].title : "l'opera"}
+                {artworks?.length && artworks[0].year ? `, ${artworks[0].year}` : ""}
+              </Typography>
               <Typography variant="body1" sx={{ mt: 3, fontWeight: 500 }}>
-                Per 7 giorni avrai diritto esclusivo di acquisto di quest’opera.
-                Nessun altro potrà prenotarla o acquistarla. Durante questo periodo, potrai completare l’acquisto con le
-                modalità a te preferite.
+                Per 7 giorni avrai diritto esclusivo di acquisto di quest’opera. Nessun altro potrà prenotarla o
+                acquistarla. Durante questo periodo, potrai completare l’acquisto con le modalità a te preferite.
               </Typography>
             </Box>
-          }
+          )}
           <PaymentCard
             checkoutButtonRef={checkoutButtonRef}
             onCheckout={() => handleSubmitCheckout()}
+            onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
             onReady={() => setCheckoutReady(true)}
             paymentIntent={paymentIntent}
             thankYouPage={thankYouPage}
             tabTitles={[
-              paymentIntent != undefined ? paymentIntent.payment_method_types
-                .map((method) => {
-                  if(method.toUpperCase() === "CUSTOMER_BALANCE"){
-                    return "Bonifico Bancario";
-                  }
-                  else{
-                    return method.charAt(0).toUpperCase() + method.slice(1);
-                  }
-                }).join(", ") : "Metodi classici",
+              paymentIntent != undefined
+                ? paymentIntent.payment_method_types
+                    .map((method) => {
+                      if (method.toUpperCase() === "CUSTOMER_BALANCE") {
+                        return "Bonifico Bancario";
+                      } else {
+                        return method.charAt(0).toUpperCase() + method.slice(1);
+                      }
+                    })
+                    .join(", ")
+                : "Metodi classici",
               "Santander",
             ]}
           />
@@ -361,7 +409,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                 Effettua il login
               </Button>
             )}
-            {(orderMode !== "loan" && auth.isAuthenticated) && (
+            {orderMode !== "loan" && auth.isAuthenticated && (
               <>
                 <Typography variant="h6" sx={{ mb: 1 }} color="textSecondary">
                   Dati di spedizione
@@ -404,7 +452,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
               </Box>
             )}
           </ContentCard>
-          {(orderMode !== "loan" && auth.isAuthenticated) && (
+          {orderMode !== "loan" && auth.isAuthenticated && (
             <ContentCard title="Metodo di spedizione" icon={<PiTruckThin size="28px" />}>
               <RadioGroup defaultValue="selected" name="radio-buttons-group">
                 {availableShippingMethods.map((s) => (
@@ -449,10 +497,11 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                   <Typography variant="body1" fontWeight={500}>
                     {artworks[i]?.galleryName}
                   </Typography>
-                  {(galleries?.length === artworks?.length && !!galleries[i]?.address?.city) &&
+                  {galleries?.length === artworks?.length && !!galleries[i]?.address?.city && (
                     <Typography variant="body1" fontWeight={500} color="textSecondary">
                       {galleries[i]?.address?.city}
-                    </Typography>}
+                    </Typography>
+                  )}
                 </Box>
               ))}
             </Box>
@@ -461,36 +510,80 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
               {orderMode === "loan" ? (
                 <>
                   <Box display="flex" justifyContent="space-between">
-                    <Typography variant="body1" fontWeight={500}>Costo opera</Typography>
-                    <Typography variant="body1" fontWeight={500}>€ {pendingOrder?.total}</Typography>
+                    <Typography variant="body1" fontWeight={500}>
+                      Costo opera
+                    </Typography>
+                    <Typography variant="body1" fontWeight={500}>
+                      € {pendingOrder?.total}
+                    </Typography>
                   </Box>
                   <Box display="flex" justifyContent="space-between">
-                    <Typography variant="body1" fontWeight={500}>Caparra</Typography>
-                    <Typography variant="body1"
-                                fontWeight={500}>{data.downpaymentPercentage()}%</Typography>
+                    <Typography variant="body1" fontWeight={500}>
+                      Caparra
+                    </Typography>
+                    <Typography variant="body1" fontWeight={500}>
+                      {data.downpaymentPercentage()}%
+                    </Typography>
                   </Box>
                   <Box display="flex" justifyContent="space-between">
-                    <Typography variant="body1" fontWeight={500}>Totale</Typography>
-                    <Typography variant="body1"
-                                fontWeight={500}>€ {(+(pendingOrder?.total || 0) * data.downpaymentPercentage() / 100).toFixed(2)}</Typography>
+                    <Typography variant="body1" fontWeight={500}>
+                      Totale
+                    </Typography>
+                    <Typography variant="body1" fontWeight={500}>
+                      € {((+(pendingOrder?.total || 0) * data.downpaymentPercentage()) / 100).toFixed(2)}
+                    </Typography>
                   </Box>
                 </>
               ) : (
                 <>
+                    <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body1" fontSize={20} fontWeight={700}>Subtotale</Typography>
+                    <Typography variant="body1" fontSize={20} fontWeight={700}>
+                      €{" "}
+                      {(
+                      +(pendingOrder?.line_items[0].total || 0) +
+                      +(pendingOrder?.line_items[0].total_tax || 0) -
+                      +(pendingOrder?.meta_data.find((meta) => meta.key === "artpay_fee")?.value || 0)
+                      ).toFixed(2)}
+                    </Typography>
+                    </Box>
+                  {showCommissioni && (
+                    <>
+                      <Box display="flex" justifyContent="space-between">
+                      <Typography variant="body1" sx={{ mt: 1, mb: 0 }}>Commissioni ArtPay</Typography>
+                      <Typography variant="body1" sx={{ mt: 1, mb: 0 }}>
+                        €{" "}
+                        {Number(
+                        pendingOrder?.meta_data.find((meta) => meta.key === "artpay_fee")?.value || 0,
+                        ).toFixed(2)}
+                      </Typography>
+                      </Box>
+                      {pendingOrder?.fee_lines?.some((fee) => fee.name === "payment-gateway-fee") && paymentMethod !== "Santander" && (
+                      <Box display="flex" justifyContent="space-between">
+                        <Typography variant="body1">Commissioni {paymentMethod}</Typography>
+                        <Typography variant="body1">
+                        €{" "}
+                        {(
+                          +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total || 0) +
+                          +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total_tax || 0)
+                        ).toFixed(2)}
+                        </Typography>
+                      </Box>
+                      )}
+                    </>
+                  )}
+
                   <Box display="flex" justifyContent="space-between">
-                    <Typography variant="body1">Subtotale</Typography>
-                    <Typography
-                      variant="body1">€ {(+(pendingOrder?.total || 0) - (shippingPrice || 0)).toFixed(2)}</Typography>
-                  </Box>
-                  <Box display="flex" justifyContent="space-between">
-                    <Typography variant="body1">Spedizione</Typography>
+                    <Typography variant="body1"  sx={{ mb: 1, mt: 0 }}>Spedizione (IVA esente)</Typography>
                     <Typography variant="body1">€ {(shippingPrice || 0).toFixed(2)}</Typography>
                   </Box>
                   <Box display="flex" justifyContent="space-between">
-                    <Typography variant="subtitle1">Totale</Typography>
-                    <Typography variant="subtitle1">
-                      € {(+(pendingOrder?.total || 0)).toFixed(2)}
-                    </Typography>
+                    <Typography variant="subtitle1" fontSize={20} fontWeight={700}>Totale</Typography>
+                    <Typography variant="subtitle1" fontSize={20} fontWeight={700}>€ {(+(pendingOrder?.total || 0)).toFixed(2)}</Typography>
+                  </Box>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body1" fontWeight={500} color="textSecondary" fontSize={15}>Di cui IVA</Typography>
+                    <Typography variant="body1" fontWeight={500} color="textSecondary" fontSize={15}>€ {Number(pendingOrder?.total_tax).toFixed(2)}</Typography>
                   </Box>
                 </>
               )}
@@ -499,15 +592,19 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                 disabled={isSaving || !checkoutReady}
                 checked={privacyChecked}
                 onChange={(e) => setPrivacyChecked(e.target.checked)}
-                label={<Typography variant="body1">Accetto le <Link href="/condizioni-generali-di-acquisto"
-                                                                    target="_blank">condizioni
-                  generali d'acquisto</Link></Typography>}
+                label={
+                  <Typography variant="body1">
+                    Accetto le{" "}
+                    <Link href="/condizioni-generali-di-acquisto" target="_blank">
+                      condizioni generali d'acquisto
+                    </Link>
+                  </Typography>
+                }
               />
               <Button
                 sx={{ my: 6 }}
                 disabled={!checkoutEnabled}
-                startIcon={(checkoutReady || !auth.isAuthenticated) ? undefined :
-                  <CircularProgress size="20px" />}
+                startIcon={checkoutReady || !auth.isAuthenticated ? undefined : <CircularProgress size="20px" />}
                 onClick={handlePurchase}
                 variant="contained"
                 fullWidth>
@@ -515,9 +612,11 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
               </Button>
             </Box>
           </ContentCard>
-          {!isMobile && <Box sx={{ px: { xs: 0 }, mt: 3, mb: 12 }}>
-            <LoanCardVertical />
-          </Box>}
+          {!isMobile && (
+            <Box sx={{ px: { xs: 0 }, mt: 3, mb: 12 }}>
+              <LoanCardVertical />
+            </Box>
+          )}
           {/*orderMode === "loan" &&
             <ContentCard sx={{ mt: 3, pb: 1, pt: 3 }} contentPadding={3} hideHeader>
               <Typography variant="body2">
@@ -528,13 +627,14 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
               <Button sx={{ mt: 3 }} variant="outlined" fullWidth>
                 Compra ora
               </Button>
-            </ContentCard>*/
-          }
+            </ContentCard>*/}
         </Grid>
       </Grid>
-      {isMobile && <Box sx={{ px: { ...px, xs: 3 }, mt: 3, mb: 12 }}>
-        <LoanCard />
-      </Box>}
+      {isMobile && (
+        <Box sx={{ px: { ...px, xs: 3 }, mt: 3, mb: 12 }}>
+          <LoanCard />
+        </Box>
+      )}
     </DefaultLayout>
   );
 };

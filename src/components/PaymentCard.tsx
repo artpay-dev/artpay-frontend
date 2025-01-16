@@ -13,6 +13,7 @@ export interface PaymentCardProps {
   tabTitles: string[]; // Nuova proprietà per i titoli delle tab
   onReady?: (element: StripePaymentElement) => any;
   onCheckout?: () => void;
+  onChange?: (payment_method: string) => void;
   checkoutButtonRef?: React.RefObject<HTMLButtonElement>;
   paymentIntent?: PaymentIntent;
   thankYouPage?: string;
@@ -23,6 +24,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
                                                    paymentIntent,
                                                    onReady,
                                                    onCheckout,
+                                                   onChange,
                                                    checkoutButtonRef,
                                                    thankYouPage,
                                                  }) => {
@@ -33,6 +35,9 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
+    if (onChange) {
+      onChange('Santander');
+    }
   };
 
   return (
@@ -91,6 +96,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
                   ref={checkoutButtonRef}
                   onReady={onReady}
                   onCheckout={onCheckout}
+                  onChange={onChange}
                   thankYouPage={thankYouPage}
                 />
               </Elements>

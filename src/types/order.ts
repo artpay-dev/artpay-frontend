@@ -189,6 +189,11 @@ export type PaymentIntentRequest = {
   wc_order_key: string;
 };
 
+export type UpdatePaymentIntentRequest = {
+  wc_order_key: string;
+  payment_method: string;
+};
+
 export type PaymentIntentResponse = {
   id: string;
   object: string;
