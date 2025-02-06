@@ -351,7 +351,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
             <Divider sx={{ mt: 6 }} />
             <Box display="flex" alignItems="center" my={3}>
               <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
-                € {formatCurrency((+(artwork?.price || 0)))}
+                € {formatCurrency(+(artwork?.price || 0))}
               </Typography>
               <Box flexGrow={1} />
               <Button
@@ -468,7 +468,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
           }}
         />
       </Box>
-      <Box sx={{ px: px }} >
+      <Box sx={{ px: px }}>
         <ArtworksList disablePadding title="Opere dello stesso artista" items={artistArtworks || []} />
         <ArtworksList
           marginTop={6}
@@ -491,6 +491,15 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         </Grid>
         <Grid xs={12} md={4} px={1} item>
           <PromoCardSmall
+            footer={
+              <Button
+                variant={"contained"}
+                color={"contrast"}
+                disabled={isOutOfStock || isReserved}
+                onClick={handleLoanPurchase}>
+                Prenota l'opera
+              </Button>
+            }
             imgSrc={prenotaOpera}
             title={
               <>
@@ -518,6 +527,14 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         </Grid>
         <Grid xs={12} md={4} px={1} item>
           <PromoCardSmall
+            footer={
+              <Button
+                variant="outlined"
+                disabled={isOutOfStock || isReserved}
+                onClick={() => handlePurchase(artwork?.id)}>
+                Compra opera
+              </Button>
+            }
             variant="white"
             imgSrc={completaAcquisto}
             title={
