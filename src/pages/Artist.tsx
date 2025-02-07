@@ -78,7 +78,6 @@ const Artist: React.FC<ArtistProps> = ({}) => {
         .getArtistBySlug(urlParams.slug)
         .then(async (resp) => {
           setArtist(resp);
-          console.log(resp);
           const artistCategories = data.getArtistCategories(resp);
           // const artworks = data.getArt
           setArtistCategories(artistCategories);

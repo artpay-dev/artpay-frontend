@@ -62,7 +62,6 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
       .then(async (gallery) => {
         //const description = gallery.shop.description.split("\n")[0];
         setGalleryContent(galleryToGalleryContent(gallery));
-        console.log(gallery);
         const galleryAddress = [gallery.address.address_1, gallery.address.address_2].join(" ");
 
         setGalleryContacts({

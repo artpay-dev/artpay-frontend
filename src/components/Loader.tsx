@@ -36,7 +36,6 @@ const Loader: React.FC<LoaderProps> = ({ sx, onIntroComplete }) => {
 
   const handleIntroComplete = () => {
     setShowLoop(true);
-    console.log("intro complete");
     if (onIntroComplete) {
       onIntroComplete();
     }

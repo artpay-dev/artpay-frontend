@@ -37,7 +37,6 @@ dayjs.extend(isYesterday);
 dayjs.extend(weekday);
 dayjs.extend(localeData);
 
-console.log("localeIt", localeIt);
 
 interface categoryValueMatcher {
   getCategoryMapValues(artwork: Artwork, key: string): string[];
@@ -60,7 +59,6 @@ export const getPropertyFromOrderMetadata = (metadata: OrderMetadataItem[], key:
 };
 
 export const userToUserInfo = (user: User): UserInfo => {
-  console.log("userToUserInfo", user.name);
   return {
     email: user.email,
     id: user.id,

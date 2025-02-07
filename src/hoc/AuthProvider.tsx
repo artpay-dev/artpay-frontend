@@ -290,7 +290,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         { email, username, password },
         { headers: { Authorization: basicAuth } }
       );
-      console.log(resp);
       if (resp.status > 299) {
         const message = (resp.data as RequestError)?.message || "Si è verificato un errore";
         // noinspection ExceptionCaughtLocallyJS
