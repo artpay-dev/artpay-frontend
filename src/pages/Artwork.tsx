@@ -70,6 +70,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const isMd = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const isLg = useMediaQuery(theme.breakpoints.only("lg"));
 
+
   const artworkTechnique = artwork ? data.getCategoryMapValues(artwork, "tecnica").join(" ") : "";
   const artworkCertificate = artwork ? data.getCategoryMapValues(artwork, "certificato").join(" ") : "";
   const artworkUnique = artwork ? data.getCategoryMapValues(artwork, "rarita").join(" ") : "";
@@ -468,12 +469,16 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
           }}
         />
       </Box>
-      <Box sx={{ px: px }}>
-        <ArtworksList disablePadding title="Opere dello stesso artista" items={artistArtworks || []} />
+      <Box sx={{ px: belowSm ? 0 : px }}>
+        <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 3, sm: 0}}} marginTop={6} variant="h2">
+          Opere dello stesso artista
+        </Typography>
+        <ArtworksList disablePadding  items={artistArtworks || []} />
+        <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 3, sm: 0}}} marginTop={6} variant="h2">
+          Opere della galleria
+        </Typography>
         <ArtworksList
-          marginTop={6}
           disablePadding
-          title="Opere della galleria"
           items={galleryArtworks || []}
           onSelect={handleGalleryArtworkSelect}
         />
