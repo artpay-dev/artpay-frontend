@@ -3,8 +3,8 @@ import DefaultLayout from "../components/DefaultLayout.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
 import { Artist } from "../types/artist.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
-import { useParams } from "react-router-dom";
-import { Box, Chip, IconButton, Typography } from "@mui/material";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Box, Button, Chip, IconButton, Typography } from "@mui/material";
 import sanitizeHtml from "sanitize-html";
 import ReadMoreTypography from "../components/ReadMoreTypography.tsx";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
@@ -35,8 +35,17 @@ const Artist: React.FC<ArtistProps> = ({}) => {
   const dialogs = useDialogs();
   const snackbar = useSnackbars();
   const urlParams = useParams<{ slug?: string }>();
+  const [searchParams] = useSearchParams();
+  const gallerySlug = searchParams.get("gallery");
 
   const artistImage = artist?.medium_img?.length ? artist?.medium_img[0] : "";
+
+  const navigate = useNavigate();
+
+
+  const handleBack = () => {
+    navigate(`/gallerie/${searchParams.get('gallery')}`);
+  };
 
   const handleShare = async () => {
     await dialogs.share(window.location.href);
@@ -69,6 +78,7 @@ const Artist: React.FC<ArtistProps> = ({}) => {
         .getArtistBySlug(urlParams.slug)
         .then(async (resp) => {
           setArtist(resp);
+          console.log(resp);
           const artistCategories = data.getArtistCategories(resp);
           // const artworks = data.getArt
           setArtistCategories(artistCategories);
@@ -143,6 +153,11 @@ const Artist: React.FC<ArtistProps> = ({}) => {
           <ReadMoreTypography heightLimit={100} sx={{ mt: 3 }} variant="subtitle1">
             {sanitizeHtml(artist?.content.rendered || "", { allowedTags: [] }) || ""}
           </ReadMoreTypography>
+          {gallerySlug && (
+            <Box mt={4}>
+              <Button variant={'outlined'}  onClick={handleBack} sx={{width: {xs: '100%', sm: 'fit-content'}}}>Torna alla Galleria</Button>
+            </Box>
+          )}
         </Box>
       </Box>
 

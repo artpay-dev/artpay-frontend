@@ -52,6 +52,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
 
   const [galleryInfo, setGalleryInfo] = useState<GalleryInfoProps>();
 
+
   useEffect(() => {
     if (!urlParams.slug) {
       navigate("/");
@@ -62,7 +63,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
       .then(async (gallery) => {
         //const description = gallery.shop.description.split("\n")[0];
         setGalleryContent(galleryToGalleryContent(gallery));
-
+        console.log(gallery);
         const galleryAddress = [gallery.address.address_1, gallery.address.address_2].join(" ");
 
         setGalleryContacts({
@@ -244,7 +245,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
           />
         </TabPanel>
         <TabPanel value={selectedTabPanel} index={1}>
-          <GalleryArtistsList artists={galleryArtists || []} />
+          <GalleryArtistsList artists={galleryArtists || []} gallerySlug={urlParams.slug} />
         </TabPanel>
         <TabPanel value={selectedTabPanel} index={2}>
           {galleryInfo && <GalleryInfo {...galleryInfo} contacts={galleryContacts} />}
