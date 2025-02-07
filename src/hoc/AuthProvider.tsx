@@ -339,6 +339,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     }
   };
   const showLoginDialog = (showSignUp: boolean = false) => {
+    if (loginOpen) return
+
     if (showSignUp) {
       setIsSignIn(false);
     } else {

@@ -807,12 +807,23 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         // body.customer_note = "Blocco opera";
       }
       if (pendingOrder) {
-        await axios.put<OrderCreateRequest, AxiosResponse<Order>>(
-          `${baseUrl}/wp-json/wc/v3/orders/${pendingOrder.id}`,
-          { status: "cancelled", set_paid: false, customer_id: customerId, id: pendingOrder.id }
-        );
+        try {
+          await axios.put<OrderCreateRequest, AxiosResponse<Order>>(
+            `${baseUrl}/wp-json/wc/v3/orders/${pendingOrder.id}`,
+            { status: "cancelled", set_paid: false, customer_id: customerId, id: pendingOrder.id },
+            { headers: {
+                Authorization: auth.getAuthToken()
+              }}
+          );
+        } catch (e) {
+          console.error(e);
+        }
       }
-      const resp = await axios.post<OrderCreateRequest, AxiosResponse<Order>>(`${baseUrl}/wp-json/wc/v3/orders`, body);
+      const resp = await axios.post<OrderCreateRequest, AxiosResponse<Order>>(`${baseUrl}/wp-json/wc/v3/orders`, body, {
+        headers: {
+          Authorization: auth.getAuthToken()
+        }
+      });
 
       return resp.data;
     },
@@ -831,7 +842,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       }
       const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
         `${baseUrl}/wp-json/wc/v3/stripe/payment_intent`,
-        body
+        body,
+        {
+          headers: {
+            Authorization: auth.getAuthToken()
+          }
+        }
       );
       localStorage.setItem(cacheKey, JSON.stringify(resp.data));
       return resp.data;
@@ -902,7 +918,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
             }*/
       const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
         `${baseUrl}/wp-json/wc/v3/stripe/block_intent`,
-        body
+        body,
+        {headers: {
+          Authorization: auth.getAuthToken()
+          }}
       );
       // localStorage.setItem(cacheKey, JSON.stringify(resp.data));
       return resp.data;

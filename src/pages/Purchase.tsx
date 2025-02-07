@@ -348,7 +348,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
 
   if (noPendingOrder) {
     return (
-      <DefaultLayout pageLoading={!isReady || !paymentsReady} pb={6}>
+      <DefaultLayout pageLoading={!isReady || !paymentsReady} pb={6} authRequired>
         <Grid mt={16} spacing={3} px={3} container>
           <Grid item xs={12}>
             <Typography variant="h3">
@@ -364,7 +364,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
   }
 
   return (
-    <DefaultLayout pageLoading={!isReady || !paymentsReady} pb={6}>
+    <DefaultLayout pageLoading={!isReady || !paymentsReady} pb={6} authRequired>
       <Grid mt={16} spacing={3} sx={{ px: px }} container>
         <Grid item gap={3} display="flex" flexDirection="column" xs={12} md={8}>
           {orderMode === "loan" && (

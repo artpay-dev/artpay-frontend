@@ -78,8 +78,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, disabled }) => {
     }
   };
 
-  console.log("errors", errors);
-
   return (
     <form onSubmit={handleSubmit(handleSubmitClick)}>
       <Box display="flex" flexDirection="column" gap={1.5} my={2}>
