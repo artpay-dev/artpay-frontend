@@ -6,6 +6,8 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
+  // @ts-expect-error need vite-plugin-html
+  transformIndexHtml: (html) => html.replace("%VITE_STRIPE_KEY%", process.env.VITE_STRIPE_KEY),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src")
@@ -14,7 +16,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/wp-json": {
-        target: 'http://staging2.artpay.art',
+        target: process.env.VITE_SERVER_URL,
         changeOrigin: true,
         secure: true,
         ws: true,
