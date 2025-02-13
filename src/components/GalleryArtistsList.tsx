@@ -6,14 +6,13 @@ import ArtistsGrid from "./ArtistsGrid.tsx";
 
 export interface GalleryArtistsListProps {
   artists: ArtistCardProps[];
-  gallerySlug: string | undefined;
 }
 
-const GalleryArtistsList: React.FC<GalleryArtistsListProps> = ({ artists = [], gallerySlug }) => {
+const GalleryArtistsList: React.FC<GalleryArtistsListProps> = ({ artists = [] }) => {
   const navigate = useNavigate();
   const handleSelectArtist = (index: number) => {
     const selectedArtist = artists[index];
-    navigate(`/artisti/${selectedArtist.slug}?gallery=${gallerySlug}`);
+    navigate(`/artisti/${selectedArtist.slug}`);
   };
 
 

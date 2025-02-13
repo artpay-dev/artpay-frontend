@@ -138,7 +138,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                 paymentIntent = await data.createPaymentIntent({ wc_order_key: resp.order_key });
               }
             }
-            console.log("paymentIntent: ", paymentIntent);
 
             setPaymentIntent(paymentIntent);
             data.getGalleries(artworks.map((a) => +a.vendor)).then((galleries) => setGalleries(galleries));

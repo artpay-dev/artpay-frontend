@@ -249,7 +249,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
           />
         </TabPanel>
         <TabPanel value={selectedTabPanel} index={1}>
-          <GalleryArtistsList artists={galleryArtists || []} gallerySlug={urlParams.slug} />
+          <GalleryArtistsList artists={galleryArtists || []} />
         </TabPanel>
         <TabPanel value={selectedTabPanel} index={2}>
           {galleryInfo && <GalleryInfo {...galleryInfo} contacts={galleryContacts} />}

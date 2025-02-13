@@ -3,7 +3,7 @@ import DefaultLayout from "../components/DefaultLayout.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
 import { Artist } from "../types/artist.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Box, Button, Chip, IconButton, Typography } from "@mui/material";
 import sanitizeHtml from "sanitize-html";
 import ReadMoreTypography from "../components/ReadMoreTypography.tsx";
@@ -17,9 +17,9 @@ import ShareIcon from "../components/icons/ShareIcon.tsx";
 import ArtworksList from "../components/ArtworksList.tsx";
 import { ArtistCardProps } from "../components/ArtistCard.tsx";
 import ArtistsList from "../components/ArtistsList.tsx";
+import { Gallery } from "../types/gallery.ts";
 
-export interface ArtistProps {
-}
+export interface ArtistProps {}
 
 const Artist: React.FC<ArtistProps> = ({}) => {
   const [isReady, setIsReady] = useState(false);
@@ -29,22 +29,30 @@ const Artist: React.FC<ArtistProps> = ({}) => {
   const [artworks, setArtworks] = useState<ArtworkCardProps[]>([]);
   const [featuredArtists, setFeaturedArtists] = useState<ArtistCardProps[]>([]);
   const [isArtistFavourite, setIsArtistFavourite] = useState(false);
+  const [associateGallerySlug, setAssociateGallerySlug] = useState<string | null>(null);
 
   const data = useData();
   const auth = useAuth();
   const dialogs = useDialogs();
   const snackbar = useSnackbars();
   const urlParams = useParams<{ slug?: string }>();
-  const [searchParams] = useSearchParams();
-  const gallerySlug = searchParams.get("gallery");
 
   const artistImage = artist?.medium_img?.length ? artist?.medium_img[0] : "";
 
   const navigate = useNavigate();
 
+  const handleAssociateGallery = async (artist : Artist  ) : Promise<string | null> => {
+    try {
+      const res: Gallery = await data.getGallery(artist.author.toString());
+      return res.nice_name
+    } catch (e) {
+      console.log(e);
+      return null
+    }
+  };
 
-  const handleBack = () => {
-    navigate(`/gallerie/${searchParams.get('gallery')}`);
+  const handleBackToGallery = () => {
+    navigate(`/gallerie/${associateGallerySlug}`);
   };
 
   const handleShare = async () => {
@@ -74,30 +82,34 @@ const Artist: React.FC<ArtistProps> = ({}) => {
       return;
     }
     Promise.all([
-      data
-        .getArtistBySlug(urlParams.slug)
-        .then(async (resp) => {
-          setArtist(resp);
-          const artistCategories = data.getArtistCategories(resp);
-          // const artworks = data.getArt
-          setArtistCategories(artistCategories);
-          // console.log("resp.artworks", resp.artworks);
+      data.getArtistBySlug(urlParams.slug).then(async (resp) => {
+        setArtist(resp);
 
-          const artworksIds = (resp.artworks || []).map((a) => +a.ID);
-          const artistArtworks = await data.getArtworks(artworksIds);
-          setArtworks(artworksToGalleryItems(artistArtworks));
-          const favouriteArtists = await data.getFavouriteArtists();
+        handleAssociateGallery(resp).then(setAssociateGallerySlug);
 
-          setIsArtistFavourite(favouriteArtists.indexOf(resp?.id || 0) !== -1);
-        }),
-      data.listFeaturedArtists().then(resp => setFeaturedArtists(artistsToGalleryItems(resp)))
-    ]).then(() => {
-      setIsReady(true);
-    }).catch((e) => {
-      console.error(e);
-      snackbar.error("Si è verificato un errore");
-      setIsReady(true);
-    });
+        const artistCategories = data.getArtistCategories(resp);
+        // const artworks = data.getArt
+        setArtistCategories(artistCategories);
+        // console.log("resp.artworks", resp.artworks);
+
+        const artworksIds = (resp.artworks || []).map((a) => +a.ID);
+        const artistArtworks = await data.getArtworks(artworksIds);
+        setArtworks(artworksToGalleryItems(artistArtworks));
+        const favouriteArtists = await data.getFavouriteArtists();
+
+        setIsArtistFavourite(favouriteArtists.indexOf(resp?.id || 0) !== -1);
+      }),
+      data.listFeaturedArtists().then((resp) => setFeaturedArtists(artistsToGalleryItems(resp))),
+    ])
+      .then(() => {
+        setIsReady(true);
+
+      })
+      .catch((e) => {
+        console.error(e);
+        snackbar.error("Si è verificato un errore");
+        setIsReady(true);
+      });
 
 
   }, [data, urlParams?.slug]);
@@ -113,7 +125,7 @@ const Artist: React.FC<ArtistProps> = ({}) => {
           pb: 1,
           mt: { xs: 12, sm: 12, md: 16, lg: 18 },
           flexDirection: { xs: "column", md: "row" },
-          alignItems: { xs: "center", md: "start" }
+          alignItems: { xs: "center", md: "start" },
         }}
         gap={2}
         display="flex">
@@ -152,9 +164,11 @@ const Artist: React.FC<ArtistProps> = ({}) => {
           <ReadMoreTypography heightLimit={100} sx={{ mt: 3 }} variant="subtitle1">
             {sanitizeHtml(artist?.content.rendered || "", { allowedTags: [] }) || ""}
           </ReadMoreTypography>
-          {gallerySlug && (
+          {associateGallerySlug && (
             <Box mt={4}>
-              <Button variant={'outlined'}  onClick={handleBack} sx={{width: {xs: '100%', sm: 'fit-content'}}}>Torna alla Galleria</Button>
+              <Button variant={"outlined"} onClick={handleBackToGallery} sx={{ width: { xs: "100%", sm: "fit-content" } }}>
+                Torna alla Galleria
+              </Button>
             </Box>
           )}
         </Box>

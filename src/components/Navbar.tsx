@@ -9,7 +9,7 @@ import {
   Theme,
   Typography,
   useMediaQuery,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import Logo from "./icons/Logo";
 import { Search } from "@mui/icons-material";
@@ -34,7 +34,6 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-
   const [showMenu, setShowMenu] = useState(false);
   const [hasExternalPendingOrder, setHasExternalPendingOrder] = useState(false);
   const [hasPendingOrder, setHasPendingOrder] = useState(false);
@@ -52,11 +51,11 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
       await handlePendingOrder();
       if (auth.isAuthenticated) {
         const orders = await data.getOnHoldOrder();
-        if(orders){
+        if (orders) {
           const redirectToAcquistoEsterno = localStorage.getItem("redirectToAcquistoEsterno");
 
-          if(!redirectToAcquistoEsterno && location.pathname != "/acquisto-esterno"){
-            navigate('/acquisto-esterno');
+          if (!redirectToAcquistoEsterno && location.pathname != "/acquisto-esterno") {
+            navigate("/acquisto-esterno");
           }
 
           setHasExternalPendingOrder(true);
@@ -68,15 +67,11 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
     }
   };
 
-
   useEffect(() => {
     handleOrders();
-  }, [auth.isAuthenticated, data,hasPendingOrder]);
-
+  }, [auth.isAuthenticated, data, hasPendingOrder]);
 
   const menuOpen = showMenu && isMobile;
-
-
 
   const mobileStyleOverrides: SxProps<Theme> = {
     top: 0,
@@ -85,15 +80,15 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
     m: { xs: 1, sm: 2 },
     height: menuOpen ? "calc(100dvh - 16px)" : undefined,
     transition: "all 0.5s",
-    overflow: "hidden"
+    overflow: "hidden",
     //borderRadius: 0
   };
 
   const handleCheckout = () => {
-    if(hasExternalPendingOrder && !hasPendingOrder){
+    if (hasExternalPendingOrder && !hasPendingOrder) {
       navigate("/acquisto-esterno");
-      localStorage.setItem("isNotified","true");
-    }else{
+      localStorage.setItem("isNotified", "true");
+    } else {
       navigate("/acquisti");
     }
   };
@@ -147,39 +142,49 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   const menuLinks = [
     //{ label: "Gallerie", href: "/gallerie ", requireAuth: true },
     //{ label: "Collezionisti", href: "/artpay-per-collezionisti", requireAuth: false },
-    { label: "Chi siamo", href: "/chi-siamo", requireAuth: false }
+    { label: "Chi siamo", href: "/chi-siamo", requireAuth: false },
     //{ label: "ArtMatch", href: "https://artpay.art/art-match" }
   ];
 
   //onMenuToggle
 
   return (
-    <AppBar color="default"
-            sx={isMobile ? mobileStyleOverrides : {
+    <AppBar
+      color="default"
+      sx={
+        isMobile
+          ? mobileStyleOverrides
+          : {
               mx: { xs: 8, md: 6, lg: 6, xl: "auto" },
               right: 0,
               px: { xs: undefined, lg: 6 },
-              maxWidth: "1344px"
-            }}
-            elevation={0}>
+              maxWidth: "1344px",
+            }
+      }
+      elevation={0}>
       <Box display="flex" alignItems="center" sx={{}}>
-        <Box sx={{ height: "24px", cursor: "pointer" }} display="flex" alignItems="center"
-             onClick={() => handleNavigate("/")}>
+        <Box
+          sx={{ height: "24px", cursor: "pointer" }}
+          display="flex"
+          alignItems="center"
+          onClick={() => handleNavigate("/")}>
           <Logo />
           {/*<BetaLabel ml={1} mt={0.5} />*/}
         </Box>
         {!isMobile && (
           <Box sx={{ ml: 3 }}>
-            {menuLinks.filter(l => auth.isAuthenticated || !l.requireAuth).map((link, i) => (
-              <Button
-                key={`btn-link-${i}`}
-                sx={{ px: 2 }}
-                onClick={() => handleNavigate(link.href)}
-                color="inherit"
-                variant="text">
-                {link.label}
-              </Button>
-            ))}
+            {menuLinks
+              .filter((l) => auth.isAuthenticated || !l.requireAuth)
+              .map((link, i) => (
+                <Button
+                  key={`btn-link-${i}`}
+                  sx={{ px: 2 }}
+                  onClick={() => handleNavigate(link.href)}
+                  color="inherit"
+                  variant="text">
+                  {link.label}
+                </Button>
+              ))}
           </Box>
         )}
         {/*<TextField sx={{flexGrow:0, ml: 1}} variant="standard" InputProps={{startAdornment: <InputAdornment position="start"><Search/></InputAdornment>}}/>*/}
@@ -204,25 +209,27 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
             <IconButton sx={{ mr: showCheckout ? 4 : 0, ml: 1 }} onClick={() => handleProfileClick()} color="inherit">
               <UserIcon fontSize="inherit" color="inherit" />
             </IconButton>
-            {
-              showCheckout && 
-                <>
-                <IconButton sx={{ mr: 0, transform: { xs: undefined, md: "translateX(8px)" }, position: "relative" }} onClick={() => handleCheckout()} color="primary">
+            {showCheckout && (
+              <>
+                <IconButton
+                  sx={{ mr: 0, transform: { xs: undefined, md: "translateX(8px)" }, position: "relative" }}
+                  onClick={() => handleCheckout()}
+                  color="primary">
                   <ShoppingBagIcon color="inherit" />
                   <Box
-                  sx={{
-                    position: "absolute",
-                    top: 4,
-                    right: 4,
-                    width: 8,
-                    height: 8,
-                    bgcolor: "red",
-                    borderRadius: "50%"
-                  }}
+                    sx={{
+                      position: "absolute",
+                      top: 4,
+                      right: 4,
+                      width: 8,
+                      height: 8,
+                      bgcolor: "red",
+                      borderRadius: "50%",
+                    }}
                   />
                 </IconButton>
-                </>
-            }
+              </>
+            )}
           </>
         ) : (
           <>
