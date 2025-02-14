@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 import React, { ReactNode } from "react";
 import { FreeMode } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -23,9 +23,13 @@ const CardList: React.FC<CardListProps> = ({
                                              maxItems,
                                              marginTop
                                            }) => {
+  const theme = useTheme();
+  const belowSm = useMediaQuery(theme.breakpoints.down("sm"));
+
   if (!showEmpty && !children?.length) {
     return <></>;
   }
+
   return (
     <Box sx={{ px: disablePadding ? 0 : { xs: 3, md: 6 }, maxWidth: "100%", marginTop: marginTop ? marginTop : 0 }}>
       {title && (
@@ -44,7 +48,7 @@ const CardList: React.FC<CardListProps> = ({
           flexWrap: { xs: "wrap", md: "nowrap" },
           justifyContent: { xs: "center", md: "flex-start" },*/
         }}>
-        <Swiper slidesPerView={"auto"} spaceBetween={24} freeMode={true} modules={[FreeMode]} className="mySwiper" style={{paddingRight: 24}}>
+        <Swiper slidesPerView={"auto"} spaceBetween={24} freeMode={true} modules={[FreeMode]} className="mySwiper" style={{paddingRight: belowSm ? 40 : 0}}>
           {children.filter((_, i) => !maxItems || i < maxItems).map((child, i) => (
             <SwiperSlide className={`SwiperCard-${cardSize}`} key={i}>
               {child}
