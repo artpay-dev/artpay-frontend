@@ -44,7 +44,7 @@ const CardList: React.FC<CardListProps> = ({
           flexWrap: { xs: "wrap", md: "nowrap" },
           justifyContent: { xs: "center", md: "flex-start" },*/
         }}>
-        <Swiper slidesPerView={"auto"} spaceBetween={24} freeMode={true} modules={[FreeMode]} className="mySwiper">
+        <Swiper slidesPerView={"auto"} spaceBetween={24} freeMode={true} modules={[FreeMode]} className="mySwiper" style={{paddingRight: 24}}>
           {children.filter((_, i) => !maxItems || i < maxItems).map((child, i) => (
             <SwiperSlide className={`SwiperCard-${cardSize}`} key={i}>
               {child}
