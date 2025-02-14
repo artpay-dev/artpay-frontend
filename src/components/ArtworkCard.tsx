@@ -88,6 +88,7 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
       className={cardSizeClass}
       sx={{
         ...cardStyles,
+        pl: { xs: 2, sm: 0 },
       }}>
       <CardMedia
         component="img"
@@ -104,7 +105,7 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
           cursor: onClick ? "pointer" : "auto",
           aspectRatio: fitWidth ? 1 : undefined,
         }}></CardMedia>
-      <CardContent sx={{ p: 2, mt: imgMargin, height: "100%" }}>
+      <CardContent sx={{ mt: imgMargin, height: "100%", paddingInline: 0 }}>
         <Box display="flex" sx={{ height: mode === "grid" ? "100%" : undefined }}>
           <Box display="flex" onClick={onClick} sx={{ cursor: "pointer" }} flexDirection="column" flexGrow={1}>
             <Typography variant="body1" color="textSecondary">

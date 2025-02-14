@@ -470,11 +470,11 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         />
       </Box>
       <Box sx={{ px: belowSm ? 0 : px }}>
-        <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 3, sm: 0}}} marginTop={6} variant="h2">
+        <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 2, sm: 0}}} marginTop={6} variant="h2">
           Opere dello stesso artista
         </Typography>
         <ArtworksList disablePadding  items={artistArtworks || []} />
-        <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 3, sm: 0}}} marginTop={6} variant="h2">
+        <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 2, sm: 0}}} marginTop={6} variant="h2">
           Opere della galleria
         </Typography>
         <ArtworksList
