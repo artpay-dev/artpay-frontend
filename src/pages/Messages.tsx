@@ -13,9 +13,7 @@ import ArtworkMessageDetails from "../components/ArtworkMessageDetails.tsx";
 import { Artwork } from "../types/artwork.ts";
 import ArrowLeftIcon from "../components/icons/ArrowLeftIcon.tsx";
 
-export interface MessagesProps {
-
-}
+export interface MessagesProps {}
 
 const Messages: React.FC<MessagesProps> = ({}) => {
   const data = useData();
@@ -36,24 +34,26 @@ const Messages: React.FC<MessagesProps> = ({}) => {
 
   useEffect(() => {
     Promise.all([
-      data.getUserProfile().then(resp => {
+      data.getUserProfile().then((resp) => {
         setUserProfile(resp);
       }),
       data.getChatHistory().then(async (groupedMessages) => {
-        const chatHistory: ChatMessage[] = await Promise.all(groupedMessages.map(async (msg) => {
-          const gallery = galleryToGalleryItem(await data.getGallery(msg.product.vendor));
-          const mappedMsg: ChatMessage = {
-            date: msg.lastMessageDate.toDate(),
-            excerpt: msg.product.name,
-            id: msg.product.id,
-            imgUrl: gallery.logoUrl || "",
-            newMessages: 0,
-            title: gallery.title
-          };
-          return mappedMsg;
-        }));
+        const chatHistory: ChatMessage[] = await Promise.all(
+          groupedMessages.map(async (msg) => {
+            const gallery = galleryToGalleryItem(await data.getGallery(msg.product.vendor));
+            const mappedMsg: ChatMessage = {
+              date: msg.lastMessageDate.toDate(),
+              excerpt: msg.product.name,
+              id: msg.product.id,
+              imgUrl: gallery.logoUrl || "",
+              newMessages: 0,
+              title: gallery.title,
+            };
+            return mappedMsg;
+          }),
+        );
         setChatHistory(chatHistory);
-      })
+      }),
     ]).then(() => {
       setReady(true);
     });
@@ -97,109 +97,178 @@ const Messages: React.FC<MessagesProps> = ({}) => {
 
   const px = getDefaultPaddingX();
 
-  const backButton = <Button startIcon={<ArrowLeftIcon fontSize="inherit" color="secondary" />}
-                             sx={{ px: 2, mx: -2 }}
-                             variant="text" color="secondary"
-                             onClick={() => navigate("/profile")}>Torna al profilo</Button>;
+  const backButton = (
+    <Button
+      startIcon={<ArrowLeftIcon fontSize="inherit" color="secondary" />}
+      sx={{ px: 2, mx: -2 }}
+      variant="text"
+      color="secondary"
+      onClick={() => navigate("/profile")}>
+      Torna al profilo
+    </Button>
+  );
 
   if (isMobile) {
-    return (<DefaultLayout pageLoading={!ready} sx={{ overflowX: "hidden", minHeight: "30vh" }}>
-      <Grid sx={{ px: px, mt: { xs: 11, sm: 12, md: 12 }, mb: 12 }} container>
-        <Grid sx={{ borderBottom: "1px solid #CDCFD3", py: { xs: 1, md: 5 } }} item xs={12}>
-          {chatReady ?
-            (showDetails ?
-              <Button variant="text" color="secondary" sx={{ px: 2, mx: -2 }} onClick={() => setShowDetails(false)}
-                      startIcon={<ArrowLeftIcon fontSize="inherit" color="secondary" />}>
-                Torna alla conversazione</Button> : <Box display="flex">
-                <Button variant="text" color="secondary" sx={{ px: 2, mx: -2 }} onClick={() => {
-                  setShowDetails(false);
-                  setChatReady(false);
-                }}
-                        startIcon={<ArrowLeftIcon fontSize="inherit" color="secondary" />}>
-                  Torna ai messaggi</Button>
-                <Box flexGrow={1} />
-                <Button variant="text" color="secondary" sx={{ px: 2, mx: -2 }}
-                        onClick={() => setShowDetails(true)}>Dettagli</Button>
-              </Box>) :
-            backButton}
-        </Grid>
-        {chatReady ?
-          (
-            showDetails ? <Grid item xs={12}>
-                <ArtworkMessageDetails artwork={selectedArtwork} />
-              </Grid> :
-              <Grid item sx={{ minHeight: { xs: 0 } }} xs={12}>
-                <ChatContent ready={chatReady} messages={loadedMessages} userProfile={userProfile}
-                             galleryImage={selectedGallery?.logoUrl}
-                             onSendMessage={handleSendMessage} />
-              </Grid>
-          ) :
-          <Grid item sx={{ minHeight: { xs: 0 } }} xs={12}>
-            <ChatList onClick={handleSelectChat} messages={chatHistory} />
+    return (
+      <DefaultLayout pageLoading={!ready} sx={{ overflowX: "hidden", minHeight: "30vh" }}>
+        <Grid sx={{ px: px, mt: { xs: 11, sm: 12, md: 12 }, mb: 12 }} container>
+          <Grid sx={{ borderBottom: "1px solid #CDCFD3", py: { xs: 1, md: 5 } }} item xs={12}>
+            {chatReady ? (
+              showDetails ? (
+                <Button
+                  variant="text"
+                  color="secondary"
+                  sx={{ px: 2, mx: -2 }}
+                  onClick={() => setShowDetails(false)}
+                  startIcon={<ArrowLeftIcon fontSize="inherit" color="secondary" />}>
+                  Torna alla conversazione
+                </Button>
+              ) : (
+                <Box display="flex">
+                  <Button
+                    variant="text"
+                    color="secondary"
+                    sx={{ px: 2, mx: -2 }}
+                    onClick={() => {
+                      setShowDetails(false);
+                      setChatReady(false);
+                    }}
+                    startIcon={<ArrowLeftIcon fontSize="inherit" color="secondary" />}>
+                    Torna ai messaggi
+                  </Button>
+                  <Box flexGrow={1} />
+                  <Button variant="text" color="secondary" sx={{ px: 2, mx: -2 }} onClick={() => setShowDetails(true)}>
+                    Dettagli
+                  </Button>
+                </Box>
+              )
+            ) :
+              backButton
+            }
           </Grid>
-        }
-      </Grid>
-
-    </DefaultLayout>);
+          {chatReady ? (
+            showDetails ? (
+              <Grid item xs={12}>
+                <ArtworkMessageDetails artwork={selectedArtwork} />
+              </Grid>
+            ) : (
+              <Grid item sx={{ minHeight: { xs: 0 } }} xs={12}>
+                <ChatContent
+                  ready={chatReady}
+                  messages={loadedMessages}
+                  userProfile={userProfile}
+                  galleryImage={selectedGallery?.logoUrl}
+                  onSendMessage={handleSendMessage}
+                />
+              </Grid>
+            )
+          ) : (
+            <Grid item sx={{ minHeight: { xs: 0 } }} xs={12}>
+              {chatHistory.length > 0 ?
+                (
+                <ChatList onClick={handleSelectChat} messages={chatHistory} />
+              ) :
+                (
+                  <div className={"emptyBoxMessages"}>
+                    <Typography variant={"subtitle1"} marginTop={4}>Nessun messaggio qui, per ora.</Typography>
+                  </div>
+                )
+              }
+            </Grid>
+          )}
+        </Grid>
+      </DefaultLayout>
+    );
   }
 
-  return (<DefaultLayout pageLoading={!ready} sx={{ overflowX: "hidden" }}>
-    <Grid sx={{ px: px, mt: { xs: 10, sm: 12, md: 12 }, mb: 12 }} container>
-      <Grid sx={{ borderBottom: "1px solid #CDCFD3", py: { xs: 2, md: 5 } }} item xs={12}>
-        {backButton}
-      </Grid>
+  return (
+    <DefaultLayout pageLoading={!ready} sx={{ overflowX: "hidden" }}>
+      <Grid sx={{ px: px, mt: { xs: 10, sm: 12, md: 12 }, mb: 12 }} container>
+        <Grid sx={{ borderBottom: "1px solid #CDCFD3", py: { xs: 2, md: 5 } }} item xs={12}>
+          {backButton}
+        </Grid>
 
-      <Grid item sx={{ borderRight: "1px solid #CDCFD3", minHeight: isMobile ? undefined : "60vh" }} xs={12} md={3}>
-        <Box sx={{ borderBottom: "1px solid #CDCFD3", height: "68px" }} display="flex" alignItems="center"
-             justifyContent="flex-start">
-          <Typography variant="subtitle1">Messaggi</Typography>
-        </Box>
-        <Box>
-          <ChatList onClick={handleSelectChat} messages={chatHistory} />
-        </Box>
-      </Grid>
+        <Grid item sx={{ borderRight: "1px solid #CDCFD3", minHeight: isMobile ? undefined : "60vh" }} xs={12} md={3}>
+          <Box
+            sx={{ borderBottom: "1px solid #CDCFD3", height: "68px" }}
+            display="flex"
+            alignItems="center"
+            justifyContent="flex-start">
+            <Typography variant="subtitle1">Messaggi</Typography>
+          </Box>
+          <Box>
+            <ChatList onClick={handleSelectChat} messages={chatHistory} />
+          </Box>
+        </Grid>
 
-      <Grid item sx={{ borderRight: "1px solid #CDCFD3", transition: "all 0.3s" }}
-            onTransitionEnd={() => setTimeout(() => setShowDetailsAnimationEnded(showDetails), 50)} xs={12}
-            md={showDetails ? 6 : 9}>
-        <Box sx={{ px: 3, borderBottom: "1px solid #CDCFD3", height: "68px" }} display="flex" alignItems="center"
-             justifyContent="center">
-          <Typography variant="subtitle1">{selectedGallery?.title || ""}</Typography>
-          <Box flexGrow={1} />
-          {(selectedArtwork && !isMobile) && <Button variant="text"
-                                                     color="primary"
-                                                     disabled={showDetails !== showDetailsAnimationEnded}
-                                                     onClick={() => setShowDetails(!showDetails)}>
-            {showDetails ? "Nascondi dettagli" : "Mostra dettagli"}
-          </Button>}
-        </Box>
-        <Box>
-          <ChatContent ready={chatReady} messages={loadedMessages} galleryImage={selectedGallery?.logoUrl}
-                       onSendMessage={handleSendMessage}
-                       userProfile={userProfile} />
-        </Box>
+        <Grid
+          item
+          sx={{ borderRight: "1px solid #CDCFD3", transition: "all 0.3s" }}
+          onTransitionEnd={() => setTimeout(() => setShowDetailsAnimationEnded(showDetails), 50)}
+          xs={12}
+          md={showDetails ? 6 : 9}>
+          <Box
+            sx={{ px: 3, borderBottom: "1px solid #CDCFD3", height: "68px" }}
+            display="flex"
+            alignItems="center"
+            justifyContent="center">
+            <Typography variant="subtitle1">{selectedGallery?.title || ""}</Typography>
+            <Box flexGrow={1} />
+            {selectedArtwork && !isMobile && (
+              <Button
+                variant="text"
+                color="primary"
+                disabled={showDetails !== showDetailsAnimationEnded}
+                onClick={() => setShowDetails(!showDetails)}>
+                {showDetails ? "Nascondi dettagli" : "Mostra dettagli"}
+              </Button>
+            )}
+          </Box>
+          <Box height={"100%"}>
+            {chatHistory.length > 0 ? (
+              <ChatContent
+                ready={chatReady}
+                messages={loadedMessages}
+                galleryImage={selectedGallery?.logoUrl}
+                onSendMessage={handleSendMessage}
+                userProfile={userProfile}
+              />
+            ) : (
+              <div className={"emptyBoxMessages"}>
+                <Typography variant={"subtitle1"}>Nessun messaggio qui, per ora.</Typography>
+              </div>
+            )}
+          </Box>
+        </Grid>
+        {showDetails && !isMobile && (
+          <Grid item xs={12} md={3}>
+            {showDetailsAnimationEnded && (
+              <>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  sx={{ borderBottom: "1px solid #CDCFD3", pl: 3, height: "68px" }}>
+                  <Typography variant="subtitle1">Dettagli</Typography>
+                  <Box flexGrow={1} />
+                  <IconButton
+                    onClick={() => {
+                      setShowDetailsAnimationEnded(false);
+                      setShowDetails(false);
+                    }}
+                    color="primary">
+                    <CloseIcon fontSize="inherit" />
+                  </IconButton>
+                </Box>
+                <ArtworkMessageDetails artwork={selectedArtwork} />
+                <Divider sx={{ mx: 3 }} />
+              </>
+            )}
+          </Grid>
+        )}
       </Grid>
-      {(showDetails && !isMobile) &&
-        <Grid item xs={12} md={3}>
-          {showDetailsAnimationEnded &&
-            <>
-              <Box display="flex" alignItems="center" justifyContent="center"
-                   sx={{ borderBottom: "1px solid #CDCFD3", pl: 3, height: "68px" }}>
-                <Typography variant="subtitle1">Dettagli</Typography>
-                <Box flexGrow={1} />
-                <IconButton onClick={() => {
-                  setShowDetailsAnimationEnded(false);
-                  setShowDetails(false);
-                }} color="primary"><CloseIcon
-                  fontSize="inherit" /></IconButton>
-              </Box>
-              <ArtworkMessageDetails artwork={selectedArtwork} />
-              <Divider sx={{ mx: 3 }} />
-            </>
-          }
-        </Grid>}
-    </Grid>
-  </DefaultLayout>);
+    </DefaultLayout>
+  );
 };
 
 export default Messages;

@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import fs from "fs";
+//import fs from "fs";
 
 // https://vitejs.dev/config/
 
@@ -26,9 +26,9 @@ export default defineConfig({
         }
       }
     },
-    https: {
+    /*https: {
       key: fs.readFileSync("./local_certs/artpay.art-key.pem"),
       cert: fs.readFileSync("./local_certs/artpay.art.pem")
-    }
+    }*/
   }
 });

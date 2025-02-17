@@ -136,3 +136,11 @@ p {
     margin:0
   }
 }
+
+.emptyBoxMessages {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50%;
+  color: #666f7a;
+}

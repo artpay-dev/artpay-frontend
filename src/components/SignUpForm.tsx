@@ -71,7 +71,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, disabled }) => {
   });
 
   const handleSubmitClick = async (data: SignUpFormData) => {
-    console.log(data)
     if (onSubmit) {
       setSubmitError(null);
       try {

@@ -281,7 +281,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
   };
 
   const register = async ({ email, username, password, last_name, first_name }: SignUpFormData) => {
-    console.log(first_name)
 
     setIsLoading(true);
      const credentials = btoa(GUEST_CONSUMER_KEY + ":" + GUEST_CONSUMER_SECRET);
