@@ -2,7 +2,7 @@ import React from "react";
 import {
   TextFieldProps,
   TextField as BaseTextField,
-  InputAdornment, InputProps
+  InputAdornment,
 } from "@mui/material";
 import ErrorIcon from "./icons/ErrorIcon.tsx";
 import CheckIcon from "./icons/CheckIcon.tsx";
