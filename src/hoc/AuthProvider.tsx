@@ -280,14 +280,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     }
   };
 
-  const register = async ({ email, username, password }: SignUpFormData) => {
+  const register = async ({ email, username, password, last_name, first_name }: SignUpFormData) => {
+    console.log(first_name)
+
     setIsLoading(true);
      const credentials = btoa(GUEST_CONSUMER_KEY + ":" + GUEST_CONSUMER_SECRET);
      const basicAuth = "Basic " + credentials;
     try {
       const resp = await axios.post<SignUpFormData, AxiosResponse<User, RequestError>>(
         signUpUrl,
-        { email, username, password },
+        { email, username, password, last_name, first_name },
         { headers: { Authorization: basicAuth } }
       );
       if (resp.status > 299) {

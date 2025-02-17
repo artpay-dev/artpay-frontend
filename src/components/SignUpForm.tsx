@@ -10,6 +10,8 @@ import { AxiosError, isAxiosError } from "axios";
 interface SignUpFormContent {
   fields: {
     username: FormField;
+    first_name: FormField;
+    last_name: FormField;
     email: FormField;
     password: FormField;
   };
@@ -21,6 +23,8 @@ interface SignUpFormContent {
 
 export interface SignUpFormData {
   username: string;
+  first_name: string;
+  last_name: string;
   email: string;
   password: string;
   privacy: undefined;
@@ -37,12 +41,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, disabled }) => {
 
   const registrationFormContent: SignUpFormContent = {
     fields: {
-      username: { label: "Nome" },
+      username: { label: "Username" },
+      first_name: {label: "Nome"},
+      last_name: {label: "Cognome"},
       email: { label: "Email" },
       password: { label: "Password" }
     },
     passwordRequirements:
-      "La password dovrebbe essere composta da almeno 8 caratteri e una combinazione di almeno i seguenti elementi: lettere maiuscole (A-Z), lettere minuscole (a-z), numeri (0-9), caratteri speciali (come !, @, #, $, %, ecc.)",
+      "La password dovrebbe essere composta da almeno 8 caratteri e una combinazione di almeno i seguenti elementi: lettere maiuscole (A-Z), lettere minuscole (a-z), numeri (0-9), caratteri speciali (come !, @, %)",
     privacyLabel:
       "La tua privacy è importante per noi. Qui trovi l’informativa sulla privacy che spiega come raccogliamo, utilizziamo e proteggiamo le tue informazioni personali.",
     privacyDescription: "",
@@ -56,6 +62,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, disabled }) => {
     //handleSubmit
     defaultValues: {
       username: "",
+      first_name: "",
+      last_name: "",
       email: "",
       password: "",
       privacy: undefined
@@ -63,6 +71,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, disabled }) => {
   });
 
   const handleSubmitClick = async (data: SignUpFormData) => {
+    console.log(data)
     if (onSubmit) {
       setSubmitError(null);
       try {
@@ -86,6 +95,20 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, disabled }) => {
           {...register("username", { required: "Inserisci uno username" })}
           error={!!errors?.username}
           helperText={errors?.username?.message}
+          disabled={disabled}
+        />
+        <TextField
+          label={registrationFormContent.fields.first_name.label}
+          {...register("first_name", { required: "Inserisci il nome" })}
+          error={!!errors?.first_name}
+          helperText={errors?.first_name?.message}
+          disabled={disabled}
+        />
+        <TextField
+          label={registrationFormContent.fields.last_name.label}
+          {...register("last_name", { required: "Inserisci il Cognome" })}
+          error={!!errors?.last_name}
+          helperText={errors?.last_name?.message}
           disabled={disabled}
         />
         <TextField
