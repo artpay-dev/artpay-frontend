@@ -3,6 +3,7 @@ import santanderLogo from "../assets/images/santander_logo_1.svg";
 import { Box, BoxProps, Button, Typography } from "@mui/material";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 
+
 export interface SantanderCardProps {
   background?: string;
   sx?: BoxProps["sx"];
@@ -12,20 +13,22 @@ const SantanderCard: React.FC<SantanderCardProps> = ({ background = "#F5F5F5", s
 
   const { user } = useAuth();
 
-  const handleButtonClick = () => {
-    if (window.Brevo) {
 
+  const handleButtonClick = () => {
       const event_name = 'santander_click';
       const properties = {
             id: user?.id || "anonimo",
             username: user?.username || "non fornito",
         };
-      window.Brevo.push([
-        "track",
+      /*const event_data = {
+        //to be defined
+      }*/
+
+      window.Brevo.track(
         event_name,
         properties,
-      ]);
-    }
+        //event_data
+      );
   };
 
   return (

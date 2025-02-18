@@ -29,3 +29,9 @@ declare module "@mui/material/styles/createPalette" {
     contrast: PaletteColor;
   }
 }
+
+declare global {
+  interface Window {
+    Brevo?: any;
+  }
+}
