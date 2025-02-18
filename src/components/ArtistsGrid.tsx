@@ -5,6 +5,7 @@ import { Box, Button, Typography } from "@mui/material";
 import ArtistCard, { ArtistCardProps } from "./ArtistCard.tsx";
 import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
+import { Artist } from "../types/artist.ts";
 
 export interface ArtistsGridProps {
   items: ArtistCardProps[];
@@ -30,7 +31,7 @@ const ArtistsGrid: React.FC<ArtistsGridProps> = ({
   const auth = useAuth();
   const data = useData();
 
-  const [favourites, setFavourites] = useState<number[]>([]);
+  const [favourites, setFavourites] = useState<Artist[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -124,7 +125,7 @@ const ArtistsGrid: React.FC<ArtistsGridProps> = ({
               onClick={() => (onSelect ? onSelect(i) : handleSelectArtwork(i))}
               isLoading={isLoading}
               onSetFavourite={(currentValue) => handleSetFavourite(item.id, currentValue)}
-              isFavourite={favourites.indexOf(+item.id) !== -1}
+              isFavourite={favourites.some(artist => (artist.id).toString() === item.id)}
             />
           ))}
         </Box>

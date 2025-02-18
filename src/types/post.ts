@@ -1,10 +1,12 @@
+import { Artist } from "./artist.ts";
+
 export type PostCategoryMap = {
   [slug: string]: PostCategory;
 };
 
 export type FavouritesMap = {
   galleries: number[] | null;
-  artists: number[] | null;
+  artists: Artist[] | null;
   artworks: number[] | null;
 };
 

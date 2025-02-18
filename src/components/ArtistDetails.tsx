@@ -23,7 +23,7 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [favourites, setFavourites] = useState<number[]>([]);
+  const [favourites, setFavourites] = useState<Artist[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -92,7 +92,7 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
           <Box>
             <FollowButton
               isLoading={isLoading}
-              isFavourite={favourites.indexOf(+artistContent.id) !== -1}
+              isFavourite={favourites.some(artist => artist.id === artist.id)}
               onClick={handleSetFavourite}
             />
           </Box>

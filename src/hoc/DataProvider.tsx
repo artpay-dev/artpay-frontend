@@ -152,11 +152,11 @@ export interface DataContext {
 
   getArtistCategories(artist: Artist): string[];
 
-  getFavouriteArtists(): Promise<number[]>;
+  getFavouriteArtists(): Promise<Artist[]>;
 
-  addFavouriteArtist(id: string): Promise<number[]>;
+  addFavouriteArtist(id: string): Promise<Artist[]>;
 
-  removeFavouriteArtist(id: string): Promise<number[]>;
+  removeFavouriteArtist(id: string): Promise<Artist[]>;
 
   getFavouriteArtworks(): Promise<number[]>;
 
@@ -377,29 +377,29 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
   };
 
   const favourites = {
-    async getFavouriteArtists(): Promise<number[]> {
+    async getFavouriteArtists(): Promise<Artist[]> {
       if (!auth.isAuthenticated) {
         return [];
       }
       if (favouritesMap.artists !== null) {
         return favouritesMap.artists;
       }
-      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+      const resp = await axios.get<SignInFormData, AxiosResponse<Artist[]>>(
         `${baseUrl}/wp-json/wp/v2/getUserFavoriteArtists`, { headers: { Authorization: auth.getAuthToken() } }
       );
       favouritesMap.artists = resp.data || [];
       return resp.data || [];
     },
-    async addFavouriteArtist(id: string): Promise<number[]> {
-      const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
+    async addFavouriteArtist(id: string): Promise<Artist[]> {
+      const resp = await axios.post<SignInFormData, AxiosResponse<Artist[]>>(
         `${baseUrl}/wp-json/wp/v2/addUserFavoriteArtist/${id}`, {}, { headers: { Authorization: auth.getAuthToken() } }
       );
       favouritesMap.artists = resp.data || favouritesMap.artists;
       dispatchFavouritesUpdated({ ...favouritesMap });
       return resp.data || [];
     },
-    async removeFavouriteArtist(id: string): Promise<number[]> {
-      const resp = await axios.post<SignInFormData, AxiosResponse<number[]>>(
+    async removeFavouriteArtist(id: string): Promise<Artist[]> {
+      const resp = await axios.post<SignInFormData, AxiosResponse<Artist[]>>(
         `${baseUrl}/wp-json/wp/v2/removeUserFavoriteArtist/${id}`, {}, { headers: { Authorization: auth.getAuthToken() } }
       );
       favouritesMap.artists = resp.data || favouritesMap.artists;
@@ -468,7 +468,63 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     }
   };
 
-  const dataContext: DataContext = {
+  const dataContext: {
+    info(): Promise<string>;
+    getHomeContent(): Promise<HomeContent>;
+    getPageBySlug(slug: string): Promise<Post>;
+    getArtwork(id: string): Promise<Artwork>;
+    getArtworks(ids: number[]): Promise<Artwork[]>;
+    getArtworkBySlug(slug: string): Promise<Artwork>;
+    getGallery(id: string): Promise<Gallery>;
+    getGalleries(ids?: number[]): Promise<Gallery[]>;
+    getGalleryBySlug(slug: string): Promise<Gallery>;
+    listGalleries(): Promise<Gallery[]>;
+    listArtworks(): Promise<Artwork[]>;
+    listFeaturedArtworks(): Promise<Artwork[]>;
+    listArtworksForGallery(galleryId: string): Promise<Artwork[]>;
+    listArtworksForArtist(): Promise<Artwork[]>;
+    listFeaturedArtists(): Promise<Artist[]>;
+    listArtistsForGallery(galleryId: string): Promise<Artist[]>;
+    getArtist(artistId: string): Promise<Artist>;
+    getArtistBySlug(artistSlug: string): Promise<Artist>;
+    getArtists(artistIds: number[]): Promise<Artist[]>;
+    getAvailableShippingMethods(): Promise<ShippingMethodOption[]>;
+    listOrders({ status, ...params }?: OrderFilters): Promise<Order[]>;
+    getPendingOrder(): Promise<Order | null>;
+    getOnHoldOrder(): Promise<Order | null>;
+    getExternalOrder(): Promise<void>;
+    getOrder(id: number): Promise<Order | null>;
+    createOrder(body: OrderCreateRequest): Promise<Order>;
+    updateOrder(orderId: number, body: OrderUpdateRequest): Promise<Order>;
+    setOrderStatus(orderId: number, status: OrderStatus, params?: {}): Promise<Order>;
+    purchaseArtwork(artworkId: number, loan?: boolean): Promise<Order>;
+    createPaymentIntent(body: PaymentIntentRequest): Promise<PaymentIntent>;
+    createPaymentIntentCds(body: PaymentIntentRequest): Promise<PaymentIntent>;
+    updatePaymentIntent(data: UpdatePaymentIntentRequest): Promise<PaymentIntent>;
+    createRedeemIntent(body: PaymentIntentRequest): Promise<PaymentIntent>;
+    createBlockIntent(body: PaymentIntentRequest): Promise<PaymentIntent>;
+    clearCachedPaymentIntent(body: PaymentIntentRequest): Promise<void>;
+    getUserInfo(): Promise<User>;
+    getUserProfile(): Promise<UserProfile>;
+    deleteUser(): Promise<void>;
+    updateUserProfile(body: Partial<UpdateUserProfile>): Promise<UserProfile>;
+    sendQuestionToVendor(data: CustomerQuestion): Promise<CustomerQuestionResponse>;
+    getChatHistory(): Promise<GroupedMessage[]>;
+    getProductChatHistory(productId: number): Promise<Message[]>;
+    subscribeNewsletter(email: string, optIn: string, formUrl: string): Promise<void>;
+    getCategoryMapValues(artwork: Artwork, key: string): string[];
+    getArtistCategories(artist: Artist): string[];
+    downpaymentPercentage: () => number;
+    getFavouriteArtists(): Promise<Artist[]>;
+    addFavouriteArtist(id: string): Promise<Artist[]>;
+    removeFavouriteArtist(id: string): Promise<Artist[]>;
+    getFavouriteArtworks(): Promise<number[]>;
+    addFavouriteArtwork(id: string): Promise<number[]>;
+    removeFavouriteArtwork(id: string): Promise<number[]>;
+    getFavouriteGalleries(): Promise<number[]>;
+    addFavouriteGallery(id: string): Promise<number[]>;
+    removeFavouriteGallery(id: string): Promise<number[]>
+  } = {
     info(): Promise<string> {
       return Promise.resolve("");
     },

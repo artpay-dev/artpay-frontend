@@ -274,9 +274,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       //TODO: handle error
       return { error: err?.toString() };
     } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
+      setIsLoading(false)
     }
   };
 

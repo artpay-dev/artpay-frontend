@@ -5,6 +5,7 @@ import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
 import { useNavigate } from "../utils.ts";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import { CardSize } from "../types";
+import { Artist } from "../types/artist.ts";
 
 export interface ArtistsListProps {
   items: ArtistCardProps[];
@@ -27,7 +28,7 @@ const ArtistsList: React.FC<ArtistsListProps> = ({
   const auth = useAuth();
   const navigate = useNavigate();
 
-  const [favourites, setFavourites] = useState<number[]>([]);
+  const [favourites, setFavourites] = useState<Artist[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -86,7 +87,7 @@ const ArtistsList: React.FC<ArtistsListProps> = ({
             onClick={() => handleClick(i)}
             isLoading={isLoading}
             onSetFavourite={(currentValue) => handleSetFavourite(item.id, currentValue)}
-            isFavourite={favourites.indexOf(+item.id) !== -1}
+            isFavourite={favourites.some(artist => (artist.id).toString() === item.id)}
           />
         ))}
     </CardList>

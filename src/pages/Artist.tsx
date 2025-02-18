@@ -97,7 +97,7 @@ const Artist: React.FC<ArtistProps> = ({}) => {
         setArtworks(artworksToGalleryItems(artistArtworks));
         const favouriteArtists = await data.getFavouriteArtists();
 
-        setIsArtistFavourite(favouriteArtists.indexOf(resp?.id || 0) !== -1);
+        setIsArtistFavourite(favouriteArtists.some(artist => artist.id === resp?.id));
       }),
       data.listFeaturedArtists().then((resp) => setFeaturedArtists(artistsToGalleryItems(resp))),
     ])
@@ -115,6 +115,7 @@ const Artist: React.FC<ArtistProps> = ({}) => {
   }, [data, urlParams?.slug]);
 
   const px = getDefaultPaddingX();
+
 
   return (
     <DefaultLayout pageLoading={!isReady}>

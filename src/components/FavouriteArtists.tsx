@@ -22,14 +22,10 @@ const FavouriteArtists: React.FC<FavouriteArtistsProps> = ({}) => {
 
   useEffect(() => {
 
-    Promise.all([
-      data.getFavouriteArtists().then((ids) => {
-        return data.getArtists(ids).then((resp) => {
+      data.getFavouriteArtists().then((resp) => {
           setFavouriteArtists(artistsToGalleryItems(resp));
-        });
       })
-    ])
-      .then(() => {
+        .then(() => {
         setReady(true);
       })
       .catch((e) => {
