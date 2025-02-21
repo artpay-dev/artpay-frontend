@@ -87,7 +87,7 @@ const ArtistsList: React.FC<ArtistsListProps> = ({
             onClick={() => handleClick(i)}
             isLoading={isLoading}
             onSetFavourite={(currentValue) => handleSetFavourite(item.id, currentValue)}
-            isFavourite={favourites.some(artist => (artist.id).toString() === item.id)}
+            isFavourite={favourites.some(artist => `${artist.id}` === item.id)}
           />
         ))}
     </CardList>

@@ -7,6 +7,7 @@ import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import { Artist } from "../types/artist.ts";
 
+
 export interface ArtistsGridProps {
   items: ArtistCardProps[];
   title?: string;
@@ -78,6 +79,8 @@ const ArtistsGrid: React.FC<ArtistsGridProps> = ({
       onLoadMore();
     }
   };
+
+  console.log(favourites)
   return (
     <Box sx={{ px: disablePadding ? 0 : { xs: 0, md: 6 }, maxWidth: "100%" }}>
       {title && (
@@ -125,7 +128,7 @@ const ArtistsGrid: React.FC<ArtistsGridProps> = ({
               onClick={() => (onSelect ? onSelect(i) : handleSelectArtwork(i))}
               isLoading={isLoading}
               onSetFavourite={(currentValue) => handleSetFavourite(item.id, currentValue)}
-              isFavourite={favourites.some(artist => (artist.id).toString() === item.id)}
+              isFavourite={favourites.some(artist => `${artist.id}` === item.id)}
             />
           ))}
         </Box>
