@@ -2,19 +2,19 @@ import React from "react";
 import SantanderCard from "./SantanderCard.tsx";
 
 
-const LoanCard: React.FC = () => {
+const LoanCardTab: React.FC = () => {
   return (
-    <div className={'rounded-3xl bg-primary-dark flex flex-col justify-between py-8 lg:flex-row lg:items-center'}>
-      <div className={'flex flex-col gap-6 px-10'}>
-        <h5 className={'text-3xl text-white'}>
-          Richiedi un prestito
+    <div className={'flex flex-col justify-between py-8'}>
+      <div className={'flex flex-col gap-6 px-10 text-tertiary'}>
+        <h5 className={'text-3xl'}>
+          Scegli tra i nostri partner
         </h5>
-        <p className={'text-white leading-5'}>
+        <p className={'leading-5'}>
           Ecco le migliori offerte di prestito provenienti dagli istituti bancari nostri partner. Scegli quella che
           preferisci e prosegui sulla pagina dedicata ad artpay sul sito dell’istituto finanziario selezionato, dove
           potrai personalizzare il prestito in ogni suo aspetto.
         </p>
-        <p className={'text-sm text-gray-300'}>
+        <p className={'text-sm text-gray-700'}>
           *la richiesta di prestito non garantisce la prenotazione dell'opera.”
         </p>
       </div>
@@ -25,4 +25,4 @@ const LoanCard: React.FC = () => {
   );
 };
 
-export default LoanCard;
+export default LoanCardTab;

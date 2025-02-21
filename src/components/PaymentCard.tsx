@@ -7,7 +7,7 @@ import ContentCard from "./ContentCard.tsx";
 import { usePayments } from "../hoc/PaymentProvider.tsx";
 import { useTheme } from "@mui/material";
 import { PaymentIntent, StripePaymentElement } from "@stripe/stripe-js";
-import LoanCardVertical from "./LoanCardVertical.tsx";
+import LoanCardTab from "./LoanCardTab.tsx";
 
 export interface PaymentCardProps {
   tabTitles: string[]; // Nuova proprietà per i titoli delle tab
@@ -107,7 +107,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
         {selectedTab === 1 && (
           <Box>
             <Typography variant="body1">
-              <LoanCardVertical />
+              <LoanCardTab />
             </Typography>
           </Box>
         )}
