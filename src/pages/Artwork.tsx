@@ -66,8 +66,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   console.log(artwork)
 
   const belowSm = useMediaQuery(theme.breakpoints.down("sm"));
-  const isMd = useMediaQuery(theme.breakpoints.between("sm", "md"));
-  const isLg = useMediaQuery(theme.breakpoints.only("lg"));
+
 
 
   const artworkTechnique = artwork ? data.getCategoryMapValues(artwork, "tecnica").join(" ") : "";
@@ -243,50 +242,22 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
     };
   }, [artwork?.id]);
 
-  let sliderHeight = "800px";
-  if (belowSm) {
-    sliderHeight = "auto";
-  } else if (isMd) {
-    sliderHeight = "660px";
-  } else if (isLg) {
-    sliderHeight = "720px";
-  }
+
   const px = getDefaultPaddingX();
 
   return (
     <DefaultLayout pageLoading={!isReady}>
-      <Box sx={{ px: { ...px, xs: 0 }, mt: { xs: 0, sm: 12, md: 18 } }} display="flex" justifyContent="center">
-        <Grid
-          sx={{ p: 0, mt: 0, justifyContent: "center", alignItems: "flex-start" }}
-          spacing={{ xs: 0, sm: 3 }}
-          maxWidth="xl"
-          container>
-          <Grid
-            item
-            xs={12}
-            md={6}
-            sx={{
-              maxHeight: { xs: "auto", sm: "660px", md: "1820px" },
-              width: { xs: "100%", sm: "auto" },
-              overflow: "hidden",
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "center",
-            }}>
+      <Box sx={{ px: { ...px, xs: 0 }, mt: { xs: 0, sm: 12, md: 18 } }} display="flex" justifyContent="center" overflow={'visible'}>
+        <div className={'flex flex-col w-full lg:flex-row '}>
+          <div className={'w-full max-w-2xl lg:min-w-sm lg:min-h-screen '}>
             <img
               src={artwork?.images?.length ? artwork.images[0].src : ""}
-              style={{ maxHeight: sliderHeight, maxWidth: "100%", objectFit: "contain" }}
+              alt={artwork?.images[0]?.name}
+              className={` object-contain sticky top-0 `}
             />
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            md={6}
-            sx={{ px: { xs: px.xs, sm: 0 }, pt: { xs: 3, sm: 0 } }}
-            display="flex"
-            justifyContent="flex-start"
-            flexDirection="column">
-            <Box alignItems="center" mb={1} display="flex">
+          </div>
+          <div className={'flex flex-col pt-6 lg:0 max-w-2xl px-8 '}>
+            <div className={'flex items-center mb-2'}>
               <Typography
                 sx={{ textTransform: "uppercase", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
                 color="primary"
@@ -311,7 +282,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               <IconButton onClick={handleShowQrCode} size="medium">
                 <QrCodeIcon />
               </IconButton>
-            </Box>
+            </div>
             <Typography sx={{}} variant="h1">
               {artwork?.name}
             </Typography>
@@ -428,19 +399,8 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
               </Box>
             </Box>
             <Divider sx={{ mt: 3 }} />
-
-            {/*WORKSPACE BEGIN--------------------*/}
-
-            <div style={{
-              paddingInline: px.toString(),
-              marginTop: 24,
-            }}>
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                gap: 24,
-              }}>
+            <div className={`px-[${px.toString()}] mt-6`} >
+              <div className={'flex flex-col justify-center gap-6'}>
                 {artwork && <ArtworkDetails artwork={artwork} artist={artistDetails} />}
                 <Divider />
                 {artistDetails && <ArtistDetails artist={artistDetails} />}
@@ -449,12 +409,8 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
 
               </div>
             </div>
-          </Grid>
-
-
-        {/*WORKSPACE END--------------------*/}
-
-        </Grid>
+          </div>
+        </div>
       </Box>
       <Box sx={{ px: belowSm ? 0 : px }}>
         <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 2, sm: 0}}} marginTop={6} variant="h2">

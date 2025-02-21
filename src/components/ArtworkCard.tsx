@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Card, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
+import {IconButton} from "@mui/material";
 import FavouriteIcon from "./icons/FavouriteIcon.tsx";
 import { CardSize } from "../types";
 import FavouriteFilledIcon from "./icons/FavouriteFilledIcon.tsx";
@@ -27,11 +27,11 @@ export interface ArtworkCardProps {
   fitWidth?: boolean;
 }
 
-const cardSizes: { [key in CardSize]: string } = {
+/*const cardSizes: { [key in CardSize]: string } = {
   small: "180px",
   medium: "294px",
   large: "320px",
-};
+};*/
 
 const ArtworkCard: React.FC<ArtworkCardProps> = ({
   artistName,
@@ -42,14 +42,13 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
   imgUrl,
   isFavourite = false,
   onClick,
+  mode= 'list',
   onSetFavourite,
-  mode = "list",
   slug,
   fitWidth = false,
 }) => {
   const dialogs = useDialogs();
 
-  const cardSize = fitWidth ? "100%" : cardSizes[size];
   const cardSizeClass = fitWidth ? `SwiperCard-fit` : `SwiperCard-${size}`;
 
   const formattedPrice = price
@@ -57,9 +56,6 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
         minimumFractionDigits: 2,
       })}`
     : "";
-
-  const textMaxWidth = size === "large" ? "190px" : "254px";
-  const imgMargin = size === "small" ? 1 : 2;
 
   const handleSetFavourite = () => {
     if (onSetFavourite) {
@@ -72,73 +68,39 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
     dialogs.qrCode(qrUrl);
   };
 
-  const cardStyles =
-    mode === "list"
-      ? {
-          height: "100%",
-        }
-      : {
-          height: "auto",
-          display: "flex",
-          flexDirection: "column",
-        };
+
   return (
-    <Card
-      elevation={0}
-      className={cardSizeClass}
-      sx={{
-        ...cardStyles,
-        pl: { xs: 2, sm: 0 },
-      }}>
-      <CardMedia
-        component="img"
-        image={imgUrl}
-        height={fitWidth ? "auto" : cardSize}
-        onClick={onClick}
-        className="borderRadius"
-        sx={{
-          objectFit: "cover",
-          // height: cardSize,
-          minWidth: mode === "list" ? undefined : "100%",
-          width: mode === "list" ? undefined : "auto",
-          //backgroundColor: "#D9D9D9",
-          cursor: onClick ? "pointer" : "auto",
-          aspectRatio: fitWidth ? 1 : undefined,
-        }}></CardMedia>
-      <CardContent sx={{ mt: imgMargin, height: "100%", paddingInline: 0 }}>
-        <Box display="flex" sx={{ height: mode === "grid" ? "100%" : undefined }}>
-          <Box display="flex" onClick={onClick} sx={{ cursor: "pointer" }} flexDirection="column" flexGrow={1}>
-            <Typography variant="body1" color="textSecondary">
+    <div className={`w-fit ${mode === 'grid' ? '' : 'pl-4'} lg:pl-0 h-full ` + cardSizeClass}>
+      <div className={'w-full rounded-sm overflow-hidden cursor-pointer'}>
+        <img
+          src={imgUrl}
+          onClick={onClick}
+          className={'object-cover h-full w-full aspect-square'}
+        />
+      </div>
+      <div className={`mt-4 py-4 flex flex-col justify-between `}>
+        <div className={'flex '}>
+          <div className={'flex cursor-pointer flex-col flex-1 h-full min-h-40'} onClick={onClick}>
+            <p className={'text-secondary '}>
               {artistName || "-"}
-            </Typography>
-            <Typography
+            </p>
+            <h4
+              className={'mt-1 mb-2 w-full cursor-pointer text-2xl flex-1'}
               onClick={onClick}
-              variant="h4"
-              sx={{
-                mt: 0.5,
-                mb: 1,
-                flexGrow: 1,
-                maxWidth: textMaxWidth,
-                minHeight: mode === "grid" ? "0" : "50px",
-                cursor: "pointer",
-              }}>
+              >
               {title}
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
+            </h4>
+            <p className={'text-secondary'}>
               {galleryName || "-"}
-            </Typography>
+            </p>
             {price && (
-              <Typography variant="h4" sx={{ mt: 2 }}>
+              <h4 className={'mt-4 text-2xl'}>
                 {formattedPrice}
-              </Typography>
+              </h4>
             )}
-          </Box>
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="end"
-            justifyContent="space-between"
-            sx={{ maxWidth: "50px" }}>
+          </div>
+          <div
+            className={'flex flex-col items-end justify-between max-w-[50px] '}>
             <IconButton onClick={() => handleSetFavourite()} size="small" sx={{ mt: -0.5 }}>
               {isFavourite ? (
                 <FavouriteFilledIcon color="primary" fontSize="small" />
@@ -149,10 +111,10 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
             <IconButton onClick={handleShowQrCode} sx={{ mb: -1 }} size="medium">
               <QrCodeIcon color="primary" />
             </IconButton>
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

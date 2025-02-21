@@ -8,6 +8,7 @@ import archiver from "archiver";
 
 import usePHP from "vite-plugin-php";
 import { PreRenderedChunk } from "rollup";
+import tailwindcss from "@tailwindcss/vite";
 
 async function zipDirectory(sourceDir: string, outPath: string): Promise<void> {
   const output = fs.createWriteStream(outPath);
@@ -59,7 +60,9 @@ const bundleHooks: PluginOption = {
   }
 };
 export default defineConfig({
-  plugins: [react(),
+  plugins: [
+    react(),
+    tailwindcss(),
     // eslint-disable-next-line react-hooks/rules-of-hooks
 
     // eslint-disable-next-line react-hooks/rules-of-hooks

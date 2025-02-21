@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Card, CardContent, CardMedia, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Card, CardContent, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { Add, Check } from "@mui/icons-material";
 import { useNavigate } from "../utils.ts";
 import { CardSize } from "../types";
@@ -28,7 +28,6 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
                                                  isFavourite = false,
                                                  isLoading = false,
                                                  imgUrl,
-                                                 mode = "list",
                                                  onClick,
                                                  onSetFavourite,
                                                  size = "large",
@@ -38,7 +37,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const imgHeight = size === "medium" ? "396px" : "430px";
+  //const imgHeight = size === "medium" ? "396px" : "430px";
   const cardWidth = fitWidth ? "100%" : (size === "medium" ? "294px" : "320px");
   const className = fitWidth ? `SwiperCard-fit` : `SwiperCard-${size}`;
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -59,20 +58,13 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
 
   return (
     <Card elevation={0} className={className} sx={{ width: cardWidth }}>
-      <CardMedia
-        component="img"
-        image={imgUrl}
-        width={cardWidth}
-        height={fitWidth ? undefined : imgHeight}
-        className="borderRadius"
-        onClick={handleClick}
-        sx={{
-          objectFit: mode === "list" ? "cover" : "cover",
-          minHeight: "100px",
-          backgroundColor: imgUrl ? "" : "#D9D9D9",
-          cursor: onClick ? "pointer" : "auto",
-          aspectRatio: fitWidth ? "0.74" : undefined
-        }}></CardMedia>
+      <div className={'w-full rounded-sm overflow-hidden'}>
+        <img
+          src={imgUrl}
+          onClick={handleClick}
+          className={'object-cover h-full w-full aspect-square'}
+        />
+      </div>
       <CardContent sx={{ p: 0, mt: 2 }}>
         <Box display="flex">
           <Box display="flex" flexDirection="column" flexGrow={1}>

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Gallery } from "../types/gallery";
-import { Box, Link, Typography, useMediaQuery, useTheme } from "@mui/material";
-import DisplayImage from "./DisplayImage.tsx";
+import { Link } from "@mui/material";
 import { galleryToGalleryContent } from "../utils.ts";
 import { useNavigate } from "../utils.ts";
 import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
 import FollowButton from "./FollowButton.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
+import sanitizeHtml from "sanitize-html";
 
 export interface GalleryDetailsProps {
   gallery: Gallery;
@@ -17,11 +17,15 @@ const GalleryDetails: React.FC<GalleryDetailsProps> = ({ gallery }) => {
   const navigate = useNavigate();
   const data = useData();
   const auth = useAuth();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [favourites, setFavourites] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [viewMore, setViewMore] = useState(false);
+
+
+  const handleViewMoreButton = () => {
+    setViewMore(!viewMore)
+  }
 
   useEffect(() => {
     const handleFavouritesUpdated = () => {
@@ -65,44 +69,50 @@ const GalleryDetails: React.FC<GalleryDetailsProps> = ({ gallery }) => {
   };
 
   return (
-    <Box
-      sx={{
-        maxWidth: { xs: undefined, md: "612px" },
-        width: "100%",
-        flexDirection: { xs: "column", sm: "row" },
-        alignItems: { xs: "center", sm: "flex-start" },
-      }}
-      display="flex">
-      <DisplayImage
-        borderRadius="4px"
-        src={galleryContent.coverImage}
-        onClick={handleClick}
-        width={isMobile ? "100%" : 188}
-        height={isMobile ? "auto" : 188}
-      />
-      <Box flexGrow={1} pl={{ xs: 0, sm: 3 }} pr={{ xs: 0, md: 3 }} sx={{ mt: { xs: 2, sm: 0 }, width: "100%" }}>
-        <Box display="flex" flexDirection="row" alignItems="center">
-          <Box flexGrow={1}>
-            <Typography variant="subtitle1">
-              <Link href={`/gallerie/${gallery.shop?.slug}`}>{galleryContent.title}</Link>
-            </Typography>
-            <Typography variant="subtitle1" color="textSecondary">
-              {galleryContent.subtitle}
-            </Typography>
-          </Box>
-          <Box>
-            <FollowButton
-              isLoading={isLoading}
-              isFavourite={favourites.indexOf(+galleryContent.id) !== -1}
-              onClick={handleSetFavourite}
+    <section className={"w-full flex flex-col "}>
+      <div className={"flex justify-between items-center"}>
+        <div className={'flex space-x-2'}>
+          <div className={"w-11 h-11 rounded-sm overflow-hidden"} onClick={handleClick}>
+            <img
+              className={"w-full h-full aspect-square object-cover"}
+              src={galleryContent.coverImage}
+              width={100}
+              height={100}
+              alt={galleryContent.title}
             />
-          </Box>
-        </Box>
-        <Typography sx={{ mt: 3 }} color="textSecondary" variant="subtitle1">
-          {galleryContent.description}
-        </Typography>
-      </Box>
-    </Box>
+          </div>
+          <div className={"flex-1 flex flex-col justify-between"}>
+            <h4>
+              <Link href={`/gallerie/${gallery.shop?.slug}`} className={'text-tertiary! no-underline!'}>{galleryContent.title}</Link>
+            </h4>
+            <p className={'text-secondary'}>
+              {galleryContent.subtitle}
+            </p>
+          </div>
+        </div>
+          <FollowButton
+            isLoading={isLoading}
+            isFavourite={favourites.indexOf(+galleryContent.id) !== -1}
+            onClick={handleSetFavourite}
+          />
+      </div>
+        {galleryContent.description !== '' ? (
+          <div>
+            <p
+              className={`${viewMore ? "" : "line-clamp-5"} text-[#666F7A] leading-5 mt-4`}
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHtml(galleryContent.description || "", { allowedAttributes: false }),
+              }}
+            />
+          <button className={"text-primary mt-2 text-sm cursor-pointer"} onClick={handleViewMoreButton} name={"Mostra"}>
+            {viewMore ? "Mostra meno" : "Mostra altro"}
+          </button>
+          </div>
+        ) : (
+          <></>
+        )}
+
+    </section>
   );
 };
 

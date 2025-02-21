@@ -2,6 +2,7 @@
 @import "_inter.scss";
 @import "typography";
 
+
 #root {
 }
 
@@ -20,7 +21,7 @@ body {
 }
 
 
-.SwiperCard, .swiper-slide.SwiperCard {
+/*.SwiperCard, .swiper-slide.SwiperCard {
   &-small{
     width: 180px;
     min-width: 180px;
@@ -36,7 +37,7 @@ body {
   &-fit{
     width: 100%;
   }
-}
+}*/
 
 .borderRadius {
   border-radius: 5px;
