@@ -155,11 +155,11 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
         isMobile
           ? mobileStyleOverrides
           : {
-            mx: { xs: 8, md: 6, lg: 6, xl: "auto" },
-            right: 0,
-            px: { xs: undefined, lg: 6 },
-            maxWidth: "1344px",
-          }
+              mx: { xs: 8, md: 6, lg: 6, xl: "auto" },
+              right: 0,
+              px: { xs: undefined, lg: 6 },
+              maxWidth: "1344px",
+            }
       }
       elevation={0}>
       <Box display="flex" alignItems="center" sx={{}}>
@@ -176,8 +176,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
             {menuLinks
               .filter((l) => auth.isAuthenticated || !l.requireAuth)
               .map((link, i) => {
-
-                if (link.label === "Chi siamo" && auth.isAuthenticated) return
+                if (link.label === "Chi siamo" && auth.isAuthenticated) return;
 
                 return (
                   <Button
@@ -188,7 +187,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
                     variant="text">
                     {link.label}
                   </Button>
-                )
+                );
               })}
           </Box>
         )}
@@ -256,16 +255,22 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
       </Box>
       {menuOpen && (
         <Box flexGrow={1} pt={3} display="flex" flexDirection="column" sx={{ height: "auto" }}>
-          {menuLinks.map((link, i) => (
-            <Button
-              key={`btn-link-mobile-${i}`}
-              sx={{}}
-              onClick={() => handleNavigate(link.href)}
-              color="inherit"
-              variant="text">
-              {link.label}
-            </Button>
-          ))}
+          {menuLinks
+            .filter((l) => auth.isAuthenticated || !l.requireAuth)
+            .map((link, i) => {
+              if (link.label === "Chi siamo" && auth.isAuthenticated) return;
+
+              return (
+                <Button
+                  key={`btn-link-mobile-${i}`}
+                  sx={{}}
+                  onClick={() => handleNavigate(link.href)}
+                  color="inherit"
+                  variant="text">
+                  {link.label}
+                </Button>
+              );
+            })}
 
           <Box flexGrow={1}></Box>
           {auth.isAuthenticated ? (
