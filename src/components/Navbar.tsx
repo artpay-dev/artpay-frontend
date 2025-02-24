@@ -140,7 +140,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   );
 
   const menuLinks = [
-    //{ label: "Gallerie", href: "/gallerie ", requireAuth: true },
+    { label: "Gallerie", href: "/gallerie ", requireAuth: true },
     //{ label: "Collezionisti", href: "/artpay-per-collezionisti", requireAuth: false },
     { label: "Chi siamo", href: "/chi-siamo", requireAuth: false },
     //{ label: "ArtMatch", href: "https://artpay.art/art-match" }
@@ -155,11 +155,11 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
         isMobile
           ? mobileStyleOverrides
           : {
-              mx: { xs: 8, md: 6, lg: 6, xl: "auto" },
-              right: 0,
-              px: { xs: undefined, lg: 6 },
-              maxWidth: "1344px",
-            }
+            mx: { xs: 8, md: 6, lg: 6, xl: "auto" },
+            right: 0,
+            px: { xs: undefined, lg: 6 },
+            maxWidth: "1344px",
+          }
       }
       elevation={0}>
       <Box display="flex" alignItems="center" sx={{}}>
@@ -175,16 +175,21 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
           <Box sx={{ ml: 3 }}>
             {menuLinks
               .filter((l) => auth.isAuthenticated || !l.requireAuth)
-              .map((link, i) => (
-                <Button
-                  key={`btn-link-${i}`}
-                  sx={{ px: 2 }}
-                  onClick={() => handleNavigate(link.href)}
-                  color="inherit"
-                  variant="text">
-                  {link.label}
-                </Button>
-              ))}
+              .map((link, i) => {
+
+                if (link.label === "Chi siamo" && auth.isAuthenticated) return
+
+                return (
+                  <Button
+                    key={`btn-link-${i}`}
+                    sx={{ px: 2 }}
+                    onClick={() => handleNavigate(link.href)}
+                    color="inherit"
+                    variant="text">
+                    {link.label}
+                  </Button>
+                )
+              })}
           </Box>
         )}
         {/*<TextField sx={{flexGrow:0, ml: 1}} variant="standard" InputProps={{startAdornment: <InputAdornment position="start"><Search/></InputAdornment>}}/>*/}
