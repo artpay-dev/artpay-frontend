@@ -140,7 +140,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   );
 
   const menuLinks = [
-    { label: "Gallerie", href: "/gallerie ", requireAuth: true },
+    //{ label: "Gallerie", href: "/gallerie ", requireAuth: true },
     //{ label: "Collezionisti", href: "/artpay-per-collezionisti", requireAuth: false },
     { label: "Chi siamo", href: "/chi-siamo", requireAuth: false },
     //{ label: "ArtMatch", href: "https://artpay.art/art-match" }
@@ -176,9 +176,6 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
             {menuLinks
               .filter((l) => auth.isAuthenticated || !l.requireAuth)
               .map((link, i) => {
-
-                if (link.label === "Chi siamo" && auth.isAuthenticated) return
-
                 return (
                   <Button
                     key={`btn-link-${i}`}
