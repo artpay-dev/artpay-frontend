@@ -18,7 +18,6 @@ const HeroSlide: React.FC<HeroSlideProps> = ({ title, subtitle, imgUrl, cta, onC
   const handleClick = () => {
     if (onClick) {
       onClick();
-    } else {
     }
   };
 
