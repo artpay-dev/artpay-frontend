@@ -80,7 +80,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
     left: 0,
     width: { xs: "calc(100% - 16px)", sm: "calc(100% - 32px)" },
     m: { xs: 1, sm: 2 },
-    height: menuOpen ? "calc(100dvh - 16px)" : undefined,
+    height: menuOpen ? "30%" : undefined,
     transition: "all 0.5s",
     overflow: "hidden",
     //borderRadius: 0
@@ -291,10 +291,11 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
           <Box flexGrow={1}></Box>
           {auth.isAuthenticated ? (
             <>
-              <Typography sx={{ textAlign: "center" }} variant="body2" color="primary">
+              <hr className={'text-gray-300 mt-4 mb-6'} />
+              <Typography sx={{ textAlign: "center" }}  color="primary">
                 Ciao {auth.user?.username}
               </Typography>
-              <Button sx={{ mb: 12 }} onClick={() => handleLogout()} color="tertiary" variant="text">
+              <Button  onClick={() => handleLogout()} color="tertiary" variant="text">
                 Logout
               </Button>
             </>
