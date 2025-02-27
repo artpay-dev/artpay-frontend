@@ -71,6 +71,8 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
   const [artworks, setArtworks] = useState<ArtworkCardProps[]>([]);
   const [galleries, setGalleries] = useState<Gallery[]>([]);
 
+  const [subtotal, setSubtotal] = useState<number>(0)
+
   orderMode = orderMode === "loan" || pendingOrder?.customer_note === "Blocco opera" ? "loan" : orderMode;
 
   const showError = async (err?: unknown, text: string = "Si è verificato un errore") => {
@@ -79,6 +81,9 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
     }
     return snackbar.error(text, { autoHideDuration: 60000 });
   };
+
+
+
 
   useEffect(() => {
     if (auth.isAuthenticated) {
@@ -339,6 +344,22 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
   const px = { xs: 3, sm: 4, md: 10, lg: 12 };
 
 
+  useEffect(() => {
+    if (pendingOrder) {
+
+      const totalSum = pendingOrder.line_items.reduce((acc, item) => {
+        return acc + parseFloat(item.total);
+      }, 0);
+
+      const totalTaxSum = pendingOrder.line_items.reduce((acc, item) => {
+        return acc + parseFloat(item.total_tax);
+      }, 0);
+
+      setSubtotal(totalSum + totalTaxSum)
+
+    }
+  }, [pendingOrder]);
+
 
   if (noPendingOrder) {
     return (
@@ -533,10 +554,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                       Subtotale
                     </Typography>
                     <Typography variant="body1" fontSize={20} fontWeight={700}>
-                      €{" "}
-                      {(+(pendingOrder?.line_items[0].total || 0) + +(pendingOrder?.line_items[0].total_tax || 0))
-                        // - +(pendingOrder?.meta_data.find((meta) => meta.key === "artpay_fee")?.value || 0)
-                        .toFixed(2)}
+                      {`€ ${subtotal || 0}`}
                     </Typography>
                   </Box>
                   {showCommissioni && (

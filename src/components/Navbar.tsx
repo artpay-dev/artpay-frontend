@@ -189,11 +189,10 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
         </Box>
         {!isMobile && (
           <Box sx={{ ml: 3 }}>
-            {menuLinks
               {menuLinks
               .filter((l) => auth.isAuthenticated || !l.requireAuth)
               .map((link, i) => {
-                if (link.label === "Chi siamo" && auth.isAuthenticated) return;
+                if (link.label === "Chi siamo" && environment !== 'production' && auth.isAuthenticated) return;
 
                 return (
                   <Button
@@ -275,7 +274,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
           {menuLinks
             .filter((l) => auth.isAuthenticated || !l.requireAuth)
             .map((link, i) => {
-              if (link.label === "Chi siamo" && auth.isAuthenticated) return;
+              if (link.label === "Chi siamo" && environment !== 'production' && auth.isAuthenticated) return;
 
               return (
                 <Button
@@ -296,7 +295,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
               <Typography sx={{ textAlign: "center" }}  color="primary">
                 Ciao {auth.user?.username}
               </Typography>
-              <Button  onClick={() => handleLogout()} color="tertiary" variant="text">
+              <Button sx={{mb: 12}}  onClick={() => handleLogout()} color="tertiary" variant="text">
                 Logout
               </Button>
             </>
