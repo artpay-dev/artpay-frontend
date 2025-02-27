@@ -477,7 +477,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     getArtwork(id: string): Promise<Artwork>;
     getArtworks(ids: number[]): Promise<Artwork[]>;
     getArtworkBySlug(slug: string): Promise<Artwork>;
-    getGallery(id: string): Promise<Gallery>;
+    getGallery(id: string): Promise<Gallery | null>;
     getGalleries(ids?: number[]): Promise<Gallery[]>;
     getGalleryBySlug(slug: string): Promise<Gallery>;
     listGalleries(): Promise<Gallery[]>;
@@ -615,13 +615,18 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       }
       return resp.data[0];
     },
-    async getGallery(id: string): Promise<Gallery> {
-      const resp = await axios.get<SignInFormData, AxiosResponse<Gallery>>(`${baseUrl}/wp-json/mvx/v1/vendors/${id}`, {
-        headers: {
-          Authorization: auth.getGuestAuth()
-        }
-      });
-      return resp.data;
+    async getGallery(id: string): Promise<Gallery | null> {
+      try {
+        const resp = await axios.get<SignInFormData, AxiosResponse<Gallery>>(`${baseUrl}/wp-json/mvx/v1/vendors/${id}`, {
+          headers: {
+            Authorization: auth.getGuestAuth()
+          }
+        });
+        return resp.data ?? null;
+      } catch (e) {
+        console.error(e)
+        return null
+      }
     },
     async getGalleries(ids?: number[]): Promise<Gallery[]> {
       if (!ids) {
@@ -631,7 +636,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         );
         return resp.data;
       }
-      return Promise.all(ids.map((id) => this.getGallery(id.toString())));
+      const galleries = await  Promise.all(ids.map((id) => this.getGallery(id.toString())));
+      return galleries.filter((gallery): gallery is Gallery => gallery !== null);
     },
     async getGalleryBySlug(slug: string): Promise<Gallery> {
       const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(
@@ -1222,7 +1228,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
   }, [dataContext.purchaseArtwork]);
 
 
-  return <Context.Provider value={dataContext}>{isLoading ? <></> : children}</Context.Provider>;
+  return <Context.Provider value={dataContext as DataContext}>{isLoading ? <></> : children}</Context.Provider>;
 };
 
 export const useData = () => useContext(Context);

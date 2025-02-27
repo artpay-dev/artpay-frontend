@@ -33,7 +33,10 @@ const SignUpConfirmation: React.FC<SignUpConfirmationProps> = ({}) => {
         Account verificato con successo
       </Typography>
       <Button variant="contained" sx={{ width: "200px" }} href="/">Vai alla home</Button>
-      <Button variant="outlined" sx={{ width: "200px" }} onClick={() => auth.login()}>Effettua il login</Button>
+      {!auth.isAuthenticated ?
+        (<Button variant="outlined" sx={{ width: "200px" }} onClick={() => auth.login()}>Effettua il login</Button>) :
+        (<Button variant="outlined" sx={{ width: "200px" }} href="/profile">Vai al tuo profilo</Button>)
+      }
     </Box>
   </DefaultLayout>);
 };

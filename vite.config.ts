@@ -1,18 +1,19 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import fs from "fs";
+import tailwindcss from "@tailwindcss/vite";
+//import fs from "fs";
 
 // https://vitejs.dev/config/
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   // @ts-expect-error need vite-plugin-html
   transformIndexHtml: (html) => html.replace("%VITE_STRIPE_KEY%", process.env.VITE_STRIPE_KEY),
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src")
-    }
+      "@": path.resolve(__dirname, "src"),
+    },
   },
   server: {
     proxy: {
@@ -23,12 +24,12 @@ export default defineConfig({
         ws: true,
         rewrite: (path) => {
           return path;
-        }
-      }
+        },
+      },
     },
-    https: {
+    /*https: {
       key: fs.readFileSync("./local_certs/artpay.art-key.pem"),
       cert: fs.readFileSync("./local_certs/artpay.art.pem")
-    }
-  }
+    }*/
+  },
 });

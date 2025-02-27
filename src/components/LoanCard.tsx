@@ -1,8 +1,12 @@
 import React from "react";
 import SantanderCard from "./SantanderCard.tsx";
+import { Artwork } from "../types/artwork.ts";
 
+type LoanCardProp = {
+  artwork?: Partial<Artwork>
+}
 
-const LoanCard: React.FC = () => {
+const LoanCard: React.FC<LoanCardProp> = ({artwork}) => {
   return (
     <div className={'rounded-3xl bg-primary-dark flex flex-col justify-between py-8 lg:flex-row lg:items-center'}>
       <div className={'flex flex-col gap-6 px-10'}>
@@ -19,7 +23,7 @@ const LoanCard: React.FC = () => {
         </p>
       </div>
       <div className={'px-10'}>
-        <SantanderCard sx={{ width: "auto", p: 3, px: 5, mt: 3 }} />
+        <SantanderCard sx={{ width: "auto", p: 3, px: 5, mt: 3 }} artwork={artwork}/>
       </div>
     </div>
   );

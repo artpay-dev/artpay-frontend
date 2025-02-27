@@ -1,6 +1,8 @@
 import fs from "fs";
 import archiver from "archiver";
 
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function zipDirectory(sourceDir, outPath) {
   const output = fs.createWriteStream(outPath);
   const archive = archiver("zip", { zlib: { level: 9 } }); // Compression level: 0 (fastest) - 9 (highest)

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, Typography } from "@mui/material";
 import { artistToGalleryItem } from "../utils.ts";
 import { Artist } from "../types/artist.ts";
@@ -19,16 +19,27 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
   const auth = useAuth();
   const navigate = useNavigate();
   const snackbar = useSnackbars();
+  const contentRef = useRef<HTMLDivElement | null>(null)
 
   const [favourites, setFavourites] = useState<Artist[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [viewMore, setViewMore] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [contentHeight, setContentHeight] = useState<number>(0)
 
-  const handleViewMoreButton = () => {
-    setViewMore(!viewMore);
+  const handleExpande = () => {
+    setIsExpanded(!isExpanded);
   };
 
+
   useEffect(() => {
+    if (contentRef.current) {
+      setContentHeight(contentRef.current.scrollHeight)
+    }
+  }, []);
+
+
+  useEffect(() => {
+
     const handleFavouritesUpdated = () => {
       data.getFavouriteArtists().then((resp) => setFavourites(resp));
     };
@@ -38,6 +49,7 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
       document.removeEventListener(FAVOURITES_UPDATED_EVENT, handleFavouritesUpdated);
     };
   }, [data]);
+
   const handleSetFavourite = async (isFavourite: boolean) => {
     if (!auth.isAuthenticated) {
       auth.login();
@@ -98,7 +110,7 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
             <div>
               <FollowButton
                 isLoading={isLoading}
-                isFavourite={favourites.some((artist) => artist.id === artist.id)}
+                isFavourite={favourites.some((art) => art.id === artist.id)}
                 onClick={handleSetFavourite}
               />
             </div>
@@ -113,14 +125,17 @@ const ArtistDetails: React.FC<ArtistDetailsProps> = ({ artist }) => {
       {artistContent.description !== "" ? (
         <>
           <p
-            className={`${viewMore ? "" : "line-clamp-5"} text-[#666F7A] leading-5 mt-4`}
+            ref={contentRef}
+            className={`${isExpanded ? contentHeight : 'line-clamp-3'} overflow-hidden text-[#666F7A] leading-5 mt-4`}
             dangerouslySetInnerHTML={{
               __html: sanitizeHtml(artistContent.description || "", { allowedAttributes: false }),
             }}
           />
-          <button className={"text-primary mt-2 text-sm cursor-pointer"} onClick={handleViewMoreButton} name={"Mostra"}>
-            {viewMore ? "Mostra meno" : "Mostra altro"}
-          </button>
+          {contentRef.current && contentRef.current.scrollHeight >= 120 && (
+            <button className={"text-primary mt-2 text-sm cursor-pointer"} onClick={handleExpande} name={"Mostra"}>
+              {isExpanded ? "Mostra meno" : "Mostra altro"}
+            </button>
+          )}
         </>
       ) : (
         <></>

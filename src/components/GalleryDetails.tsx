@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Gallery } from "../types/gallery";
 import { Link } from "@mui/material";
 import { galleryToGalleryContent } from "../utils.ts";
@@ -17,15 +17,23 @@ const GalleryDetails: React.FC<GalleryDetailsProps> = ({ gallery }) => {
   const navigate = useNavigate();
   const data = useData();
   const auth = useAuth();
+  const contentRef = useRef<HTMLDivElement | null>(null)
 
   const [favourites, setFavourites] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [viewMore, setViewMore] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [contentHeight, setContentHeight] = useState<number>(0)
+
+  const handleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
 
 
-  const handleViewMoreButton = () => {
-    setViewMore(!viewMore)
-  }
+  useEffect(() => {
+    if (contentRef.current) {
+      setContentHeight(contentRef.current.scrollHeight)
+    }
+  }, []);
 
   useEffect(() => {
     const handleFavouritesUpdated = () => {
@@ -96,21 +104,24 @@ const GalleryDetails: React.FC<GalleryDetailsProps> = ({ gallery }) => {
             onClick={handleSetFavourite}
           />
       </div>
-        {galleryContent.description !== '' ? (
-          <div>
-            <p
-              className={`${viewMore ? "" : "line-clamp-5"} text-[#666F7A] leading-5 mt-4`}
-              dangerouslySetInnerHTML={{
-                __html: sanitizeHtml(galleryContent.description || "", { allowedAttributes: false }),
-              }}
-            />
-          <button className={"text-primary mt-2 text-sm cursor-pointer"} onClick={handleViewMoreButton} name={"Mostra"}>
-            {viewMore ? "Mostra meno" : "Mostra altro"}
-          </button>
-          </div>
-        ) : (
-          <></>
-        )}
+      {galleryContent.description !== "" ? (
+        <>
+          <p
+            ref={contentRef}
+            className={`${isExpanded ? contentHeight : 'line-clamp-3'} overflow-hidden text-[#666F7A] leading-5 mt-4`}
+            dangerouslySetInnerHTML={{
+              __html: sanitizeHtml(galleryContent.description || "", { allowedAttributes: false }),
+            }}
+          />
+          {contentRef.current && contentRef.current.scrollHeight >= 120 && (
+            <button className={"text-primary mt-2 text-sm cursor-pointer self-start"} onClick={handleExpanded} name={"Mostra"}>
+              {isExpanded ? "Mostra meno" : "Mostra altro"}
+            </button>
+          )}
+        </>
+      ) : (
+        <></>
+      )}
 
     </section>
   );

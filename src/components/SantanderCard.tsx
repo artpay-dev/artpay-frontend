@@ -2,33 +2,48 @@ import React from "react";
 import santanderLogo from "../assets/images/santander_logo_1.svg";
 import { Box, BoxProps, Button, Typography } from "@mui/material";
 import { useAuth } from "../hoc/AuthProvider.tsx";
+import { PaymentIntent } from "@stripe/stripe-js";
+import { Artwork } from "../types/artwork.ts";
 
 
 export interface SantanderCardProps {
   background?: string;
   sx?: BoxProps["sx"];
+  paymentIntent?: PaymentIntent;
+  artwork?: Partial<Artwork>
 }
 
-const SantanderCard: React.FC<SantanderCardProps> = ({ background = "#F5F5F5", sx = {} }) => {
-
+const SantanderCard: React.FC<SantanderCardProps> = ({ background = "#F5F5F5", sx = {}, paymentIntent, artwork }) => {
   const { user } = useAuth();
 
+  const event_name = 'santander_click';
+  const properties = {
+        id: user?.id || "anonimo",
+        username: user?.username || "non fornito",
+        event_data: {}
+    };
+
+  if (paymentIntent || artwork) {
+    properties.event_data = {
+      artwork: {
+        artwork_id: artwork?.id || 'view payment order',
+        artwork_title: artwork?.name || 'view payment order',
+        artwork_price: artwork?.price || paymentIntent?.amount || 'no payment intent',
+      },
+      user_email: user?.email || 'anonimo',
+      amount: paymentIntent?.amount || 'no payment intent',
+      order_description: paymentIntent?.description || 'no payment intent'
+    }
+  }
 
   const handleButtonClick = () => {
-      const event_name = 'santander_click';
-      const properties = {
-            id: user?.id || "anonimo",
-            username: user?.username || "non fornito",
-        };
-      /*const event_data = {
-        //to be defined
-      }*/
 
-      window.Brevo.track(
-        event_name,
-        properties,
-        //event_data
-      );
+    window.Brevo.push([
+      "track",
+      event_name,
+      properties,
+    ]);
+
   };
 
   return (
@@ -52,11 +67,11 @@ const SantanderCard: React.FC<SantanderCardProps> = ({ background = "#F5F5F5", s
       </Box>
       <Button
         fullWidth
+        onClick={handleButtonClick}
         sx={{ textAlign: "center" }}
         href="https://www.santanderconsumer.it/prestito/partner/artpay"
         target="_blank"
-        variant="contained"
-        onClick={handleButtonClick}>
+        variant="contained">
         Calcola la rata
       </Button>
       <Typography sx={{ textAlign: "center", width: "100%", mt: 1 }} fontWeight={500} variant="caption">

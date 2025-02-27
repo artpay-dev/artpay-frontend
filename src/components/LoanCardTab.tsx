@@ -1,8 +1,13 @@
 import React from "react";
 import SantanderCard from "./SantanderCard.tsx";
+import { PaymentIntent } from "@stripe/stripe-js";
+
+type LoanCardTabProps = {
+  paymentIntent?: PaymentIntent
+}
 
 
-const LoanCardTab: React.FC = () => {
+const LoanCardTab: React.FC<LoanCardTabProps> = ({paymentIntent}) => {
   return (
     <div className={'flex flex-col justify-between py-8'}>
       <div className={'flex flex-col gap-6 px-10 text-tertiary'}>
@@ -19,7 +24,7 @@ const LoanCardTab: React.FC = () => {
         </p>
       </div>
       <div className={'px-10'}>
-        <SantanderCard sx={{ width: "auto", p: 3, px: 5, mt: 3 }} />
+        <SantanderCard sx={{ width: "auto", p: 3, px: 5, mt: 3 }} paymentIntent={paymentIntent} />
       </div>
     </div>
   );

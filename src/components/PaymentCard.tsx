@@ -107,7 +107,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
         {selectedTab === 1 && (
           <Box>
             <Typography variant="body1">
-              <LoanCardTab />
+              <LoanCardTab paymentIntent={paymentIntent}/>
             </Typography>
           </Box>
         )}

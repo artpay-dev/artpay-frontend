@@ -63,11 +63,9 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const [favouriteArtworks, setFavouriteArtworks] = useState<number[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile>();
 
-  console.log(artwork)
-
   const belowSm = useMediaQuery(theme.breakpoints.down("sm"));
 
-
+  console.log(artwork)
 
   const artworkTechnique = artwork ? data.getCategoryMapValues(artwork, "tecnica").join(" ") : "";
   const artworkCertificate = artwork ? data.getCategoryMapValues(artwork, "certificato").join(" ") : "";
@@ -251,9 +249,9 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         <div className={'flex flex-col w-full lg:flex-row '}>
           <div className={'w-full max-w-2xl lg:min-w-sm lg:min-h-screen '}>
             <img
-              src={artwork?.images?.length ? artwork.images[0].src : ""}
+              src={artwork?.images?.length ? artwork.images[0].woocommerce_single : ""}
               alt={artwork?.images[0]?.name}
-              className={` object-contain sticky top-0 `}
+              className={` object-contain sticky top-0 w-full`}
             />
           </div>
           <div className={'flex flex-col pt-6 lg:0 max-w-2xl px-8 '}>
@@ -497,7 +495,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       </Grid>
       <div style={{ top: "-80px", position: "relative", visibility: "hidden" }} id="scopri-di-piu" />
       <Box sx={{ px: { ...px, xs: 0 }, mt: 3, mb: 12 }}>
-        <LoanCard />
+        <LoanCard artwork={artwork} />
       </Box>
     </DefaultLayout>
   );

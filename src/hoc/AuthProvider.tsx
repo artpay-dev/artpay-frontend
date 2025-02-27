@@ -249,14 +249,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       const resp = await axios.get<SignInFormData, AxiosResponse<User>>(loginUrl, {
         auth: { username: email, password },
       });
-      // await storage.set('auth', JSON.stringify({jwt: resp.data.jwt, user: userInfoResp.data})) //TODO: local storage
-      localStorage.setItem(userStorageKey, JSON.stringify(resp.data));
+
+      //await storage.set('auth', JSON.stringify({jwt: resp.data.jwt, user: userInfoResp.data})) //TODO: local storage
+      localStorage.setItem(userStorageKey, JSON.stringify({ ...resp.data, email: email }));
+      const userInfo = await userToUserInfo(resp.data);
       setAuthValues({
         ...authValues,
         isAuthenticated: true,
-        user: userToUserInfo(resp.data),
+        user: {
+          ...userInfo,
+          email: email
+        },
         wcToken: getWcCredentials(resp.data.wc_api_user_keys),
       });
+
       setLoginOpen(false);
       return {};
     } catch (err: unknown) {
@@ -459,6 +465,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
       dispatchUserEvent(USER_LOGOUT_EVENT, 0);
     }
   }, [authValues.user, authValues.wcToken]);
+
 
   return (
     <Context.Provider value={state}>
