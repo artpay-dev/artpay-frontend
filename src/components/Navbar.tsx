@@ -190,6 +190,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
         {!isMobile && (
           <Box sx={{ ml: 3 }}>
             {menuLinks
+              {menuLinks
               .filter((l) => auth.isAuthenticated || !l.requireAuth)
               .map((link, i) => {
                 if (link.label === "Chi siamo" && auth.isAuthenticated) return;
