@@ -52,6 +52,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
 
   const [galleryInfo, setGalleryInfo] = useState<GalleryInfoProps>();
 
+
   useEffect(() => {
     if (!urlParams.slug) {
       navigate("/");
@@ -211,7 +212,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
           <Typography variant="subtitle1" sx={{ mt: 6, maxWidth: { md: "400px" } }}>
             {galleryContent?.description}
           </Typography>
-          {galleryContent?.productsCount && (
+          {galleryContent?.productsCount != 0 && (
             <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 3 }}>
               {galleryContent?.productsCount} opere presenti su Artpay
             </Typography>
