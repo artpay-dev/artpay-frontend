@@ -23,7 +23,7 @@ const FavouriteArtists: React.FC<FavouriteArtistsProps> = ({}) => {
   useEffect(() => {
 
       data.getFavouriteArtists().then((resp) => {
-          setFavouriteArtists(artistsToGalleryItems(resp));
+          setFavouriteArtists(artistsToGalleryItems(resp.filter(artist => artist.status != 'trash')));
       })
         .then(() => {
         setReady(true);

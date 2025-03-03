@@ -80,7 +80,7 @@ const ArtistsGrid: React.FC<ArtistsGridProps> = ({
     }
   };
 
-  console.log(favourites)
+
   return (
     <Box sx={{ px: disablePadding ? 0 : { xs: 0, md: 6 }, maxWidth: "100%" }}>
       {title && (
