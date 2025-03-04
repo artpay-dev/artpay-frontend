@@ -179,15 +179,21 @@ const Artist: React.FC<ArtistProps> = ({}) => {
         </Box>
       </Box>
 
-      <Box sx={{ px: px, mt: { xs: 3, md: 6 } }} mt={8} pb={6}>
+      <Box sx={{mt: { xs: 3, md: 6 }, px: isMobile ? 0 : px}} mt={8} pb={6}>
+        <Typography sx={{ mb: { xs: 3, md: 6 }, px: isMobile ? px : 0 }} variant="h2">
+          {"Opere dello stesso artista"}
+        </Typography>
         {isMobile ? (
-          <ArtworksList disablePadding title="Opere dello stesso artista" items={artworks} />
+          <ArtworksList disablePadding items={artworks} />
         ) : (
-          <ArtworksGrid disablePadding title={"Opere dello stesso artista"} items={artworks} />
+          <ArtworksGrid disablePadding items={artworks} />
         )}
       </Box>
-      <Box sx={{ px: px, mt: { xs: 3, md: 6 } }} mt={8} pb={6}>
-        <ArtistsList disablePadding size="medium" title="Artisti in evidenza" items={featuredArtists} />
+      <Box sx={{mt: { xs: 3, md: 6 }, px: isMobile ? 0 : px }} mt={8} pb={6}>
+        <Typography sx={{ mb: { xs: 3, md: 6 }, px: isMobile ? px : 0 }} variant="h2">
+          {"Artisti in evidenza"}
+        </Typography>
+        <ArtistsList disablePadding size="medium" items={featuredArtists} />
       </Box>
     </DefaultLayout>
   );

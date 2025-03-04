@@ -57,7 +57,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
   };
 
   return (
-    <Card elevation={0} className={className} sx={{ width: cardWidth }}>
+    <Card elevation={0} className={`w-fit pl-4 lg:pl-0 h-full ${className}`} sx={{ width: cardWidth }}>
       <div className={'w-full rounded-sm overflow-hidden'}>
         <img
           src={imgUrl}
