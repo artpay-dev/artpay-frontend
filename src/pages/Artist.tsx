@@ -4,7 +4,7 @@ import { useData } from "../hoc/DataProvider.tsx";
 import { Artist } from "../types/artist.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import { useNavigate, useParams } from "react-router-dom";
-import { Box, Button, Chip, IconButton, Typography } from "@mui/material";
+import { Box, Button, Chip, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
 import sanitizeHtml from "sanitize-html";
 import ReadMoreTypography from "../components/ReadMoreTypography.tsx";
 import { ArtworkCardProps } from "../components/ArtworkCard.tsx";
@@ -18,6 +18,7 @@ import ArtworksList from "../components/ArtworksList.tsx";
 import { ArtistCardProps } from "../components/ArtistCard.tsx";
 import ArtistsList from "../components/ArtistsList.tsx";
 import { Gallery } from "../types/gallery.ts";
+import ArtworksGrid from "../components/ArtworksGrid.tsx";
 
 export interface ArtistProps {}
 
@@ -36,6 +37,9 @@ const Artist: React.FC<ArtistProps> = ({}) => {
   const dialogs = useDialogs();
   const snackbar = useSnackbars();
   const urlParams = useParams<{ slug?: string }>();
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const artistImage = artist?.medium_img?.length ? artist?.medium_img[0] : "";
 
@@ -176,7 +180,11 @@ const Artist: React.FC<ArtistProps> = ({}) => {
       </Box>
 
       <Box sx={{ px: px, mt: { xs: 3, md: 6 } }} mt={8} pb={6}>
-        <ArtworksList disablePadding title="Opere dello stesso artista" items={artworks} />
+        {isMobile ? (
+          <ArtworksList disablePadding title="Opere dello stesso artista" items={artworks} />
+        ) : (
+          <ArtworksGrid disablePadding title={"Opere dello stesso artista"} items={artworks} />
+        )}
       </Box>
       <Box sx={{ px: px, mt: { xs: 3, md: 6 } }} mt={8} pb={6}>
         <ArtistsList disablePadding size="medium" title="Artisti in evidenza" items={featuredArtists} />
