@@ -113,7 +113,7 @@ const GalleryDetails: React.FC<GalleryDetailsProps> = ({ gallery }) => {
               __html: sanitizeHtml(galleryContent.description || "", { allowedAttributes: false }),
             }}
           />
-          {contentRef.current && contentRef.current.scrollHeight >= 120 && (
+          {contentRef.current && contentRef.current.scrollHeight >= 100 && (
             <button className={"text-primary mt-2 text-sm cursor-pointer self-start"} onClick={handleExpanded} name={"Mostra"}>
               {isExpanded ? "Mostra meno" : "Mostra altro"}
             </button>
