@@ -16,7 +16,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="stripe-key" content="pk_live_51OEuLgBVvRJjw4FGyyDk7DVjiE92TGadzaNKHENNHanTXsGSQv9GXDnoJjIFISC8tMoKhgdVg9ig3xw7xDo6JzC600MJUlEnTG" />
+    <meta name="stripe-key" content="pk_test_51OEuLgBVvRJjw4FGCIWYwitCW6xe6KYOfIjoZwENwGLj22ZkaZEg60csVTAg4ZTDwXW1ZksSqY4mXliEPDWVYZ0z00EaPOowQS" />
     <title>Artpay</title>
     <?php wp_head(); ?>
     </head>
