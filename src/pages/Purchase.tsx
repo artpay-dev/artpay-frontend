@@ -501,11 +501,11 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
             ) : (
               <>
                 {pendingOrder?.created_via === "gallery_auction" && galleries?.length && (
-                  <div className={'flex space-x-2 items-center ps-10'}>
+                  <div className={'flex space-x-2 items-center justify-center w-full'}>
                     <div className={'w-11 h-11 rounded-sm overflow-hidden'}>
                       <img src={galleries[0].shop.image} alt={galleries[0].display_name} className={'w-full h-full aspect-square object-cover'}/>
                     </div>
-                    <h3 className={'text-xl w-full'}>{galleries[0].display_name}</h3>
+                    <h3 className={'text-xl'}>{galleries[0].display_name}</h3>
                   </div>
                 )}
                 {pendingOrder?.created_via !== 'gallery_auction' && (
@@ -571,10 +571,10 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
               ) : (
                 <>
                   <Box display="flex" justifyContent="space-between">
-                    <Typography variant="body1" fontSize={20} fontWeight={700}>
+                    <Typography variant="body1" fontSize={20} fontWeight={500}>
                       Subtotale
                     </Typography>
-                    <Typography variant="body1" fontSize={20} fontWeight={700}>
+                    <Typography variant="body1" fontSize={20} fontWeight={500}>
                       {`€ ${subtotal || 0}`}
                     </Typography>
                   </Box>
