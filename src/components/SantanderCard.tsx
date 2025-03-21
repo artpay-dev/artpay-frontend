@@ -10,10 +10,11 @@ export interface SantanderCardProps {
   background?: string;
   sx?: BoxProps["sx"];
   paymentIntent?: PaymentIntent;
-  artwork?: Partial<Artwork>
+  artwork?: Partial<Artwork>;
+  isCheckOut?: boolean;
 }
 
-const SantanderCard: React.FC<SantanderCardProps> = ({ background = "#F5F5F5", sx = {}, paymentIntent, artwork }) => {
+const SantanderCard: React.FC<SantanderCardProps> = ({ background = "#F5F5F5", sx = {}, paymentIntent, artwork, isCheckOut }) => {
   const { user } = useAuth();
 
   const event_name = 'santander_click';
@@ -65,18 +66,22 @@ const SantanderCard: React.FC<SantanderCardProps> = ({ background = "#F5F5F5", s
           30.000€
         </Typography>
       </Box>
-      <Button
-        fullWidth
-        onClick={handleButtonClick}
-        sx={{ textAlign: "center" }}
-        href="https://www.santanderconsumer.it/prestito/partner/artpay"
-        target="_blank"
-        variant="contained">
-        Calcola la rata
-      </Button>
-      <Typography sx={{ textAlign: "center", width: "100%", mt: 1 }} fontWeight={500} variant="caption">
-        Gratis e senza impegno
-      </Typography>
+      {!isCheckOut && (
+        <>
+          <Button
+            fullWidth
+            onClick={handleButtonClick}
+            sx={{ textAlign: "center" }}
+            href="https://www.santanderconsumer.it/prestito/partner/artpay"
+            target="_blank"
+            variant="contained">
+            Calcola la rata
+          </Button>
+          <Typography sx={{ textAlign: "center", width: "100%", mt: 1 }} fontWeight={500} variant="caption">
+            Gratis e senza impegno
+          </Typography>
+        </>
+      ) }
       <Typography sx={{ textAlign: "center", width: "100%", fontSize: "10px", mt: 3 }} variant="caption">
         Annuncio pubblicitario con finalità promozionale. Per tutte le condizioni contrattuali ed economiche consultare
         le «Informazioni europee di base sul credito ai consumatori» disponibile presso gli Agenti della Banca e sulla

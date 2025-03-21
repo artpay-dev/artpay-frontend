@@ -33,6 +33,7 @@ const Home: React.FC<HomeProps> = ({}) => {
   return (
     <DefaultLayout pageLoading={!isReady} topBar={<HeroHome />} maxWidth="xl">
     </DefaultLayout>
+    /*<div className={'w-full h-screen bg-primary'}></div>*/
   );
 };
 

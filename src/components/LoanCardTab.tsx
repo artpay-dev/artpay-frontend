@@ -24,7 +24,7 @@ const LoanCardTab: React.FC<LoanCardTabProps> = ({paymentIntent}) => {
         </p>
       </div>
       <div className={'px-10'}>
-        <SantanderCard sx={{ width: "auto", p: 3, px: 5, mt: 3 }} paymentIntent={paymentIntent} />
+        <SantanderCard sx={{ width: "auto", p: 3, px: 5, mt: 3 }} paymentIntent={paymentIntent} isCheckOut={true} />
       </div>
     </div>
   );
