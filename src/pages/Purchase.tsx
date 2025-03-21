@@ -365,6 +365,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
       setSubtotal(totalSum + totalTaxSum);
     }
 
+
     setIsOnlySantander(subtotal > 2500.0);
   }, [pendingOrder]);
 
@@ -432,21 +433,27 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
               "Santander",
             ]}
           />
-          {isGalleryAuction || orderMode !== "loan" && auth.isAuthenticated && (
+          {orderMode !== "loan" && auth.isAuthenticated && (
             <ContentCard title="Metodo di spedizione" icon={<PiTruckThin size="28px" />}>
               <RadioGroup defaultValue="selected" name="radio-buttons-group">
-                {availableShippingMethods.map((s) => (
-                  <RadioButton
-                    sx={{ mb: 2 }}
-                    key={s.method_id}
-                    value={s.method_id}
-                    disabled={isSaving}
-                    onClick={() => handleSelectShippingMethod(s)}
-                    checked={currentShippingMethod === s.method_id}
-                    label={s.method_title}
-                    description={s.method_description(estimatedShippingCost)}
-                  />
-                ))}
+                {availableShippingMethods.map((s) => {
+                  if(isGalleryAuction && s.method_id == "mvx_vendor_shipping") return
+
+                  return (
+                    (
+                      <RadioButton
+                        sx={{ mb: 2 }}
+                        key={s.method_id}
+                        value={s.method_id}
+                        disabled={isSaving}
+                        onClick={() => handleSelectShippingMethod(s)}
+                        checked={currentShippingMethod === s.method_id}
+                        label={s.method_title}
+                        description={s.method_description(estimatedShippingCost)}
+                      />
+                    )
+                  )
+                })}
               </RadioGroup>
             </ContentCard>
           )}
@@ -666,7 +673,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
               )}
               <Checkbox
                 sx={{ mt: 1 }}
-                disabled={isSaving || !checkoutReady}
+                disabled={isSaving }
                 checked={privacyChecked}
                 onChange={(e) => setPrivacyChecked(e.target.checked)}
                 label={
@@ -678,7 +685,11 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                   </Typography>
                 }
               />
-              {paymentMethod != 'Santander' && !isOnlySantander ? (
+              {Number(pendingOrder?.total) >= 2500 || paymentMethod === 'Santander' ? (
+                  <div className={'w-full flex justify-center my-12'}>
+                    <SantanderButton order={pendingOrder as Order} disabled={!privacyChecked} />
+                  </div>
+              ) : (
                 <Button
                   sx={{ my: 6 }}
                   disabled={!checkoutEnabled}
@@ -688,10 +699,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                   fullWidth>
                   {orderMode === "loan" ? "Prenota l'opera" : "Acquista ora"}
                 </Button>
-              ) : (
-             <div className={'w-full flex justify-center my-12'}>
-               <SantanderButton order={pendingOrder as Order} disabled={!checkoutEnabled || isSaving || !privacyChecked} />
-             </div>
               )}
             </Box>
           </ContentCard>
