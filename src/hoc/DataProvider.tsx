@@ -104,6 +104,8 @@ export interface DataContext {
 
   getOnHoldOrder(): Promise<Order| null>;
 
+  getProcessingOrder(): Promise<Order| null>;
+
   getExternalOrder(): Promise<void>;
 
   getOrder(id: number): Promise<Order | null>;
@@ -201,6 +203,7 @@ const defaultContext: DataContext = {
   listOrders: () => Promise.reject("Data provider loaded"),
   getPendingOrder: () => Promise.reject("Data provider loaded"),
   getOnHoldOrder: () => Promise.reject("Data provider loaded"),
+  getProcessingOrder: () => Promise.reject("Data provider loaded"),
   getExternalOrder: () => Promise.reject("Data provider loaded"),
   getOrder: () => Promise.reject("Data provider loaded"),
   createOrder: () => Promise.reject("Data provider loaded"),
@@ -494,6 +497,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     listOrders({ status, ...params }?: OrderFilters): Promise<Order[]>;
     getPendingOrder(): Promise<Order | null>;
     getOnHoldOrder(): Promise<Order | null>;
+    getProcessingOrder(): Promise<Order | null>;
     getExternalOrder(): Promise<void>;
     getOrder(id: number): Promise<Order | null>;
     createOrder(body: OrderCreateRequest): Promise<Order>;
@@ -794,6 +798,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         },
         headers: { Authorization: auth.getAuthToken() }
       });
+
+      localStorage.setItem('CdsOrder', JSON.stringify(resp.data[0]))
+
       return resp.data.length === 1 ? resp.data[0] : null;
     },
 
@@ -825,6 +832,29 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       });
       return resp.data;
     },
+
+    async getProcessingOrder(): Promise<Order | null> {
+      const customerId = auth.user?.id;
+      if (!customerId) {
+        return null;
+      }
+      const resp = await axios.get<unknown, AxiosResponse<Order[]>>(`${baseUrl}/wp-json/wc/v3/orders`, {
+        params: {
+          status: "processing",
+          orderby: "date",
+          order: "desc",
+          per_page: 1,
+          parent: 0,
+          customer: customerId
+        },
+        headers: { Authorization: auth.getAuthToken() }
+      });
+
+      localStorage.setItem('CdsOrder', JSON.stringify(resp.data[0]))
+
+      return resp.data.length === 1 ? resp.data[0] : null;
+    },
+
     async createOrder(body: OrderCreateRequest): Promise<Order> {
       const resp = await axios.post<OrderCreateRequest, AxiosResponse<Order>>(`${baseUrl}/wp-json/wc/v3/orders`, body, {
         headers: { Authorization: auth.getAuthToken() }

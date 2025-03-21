@@ -3,14 +3,33 @@
 @theme {
     --color-primary-dark: #181F5D;
     --color-primary: #3E4EEC;
+    --color-primary-hover: #313dd1;
     --color-secondary: #666F7A;
     --color-tertiary: #010F22;
+
+    --color-klarna: #feb4c7;
+    --color-klarna-hover: #fda4af;
+
+
+    --text-4xl: 2.5rem;
+    --text-4xl--line-height: 105%;
+
+
+}
+
+.artpay-button-style {
+    @apply disabled:cursor-not-allowed w-full max-w-md rounded-[28px] py-3.5 px-5 flex items-center justify-center gap-2 cursor-pointer transition-all;
 }
 
 html {
     scroll-behavior: smooth;
 }
 
+
+.custom-navbar {
+    box-shadow: rgba(62, 78, 236, 0.15) 0px 4px 16px 0px;
+    border-radius: 36px;
+}
 
 .SwiperCard,
 .swiper-slide.SwiperCard {
