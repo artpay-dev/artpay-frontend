@@ -5,6 +5,7 @@ import { Box, Typography } from "@mui/material";
 import GalleryCard, { GalleryCardProps } from "./GalleryCard.tsx";
 import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
+import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 
 export interface GaleriesGridProps {
   items: GalleryCardProps[];
@@ -28,9 +29,9 @@ const GaleriesGrid: React.FC<GaleriesGridProps> = ({
   const navigate = useNavigate();
   const data = useData();
   const auth = useAuth();
+  const snackbars = useSnackbars()
 
   const [favourites, setFavourites] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const handleFavouritesUpdated = () => {
@@ -49,13 +50,14 @@ const GaleriesGrid: React.FC<GaleriesGridProps> = ({
       return;
     }
     if (galleryId) {
-      setIsLoading(true);
       try {
         if (isFavourite) {
+          setFavourites(favourites.filter(id => id !== Number(galleryId)));
           await data.removeFavouriteGallery(galleryId).then((resp) => {
             setFavourites(resp);
           });
         } else {
+          setFavourites([...favourites, Number(galleryId)]);
           await data.addFavouriteGallery(galleryId).then((resp) => {
             setFavourites(resp);
           });
@@ -63,8 +65,8 @@ const GaleriesGrid: React.FC<GaleriesGridProps> = ({
       } catch (e) {
         //TODO: notify error
         console.error(e);
+        snackbars.error(e)
       }
-      setIsLoading(false);
     }
   };
   const handleSelectGallery = (index: number) => {
@@ -111,7 +113,6 @@ const GaleriesGrid: React.FC<GaleriesGridProps> = ({
               {...item}
               mode="grid"
               onClick={() => (onSelect ? onSelect(i) : handleSelectGallery(i))}
-              isLoading={isLoading}
               onSetFavourite={(currentValue) => handleSetFavourite(item.id.toString(), currentValue)}
               isFavourite={favourites.indexOf(+item.id) !== -1}
             />
