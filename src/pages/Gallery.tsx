@@ -48,6 +48,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
   const [galleryArtworks, setGalleryArtworks] = useState<ArtworkCardProps[]>();
   const [galleryContacts, setGalleryContacts] = useState<GalleryContactsProps>();
   const [galleryArtists, setGalleryArtists] = useState<ArtistCardProps[]>();
+  const [favouriteGalleries, setFavouriteGalleries] = useState<number[]>();
   const [isFavourite, setIsFavourite] = useState(false);
 
   const [galleryInfo, setGalleryInfo] = useState<GalleryInfoProps>();
@@ -76,23 +77,34 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
           social: { linkedin: gallery.social.linkdin, ...gallery.social },
         });
 
-        const [artworks, artists, favouriteGalleries] = await Promise.all([
-          data.listArtworksForGallery(gallery.id.toString()),
-          data.listArtistsForGallery(gallery.id.toString()).catch((err) => {
-            console.error(err);
-            return [];
-          }),
-          data.getFavouriteGalleries().catch((err) => {
+        const getGalleryInfo = async () => {
+          try {
+            const artworks = await data.listArtworksForGallery(gallery.id.toString())
+            if (!artworks) throw new Error('Error fetching artworks')
+            setGalleryArtworks(artworksToGalleryItems(artworks, "large"));
+
+            const artists = await data.listArtistsForGallery(gallery.id.toString())
+            if (!artists) throw new Error('Error fetching artists')
+            setGalleryArtists(artistsToGalleryItems(artists));
+
+            const favourites = await data.getFavouriteGalleries()
+            if (!favourites) throw new Error('Error fetching favourite galleries')
+            setFavouriteGalleries(favourites)
+
+          } catch (e) {
+            console.error(e);
             if (auth.isAuthenticated) {
-              snackbars.error(err);
+              snackbars.error(e);
             }
-            return [] as number[];
-          }),
-        ]);
-        setGalleryArtworks(artworksToGalleryItems(artworks, "large"));
-        setGalleryArtists(artistsToGalleryItems(artists));
-        if (favouriteGalleries.indexOf(gallery.id) !== -1) {
-          setIsFavourite(true);
+          }
+        }
+
+        getGalleryInfo();
+
+        if (favouriteGalleries?.length ) {
+          if (favouriteGalleries.indexOf(gallery.id) !== -1) {
+            setIsFavourite(true);
+          }
         }
         const galleryDescription = (gallery.shop?.description || "").split("\r\n").filter((val) => !!val);
         setGalleryInfo({ description: galleryDescription });
