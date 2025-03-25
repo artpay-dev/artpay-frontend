@@ -8,8 +8,8 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  // @ts-expect-error need vite-plugin-html
-  transformIndexHtml: (html) => html.replace("%VITE_STRIPE_KEY%", process.env.VITE_STRIPE_KEY),
+
+  /*transformIndexHtml: (html) => html.replace("%VITE_STRIPE_KEY%", process.env.VITE_STRIPE_KEY),*/
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),

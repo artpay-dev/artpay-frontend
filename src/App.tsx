@@ -39,7 +39,7 @@ import Galleries from "./pages/Galleries.tsx";
 import LandingPage from "./pages/LandingPage.tsx";
 
 function AppContent() {
-  const baseUrl = import.meta.env.VITE_SERVER_URL || ""; // https://artpay.art
+  const baseUrl = import.meta.env.VITE_SERVER_URL || "";
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
   const location = useLocation();
 
@@ -77,7 +77,7 @@ function AppContent() {
                     <Route path="/artisti/:slug" element={<Artist />} />
                     <Route path="/artisti" element={<Artists />} />
                     <Route path="/tutte-le-opere" element={<Artworks />} />
-                    <Route path="/acquisti" element={<Purchase />} />
+                    <Route path="/acquisto" element={<Purchase />} />
                     <Route path="/acquisto-esterno" element={<Purchase orderMode="onHold"/>} />
                     <Route path="/completa-acquisto/:order_id" element={<Purchase orderMode="redeem" />} />
                     <Route path="/acconto-blocca-opera" element={<Purchase orderMode="loan" />} />
