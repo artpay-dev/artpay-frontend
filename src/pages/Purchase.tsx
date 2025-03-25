@@ -692,7 +692,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                   </Typography>
                 }
               />
-              {Number(pendingOrder?.total) >= 2500 || paymentMethod === 'Santander' ? (
+              {(Number(pendingOrder?.total) >= 2500 && isGalleryAuction) || paymentMethod === 'Santander' ? (
                   <div className={'w-full flex justify-center my-12'}>
                     <SantanderButton order={pendingOrder as Order} disabled={!privacyChecked} />
                   </div>
