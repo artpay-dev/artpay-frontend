@@ -11,6 +11,9 @@ html {
     scroll-behavior: smooth;
 }
 
+.artpay-button-style {
+    @apply disabled:cursor-not-allowed w-full max-w-md rounded-[28px] py-3.5 px-5 flex items-center justify-center gap-2 cursor-pointer transition-all;
+}
 
 .SwiperCard,
 .swiper-slide.SwiperCard {

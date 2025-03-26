@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { CardSize } from "../types";
-import { useNavigate } from "../utils.ts";
+import { artistsToGalleryItems, useNavigate } from "../utils.ts";
 import { Box, Button, Typography } from "@mui/material";
 import ArtistCard, { ArtistCardProps } from "./ArtistCard.tsx";
-import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
+import {useData } from "../hoc/DataProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import { Artist } from "../types/artist.ts";
+import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 
 
 export interface ArtistsGridProps {
@@ -31,43 +32,39 @@ const ArtistsGrid: React.FC<ArtistsGridProps> = ({
   const navigate = useNavigate();
   const auth = useAuth();
   const data = useData();
+  const snackbar = useSnackbars()
 
-  const [favourites, setFavourites] = useState<Artist[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [favourites, setFavourites] = useState<ArtistCardProps[]>([]);
 
   useEffect(() => {
     const handleFavouritesUpdated = () => {
-      data.getFavouriteArtists().then((resp) => setFavourites(resp));
+      data.getFavouriteArtists().then((resp) => {
+        setFavourites(artistsToGalleryItems(resp));
+      })
     };
     handleFavouritesUpdated();
-    document.addEventListener(FAVOURITES_UPDATED_EVENT, handleFavouritesUpdated);
-    return () => {
-      document.removeEventListener(FAVOURITES_UPDATED_EVENT, handleFavouritesUpdated);
-    };
   }, [data]);
 
-  const handleSetFavourite = async (artistId: string, isFavourite: boolean) => {
+  const handleSetFavourite = async (artist: Artist, isFavourite: boolean) => {
     if (!auth.isAuthenticated) {
       auth.login();
       return;
     }
-    if (artistId) {
-      setIsLoading(true);
+    if (artist) {
       try {
         if (isFavourite) {
-          await data.removeFavouriteArtist(artistId).then((resp) => {
-            setFavourites(resp);
-          });
+          setFavourites((prevState) => prevState.filter(item => item.id !== artist.id.toString()));
+          await data.removeFavouriteArtist(artist.id.toString())
         } else {
-          await data.addFavouriteArtist(artistId).then((resp) => {
-            setFavourites(resp);
-          });
+          setFavourites((prevState) => [...prevState, artist as unknown as ArtistCardProps]);
+          await data.addFavouriteArtist(artist.id.toString());
         }
+
+
       } catch (e) {
-        //TODO: notify error
         console.error(e);
+        snackbar.error(e);
       }
-      setIsLoading(false);
     }
   };
   const handleSelectArtwork = (index: number) => {
@@ -118,19 +115,21 @@ const ArtistsGrid: React.FC<ArtistsGridProps> = ({
             width: "auto"
           }}
           gap={{ xs: 1, sm: 3 }}>
-          {items.map((item, i) => (
-            <ArtistCard
-              key={i}
-              {...item}
-              mode="grid"
-              size="medium"
-              fitWidth
-              onClick={() => (onSelect ? onSelect(i) : handleSelectArtwork(i))}
-              isLoading={isLoading}
-              onSetFavourite={(currentValue) => handleSetFavourite(item.id, currentValue)}
-              isFavourite={favourites.some(artist => `${artist.id}` === item.id)}
-            />
-          ))}
+          {items.map((item, i) => {
+
+            return (
+              <ArtistCard
+                key={i}
+                {...item}
+                mode="grid"
+                size="medium"
+                fitWidth
+                onClick={() => (onSelect ? onSelect(i) : handleSelectArtwork(i))}
+                onSetFavourite={(currentValue) => handleSetFavourite(item as unknown as Artist, currentValue)}
+                isFavourite={favourites.some(artist => artist.id == item.id)}
+              />
+            )
+          })}
         </Box>
         {emptyText && !items.length && (
           <Box>

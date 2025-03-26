@@ -363,8 +363,15 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
       }, 0);
 
       setSubtotal(totalSum + totalTaxSum);
-    }
 
+      localStorage.setItem("showCheckout", "true");
+      localStorage.setItem("checkOrder", "true")
+
+
+      if (pendingOrder.created_via == "gallery_auction") {
+        localStorage.setItem("checkoutUrl", "/acquisto-esterno")
+      }
+    }
 
     setIsOnlySantander(subtotal > 2500.0);
   }, [pendingOrder]);
@@ -685,7 +692,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                   </Typography>
                 }
               />
-              {Number(pendingOrder?.total) >= 2500 || paymentMethod === 'Santander' ? (
+              {(Number(pendingOrder?.total) >= 2500 && isGalleryAuction) || paymentMethod === 'Santander' ? (
                   <div className={'w-full flex justify-center my-12'}>
                     <SantanderButton order={pendingOrder as Order} disabled={!privacyChecked} />
                   </div>

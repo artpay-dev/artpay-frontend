@@ -37,40 +37,56 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   const environment = useEnvDetector();
 
   const [showMenu, setShowMenu] = useState(false);
-  const [hasExternalPendingOrder, setHasExternalPendingOrder] = useState(false);
   const [hasPendingOrder, setHasPendingOrder] = useState(false);
-  const [showCheckout, setShowCheckout] = useState(false);
-  const handlePendingOrder = async () => {
-    const pendingOrder = await data.getPendingOrder();
-    if (pendingOrder) {
-      setShowCheckout(true);
-      setHasPendingOrder(true);
-    }
-  };
+
+  const [showCheckout, setShowCheckout] = useState<boolean>(JSON.parse(localStorage.getItem("showCheckout") as string) || false);
 
   const handleOrders = async () => {
+    const shouldCheck = JSON.parse(localStorage.getItem("checkOrder") ?? "true");
+
+    if (!shouldCheck) return;
+
     try {
-      await handlePendingOrder();
+      const pendingOrder = await data.getPendingOrder();
+      console.log(pendingOrder);
+
+      if (pendingOrder) {
+        setShowCheckout(true);
+        setHasPendingOrder(true);
+        localStorage.setItem("showCheckout", "true");
+      }
+
       if (auth.isAuthenticated) {
         const orders = await data.getOnHoldOrder();
+        console.log(orders);
         if (orders) {
           const redirectToAcquistoEsterno = localStorage.getItem("redirectToAcquistoEsterno");
 
-          if (!redirectToAcquistoEsterno && location.pathname != "/acquisto-esterno") {
+          if (!redirectToAcquistoEsterno && location.pathname !== "/acquisto-esterno") {
             navigate("/acquisto-esterno");
           }
 
-          setHasExternalPendingOrder(true);
           setShowCheckout(true);
+          localStorage.setItem("showCheckout", "true");
+          localStorage.setItem("checkoutUrl", "/acquisto-esterno")
         }
       }
+
+      localStorage.setItem("checkOrder", "false");
+
     } catch (error) {
-      console.log(error);
+      console.error("Errore nel recupero degli ordini:", error);
     }
   };
 
+
   useEffect(() => {
+    if (localStorage.getItem("checkOrder") === null) {
+      localStorage.setItem("checkOrder", "true");
+    }
     handleOrders();
+
+
   }, [auth.isAuthenticated, data, hasPendingOrder]);
 
   const menuOpen = showMenu && isMobile;
@@ -87,11 +103,12 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   };
 
   const handleCheckout = () => {
-    if (hasExternalPendingOrder && !hasPendingOrder) {
-      navigate("/acquisto-esterno");
+    const checkoutUrl = localStorage.getItem("checkoutUrl")
+    if (checkoutUrl) {
+      navigate(checkoutUrl);
       localStorage.setItem("isNotified", "true");
     } else {
-      navigate("/acquisti");
+      navigate("/acquisto");
     }
   };
 

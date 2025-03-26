@@ -111,6 +111,10 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
                   payment_method: "Credit card",
                   payment_method_title: "Carta di credito"
                 });
+
+                localStorage.removeItem("showCheckout");
+                localStorage.removeItem("checkoutUrl");
+                localStorage.setItem("checkOrder", "true")
               } catch (e) {
                 console.error(e);
                 // TODO: errore

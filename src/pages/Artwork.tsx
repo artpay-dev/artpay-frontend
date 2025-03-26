@@ -150,7 +150,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
     data
       .purchaseArtwork(artworkId)
       .then(() => {
-        navigate("/acquisti");
+        navigate("/acquisto");
       })
       .catch((e) => {
         console.error(e);

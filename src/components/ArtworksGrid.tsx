@@ -5,6 +5,7 @@ import { useNavigate } from "../utils.ts";
 import { Box, Button, Typography } from "@mui/material";
 import { useData } from "../hoc/DataProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
+import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 
 export interface ArtworksGridProps {
   items: ArtworkCardProps[];
@@ -28,12 +29,16 @@ const ArtworksGrid: React.FC<ArtworksGridProps> = ({
   const navigate = useNavigate();
   const data = useData();
   const auth = useAuth();
+  const snackbar = useSnackbars();
 
   const [favourites, setFavourites] = useState<number[]>([]);
 
   useEffect(() => {
     if (auth.isAuthenticated) {
-      data.getFavouriteArtworks().then((resp) => setFavourites(resp));
+      data.getFavouriteArtworks().then((resp) => {
+        console.log(resp)
+        setFavourites(resp);
+      });
     } else {
       setFavourites([]);
     }
@@ -54,17 +59,15 @@ const ArtworksGrid: React.FC<ArtworksGridProps> = ({
     if (artworkId) {
       try {
         if (isFavourite) {
-          await data.removeFavouriteArtwork(artworkId).then((resp) => {
-            setFavourites(resp);
-          });
+          setFavourites(favourites.filter(id => id !== Number(artworkId)));
+          await data.removeFavouriteArtwork(artworkId)
         } else {
-          await data.addFavouriteArtwork(artworkId).then((resp) => {
-            setFavourites(resp);
-          });
+          setFavourites((prevState) => [...prevState, Number(artworkId)]);
+          await data.addFavouriteArtwork(artworkId)
         }
       } catch (e) {
-        //TODO: notify error
         console.error(e);
+        snackbar.error(e);
       }
     }
   };

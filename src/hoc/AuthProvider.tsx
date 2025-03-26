@@ -158,6 +158,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         })
         .then((resp) => {
           localStorage.setItem(userStorageKey, JSON.stringify(resp.data));
+          localStorage.setItem("checkOrder", "true");
           setAuthValues({
             ...authValues,
             isAuthenticated: true,
@@ -227,6 +228,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
         token: response.authorization.id_token,
       });
       localStorage.setItem(userStorageKey, JSON.stringify(authResp.data));
+      localStorage.setItem("checkOrder", "true");
       setAuthValues({
         ...authValues,
         isAuthenticated: true,
@@ -252,6 +254,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
 
       //await storage.set('auth', JSON.stringify({jwt: resp.data.jwt, user: userInfoResp.data})) //TODO: local storage
       localStorage.setItem(userStorageKey, JSON.stringify({ ...resp.data, email: email }));
+      localStorage.setItem("checkOrder", "true");
       const userInfo = await userToUserInfo(resp.data);
       setAuthValues({
         ...authValues,
@@ -359,6 +362,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     localStorage.removeItem('isNotified');
     localStorage.removeItem('externalOrderKey');
     localStorage.removeItem("redirectToAcquistoEsterno");
+    localStorage.removeItem("checkOrder");
+    localStorage.removeItem("showCheckout");
+    localStorage.removeItem("checkoutUrl");
 
     resetAuthValues();
     return Promise.resolve(true);
