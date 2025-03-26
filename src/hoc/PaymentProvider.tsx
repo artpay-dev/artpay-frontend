@@ -31,7 +31,7 @@ export const PaymentProvider: React.FC<PaymentProviderProps> = ({ children }) =>
 
   useEffect(() => {
     /*const stripeKey = document.querySelector("meta[name=\"stripe-key\"]")?.getAttribute("content") || "";*/
-    if(data.isAuthenticated && (location.pathname.startsWith("/acquisto") || location.pathname.startsWith("/thank-you-page"))) {
+    if(data.isAuthenticated && (location.pathname.startsWith("/acquisto") || location.pathname.startsWith("/thank-you-page") || location.pathname.startsWith("/completa"))) {
       const stripeKey = import.meta.env.VITE_STRIPE_KEY;
       if (!stripeKey) {
         //throw new Error(`No stripe key (${stripeKey})`)
