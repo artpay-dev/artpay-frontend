@@ -8,7 +8,6 @@ const PaymentProviderCard = ({
   backgroundColor,
   icon,
   children,
-  paymentSelected
 }: Partial<PaymentProviderCardProps>) => {
 
 
@@ -19,12 +18,10 @@ const PaymentProviderCard = ({
       } p-4 rounded-lg w-full max-w-lg lg:max-w-sm`}>
       <div className={`space-y-4 `}>
         {icon && <div>{icon}</div>}
-        {paymentSelected && (
           <div className={"space-y-1"}>
             <h3 className={"font-bold leading-[125%] text-tertiary"}>{cardTitle}</h3>
             <p className={"text-sm"}>{subtitle}</p>
           </div>
-        )}
         {children}
       </div>
     </div>

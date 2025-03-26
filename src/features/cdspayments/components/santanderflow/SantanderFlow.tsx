@@ -2,11 +2,13 @@ import SkeletonCard from "../paymentprovidercard/SkeletonCard.tsx";
 import { Order } from "../../../../types/order.ts";
 import PaymentProviderCard from "../paymentprovidercard/PaymentProviderCard.tsx";
 import ArtpayIcon from "../paymentprovidercard/ArtpayIcon.tsx";
-import { ArrowRight } from "@mui/icons-material";
+import { ArrowLeft, ArrowRight } from "@mui/icons-material";
 import { useAuth } from "../../../../hoc/AuthProvider.tsx";
 import usePaymentStore from "../../store.ts";
 import { useData } from "../../../../hoc/DataProvider.tsx";
-
+import AgreementCheckBox from "../agreementcheckbox/AgreementCheckBox.tsx";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 type SantanderFlowProps = {
   isLoading?: boolean;
@@ -14,61 +16,69 @@ type SantanderFlowProps = {
 };
 
 const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
-  const {setPaymentData} = usePaymentStore()
-  const data = useData()
+  const { setPaymentData, readyToPay } = usePaymentStore();
+  const [isChecked, setIsChecked] = useState(false);
+  const data = useData();
   const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.06 : Number(order?.total) / 1.124658;
   const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const event_name = 'santander_click';
+  const event_name = "santander_click";
   const properties = {
     id: user?.id || "anonimo",
     username: user?.username || "non fornito",
-    event_data: {}
+    event_data: {},
   };
 
   properties.event_data = {
     order: order?.id,
-    user_email: user?.email || 'anonimo',
+    user_email: user?.email || "anonimo",
     total: order?.total,
-  }
+  };
 
-  const handledeleteOrder = async () => {
-    setPaymentData({
-      loading: true,
-    })
-    try {
-      if(!order) return
+  const handleCheckBox = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(e.target.checked);
+  };
 
-      const deleteOrder = data.setOrderStatus(order?.id, 'cancelled')
-      if (!deleteOrder) throw Error('Error deleting order')
-      console.log('Order deleted')
-      localStorage.removeItem(`payment-intents-cds-${order.order_key}`)
-
+  const handleDeleteOrder = async () => {
+    if(window.confirm("Sei sicuro di voler annullare l'ordine? Questa azione è irreversibile.")) {
       setPaymentData({
-        paymentStatus: "cancelled",
-        paymentIntent: null,
-        paymentMethod: 'bnpl',
-        order: null,
-        vendor: null,
-      })
+        loading: true,
+      });
+      try {
+        if (!order) return;
 
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setPaymentData({
-        loading: false,
-      })
+        const deleteOrder = data.setOrderStatus(order?.id, "cancelled");
+        if (!deleteOrder) throw Error("Error deleting order");
+        console.log("Order deleted");
+        localStorage.removeItem(`payment-intents-cds-${order.order_key}`);
+        localStorage.removeItem(`showCheckout`);
+        localStorage.removeItem(`checkoutUrl`);
+        localStorage.removeItem(`CdsOrder`);
+        localStorage.setItem("checkOrder", "true")
+
+        setPaymentData({
+          paymentStatus: "cancelled",
+          paymentIntent: null,
+          paymentMethod: null,
+          order: null,
+          vendor: null,
+        });
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setPaymentData({
+          loading: false,
+        });
+        navigate("/")
+      }
     }
-  }
+  };
 
   const handleSantanderButton = () => {
-    window.Brevo.push([
-      "track",
-      event_name,
-      properties,
-    ]);
+    window.Brevo.push(["track", event_name, properties]);
 
-    console.log('push')
+    console.log("push");
   };
 
   return (
@@ -97,7 +107,7 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
             {!order || isLoading ? (
               <SkeletonCard />
             ) : (
-              <div className={'space-y-6'}>
+              <div className={"space-y-6"}>
                 <PaymentProviderCard subtotal={subtotal} backgroundColor={"bg-[#42B39640]"}>
                   <div className={"space-y-4"}>
                     <div className={"flex gap-6 items-center "}>
@@ -115,39 +125,153 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
                     </div>
                     <div className={"flex flex-col gap-1"}>
                       <span className={"text-secondary"}>Stato</span>
-                      <p>Richiesta prestito in corso</p>
+                      {readyToPay ? <p>Prestito ottenuto</p> : <p>Richiesta prestito in corso</p>}
                     </div>
                   </div>
                 </PaymentProviderCard>
 
-                <PaymentProviderCard backgroundColor={'bg-[#FAFAFB]'}>
-
-               <div className={"space-y-1 border-b border-b-zinc-300 pb-4"}>
-                 <h3 className={"font-bold leading-[125%] text-tertiary"}>Calcola la rata</h3>
-                 <p>Avvia la procedura di richiesta prestito</p>
-               </div>
-                <a className={'cursor-pinter flex gap-2'} onClick={handleSantanderButton} href={'https://www.santanderconsumer.it/prestito/partner/artpay'} target={'_blank'}>
-                  <span>
-                    <svg width="34" height="24" viewBox="0 0 34 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="0.5" y="0.5" width="33" height="23" rx="3.5" fill="#EA1D25"/>
-                      <rect x="0.5" y="0.5" width="33" height="23" rx="3.5" stroke="#F9F7F6"/>
-                      <path d="M19.6526 10.2795C19.9083 10.6554 20.0362 11.0892 20.0682 11.5229C22.4334 12.0723 24.0315 13.2578 23.9995 14.559C23.9995 16.4675 20.8672 18 16.9998 18C13.1323 18 10 16.4675 10 14.559C10 13.2 11.6301 12.0145 13.9633 11.4651C13.9633 11.9855 14.0912 12.506 14.3788 12.9687L16.5843 16.4096C16.7441 16.6699 16.8719 16.959 16.9358 17.2482L17.0317 17.1036C17.5751 16.2651 17.5751 15.1952 17.0317 14.3566L15.2738 11.6096C14.7304 10.7422 14.7304 9.7012 15.2738 8.86265L15.3697 8.71807C15.4336 9.00723 15.5615 9.29639 15.7213 9.55663L16.7441 11.1759L18.3422 13.6916C18.502 13.9518 18.6298 14.241 18.6938 14.5301L18.7897 14.3855C19.333 13.547 19.333 12.4771 18.7897 11.6386L17.0317 8.89157C16.4884 8.05301 16.4884 6.98313 17.0317 6.14458L17.1276 6C17.1915 6.28916 17.3194 6.57831 17.4792 6.83855L19.6526 10.2795Z" fill="white"/>
-                    </svg>
-                  </span>
-                  <span>Calcola la rata con Santander</span>
-                  <ArrowRight />
-                </a>
+                <PaymentProviderCard backgroundColor={"bg-[#FAFAFB]"}>
+                  {readyToPay ? (
+                    <>
+                      <div className={"space-y-1"}>
+                        <h3 className={"font-bold leading-[125%] text-tertiary"}>Calcola la rata</h3>
+                      </div>
+                      <button className={"cursor-pointer"} onClick={() => setPaymentData({ readyToPay: false })}>
+                        <ArrowLeft />
+                        <span>Torna indietro</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div className={"space-y-1 border-b border-b-zinc-300 pb-4"}>
+                        <h3 className={"font-bold leading-[125%] text-tertiary"}>Calcola la rata</h3>
+                        <p>Avvia la procedura di richiesta prestito</p>
+                      </div>
+                      <a
+                        className={"cursor-pinter flex gap-2 items-center"}
+                        onClick={handleSantanderButton}
+                        href={"https://www.santanderconsumer.it/prestito/partner/artpay"}
+                        target={"_blank"}>
+                        <span>
+                          <svg
+                            width="34"
+                            height="24"
+                            viewBox="0 0 34 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="0.5" y="0.5" width="33" height="23" rx="3.5" fill="#EA1D25" />
+                            <rect x="0.5" y="0.5" width="33" height="23" rx="3.5" stroke="#F9F7F6" />
+                            <path
+                              d="M19.6526 10.2795C19.9083 10.6554 20.0362 11.0892 20.0682 11.5229C22.4334 12.0723 24.0315 13.2578 23.9995 14.559C23.9995 16.4675 20.8672 18 16.9998 18C13.1323 18 10 16.4675 10 14.559C10 13.2 11.6301 12.0145 13.9633 11.4651C13.9633 11.9855 14.0912 12.506 14.3788 12.9687L16.5843 16.4096C16.7441 16.6699 16.8719 16.959 16.9358 17.2482L17.0317 17.1036C17.5751 16.2651 17.5751 15.1952 17.0317 14.3566L15.2738 11.6096C14.7304 10.7422 14.7304 9.7012 15.2738 8.86265L15.3697 8.71807C15.4336 9.00723 15.5615 9.29639 15.7213 9.55663L16.7441 11.1759L18.3422 13.6916C18.502 13.9518 18.6298 14.241 18.6938 14.5301L18.7897 14.3855C19.333 13.547 19.333 12.4771 18.7897 11.6386L17.0317 8.89157C16.4884 8.05301 16.4884 6.98313 17.0317 6.14458L17.1276 6C17.1915 6.28916 17.3194 6.57831 17.4792 6.83855L19.6526 10.2795Z"
+                              fill="white"
+                            />
+                          </svg>
+                        </span>
+                        <span>Calcola la rata con Santander</span>
+                        <ArrowRight />
+                      </a>
+                    </>
+                  )}
                 </PaymentProviderCard>
-                <PaymentProviderCard backgroundColor={'bg-[#FAFAFB]'}>
-                  <div className={"space-y-1 mb-6"}>
-                    <h3 className={"font-bold leading-[125%] text-tertiary"}>Completa pagamento</h3>
-                    <p>Una volta ottenuto il prestito completa il pagamento sulla nostra piattaforma</p>
-                  </div>
-                  <div className={"space-y-6 flex flex-col"}>
-                    <button className={'artpay-button-style bg-primary py-3! text-white'}>Completa pagamento</button>
-                    <button className={'text-red-500 cursor-pointer'} onClick={handledeleteOrder}>Annulla pagamento</button>
-                  </div>
-                </PaymentProviderCard>
+                {readyToPay ? (
+                  <PaymentProviderCard backgroundColor={"bg-[#FAFAFB]"}>
+                    <form>
+                      <div className={"space-y-1 mb-6"}>
+                        <h3 className={"font-bold leading-[125%] text-tertiary"}>Completa pagamento</h3>
+                        <div className={'mt-4 space-y-6'}>
+                          <label htmlFor="payment-method" className={'flex items-center justify-between'}>
+                            <div>
+                              <input type={"radio"} defaultChecked={true} className={'me-2'} />
+                              <span>Bonifico Bancario</span>
+                            </div>
+                            <span>
+                              <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g>
+                                  <path
+                                    d="M21 8L12 3L3 8H21Z"
+                                    stroke="#010F22"
+                                    strokeWidth="0.75"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <rect
+                                    x="3.375"
+                                    y="18.375"
+                                    width="17.25"
+                                    height="2.25"
+                                    rx="0.625"
+                                    stroke="#010F22"
+                                    strokeWidth="0.75"
+                                  />
+                                  <path
+                                    d="M6 10V17"
+                                    stroke="#010F22"
+                                    strokeWidth="0.75"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path
+                                    d="M12 10V17"
+                                    stroke="#010F22"
+                                    strokeWidth="0.75"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path
+                                    d="M18 10V17"
+                                    stroke="#010F22"
+                                    strokeWidth="0.75"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </g>
+                                <defs>
+                                  <clipPath>
+                                    <rect width="24" height="24" fill="white" />
+                                  </clipPath>
+                                </defs>
+                              </svg>
+                            </span>
+                          </label>
+                          <input type="text" className={'rounded-[8px] border border-[#CDCFD3] w-full py-2.5 px-3.5 bg-white'} placeholder={"Email*"} required/>
+                          <p className={'text-secondary'}>
+                            Dopo l'invio, verrai reindirizzato alla pagina dei dettagli del bonifico bancario per completare il pagamento in modo sicuro.
+                          </p>
+                        </div>
+                        <AgreementCheckBox isChecked={isChecked} handleChange={handleCheckBox} />
+                      </div>
+                      <div className={"space-y-6 flex flex-col"}>
+                        <button
+                          disabled={!isChecked}
+                          className={"artpay-button-style bg-primary py-3! text-white disabled:opacity-65"}>
+                          Completa pagamento
+                        </button>
+                      </div>
+                    </form>
+                  </PaymentProviderCard>
+                ) : (
+                  <PaymentProviderCard backgroundColor={"bg-[#FAFAFB]"}>
+                    <div className={"space-y-1 mb-6"}>
+                      <h3 className={"font-bold leading-[125%] text-tertiary"}>Completa pagamento</h3>
+                      <p>Una volta ottenuto il prestito completa il pagamento sulla nostra piattaforma</p>
+                    </div>
+                    <div className={"space-y-6 flex flex-col"}>
+                      <button
+                        className={"artpay-button-style bg-primary py-3! text-white"}
+                        onClick={() => setPaymentData({ readyToPay: true })}>
+                        Completa pagamento
+                      </button>
+                      <button className={"text-red-500 cursor-pointer"} onClick={handleDeleteOrder}>
+                        Annulla pagamento
+                      </button>
+                    </div>
+                  </PaymentProviderCard>
+                )}
               </div>
             )}
           </li>

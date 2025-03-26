@@ -10,25 +10,25 @@ interface PaymentState {
   paymentStatus: Order["status"];
   paymentMethod: string | null;
   paymentIntent: PaymentIntent | null;
+  readyToPay: boolean;
   loading: boolean;
   isError: boolean;
 
   setPaymentData: (data: Partial<PaymentState>) => void;
 }
 
-const usePaymentStore = create<PaymentState>(
-  (set) => ({
+const usePaymentStore = create<PaymentState>((set) => ({
   order: null,
   vendor: null,
   total: 0,
   paymentStatus: "pending",
   paymentMethod: null,
   paymentIntent: null,
+  readyToPay: false,
   loading: false,
   isError: false,
 
   setPaymentData: (data) => set((state) => ({ ...state, ...data })),
-})
-);
+}));
 
 export default usePaymentStore;

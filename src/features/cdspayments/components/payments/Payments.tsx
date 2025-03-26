@@ -43,7 +43,7 @@ const Payments = ({ order, isLoading }: PaymentsProps) => {
                 <KlarnaCard
                   paymentSelected={paymentMethod == 'klarna'}
                   subtotal={subtotal}
-                  disabled={Number(order.total) >= 2500 || isLoading}
+                  disabled={Number(order.total) > 2500 || isLoading}
                 />
               )}
             </li>

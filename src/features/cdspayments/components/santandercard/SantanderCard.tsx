@@ -20,25 +20,24 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
   };
 
   const updatePaymentStatus = async () => {
-    if(!order) return
+    if (!order) return;
     setPaymentData({
       loading: true,
     });
     try {
       const updateStatus = await data.setOrderStatus(order?.id, "processing");
       if (!updateStatus) throw new Error("update status failed");
-      console.log('status updated to processing');
+      console.log("status updated to processing");
 
       setPaymentData({
         paymentStatus: "processing",
-      })
-
+      });
     } catch (e) {
       console.error(e);
     } finally {
       setPaymentData({
         loading: false,
-      })
+      });
     }
   };
 
@@ -72,6 +71,36 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
     }
   };
 
+  const abortArtpaySelection = async (): Promise<void> => {
+    if (!order) return;
+    setPaymentData({
+      loading: true,
+    });
+    try {
+      const updatePayment = await data.updatePaymentIntent({
+        wc_order_key: order?.order_key,
+        payment_method: "bnpl",
+      });
+      if (!updatePayment) throw new Error("Error during updating payment intent");
+
+      const updateOrder = await data.updateOrder(order.id, { payment_method: "bnpl" });
+      if (!updateOrder) throw new Error("Error during updating payment intent");
+
+      await data.getOnHoldOrder();
+
+      setPaymentData({
+        paymentMethod: "bnpl",
+        paymentIntent: updatePayment,
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setPaymentData({
+        loading: false,
+      });
+    }
+  };
+
   useEffect(() => {
     if (order) {
       const artpayFee = calculateArtPayFee(order);
@@ -86,7 +115,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
       cardTitle={"Pagamento con prestito"}
       subtitle={"A partire da € 1500.00 fino a € 30000.00 Commissioni artpay: 6%"}
       paymentSelected={paymentSelected}>
-      {paymentSelected ? (
+      {!disabled && paymentSelected ? (
         <>
           <ol className={"list-decimal ps-4 space-y-1 border-b border-zinc-300 pb-6"}>
             <li>Avvia finanziamento</li>
@@ -113,7 +142,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
                 disabled={!isChecked}>
                 Avvia richiesta prestito
               </button>
-              <button className={"w-full flex justify-center mb-4 mt-8"}>Annulla</button>
+              <button className={"w-full flex justify-center mb-4 mt-8 cursor-pointer"} onClick={abortArtpaySelection}>Annulla</button>
             </>
           ) : (
             <>
@@ -129,7 +158,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
       ) : (
         <span>
           Ci hai ripensato?{" "}
-          <button onClick={handlingArtpaySelection} className={"cursor-pointer"}>
+          <button onClick={handlingArtpaySelection} className={"cursor-pointer"} disabled={disabled}>
             <strong className={"underline"}>Paga con Prestito</strong>
           </button>
         </span>

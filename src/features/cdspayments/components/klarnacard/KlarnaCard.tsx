@@ -93,25 +93,27 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
               <PaymentForm />
             </Elements>
           ) : (
-            <>
-              <p className={"border-b border-zinc-300 pb-6"}>{`Tre rate senza interessi da € ${quote.toFixed(2)}`}</p>
-              <ul className={"space-y-4 py-4"}>
-                <li className={"w-full flex justify-between"}>
-                  Subtotale: <span>€&nbsp;{subtotal?.toFixed(2)}</span>
-                </li>
-                <li className={"w-full flex justify-between"}>
-                  Commissioni artpay: <span>€&nbsp;{fee.toFixed(2)}</span>
-                </li>
-                <li className={"w-full flex justify-between"}>
-                  <strong>Totale:</strong> <strong>€&nbsp;{(Number(subtotal) + Number(fee)).toFixed(2)}</strong>
-                </li>
-              </ul>
-              <div className={"flex justify-center"}>
-                <button onClick={handlingKlarnaSelection} className={"artpay-button-style bg-klarna hover:bg-klarna-hover"}>
-                  Paga la prima rata da € {quote.toFixed(2)}
-                </button>
-              </div>
-            </>
+            order && Number(order?.total) <= 2500 && (
+              <>
+                <p className={"border-b border-zinc-300 pb-6"}>{`Tre rate senza interessi da € ${quote.toFixed(2)}`}</p>
+                <ul className={"space-y-4 py-4"}>
+                  <li className={"w-full flex justify-between"}>
+                    Subtotale: <span>€&nbsp;{subtotal?.toFixed(2)}</span>
+                  </li>
+                  <li className={"w-full flex justify-between"}>
+                    Commissioni artpay: <span>€&nbsp;{fee.toFixed(2)}</span>
+                  </li>
+                  <li className={"w-full flex justify-between"}>
+                    <strong>Totale:</strong> <strong>€&nbsp;{(Number(subtotal) + Number(fee)).toFixed(2)}</strong>
+                  </li>
+                </ul>
+                <div className={"flex justify-center"}>
+                  <button onClick={handlingKlarnaSelection} className={"artpay-button-style bg-klarna hover:bg-klarna-hover"}>
+                    Paga la prima rata da € {quote.toFixed(2)}
+                  </button>
+                </div>
+              </>
+            )
           )}
           <NavLink to={"/"} className={"text-tertiary underline underline-offset-2 mt-8 block cursor-pointer"}>
             Scopri di più
@@ -120,8 +122,8 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
       ) : (
         <span>
           Ci hai ripensato?{" "}
-          <button onClick={handlingKlarnaSelection}>
-            <strong className={"underline"}>Paga con Klarna</strong>
+          <button onClick={handlingKlarnaSelection} disabled={disabled || Number(order?.total) <= 2500}>
+            <strong className={"underline cursor-pointer disabled:cursor-not-allowed"}>Paga con Klarna</strong>
           </button>
         </span>
       )}

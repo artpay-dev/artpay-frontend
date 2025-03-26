@@ -21,6 +21,7 @@ import MenuIcon from "./icons/MenuIcon.tsx";
 import { useEnvDetector, useNavigate } from "../utils.ts";
 import { useData } from "../hoc/DataProvider.tsx";
 import { useLocation } from "react-router-dom";
+import LogoFastArtpay from "./icons/LogoFastArtpay.tsx";
 
 export interface NavbarProps {
   onMenuToggle?: (isOpen: boolean) => void;
@@ -39,7 +40,9 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [hasPendingOrder, setHasPendingOrder] = useState(false);
 
-  const [showCheckout, setShowCheckout] = useState<boolean>(JSON.parse(localStorage.getItem("showCheckout") as string) || false);
+  const [showCheckout, setShowCheckout] = useState<boolean>(
+    JSON.parse(localStorage.getItem("showCheckout") as string) || false,
+  );
 
   const handleOrders = async () => {
     const shouldCheck = JSON.parse(localStorage.getItem("checkOrder") ?? "true");
@@ -54,6 +57,8 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
         setShowCheckout(true);
         setHasPendingOrder(true);
         localStorage.setItem("showCheckout", "true");
+      } else {
+        localStorage.removeItem("showCheckout");
       }
 
       if (auth.isAuthenticated) {
@@ -68,25 +73,23 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
 
           setShowCheckout(true);
           localStorage.setItem("showCheckout", "true");
-          localStorage.setItem("checkoutUrl", "/acquisto-esterno")
+          localStorage.setItem("checkoutUrl", "/acquisto-esterno");
+        } else {
+          localStorage.removeItem("showCheckout");
         }
       }
 
       localStorage.setItem("checkOrder", "false");
-
     } catch (error) {
       console.error("Errore nel recupero degli ordini:", error);
     }
   };
-
 
   useEffect(() => {
     if (localStorage.getItem("checkOrder") === null) {
       localStorage.setItem("checkOrder", "true");
     }
     handleOrders();
-
-
   }, [auth.isAuthenticated, data, hasPendingOrder]);
 
   const menuOpen = showMenu && isMobile;
@@ -103,7 +106,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   };
 
   const handleCheckout = () => {
-    const checkoutUrl = localStorage.getItem("checkoutUrl")
+    const checkoutUrl = localStorage.getItem("checkoutUrl");
     if (checkoutUrl) {
       navigate(checkoutUrl);
       localStorage.setItem("isNotified", "true");
@@ -147,8 +150,8 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   };
 
   const authButton = (
-    <div className={'mb-8 md:mb-0'}>
-      <Button sx={{ minWidth: "150px" , }} onClick={() => handleLogin()} color="primary" variant="outlined">
+    <div className={"mb-8 md:mb-0"}>
+      <Button sx={{ minWidth: "150px" }} onClick={() => handleLogin()} color="primary" variant="outlined">
         Login/Registrati
       </Button>
     </div>
@@ -168,10 +171,8 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
 
   let menuLinks: MenuLinks[];
 
-  if (environment === 'production') {
-    menuLinks = [
-      { label: "Chi siamo", href: "/chi-siamo", requireAuth: false },
-    ];
+  if (environment === "production") {
+    menuLinks = [{ label: "Chi siamo", href: "/chi-siamo", requireAuth: false }];
   } else {
     menuLinks = [
       { label: "Gallerie", href: "/gallerie ", requireAuth: true },
@@ -208,10 +209,10 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
         </Box>
         {!isMobile && (
           <Box sx={{ ml: 3 }}>
-              {menuLinks
+            {menuLinks
               .filter((l) => auth.isAuthenticated || !l.requireAuth)
               .map((link, i) => {
-                if (link.label === "Chi siamo" && environment !== 'production' && auth.isAuthenticated) return;
+                if (link.label === "Chi siamo" && environment !== "production" && auth.isAuthenticated) return;
 
                 return (
                   <Button
@@ -248,27 +249,30 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
             <IconButton sx={{ mr: showCheckout ? 4 : 0, ml: 1 }} onClick={() => handleProfileClick()} color="inherit">
               <UserIcon fontSize="inherit" color="inherit" />
             </IconButton>
-            {showCheckout && (
-              <>
-                <IconButton
-                  sx={{ mr: 0, transform: { xs: undefined, md: "translateX(8px)" }, position: "relative" }}
-                  onClick={() => handleCheckout()}
-                  color="primary">
-                  <ShoppingBagIcon color="inherit" />
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 4,
-                      right: 4,
-                      width: 8,
-                      height: 8,
-                      bgcolor: "red",
-                      borderRadius: "50%",
-                    }}
-                  />
-                </IconButton>
-              </>
-            )}
+            {showCheckout &&
+              (localStorage.getItem("CdsOrder") ? (
+                <LogoFastArtpay />
+              ) : (
+                <>
+                  <IconButton
+                    sx={{ mr: 0, transform: { xs: undefined, md: "translateX(8px)" }, position: "relative" }}
+                    onClick={() => handleCheckout()}
+                    color="primary">
+                    <ShoppingBagIcon color="inherit" />
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 4,
+                        right: 4,
+                        width: 8,
+                        height: 8,
+                        bgcolor: "red",
+                        borderRadius: "50%",
+                      }}
+                    />
+                  </IconButton>
+                </>
+              ))}
           </>
         ) : (
           <>
@@ -293,7 +297,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
           {menuLinks
             .filter((l) => auth.isAuthenticated || !l.requireAuth)
             .map((link, i) => {
-              if (link.label === "Chi siamo" && environment !== 'production' && auth.isAuthenticated) return;
+              if (link.label === "Chi siamo" && environment !== "production" && auth.isAuthenticated) return;
 
               return (
                 <Button
@@ -310,11 +314,11 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
           <Box flexGrow={1}></Box>
           {auth.isAuthenticated ? (
             <>
-              <hr className={'text-gray-300 mt-4 mb-6'} />
-              <Typography sx={{ textAlign: "center" }}  color="primary">
+              <hr className={"text-gray-300 mt-4 mb-6"} />
+              <Typography sx={{ textAlign: "center" }} color="primary">
                 Ciao {auth.user?.username}
               </Typography>
-              <Button sx={{mb: 6}}  onClick={() => handleLogout()} color="tertiary" variant="text">
+              <Button sx={{ mb: 6 }} onClick={() => handleLogout()} color="tertiary" variant="text">
                 Logout
               </Button>
             </>
