@@ -71,8 +71,7 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
       backgroundColor={"bg-[#FFE9EE]"}
       cardTitle={"Pagamento con klarna"}
       icon={<KlarnaIcon />}
-      subtitle={"Pagamento in 3 rate fino a €2500"}
-      paymentSelected={paymentSelected}>
+      subtitle={"Pagamento in 3 rate fino a €2500"}>
       {paymentSelected ? (
         <>
           {order?.payment_method == 'klarna' ? (

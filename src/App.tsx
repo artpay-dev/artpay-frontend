@@ -37,7 +37,7 @@ import Contacts from "./pages/Contacts.tsx";
 import Messages from "./pages/Messages.tsx";
 import Galleries from "./pages/Galleries.tsx";
 import LandingPage from "./pages/LandingPage.tsx";
-import CdsPaymentPage from "./pages/CdsPaymentPage.tsx";
+import CdsPaymentsPage from "./pages/CdsPaymentsPage.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -81,7 +81,7 @@ function AppContent() {
                     <Route path="/acquisto" element={<Purchase />} />
                     {/*<Route path="/acquisto-esterno" element={<Purchase orderMode="onHold"/>} />*/}
                     <Route path="/acquisto-esterno" >
-                      <Route element={<CdsPaymentPage />} index />
+                      <Route element={<CdsPaymentsPage />} index />
                     </Route>
                     <Route path="/completa-acquisto/:order_id" element={<Purchase orderMode="redeem" />} />
                     <Route path="/acconto-blocca-opera" element={<Purchase orderMode="loan" />} />
