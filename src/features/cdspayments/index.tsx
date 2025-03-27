@@ -2,8 +2,6 @@ import usePaymentStore from "./store.ts";
 import PaymentMethodsList from "./components/paymentmethodslist/PaymentMethodsList.tsx";
 import { Order } from "../../types/order.ts";
 import Payments from "./components/payments/Payments.tsx";
-import SkeletonCard from "./components/paymentprovidercard/SkeletonCard.tsx";
-import SantanderFlow from "./components/santanderflow/SantanderFlow.tsx";
 import CdsTransactionLayout from "./layouts/cdstransactionlayout/CdsTransactionLayout.tsx";
 
 
