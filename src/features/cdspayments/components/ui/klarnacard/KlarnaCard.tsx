@@ -28,12 +28,12 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
       });
       try {
 
-        const updatePayment = await data.updatePaymentIntent({
+        /*const updatePayment = await data.updatePaymentIntent({
           wc_order_key: order?.order_key,
           payment_method: "klarna",
         });
         if (!updatePayment) throw new Error("Error during updating payment intent");
-        console.log('update payment intent', updatePayment);
+        console.log('update payment intent', updatePayment);*/
 
         const updateOrder = await data.updateOrder(order.id, { payment_method: "klarna" });
         if (!updateOrder) throw new Error("Error during updating payment intent");
@@ -43,7 +43,7 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
 
         setPaymentData({
           paymentMethod: "klarna",
-          paymentIntent: updatePayment,
+          /*paymentIntent: updatePayment,*/
         });
 
 

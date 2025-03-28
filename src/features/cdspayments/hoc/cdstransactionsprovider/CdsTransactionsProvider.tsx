@@ -53,8 +53,16 @@ const CdsTransactionsProvider = ({children}: {children: ReactNode}) => {
           if (!createPayment) throw new Error("Errore nella creazione del payment intent");
           console.log("Primo payment intent creato", createPayment);
 
+          const updatePayment = await data.updatePaymentIntent({
+            wc_order_key: orderResp?.order_key,
+            payment_method: "klarna",
+          });
+          if (!updatePayment) throw new Error("Error during updating payment intent");
+          console.log('update payment intent', updatePayment);
+
+
           setPaymentData({
-            paymentIntent: createPayment,
+            paymentIntent: updatePayment,
           });
         }
 
