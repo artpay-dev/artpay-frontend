@@ -1,19 +1,27 @@
 import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useState } from "react";
-
 import AgreementCheckBox from "../agreementcheckbox/AgreementCheckBox.tsx";
+import { useEnvDetector } from "../../../../../utils.ts";
 
 const PaymentForm = () => {
   const stripe = useStripe();
   const elements = useElements();
 
-  const [message, setMessage] = useState<string | undefined>('');
+  const environment = useEnvDetector();
+
+  const [message, setMessage] = useState<string | undefined>("");
   const [isLoading, setIsLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
 
+  const returnUrl:Record<any, any> = {
+    local: "http://localhost:5173/acquisto-esterno",
+    staging: "https://staging2.artpay.art/acquisto-esterno",
+    production: "http://artpay.art/acquisto-esterno",
+  };
+
   const handleCheckBox = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(e.target.checked);
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,7 +38,7 @@ const PaymentForm = () => {
       elements,
       confirmParams: {
         // Make sure to change this to your payment completion page
-        return_url: "http://localhost:5173/acquisto-esterno",
+        return_url: environment ? returnUrl[environment] : returnUrl.local,
       },
     });
 
@@ -51,9 +59,20 @@ const PaymentForm = () => {
   return (
     <form id="payment-form" onSubmit={handleSubmit}>
       <PaymentElement id="payment-element" options={{ layout: "accordion" }} />
-      <AgreementCheckBox isChecked={isChecked} handleChange={handleCheckBox}/>
-      <button disabled={isLoading || !stripe || !elements || !isChecked } id="submit" className={'artpay-button-style bg-klarna hover:bg-klarna-hover mt-6 disabled:opacity-65'}>
-        <span id="button-text">{isLoading ? <div className="size-4 border border-tertiary border-b-transparent rounded-full animate-spin" id="spinner"></div> : "Paga ora"}</span>
+      <AgreementCheckBox isChecked={isChecked} handleChange={handleCheckBox} />
+      <button
+        disabled={isLoading || !stripe || !elements || !isChecked}
+        id="submit"
+        className={"artpay-button-style bg-klarna hover:bg-klarna-hover mt-6 disabled:opacity-65"}>
+        <span id="button-text">
+          {isLoading ? (
+            <div
+              className="size-4 border border-tertiary border-b-transparent rounded-full animate-spin"
+              id="spinner"></div>
+          ) : (
+            "Paga ora"
+          )}
+        </span>
       </button>
       {/* Show any error or success messages */}
       {message && <div id="payment-message">{message}</div>}
