@@ -143,6 +143,7 @@ export const galleryToGalleryItem = (gallery: Gallery): GalleryCardProps => ({
 });
 
 export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProps => {
+  const orderDesc = order.meta_data.find((m) => m.key.toLowerCase() === "original_order_desc")?.value
   const lineItem = order.line_items.length ? order.line_items[0] : undefined;
   const galleryName = lineItem?.meta_data.find((m) => m.key?.toLowerCase() === "sold by" || m.key?.toLowerCase() === "venduto da")?.display_value;
   let datePaid = "";
@@ -153,6 +154,7 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
       console.warn(e);
     }
   }
+
   // o.purchaseMode === "Stripe SEPA"
   return {
     id: order.id,
@@ -162,7 +164,7 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
     purchaseMode: order.payment_method || "",
     waitingPayment: order.status === "on-hold" && order.payment_method === "Stripe SEPA",
     subtitle: "",
-    title: lineItem?.name || "Opera senza titolo",
+    title: orderDesc || lineItem?.name || "Opera senza titolo",
     status: order.status,
     imgSrc: lineItem?.image?.src || ""
   };

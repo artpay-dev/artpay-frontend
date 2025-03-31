@@ -17,7 +17,7 @@ import { useParams } from "react-router-dom";
 export interface ProfileProps {
 }
 
-const subPageSlugs = ["gallerie", "artisti", "opere-preferite", "opere-bloccate", "opere-acquistate", "messaggi"];
+const subPageSlugs = ["opere-acquistate", "opere-bloccate", "gallerie", "artisti", "opere-preferite", "messaggi"];
 const Profile: React.FC<ProfileProps> = ({}) => {
   const data = useData();
   const auth = useAuth();
