@@ -34,8 +34,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
   const theme = useTheme();
 
   const [selectedTab, setSelectedTab] = useState(0);
-
-  console.log(paymentIntent)
+  const KLARNA_FEE = 1.064658
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
@@ -61,14 +60,14 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
           {auction &&
             paymentIntent &&
             paymentIntent?.amount > 150000 &&
-            paymentIntent?.amount <= 250000 &&
+            (paymentIntent?.amount * KLARNA_FEE) <= 250000 &&
             tabTitles.map((title, index) => <Tab key={index} label={title} />)}
           {auction && paymentIntent && paymentIntent?.amount <= 150000 && <Tab label={"Klarna"} />}
-          {auction && paymentIntent && paymentIntent?.amount >= 250000 && <Tab label={"Santander"} />}
+          {auction && paymentIntent && (paymentIntent?.amount * KLARNA_FEE)  > 250000 && <Tab label={"Santander"} />}
         </Tabs>
 
         <Box sx={{ mt: 3 }}>
-          {paymentIntent && paymentIntent?.amount > 150000 && paymentIntent.amount <= 250000 && (
+          {paymentIntent && paymentIntent?.amount > 150000 && (paymentIntent?.amount * KLARNA_FEE) <= 250000 && (
             <Box sx={{ mt: 3 }}>
               {selectedTab === 0 && (
                 <>
@@ -158,7 +157,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
               />
             </Elements>
           )}
-          {paymentIntent && paymentIntent.amount >= 250000 && (
+          {paymentIntent && (paymentIntent.amount * KLARNA_FEE) > 250000 && (
             <Box>
               <Typography variant="body1">
                 <LoanCardTab paymentIntent={paymentIntent} />

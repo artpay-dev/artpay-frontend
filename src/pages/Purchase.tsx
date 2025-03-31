@@ -79,7 +79,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
 
   const isGalleryAuction = pendingOrder?.created_via === "gallery_auction";
 
-
+  const KLARNA_FEE = 1.064658
 
   orderMode = orderMode === "loan" || pendingOrder?.customer_note === "Blocco opera" ? "loan" : orderMode;
 
@@ -129,12 +129,16 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
             // console.log("existingIntentId", existingIntentId);
 
             let paymentIntent: PaymentIntent;
+
             if (resp.payment_method === "bnpl" && orderMode === "redeem") {
               resp.payment_method = "";
               paymentIntent = await data.createRedeemIntent({ wc_order_key: resp.order_key });
             } else if (resp.payment_method === "bnpl") {
               localStorage.setItem("redirectToAcquistoEsterno", "true");
               paymentIntent = await data.createPaymentIntentCds({ wc_order_key: resp.order_key });
+              if(Number(pendingOrder?.total) < 1500){
+                paymentIntent = await data.updatePaymentIntent({ wc_order_key: resp.order_key, payment_method: "klarna" });
+              }
             } else {
               if (orderMode === "loan") {
                 paymentIntent = await data.createBlockIntent({ wc_order_key: resp.order_key });
@@ -279,15 +283,24 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
       const wc_order_key = pendingOrder.order_key;
       /*console.log("Payment method: ", payment, wc_order_key);*/
       try {
-        const newPaymentIntent = await data.updatePaymentIntent({ wc_order_key, payment_method: payment });
-        setPaymentIntent(newPaymentIntent);
-        if (payment === "card") {
-          setPaymentMethod("Carta");
-        } else if (payment === "klarna") {
-          setPaymentMethod("Klarna");
-        } else if (payment === "Santander") {
+        if ((Number(pendingOrder.total) * KLARNA_FEE) <= 2500) {
+          const newPaymentIntent = await data.updatePaymentIntent({ wc_order_key, payment_method: payment });
+          setPaymentIntent(newPaymentIntent);
+          if (payment === "card") {
+            setPaymentMethod("Carta");
+          } else if (payment === "klarna") {
+            setPaymentMethod("Klarna");
+          } else if (payment === "Santander") {
+            setPaymentMethod("Santander");
+          } else (
+            setPaymentMethod("Santander")
+          )
+        } else {
+          const newPaymentIntent = await data.updatePaymentIntent({ wc_order_key, payment_method: "Santander" });
+          setPaymentIntent(newPaymentIntent);
           setPaymentMethod("Santander");
         }
+
 
         const getOrderFunction =
           orderMode === "redeem" && urlParams.order_id
@@ -692,7 +705,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                   </Typography>
                 }
               />
-              {(Number(pendingOrder?.total) >= 2500 && isGalleryAuction) || paymentMethod === 'Santander' ? (
+              {(((Number(pendingOrder?.total) * KLARNA_FEE)) > 2500 && isGalleryAuction) || paymentMethod === 'Santander' ? (
                   <div className={'w-full flex justify-center my-12'}>
                     <SantanderButton order={pendingOrder as Order} disabled={!privacyChecked} />
                   </div>
