@@ -1,6 +1,6 @@
 const FormSkeleton = () => {
   return (
-    <div className="min-w-sm w-full max-w-md mx-auto animate-pulse space-y-4 p-6 bg-gray-50 border border-gray-200 rounded-lg">
+    <div className="lg:min-w-md xl:w-xl w-full max-w-md mx-auto animate-pulse space-y-4 p-6 bg-gray-50 border border-gray-200 rounded-lg">
       {Array.from({ length: 6 }).map((_, index) => (
         <div key={index} className="h-10 bg-gray-200 rounded-md"></div>
       ))}

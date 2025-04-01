@@ -1,10 +1,13 @@
 import { useRef, useState } from "react";
 import FormSkeleton from "../../../../components/FormSkeleton.tsx";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 const BrevoForm = () => {
   const inputRef = useRef<HTMLIFrameElement>(null);
   const [isLoad, setIsLoad] = useState<boolean>(false)
 
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   const handleLoad = () => {
     setIsLoad(true)
@@ -19,8 +22,8 @@ const BrevoForm = () => {
           onLoad={handleLoad}
           className={'border border-[#CDCFD3] rounded-3xl w-full shadow-custom'}
           width={400}
-          height={580}
-          src="https://51f5628d.sibforms.com/serve/MUIFAIm1r-eyYke4A8ZR1xjKzpOMEVC-Zj30P6-kxhruyP6C1YRGCnb2bhqbiemDTHwWb9R5nbEJ3ika0vjk_garnIWTfMs-ZBoJe-4IaFv8rl-YTUu1m0-VkPNYHe47KXiTcV1lnUEXQh3H5mIq_3aUMg_6ac8Rw9ymr5IGVg0jyxZZC6NMEgOcEjKvFLUYGlZshKOarTKOUr6t"
+          height={isMobile ? 720 : 600}
+          src="https://51f5628d.sibforms.com/serve/MUIFACzH81fN_G8Cl_THyAULRJHiaBK_jrc8_OvjUx27o-a3_2As6Mo-CXjqb1bVmzFHuXHCRu4K80zq-g8zydPteSosFAuMdgBhGHilcM5QhkOmAdyOxzKVWylqlt2GW5LNO1Oxz4IHnVcfx5zH0iCfTKEdszqwDQgwFa3derhqxsan4BcfhGsSf1wZjXrffqallgyHAPn3jVDw"
           style={{
             display: "block",
             padding: 0,
