@@ -28,7 +28,7 @@ const SantanderButton = ({ order, disabled }: { order: Order; disabled: boolean 
   return (
     <button
       disabled={disabled}
-      className={`disabled:cursor-not-allowed! disabled:opacity-65 disabled:bg-[#E0E0E0] disabled:text-secondary  bg-primary hover:bg-primary-hover artpay-button-style text-white py-2! flex gap-2`}
+      className={`max-w-none! disabled:cursor-not-allowed! disabled:opacity-65 disabled:bg-[#E0E0E0] disabled:text-secondary  bg-primary hover:bg-primary-hover artpay-button-style text-white py-2! flex gap-2`}
       onClick={handleSantanderButton}>
       <span className={`${disabled ? 'opacity-45': ''}`}>
         <svg width="34" height="24" viewBox="0 0 34 24" fill="none" xmlns="http://www.w3.org/2000/svg">

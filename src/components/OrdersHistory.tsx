@@ -48,6 +48,8 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({
 
   }, []);
 
+  console.log(orders)
+
   const px = getDefaultPaddingX();
 
   return (

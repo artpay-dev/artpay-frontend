@@ -17,7 +17,7 @@ import { useParams } from "react-router-dom";
 export interface ProfileProps {
 }
 
-const subPageSlugs = ["gallerie", "artisti", "opere-preferite", "opere-bloccate", "opere-acquistate", "messaggi"];
+const subPageSlugs = ["opere-acquistate", "opere-bloccate", "gallerie", "artisti", "opere-preferite", "messaggi"];
 const Profile: React.FC<ProfileProps> = ({}) => {
   const data = useData();
   const auth = useAuth();
@@ -74,30 +74,30 @@ const Profile: React.FC<ProfileProps> = ({}) => {
               setSelectedTabPanel(newValue);
             }}>
             {/*gallerie-artisti-oepre-bloccate-acquistate*/}
+            <Tab label="Opere acquistate" />
+            <Tab label="Opere bloccate" />
             <Tab label="Gallerie seguite" />
             <Tab label="Artisti seguiti" />
             <Tab label="Opere preferite" />
-            <Tab label="Opere bloccate" />
-            <Tab label="Opere acquistate" />
             <Tab label="Messaggi" onClick={() => navigate("/messaggi")} />
           </ResponsiveTabs>
         </Box>
       </Box>
       <Box>
         <TabPanel value={selectedTabPanel} index={0}>
-          <FavouriteGalleries />
+          <OrdersHistory mode="completed" subtitle="In questa sezione trovi tutte le tue opere già acquistate" />
         </TabPanel>
         <TabPanel value={selectedTabPanel} index={1}>
-          <FavouriteArtists />
-        </TabPanel>
-        <TabPanel value={selectedTabPanel} index={2}>
-          <FavouriteArtworks />
-        </TabPanel>
-        <TabPanel value={selectedTabPanel} index={3}>
           <OrdersHistory mode="on-hold" title="Opere bloccate" />
         </TabPanel>
+        <TabPanel value={selectedTabPanel} index={2}>
+          <FavouriteGalleries />
+        </TabPanel>
+        <TabPanel value={selectedTabPanel} index={3}>
+          <FavouriteArtists />
+        </TabPanel>
         <TabPanel value={selectedTabPanel} index={4}>
-          <OrdersHistory mode="completed" subtitle="In questa sezione trovi tutte le tue opere già acquistate" />
+          <FavouriteArtworks />
         </TabPanel>
       </Box>
     </DefaultLayout>

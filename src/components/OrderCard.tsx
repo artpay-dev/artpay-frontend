@@ -22,18 +22,21 @@ const OrderCard: React.FC<OrderCardProps> = ({ children, imgSrc, leftCta }) => {
       }}
       gap={3}
       display="grid">
-      <Box sx={{ width: { xs: "auto" } }} display="flex" flexDirection="column">
-        <img
-          style={{
-            width: "100%",//useMediaQuery(theme.breakpoints.down("sm")) ? "100%" : "100%",
-            borderRadius: "5px",
-            aspectRatio: 1,
-            objectFit: "cover"
-          }}
-          src={imgSrc}
-        />
-        {leftCta}
-      </Box>
+      {imgSrc === "" ? (<></>) : (
+        <Box sx={{ width: { xs: "auto" } }} display="flex" flexDirection="column">
+          <img
+            style={{
+              width: "100%",//useMediaQuery(theme.breakpoints.down("sm")) ? "100%" : "100%",
+              borderRadius: "5px",
+              aspectRatio: 1,
+              objectFit: "cover"
+            }}
+            alt={'Order image'}
+            src={imgSrc}
+          />
+          {leftCta}
+        </Box>
+      )}
       <Box display="flex" flexDirection="column">
         {children}
       </Box>

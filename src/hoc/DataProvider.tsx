@@ -938,6 +938,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         `${baseUrl}/wp-json/wc/v3/stripe/cds_payment_intent`,
         body
       );
+      if(resp.data.amount < 150000) {
+        const updateFee = await this.updatePaymentIntent({ wc_order_key: body.wc_order_key, payment_method: "klarna" })
+        localStorage.setItem(cacheKey, JSON.stringify(updateFee));
+        return updateFee;
+      }
       localStorage.setItem(cacheKey, JSON.stringify(resp.data));
       return resp.data;
     },
