@@ -13,7 +13,7 @@ import { useData } from "../hoc/DataProvider.tsx";
 
 import paymentSuccess from "../assets/images/payment-success.svg";
 import { getDefaultPaddingX } from "../utils.ts";
-import { useParams } from "react-router-dom";
+//import { useParams } from "react-router-dom";
 
 export interface PurchaseCompleteProps {
 }
@@ -38,8 +38,8 @@ const bankTransferMessage = (
     Riportiamo qui sotto gli estremi per effettuare il bonifico, copiali per essere sicuro di non perdere questa
     informazione. Ti consigliamo di procedere con il pagamento il prima possibile! Comprando infatti con bonifico
     l'opera è riservata a te per 4 giorni, scaduti i quali l'opera ritorna sul mercato e potrebbe essere acquistata da
-    altri utenti. <br /> Non appena Artpay riceverà la notifica di avvenuto pagamento, la galleria ti contatterà per
-    organizzare la spedizione o il pickup dell'opera in galleria.
+    altri utenti. <br /> Non appena Artpay riceverà la notifica di avvenuto pagamento, verrai contattato per
+    organizzare la spedizione o il pickup dell'opera.
   </span>
 );
 const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
@@ -47,7 +47,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
   const data = useData();
   const stripe = useStripe();
   const payments = usePayments();
-  const { order_id: orderId } = useParams();
+  //const { order_id: orderId } = useParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
@@ -64,7 +64,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
       const paymentIntent = urlParams.get("payment_intent");
       const redirectStatus = urlParams.get("redirect_status");
 
-      let galleryName = "";
+
 
       if (!clientSecret || !paymentIntent || !redirectStatus) {
         setMessage({
@@ -90,12 +90,12 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
       const completedOrderId = localStorage.getItem("completed-order");
 
       stripe.retrievePaymentIntent(clientSecret).then(async ({ paymentIntent }) => {
-        if (orderId) {
+        /*if (orderId) {
           const order = await data.getOrder(+orderId);
           if (order?.line_items.length) {
             galleryName = order?.line_items[0].meta_data.find(({ key }) => key === "Venduto da")?.display_value || "";
           }
-        }
+        }*/
 
 
 
@@ -123,7 +123,6 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
 
             }
 
-            console.log(galleryName)
 
             setMessage({
               title: <>Ciao {auth.user?.username || ""},<br /> grazie per aver scelto Artpay!</>,

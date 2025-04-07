@@ -18,6 +18,7 @@ export interface PaymentCardProps {
   paymentIntent?: PaymentIntent;
   auction?: boolean;
   thankYouPage?: string;
+  orderMode: string;
 }
 
 const PaymentCard: React.FC<PaymentCardProps> = ({
@@ -28,6 +29,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
   onChange,
   checkoutButtonRef,
   thankYouPage,
+  orderMode,
   auction = false,
 }) => {
   const payments = usePayments();
@@ -67,7 +69,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
         </Tabs>
 
         <Box sx={{ mt: 3 }}>
-          {paymentIntent && paymentIntent?.amount > 150000 && (paymentIntent?.amount * KLARNA_FEE) <= 250000 && (
+          {(paymentIntent && paymentIntent?.amount > 150000 && (paymentIntent?.amount * KLARNA_FEE) <= 250000) && (
             <Box sx={{ mt: 3 }}>
               {selectedTab === 0 && (
                 <>
@@ -120,7 +122,10 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
               )}
             </Box>
           )}
-          {paymentIntent && paymentIntent.amount <= 150000 && (
+          {(paymentIntent && (
+            (paymentIntent.amount <= 150000) ||
+            (paymentIntent.amount >= 250000 && orderMode === "redeem")
+          )) && (
             <Elements
               stripe={payments.stripe}
               options={{
@@ -147,7 +152,8 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
                     },
                   },
                 },
-              }}>
+              }}
+            >
               <CheckoutForm
                 ref={checkoutButtonRef}
                 onReady={onReady}
@@ -157,7 +163,8 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
               />
             </Elements>
           )}
-          {paymentIntent && (paymentIntent.amount * KLARNA_FEE) > 250000 && (
+
+          {paymentIntent && (paymentIntent.amount * KLARNA_FEE) > 250000 && orderMode !== "redeem" && (
             <Box>
               <Typography variant="body1">
                 <LoanCardTab paymentIntent={paymentIntent} />
