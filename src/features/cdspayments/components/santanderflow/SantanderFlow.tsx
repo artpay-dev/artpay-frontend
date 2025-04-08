@@ -6,8 +6,7 @@ import { ArrowLeft, ArrowRight } from "@mui/icons-material";
 import { useAuth } from "../../../../hoc/AuthProvider.tsx";
 import usePaymentStore from "../../store.ts";
 import { useData } from "../../../../hoc/DataProvider.tsx";
-import AgreementCheckBox from "../ui/agreementcheckbox/AgreementCheckBox.tsx";
-import { useState } from "react";
+import BankTransfer from "../banktransfer/BankTransfer.tsx";
 
 type SantanderFlowProps = {
   isLoading?: boolean;
@@ -16,7 +15,6 @@ type SantanderFlowProps = {
 
 const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
   const { setPaymentData, readyToPay } = usePaymentStore();
-  const [isChecked, setIsChecked] = useState(false);
   const data = useData();
   const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.06 : Number(order?.total) / 1.124658;
   const { user } = useAuth();
@@ -34,10 +32,6 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
     total: order?.total,
   };
 
-  const handleCheckBox = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsChecked(e.target.checked);
-  };
-
   const handleDeleteOrder = async () => {
     setPaymentData({
       loading: true,
@@ -45,7 +39,7 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
     try {
       if (!order) return;
 
-      const restoreToOnHold = data.updateOrder(order?.id,{status: "on-hold", payment_method: "bnpl"});
+      const restoreToOnHold = data.updateOrder(order?.id, { status: "on-hold", payment_method: "bnpl" });
       if (!restoreToOnHold) throw Error("Error updating order to on-hold");
       console.log("Order restore to on-hold");
 
@@ -162,84 +156,7 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
                 </PaymentProviderCard>
                 {readyToPay ? (
                   <PaymentProviderCard backgroundColor={"bg-[#FAFAFB]"}>
-                    <form>
-                      <div className={"space-y-1 mb-6"}>
-                        <h3 className={"font-bold leading-[125%] text-tertiary"}>Completa pagamento</h3>
-                        <div className={'mt-4 space-y-6'}>
-                          <label htmlFor="payment-method" className={'flex items-center justify-between'}>
-                            <div>
-                              <input type={"radio"} defaultChecked={true} className={'me-2'} />
-                              <span>Bonifico Bancario</span>
-                            </div>
-                            <span>
-                              <svg
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <g>
-                                  <path
-                                    d="M21 8L12 3L3 8H21Z"
-                                    stroke="#010F22"
-                                    strokeWidth="0.75"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                  <rect
-                                    x="3.375"
-                                    y="18.375"
-                                    width="17.25"
-                                    height="2.25"
-                                    rx="0.625"
-                                    stroke="#010F22"
-                                    strokeWidth="0.75"
-                                  />
-                                  <path
-                                    d="M6 10V17"
-                                    stroke="#010F22"
-                                    strokeWidth="0.75"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                  <path
-                                    d="M12 10V17"
-                                    stroke="#010F22"
-                                    strokeWidth="0.75"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                  <path
-                                    d="M18 10V17"
-                                    stroke="#010F22"
-                                    strokeWidth="0.75"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </g>
-                                <defs>
-                                  <clipPath>
-                                    <rect width="24" height="24" fill="white" />
-                                  </clipPath>
-                                </defs>
-                              </svg>
-                            </span>
-                          </label>
-                          <input type="text" className={'rounded-[8px] border border-[#CDCFD3] w-full py-2.5 px-3.5 bg-white'} placeholder={"Email*"} required/>
-                          <p className={'text-secondary'}>
-                            Dopo l'invio, verrai reindirizzato alla pagina dei dettagli del bonifico bancario per completare il pagamento in modo sicuro.
-                          </p>
-                        </div>
-                        <AgreementCheckBox isChecked={isChecked} handleChange={handleCheckBox} />
-                      </div>
-                      <div className={"space-y-6 flex flex-col"}>
-                        <button
-                          disabled={!isChecked}
-                          className={"artpay-button-style bg-primary py-3! text-white disabled:opacity-65"}>
-                          Completa pagamento
-                        </button>
-                      </div>
-                    </form>
+                      <BankTransfer order={order} />
                   </PaymentProviderCard>
                 ) : (
                   <PaymentProviderCard backgroundColor={"bg-[#FAFAFB]"}>

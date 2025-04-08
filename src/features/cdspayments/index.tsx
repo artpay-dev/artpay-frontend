@@ -29,27 +29,3 @@ const CdsPayments = () => {
 };
 
 export default CdsPayments;
-
-
-/*
-<CdsTransactionLayout>
-  {choosePaymentMethod ? (
-    <PaymentMethodsList order={order as Order} isLoading={loading} />
-  ) : order?.status === "on-hold" ? (
-    <ConfirmPayment order={order as Order} isLoading={loading} />
-  ) : paymentStatus === "processing" ? (
-    loading ? (
-      <div className="border-t border-secondary mt-12 space-y-6 pt-12">
-        <SkeletonCard />
-        <SkeletonCard />
-      </div>
-    ) : (
-      <SantanderFlow order={order as Order} isLoading={loading} />
-    )
-  ) : (
-    <div className="border-t border-secondary mt-12 space-y-6 pt-12">
-      <SkeletonCard />
-      <SkeletonCard />
-    </div>
-  )}
-</CdsTransactionLayout>*/
