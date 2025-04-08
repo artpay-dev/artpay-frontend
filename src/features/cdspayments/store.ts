@@ -13,6 +13,7 @@ interface PaymentState {
   readyToPay: boolean;
   loading: boolean;
   isError: boolean;
+  receipt: boolean
 
   setPaymentData: (data: Partial<PaymentState>) => void;
 }
@@ -27,6 +28,7 @@ const usePaymentStore = create<PaymentState>((set) => ({
   readyToPay: false,
   loading: false,
   isError: false,
+  receipt: false,
 
   setPaymentData: (data) => set((state) => ({ ...state, ...data })),
 }));
