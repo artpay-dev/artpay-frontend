@@ -19,7 +19,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
     setIsChecked(e.target.checked);
   };
 
-  const updatePaymentStatus = async () => {
+  const processOrder = async () => {
     if (!order) return;
     setPaymentData({
       loading: true,
@@ -31,7 +31,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
 
       setPaymentData({
         paymentStatus: "processing",
-        order,
+        order: updateStatus,
       });
     } catch (e) {
       console.error(e);
@@ -61,13 +61,14 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
         });
       }
 
-      const updateOrder = await data.updateOrder(order.id, { payment_method: "santander" });
-      if (!updateOrder) throw new Error("Error during updating payment intent");
+      const updateOrder = await data.updateOrder(order.id, { payment_method: "santander", needs_processing: false });
+      if (!updateOrder) throw new Error("Error during updating order");
 
 
       setPaymentData({
         paymentMethod: "santander",
         paymentIntent: null,
+        order: updateOrder,
       });
     } catch (e) {
       console.error(e);
@@ -148,7 +149,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
             <>
               <AgreementCheckBox isChecked={isChecked} handleChange={handleCheckBox} />
               <button
-                onClick={updatePaymentStatus}
+                onClick={processOrder}
                 className={"artpay-button-style bg-primary text-white py-3! disabled:opacity-65"}
                 disabled={!isChecked}>
                 Avvia richiesta prestito

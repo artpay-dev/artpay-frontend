@@ -864,7 +864,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     async updateOrder(orderId: number, body: OrderUpdateRequest): Promise<Order> {
       const resp = await axios.put<OrderUpdateRequest, AxiosResponse<Order>>(
         `${baseUrl}/wp-json/wc/v3/orders/${orderId}`,
-        body
+        body,
+        {
+          headers: { Authorization: auth.getAuthToken() }
+        }
       );
       return resp.data;
     },

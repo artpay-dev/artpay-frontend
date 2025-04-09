@@ -3,9 +3,14 @@ import { Order } from "../../../../types/order.ts";
 import { ChangeEvent, useRef, useState } from "react";
 import { uploadFile } from "@uploadcare/upload-client";
 import useToolTipStore from "../../stores/tooltipStore.ts";
+import usePaymentStore from "../../stores/paymentStore.ts";
+import { useData } from "../../../../hoc/DataProvider.tsx";
 
 const BankTransfer = ({ order }: { order: Order }) => {
-  const [step, setStep] = useState(1);
+  const {setPaymentData, orderNote} = usePaymentStore()
+
+  const [step, setStep] = useState(orderNote == "Documentazione caricata, in attesa di conferma da artpay" || orderNote == "Bonifico ricevuto" ? 3 : 1);
+  const data = useData()
 
   const [loading, setLoading] = useState(false);
 
@@ -17,6 +22,7 @@ const BankTransfer = ({ order }: { order: Order }) => {
 
   const [fileData, setFileData] = useState<File | null>(null);
   const { showToolTip } = useToolTipStore();
+
 
   const handleCopy = async (inputRef: React.RefObject<HTMLParagraphElement>) => {
     if (inputRef.current) {
@@ -59,6 +65,15 @@ const BankTransfer = ({ order }: { order: Order }) => {
           message: "Documenti inviati con sucesso.",
         });
         setStep(3);
+
+        setPaymentData({
+          orderNote: "Documentazione caricata, in attesa di conferma da artpay"
+        })
+        const updateOrder = data.updateOrder(order?.id, { customer_note: "Documentazione caricata, in attesa di conferma da artpay"});
+        if (!updateOrder) throw Error("Error updating order note");
+        console.log("Order note updated");
+
+
       }
 
     } catch (e) {
@@ -165,7 +180,7 @@ const BankTransfer = ({ order }: { order: Order }) => {
                     <div className="flex items-center justify-center w-full mt-6">
                       <label
                         htmlFor="dropzone-file"
-                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-[#CDCFD3] rounded-lg cursor-pointer bg-white hover:bg-gray-100 ">
+                        className="flex flex-col items-center justify-center w-full h-32 border border-[#CDCFD3] rounded-lg cursor-pointer bg-white hover:bg-gray-100 ">
                         {!fileData ? (
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             <p className="mb-1 text-secondary">Ricevuta (JPG, PNG, PDF)</p>
@@ -174,7 +189,7 @@ const BankTransfer = ({ order }: { order: Order }) => {
                         ) : (
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             <p className="mb-1 text-secondary">File caricato:</p>
-                            <p className="mb-1 text-secondary font-semibold">{fileData.name}</p>
+                            <p className="mb-1 text-secondary font-semibold text-sm">{fileData.name}</p>
                             <p className="text-primary underline font-normal">Aggiorna file</p>
                           </div>
                         )}

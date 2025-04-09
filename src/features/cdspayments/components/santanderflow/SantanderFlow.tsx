@@ -14,7 +14,7 @@ type SantanderFlowProps = {
 };
 
 const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
-  const { setPaymentData, readyToPay } = usePaymentStore();
+  const { setPaymentData, orderNote } = usePaymentStore();
   const data = useData();
   const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.06 : Number(order?.total) / 1.124658;
   const { user } = useAuth();
@@ -39,13 +39,18 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
     try {
       if (!order) return;
 
-      const restoreToOnHold = data.updateOrder(order?.id, { status: "on-hold", payment_method: "bnpl" });
+      const restoreToOnHold = data.updateOrder(order?.id, {
+        status: "on-hold",
+        payment_method: "bnpl",
+        customer_note: "",
+      });
       if (!restoreToOnHold) throw Error("Error updating order to on-hold");
       console.log("Order restore to on-hold");
 
       setPaymentData({
         paymentStatus: "on-hold",
         paymentMethod: "bnpl",
+        orderNote: "",
       });
     } catch (e) {
       console.error(e);
@@ -60,6 +65,30 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
     window.Brevo.push(["track", event_name, properties]);
 
     console.log("push", event_name, properties);
+  };
+
+  const handleCompletePayment = async () => {
+    if (!order) return;
+
+    setPaymentData({
+      loading: true,
+    });
+    try {
+      const resp = await data.updateOrder(order?.id, { customer_note: "Prestito ottenuto" });
+      console.log(resp);
+      if (!resp) throw Error("Error updating order");
+      setPaymentData({
+        readyToPay: true,
+        orderNote: resp.customer_note,
+        order: resp,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setPaymentData({
+        loading: false,
+      });
+    }
   };
 
   return (
@@ -95,8 +124,8 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
                       <span>
                         <ArtpayIcon />
                       </span>
-                      <h3 className={"text-lg leading-[125%] text-tertiary"}>
-                        Complimenti il tuo lotto è pronto per richiedere un prestito
+                      <h3 className={"text-lg leading-[125%] text-tertiary text-balance"}>
+                        Complimenti il tuo lotto è pronto per {orderNote == "" ? <span>richiedere il prestito</span> : <span>completare il pagamento</span>}
                       </h3>
                     </div>
                     <div className={"flex flex-col gap-1"}>
@@ -106,18 +135,18 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
                     </div>
                     <div className={"flex flex-col gap-1"}>
                       <span className={"text-secondary"}>Stato</span>
-                      {readyToPay ? <p>Prestito ottenuto</p> : <p>Richiesta prestito in corso</p>}
+                      {order.customer_note != "" ? <p>Prestito ottenuto</p> : <p>Richiesta prestito in corso</p>}
                     </div>
                   </div>
                 </PaymentProviderCard>
 
                 <PaymentProviderCard backgroundColor={"bg-[#FAFAFB]"}>
-                  {readyToPay ? (
+                  {orderNote != "" ? (
                     <>
                       <div className={"space-y-1"}>
                         <h3 className={"font-bold leading-[125%] text-tertiary"}>Calcola la rata</h3>
                       </div>
-                      <button className={"cursor-pointer"} onClick={() => setPaymentData({ readyToPay: false })}>
+                      <button className={"cursor-pointer"} onClick={() => setPaymentData({ orderNote: "" })}>
                         <ArrowLeft />
                         <span>Torna indietro</span>
                       </button>
@@ -154,9 +183,9 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
                     </>
                   )}
                 </PaymentProviderCard>
-                {readyToPay ? (
+                {orderNote != "" ? (
                   <PaymentProviderCard backgroundColor={"bg-[#FAFAFB]"}>
-                      <BankTransfer order={order} />
+                    <BankTransfer order={order} />
                   </PaymentProviderCard>
                 ) : (
                   <PaymentProviderCard backgroundColor={"bg-[#FAFAFB]"}>
@@ -167,7 +196,7 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
                     <div className={"space-y-6 flex flex-col"}>
                       <button
                         className={"artpay-button-style bg-primary py-3! text-white"}
-                        onClick={() => setPaymentData({ readyToPay: true })}>
+                        onClick={handleCompletePayment}>
                         Completa pagamento
                       </button>
                       <button className={"text-secondary cursor-pointer"} onClick={handleDeleteOrder}>

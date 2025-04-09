@@ -1,14 +1,20 @@
 import { Order } from "../../../../types/order.ts";
 import { Gallery } from "../../../../types/gallery.ts";
+import PaymentProviderCard from "../ui/paymentprovidercard/PaymentProviderCard.tsx";
+import usePaymentStore from "../../stores/paymentStore.ts";
 
 type OrderDetailsProps = {
   vendor: Gallery | null;
   order: Order | null;
 }
 
+
+
 const OrderSummary = ({vendor, order} : OrderDetailsProps ) => {
+  const {orderNote} = usePaymentStore();
   const orderDesc = order?.meta_data.filter((data) => data.key == "original_order_desc").map((data) => data.value);
   const subtotal= !order?.fee_lines.length ? (Number(order?.total) / 1.06) : (Number(order?.total) / 1.124658)
+
 
   return (
     <div className={'space-y-4'}>
@@ -30,6 +36,12 @@ const OrderSummary = ({vendor, order} : OrderDetailsProps ) => {
         <span className={"text-secondary"}>Prezzo</span>
         <span className={"text-tertiary"}>€&nbsp;{subtotal.toFixed(2)}</span>
       </div>
+      <PaymentProviderCard backgroundColor={'bg-[#FAFAFB]'}>
+        <div className={'space-y-2'}>
+          <span className={'text-[#808791] block'}>Stato</span>
+          {orderNote != "" && orderNote != "Prestito ottenuto"  ? <p>{orderNote}</p> : <p>Pagamento da completare</p>}
+        </div>
+      </PaymentProviderCard>
     </div>
   );
 };

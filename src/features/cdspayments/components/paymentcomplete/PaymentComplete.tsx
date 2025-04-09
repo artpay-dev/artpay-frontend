@@ -11,7 +11,7 @@ const PaymentComplete = ({order, isLoading}: {order: Order, isLoading: boolean})
 
   const icons: Record<Order["payment_method"], ReactElement> = {
     "klarna": <KlarnaIcon />,
-      "santander": <ArtpayIcon />,
+    "santander": <ArtpayIcon />,
   }
 
 

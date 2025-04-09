@@ -8,7 +8,7 @@ import PaymentComplete from "./components/paymentcomplete/PaymentComplete.tsx";
 
 
 const CdsPayments = () => {
-  const { order, paymentMethod, paymentStatus , loading } = usePaymentStore();
+  const { order, paymentMethod, paymentStatus , loading, orderNote } = usePaymentStore();
 
   const choosePaymentMethod = paymentMethod == "bnpl" ;
   const processedOrder = paymentStatus == "processing" ;
@@ -17,6 +17,7 @@ const CdsPayments = () => {
   console.log('Payment Method:',order?.payment_method)
   console.log('Payment total:',order?.total)
   console.log('Order:',order)
+  console.log("Note:", orderNote)
 
   localStorage.setItem("checkOrder", "true");
 
