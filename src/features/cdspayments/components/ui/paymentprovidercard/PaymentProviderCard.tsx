@@ -14,7 +14,7 @@ const PaymentProviderCard = ({
 
   return (
     <div
-      className={`${disabled ? "opacity-65 " : ""} ${
+      className={`${disabled ? "opacity-65 cursor-not-allowed" : ""} ${
         backgroundColor ? backgroundColor : "bg-[#E2E6FC]"
       } p-4 rounded-lg w-full max-w-lg lg:max-w-sm ${className}`}>
       <div className={`space-y-4 `}>

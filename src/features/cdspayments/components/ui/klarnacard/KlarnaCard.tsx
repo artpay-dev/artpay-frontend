@@ -28,10 +28,6 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
       });
       try {
 
-        const createPayment = await data.createPaymentIntentCds({ wc_order_key: order?.order_key });
-        if (!createPayment) throw new Error("Errore nella creazione del payment intent");
-        console.log("Primo payment intent creato", createPayment);
-
         const updatePayment = await data.updatePaymentIntent({
           wc_order_key: order?.order_key,
           payment_method: "klarna",
@@ -60,11 +56,32 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
       }
   };
 
+  const createPaymentIntent = async () => {
+    if(!order) {
+      console.log("order not found");
+      return;
+    }
+
+    try {
+      const createPayment = await data.createPaymentIntentCds({ wc_order_key: order?.order_key });
+      if (!createPayment) throw new Error("Errore nella creazione del payment intent");
+      console.log("Primo payment intent creato", createPayment);
+
+      setPaymentData({
+        paymentIntent: createPayment,
+      })
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   useEffect(() => {
+    if (!paymentIntent) createPaymentIntent();
     if (order) {
       const totalFee = calculateTotalFee(order);
       setFee(totalFee);
     }
+
 
   }, [order]);
 
@@ -78,7 +95,7 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
       subtitle={"Pagamento in 3 rate fino a €2500"}>
       {paymentSelected ? (
         <>
-          {order?.payment_method == 'klarna' ? (
+          {order?.payment_method == "klarna" && paymentIntent ? (
             <Elements
               stripe={payments.stripe}
               options={{
@@ -96,7 +113,8 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
               <PaymentForm />
             </Elements>
           ) : (
-            order && Number(order?.total) <= 2500 && (
+            order &&
+            Number(order?.total) <= 2500 && (
               <>
                 <p className={"border-b border-zinc-300 pb-6"}>{`Tre rate senza interessi da € ${quote.toFixed(2)}`}</p>
                 <ul className={"space-y-4 py-4"}>
@@ -111,14 +129,19 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
                   </li>
                 </ul>
                 <div className={"flex justify-center"}>
-                  <button onClick={handlingKlarnaSelection} className={"artpay-button-style bg-klarna hover:bg-klarna-hover"}>
+                  <button
+                    onClick={handlingKlarnaSelection}
+                    className={"artpay-button-style bg-klarna hover:bg-klarna-hover"}>
                     Paga la prima rata da € {quote.toFixed(2)}
                   </button>
                 </div>
               </>
             )
           )}
-          <NavLink to={"/"} className={"text-tertiary underline underline-offset-2 mt-8 block cursor-pointer"}>
+          <NavLink
+            to={"/"}
+            className={`text-tertiary underline underline-offset-2 mt-8 block ${disabled ? 'cursor-not-allowed': 'cursor-pointer'} `}
+            aria-disabled={disabled}>
             Scopri di più
           </NavLink>
         </>

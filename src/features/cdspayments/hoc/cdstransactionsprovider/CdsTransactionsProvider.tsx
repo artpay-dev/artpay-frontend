@@ -35,13 +35,41 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
           }
         }
 
-        if(!orderResp && !hasPayment_intent) {
-          localStorage.removeItem("CdsOrder");
-          localStorage.removeItem("showCheckout");
-          localStorage.removeItem("checkoutUrl");
-          navigate("/");
+        if (!orderResp) {
+          const listOrders = await data.listOrders({
+            status: ["completed", "cancelled", "failed"],
+            customer: Number(JSON.parse(localStorage.getItem("artpay-user") as string).id),
+          });
 
-          throw new Error("Nessun ordine trovato");
+          orderResp = listOrders[0];
+
+          if (orderResp.status == "completed") {
+            console.log("Payment completed:", orderResp);
+
+            setPaymentData({
+              order: orderResp,
+              paymentStatus: orderResp.status,
+              paymentMethod: orderResp.payment_method,
+              paymentIntent: null,
+              loading: false,
+            });
+
+            clearLocalStorage(orderResp);
+
+            return;
+          }
+
+          orderResp = listOrders[0];
+        }
+
+
+        if(!orderResp && !hasPayment_intent) {
+            localStorage.removeItem("CdsOrder");
+            localStorage.removeItem("showCheckout");
+            localStorage.removeItem("checkoutUrl");
+            navigate("/");
+
+            throw new Error("Nessun ordine trovato");
         }
 
 
@@ -58,7 +86,7 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
           setPaymentData({ vendor: vendorResp });
         }
 
-        if (hasPayment_intent && orderResp) {
+        if (hasPayment_intent) {
           const successPayment = searchParams.get("redirect_status") === "succeeded";
 
           if (successPayment) {
@@ -67,8 +95,6 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
               if (!updateOrderStatus) throw new Error("Errore during comlete order setting");
 
               console.log("Payment completed:", updateOrderStatus);
-
-              setPaymentData({ paymentStatus: "completed" });
 
               setPaymentData({
                 order: updateOrderStatus,

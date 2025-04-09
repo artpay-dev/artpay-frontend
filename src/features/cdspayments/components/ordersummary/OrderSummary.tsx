@@ -39,7 +39,7 @@ const OrderSummary = ({vendor, order} : OrderDetailsProps ) => {
       <PaymentProviderCard backgroundColor={'bg-[#FAFAFB]'}>
         <div className={'space-y-2'}>
           <span className={'text-[#808791] block'}>Stato</span>
-          {orderNote != "" && orderNote != "Prestito ottenuto"  ? <p>{orderNote}</p> : <p>Pagamento da completare</p>}
+          {orderNote != "" && orderNote != "Prestito ottenuto"  ? <p>{orderNote}</p> : order?.status == "completed" ? <p>Transazione conclusa</p> : <p>Pagamento da completare</p>}
         </div>
       </PaymentProviderCard>
     </div>

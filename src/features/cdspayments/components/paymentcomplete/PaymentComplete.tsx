@@ -36,7 +36,7 @@ const PaymentComplete = ({order, isLoading}: {order: Order, isLoading: boolean})
           </svg>
           Pagamenti
         </h3>
-        <ul className={"flex flex-col items-center space-y-6 lg:flex-row lg:items-start lg:justify-start "}>
+        <ul className={"flex flex-col items-center space-y-6 "}>
           <li className={"w-full"}>
             {!order || isLoading ? (
               <SkeletonCard />
