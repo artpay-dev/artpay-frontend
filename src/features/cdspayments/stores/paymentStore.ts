@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { Order } from "../../../types/order.ts";
 import { Gallery } from "../../../types/gallery.ts";
 import { PaymentIntent } from "@stripe/stripe-js";
+import { UserProfile } from "../../../types/user.ts";
 
 interface PaymentState {
   order: Order | null;
@@ -15,6 +16,7 @@ interface PaymentState {
   isError: boolean;
   receipt: boolean;
   orderNote: string;
+  user: UserProfile | null
 
   setPaymentData: (data: Partial<PaymentState>) => void;
 }
@@ -31,6 +33,7 @@ const usePaymentStore = create<PaymentState>((set) => ({
   isError: false,
   receipt: false,
   orderNote: "",
+  user: null,
 
   setPaymentData: (data) => set((state) => ({ ...state, ...data })),
 }));

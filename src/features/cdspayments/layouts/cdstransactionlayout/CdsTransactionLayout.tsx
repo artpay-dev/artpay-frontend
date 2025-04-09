@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Navbar from "../../components/ui/navbar/Navbar.tsx";
 import { NavLink } from "react-router-dom";
 import usePaymentStore from "../../stores/paymentStore.ts";
@@ -7,10 +7,64 @@ import OrderSummary from "../../components/ordersummary/OrderSummary.tsx";
 import VendorDetails from "../../components/vendordetails/VendorDetails.tsx";
 import CdsTransactionsProvider from "../../hoc/cdstransactionsprovider/CdsTransactionsProvider.tsx";
 import Tooltip from "../../components/ui/tooltip/ToolTip.tsx";
-
+import BillingDataForm from "../../../../components/BillingDataForm.tsx";
+import BillingDataPreview from "../../../../components/BillingDataPreview.tsx";
+import { BillingData } from "../../../../types/user.ts";
+import { useData } from "../../../../hoc/DataProvider.tsx";
+import PaymentProviderCard from "../../components/ui/paymentprovidercard/PaymentProviderCard.tsx";
 
 const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
-  const { order, vendor } = usePaymentStore();
+  const { order, vendor, user, setPaymentData, paymentMethod } = usePaymentStore();
+  const [shippingDataEditing, setShippingDataEditing] = useState(false);
+  const data = useData();
+  const [saving, setSaving] = useState(false);
+  const [requireInvoice, setRequireInvoice] = useState<boolean>(user?.billing.invoice_type == "receipt");
+
+
+  const handleProfileDataSubmit = async (formData: BillingData) => {
+    if (!user?.id) {
+      return;
+    }
+    setSaving(true);
+
+    try {
+      const updatedProfile = await data.updateUserProfile({ billing: formData as BillingData });
+      if (!updatedProfile) throw new Error("Update user profile failed");
+
+      setPaymentData({
+        user: updatedProfile,
+      });
+
+      setShippingDataEditing(false);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleInvoice = async () => {
+    setRequireInvoice(!requireInvoice);
+    setSaving(true);
+    try {
+      const updateUserProfile = await  data.updateUserProfile({ billing: { invoice_type: requireInvoice ? "" : "receipt"}})
+      setPaymentData({
+        user: updateUserProfile,
+      });
+
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  useEffect(() => {
+    if (user) {
+      setRequireInvoice(user?.billing.invoice_type == "receipt");
+    }
+  }, [user]);
+
 
   return (
     <CdsTransactionsProvider>
@@ -32,6 +86,50 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
           <main className="flex-1 bg-white rounded-t-3xl p-8 pb-24">
             {!order ? <SkeletonOrderDetails /> : <OrderSummary vendor={vendor} order={order} />}
             {children}
+
+            {paymentMethod != "bnpl" && order?.status != "completed" && (
+              <>
+                <PaymentProviderCard className={"mt-6 "} backgroundColor={"bg-[#FAFAFB]"}>
+                  <p className={"flex gap-2"}>
+                    <button
+                      className={`${
+                        requireInvoice ? "bg-primary" : "bg-gray-300"
+                      } rounded-full border border-gray-300 px-3 cursor-pointer relative`}
+                      onClick={handleInvoice}>
+                      <span
+                        className={`block absolute rounded-full size-3 bg-white top-1/2 -translate-y-1/2 transition-all ${
+                          requireInvoice ? "right-0 -translate-x-full" : "left-0 translate-x-full"
+                        }`}></span>
+                    </button>
+                    Hai bisogno di una fattura?
+                  </p>
+                </PaymentProviderCard>
+                <PaymentProviderCard
+                  backgroundColor={"bg-[#FAFAFB]"}
+                  className={"mt-6"}
+                  cardTitle={"Dati fatturazione"}
+                  disabled={!requireInvoice}
+                  button={
+                    <button
+                      onClick={() => setShippingDataEditing(!shippingDataEditing)}
+                      disabled={!requireInvoice}
+                      className={"font-normal text-primary underline cursor-pointer disabled:cursor-not-allowed"}>
+                      {shippingDataEditing ? "Annulla" : "Modifica"}
+                    </button>
+                  }>
+                  {shippingDataEditing ? (
+                    <BillingDataForm
+                      disabled={saving}
+                      defaultValues={user?.billing}
+                      shippingData={user?.shipping}
+                      onSubmit={(formData) => handleProfileDataSubmit(formData)}
+                    />
+                  ) : (
+                    <BillingDataPreview value={user?.billing} />
+                  )}
+                </PaymentProviderCard>
+              </>
+            )}
             {vendor && <VendorDetails vendor={vendor} />}
           </main>
         </div>

@@ -8,7 +8,7 @@ import { clearLocalStorage } from "../../utils.ts";
 
 const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
   const data = useData();
-  const { setPaymentData, paymentMethod, paymentStatus, vendor } = usePaymentStore();
+  const { setPaymentData, paymentMethod, paymentStatus, vendor, user } = usePaymentStore();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -73,6 +73,14 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
             throw new Error("Nessun ordine trovato");
         }
 
+        if (!user) {
+          const resp = await data.getUserProfile()
+          if(!resp) throw new Error("User not found");
+          setPaymentData({
+            user: resp,
+          })
+        }
+
 
         if (!vendor) {
           const productId = orderResp?.line_items[0]?.product_id?.toString();
@@ -92,8 +100,15 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
 
           if (successPayment) {
             try {
-              const updateOrderStatus = await data.setOrderStatus(orderResp.id, "completed");
+              let updateOrderStatus;
+              updateOrderStatus = await data.setOrderStatus(orderResp.id, "completed");
               if (!updateOrderStatus) throw new Error("Errore during comlete order setting");
+
+              if (user?.billing.invoice_type == "receipt") {
+                const updateBilling = await data.updateOrder(orderResp.id, { billing: user?.billing ? { ...user?.billing } : { ...user?.shipping }, });
+                updateOrderStatus = updateBilling
+                console.log(updateBilling)
+              }
 
               console.log("Payment completed:", updateOrderStatus);
 
@@ -127,6 +142,9 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
     };
 
     fetchPaymentDetails();
+
+
+
   }, [paymentMethod, paymentStatus]);
 
   return <>{children}</>;

@@ -7,7 +7,7 @@ import usePaymentStore from "../../stores/paymentStore.ts";
 import { useData } from "../../../../hoc/DataProvider.tsx";
 
 const BankTransfer = ({ order }: { order: Order }) => {
-  const {setPaymentData, orderNote} = usePaymentStore()
+  const {setPaymentData, orderNote, user} = usePaymentStore()
 
   const [step, setStep] = useState(orderNote == "Documentazione caricata, in attesa di conferma da artpay" || orderNote == "Bonifico ricevuto" ? 3 : 1);
   const data = useData()
@@ -69,7 +69,10 @@ const BankTransfer = ({ order }: { order: Order }) => {
         setPaymentData({
           orderNote: "Documentazione caricata, in attesa di conferma da artpay"
         })
-        const updateOrder = data.updateOrder(order?.id, { customer_note: "Documentazione caricata, in attesa di conferma da artpay"});
+        const updateOrder = data.updateOrder(order?.id, {
+          customer_note: "Documentazione caricata, in attesa di conferma da artpay",
+          billing: user?.billing.invoice_type ? user?.billing ? { ...user?.billing } : { ...user?.shipping } : undefined
+        });
         if (!updateOrder) throw Error("Error updating order note");
         console.log("Order note updated");
 
