@@ -38,6 +38,7 @@ import Messages from "./pages/Messages.tsx";
 import Galleries from "./pages/Galleries.tsx";
 import LandingPage from "./pages/LandingPage.tsx";
 import CdsPaymentsPage from "./pages/CdsPaymentsPage.tsx";
+import PaymentDraw from "./features/cdspayments/components/ui/paymentdraw/PaymentDraw.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -63,6 +64,7 @@ function AppContent() {
           <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
             <AuthProvider baseUrl={baseUrl}>
               <DataProvider baseUrl={baseUrl}>
+                <PaymentDraw />
                 <PaymentProvider>
                   <Routes>
                     <Route path="/" element={<Home />} />

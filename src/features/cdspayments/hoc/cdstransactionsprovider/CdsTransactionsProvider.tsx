@@ -13,6 +13,7 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
   const [searchParams] = useSearchParams();
 
   const hasPayment_intent = searchParams.has("payment_intent");
+  const oreder_params = searchParams.get("order");
 
   useEffect(() => {
     const fetchPaymentDetails = async () => {
@@ -20,11 +21,22 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
 
       try {
         let orderResp;
-        orderResp = await data.getOnHoldOrder();
-        if (orderResp) {
-          console.log("Trovato ordine on-hold");
-          localStorage.setItem("showCheckout", "true");
-          localStorage.setItem("redirectToAcquistoEsterno", "true");
+
+        if (oreder_params) {
+          orderResp = await data.getOrder(Number(oreder_params))
+          if (orderResp) {
+            console.log("Ordine nei parametri");
+            localStorage.setItem("redirectToAcquistoEsterno", "true");
+          }
+        }
+
+        if (!orderResp) {
+          orderResp = await data.getOnHoldOrder();
+          if (orderResp) {
+            console.log("Trovato ordine on-hold");
+            /*localStorage.setItem("showCheckout", "true");*/
+            localStorage.setItem("redirectToAcquistoEsterno", "true");
+          }
         }
 
         if (!orderResp) {
@@ -32,7 +44,7 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
 
           if (orderResp) {
             console.log("Trovato ordine in processing");
-            localStorage.setItem("showCheckout", "true");
+            /*localStorage.setItem("showCheckout", "true");*/
           }
         }
 

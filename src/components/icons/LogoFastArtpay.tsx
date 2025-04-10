@@ -1,17 +1,19 @@
-import { useNavigate } from "../../utils.ts";
 import usePaymentStore from "../../features/cdspayments/stores/paymentStore.ts";
 import { useLocation } from "react-router-dom";
+import { Order } from "../../types/order.ts";
 
 const LogoFastArtpay = () => {
-  const {order} = usePaymentStore()
-  const cdsOrder = order || localStorage.getItem("CdsOrder");
-  const navigate = useNavigate()
+  const {order, setPaymentData, openDraw} = usePaymentStore()
+  const cdsOrder: Order = JSON.parse(localStorage.getItem("CdsOrder") as string) || order;
   const pathname = useLocation().pathname
 
   const handleNavigate = () => {
-    if (!cdsOrder || pathname == '/acquisto-esterno') return
+    if (pathname == '/acquisto-esterno') return
 
-    navigate('/acquisto-esterno')
+    setPaymentData({
+      openDraw: !openDraw,
+    })
+
   }
 
   return (
@@ -27,7 +29,7 @@ const LogoFastArtpay = () => {
           </clipPath>
         </defs>
       </svg>
-      {cdsOrder && (
+      {cdsOrder?.status == 'on-hold' && (
         <>
           <span className={'bg-red-400 rounded-full size-3 block absolute top-0 right-0 z-10 animate-ping opacity-65'}></span>
           <span className={'bg-red-400 rounded-full size-3 block absolute top-0 right-0 z-10'}></span>

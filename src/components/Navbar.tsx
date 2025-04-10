@@ -22,6 +22,7 @@ import { useEnvDetector, useNavigate } from "../utils.ts";
 import { useData } from "../hoc/DataProvider.tsx";
 import { useLocation } from "react-router-dom";
 import LogoFastArtpay from "./icons/LogoFastArtpay.tsx";
+import usePaymentStore from "../features/cdspayments/stores/paymentStore.ts";
 
 export interface NavbarProps {
   onMenuToggle?: (isOpen: boolean) => void;
@@ -34,6 +35,10 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const location = useLocation();
+
+  const {order, setPaymentData} = usePaymentStore()
+
+  console.dir(order)
 
   const environment = useEnvDetector();
 
@@ -71,9 +76,17 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
             navigate("/acquisto-esterno");
           }
 
-          setShowCheckout(true);
-          localStorage.setItem("showCheckout", "true");
-          localStorage.setItem("checkoutUrl", "/acquisto-esterno");
+          console.log(orders)
+
+          if(orders.created_via == "gallery_auction") {
+            //localStorage.setItem("checkoutUrl", "/acquisto-esterno");
+            setPaymentData({
+              order: orders,
+            })
+          } else {
+            localStorage.setItem("showCheckout", "true");
+            setShowCheckout(true);
+          }
         } else {
           const processedOrders = await data.getProcessingOrder();
           console.log(processedOrders);
@@ -82,9 +95,17 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
             localStorage.removeItem("checkoutUrl");
             return
           }
-          setShowCheckout(true);
-          localStorage.setItem("checkoutUrl", "/acquisto-esterno");
-          localStorage.setItem("showCheckout", "true");
+
+
+          if (processedOrders.created_via == "gallery_auction") {
+            //localStorage.setItem("checkoutUrl", "/acquisto-esterno");
+            setPaymentData({
+              order: orders,
+            })
+          } else {
+            localStorage.setItem("showCheckout", "true");
+            setShowCheckout(true);
+          }
         }
       }
 
@@ -115,13 +136,15 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   };
 
   const handleCheckout = () => {
-    const checkoutUrl = localStorage.getItem("checkoutUrl");
+    /*const checkoutUrl = localStorage.getItem("checkoutUrl");
     if (checkoutUrl) {
       navigate(checkoutUrl);
       localStorage.setItem("isNotified", "true");
     } else {
       navigate("/acquisto");
-    }
+    }*/
+    localStorage.setItem("isNotified", "true");
+    navigate("/checkout");
   };
 
   const handleLogout = async () => {
@@ -258,30 +281,27 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
             <IconButton sx={{ mr: showCheckout ? 4 : 0, ml: 1 }} onClick={() => handleProfileClick()} color="inherit">
               <UserIcon fontSize="inherit" color="inherit" />
             </IconButton>
-            {showCheckout &&
-              (localStorage.getItem("CdsOrder") ? (
-                <LogoFastArtpay />
-              ) : (
-                <>
-                  <IconButton
-                    sx={{ mr: 0, transform: { xs: undefined, md: "translateX(8px)" }, position: "relative" }}
-                    onClick={() => handleCheckout()}
-                    color="primary">
-                    <ShoppingBagIcon color="inherit" />
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        top: 4,
-                        right: 4,
-                        width: 8,
-                        height: 8,
-                        bgcolor: "red",
-                        borderRadius: "50%",
-                      }}
-                    />
-                  </IconButton>
-                </>
-              ))}
+            <LogoFastArtpay />
+
+            {showCheckout && (
+              <IconButton
+                sx={{ mr: 0, transform: { xs: undefined, md: "translateX(8px)" }, position: "relative" }}
+                onClick={() => handleCheckout()}
+                color="primary">
+                <ShoppingBagIcon color="inherit" />
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 4,
+                    right: 4,
+                    width: 8,
+                    height: 8,
+                    bgcolor: "red",
+                    borderRadius: "50%",
+                  }}
+                />
+              </IconButton>
+            )}
           </>
         ) : (
           <>
@@ -294,6 +314,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
               </IconButton>
             )}
           </>
+
         )}
         {isMobile && (
           <IconButton sx={{ transform: "translateX(8px)" }} onClick={() => handleShowMenu(!showMenu)}>
