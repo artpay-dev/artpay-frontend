@@ -3,11 +3,6 @@ import Logo from "../../../../components/icons/Logo.tsx";
 import { NavLink } from "react-router-dom";
 
 const LandingLayout = ({ children }: { children: ReactNode }) => {
-  /*
-    const theme = useTheme()
-    const isTablet = useMediaQuery(theme.breakpoints.between("sm", "lg"))
-    const isDesktop = useMediaQuery(theme.breakpoints.up('lg'))
-  */
 
   return (
     <>
@@ -22,7 +17,7 @@ const LandingLayout = ({ children }: { children: ReactNode }) => {
         </main>
       </div>
       <footer className={"p-6 pt-8 w-full bg-[#FAFAFB] text-xs text-secondary"}>
-        <section className={"max-w-[1344px] mx-auto"}>
+        <section className={"max-w-[1344px] mx-auto text-center lg:text-start"}>
           <p>© artpay srl 2024 - Tutti i diritti riservati</p>
           <div className={"flex flex-col items-center gap-4 border-b border-gray-300 py-8 md:flex-row"}>
             <a

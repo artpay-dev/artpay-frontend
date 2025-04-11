@@ -16,14 +16,14 @@ const BrevoForm = () => {
   return (
     <>
       {!isLoad && <FormSkeleton />}
-      <div id={'brevo-form'} className={`${isLoad ? "" : "hidden"} lg:min-w-md xl:w-xl sticky top-37.5 mb-12`}>
+      <div id={'brevo-form'} className={`${isLoad ? "" : "hidden"} lg:min-w-md xl:w-xl sticky top-37.5 mb-12 max-w-lg`}>
         <iframe
           ref={inputRef}
           onLoad={handleLoad}
           className={'border border-[#CDCFD3] rounded-3xl w-full shadow-custom'}
           width={400}
           height={isMobile ? 720 : 600}
-          src="https://51f5628d.sibforms.com/serve/MUIFACzH81fN_G8Cl_THyAULRJHiaBK_jrc8_OvjUx27o-a3_2As6Mo-CXjqb1bVmzFHuXHCRu4K80zq-g8zydPteSosFAuMdgBhGHilcM5QhkOmAdyOxzKVWylqlt2GW5LNO1Oxz4IHnVcfx5zH0iCfTKEdszqwDQgwFa3derhqxsan4BcfhGsSf1wZjXrffqallgyHAPn3jVDw"
+          src={"https://51f5628d.sibforms.com/serve/MUIFAAnobJXYgeNGqAAUiOeUbi7xAyVaAT6Bm_TFv5lvE2NVeWIFFwJDzhRo15BUE7Cxl_YbJczSloMeMKQ4i1DqO5PBmpYaqptsVYTn33aXP1Ti7aP2hedBUYT7SNpmTDDgdPx7M3Xh-4j11VxX519BkWDOcLmaQwCXf8V3L2cL8cXuXcwPHwTj2G5mOsiDEnz2jX3GeGYr286Z"}
           style={{
             display: "block",
             padding: 0,
