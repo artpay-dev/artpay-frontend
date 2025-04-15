@@ -37,6 +37,7 @@ import Contacts from "./pages/Contacts.tsx";
 import Messages from "./pages/Messages.tsx";
 import Galleries from "./pages/Galleries.tsx";
 import LandingPage from "./pages/LandingPage.tsx";
+import LandingForCampaignPage from "./pages/LandingForCampaignPage.tsx";
 import CdsPaymentsPage from "./pages/CdsPaymentsPage.tsx";
 import PaymentDraw from "./features/cdspayments/components/ui/paymentdraw/PaymentDraw.tsx";
 
@@ -117,6 +118,7 @@ function AppContent() {
                     <Route path="/messaggi" element={<Messages />} />
                     <Route path="/errore/:code" element={<Error />} />
                     <Route path="/errore" element={<Error />} />
+                    <Route path={"/landing-campaign"} element={<LandingForCampaignPage />} />
                   </Routes>
                 </PaymentProvider>
               </DataProvider>
