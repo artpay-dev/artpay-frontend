@@ -56,7 +56,8 @@ const PaymentDraw = () => {
           <ul className={'flex flex-col gap-6 mt-8 px-8'}>
             {orders.slice(0,3).map((order) => {
               const orderDesc = order?.meta_data.filter((data) => data.key == "original_order_desc").map((data) => data.value);
-              const subtotal= !order?.fee_lines.length ? (Number(order?.total) / 1.06) : (Number(order?.total) / 1.124658)
+              /*const subtotal= !order?.fee_lines.length ? (Number(order?.total) / 1.06) : (Number(order?.total) / 1.124658)*/
+              const subtotal = Number(order.total)
               return (
                 <li key={order.id} className={"border border-[#E2E6FC] p-4 rounded-lg space-y-2 max-w-sm"}>
                   <div className={"flex items-center gap-2.5"}>
@@ -79,12 +80,12 @@ const PaymentDraw = () => {
                           })
                           navigate(`/acquisto-esterno?order=${order.id}`);
                         }}
-                        className={"artpay-button-style bg-primary hover:bg-primary-hover text-white "}>
-                        Vedi dettagli
+                        className={"artpay-button-style bg-white border border-primary  text-primary py-3! hover:text-primary-hover hover:border-primary-hover transition-all"}>
+                        Gestisci transazione
                       </button>
                     </div>
                   ) : (
-                    <p className={'bg-[#FAFAFB] p-2 rounded-lg'}>Transazione conclusa</p>
+                    <p className={'bg-[#FAFAFB] p-3 rounded-lg'}>Transazione conclusa</p>
                   )}
                 </li>
               );
