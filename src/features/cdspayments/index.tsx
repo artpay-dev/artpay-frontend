@@ -4,6 +4,7 @@ import { Order } from "../../types/order.ts";
 import CdsTransactionLayout from "./layouts/cdstransactionlayout/CdsTransactionLayout.tsx";
 import ConfirmPayment from "./components/confirmpayment/ConfirmPayment.tsx";
 import SantanderFlow from "./components/santanderflow/SantanderFlow.tsx";
+import PaymentFailed from "./components/paymentfailed/PaymentFailed.tsx";
 import PaymentComplete from "./components/paymentcomplete/PaymentComplete.tsx";
 
 
@@ -13,6 +14,7 @@ const CdsPayments = () => {
   const choosePaymentMethod = paymentMethod == "bnpl" ;
   const processedOrder = paymentStatus == "processing" ;
   const completedOrder = paymentStatus == "completed" ;
+  const failedOrder = paymentStatus == "failed" ;
 
   console.log('Payment Method:',order?.payment_method)
   console.log('Payment total:',order?.total)
@@ -23,10 +25,11 @@ const CdsPayments = () => {
 
   return (
     <CdsTransactionLayout>
-      {choosePaymentMethod && !completedOrder && <PaymentMethodsList order={order as Order} isLoading={loading} /> }
-      {!choosePaymentMethod && !processedOrder && !completedOrder && <ConfirmPayment order={order as Order} isLoading={loading} /> }
+      {choosePaymentMethod && !completedOrder && !failedOrder && <PaymentMethodsList order={order as Order} isLoading={loading} /> }
+      {!choosePaymentMethod && !processedOrder && !completedOrder && !failedOrder && <ConfirmPayment order={order as Order} isLoading={loading} /> }
       {processedOrder && (<SantanderFlow order={order as Order} isLoading={loading} />)}
       {completedOrder && <PaymentComplete order={order as Order} isLoading={loading} />}
+      {failedOrder && <PaymentFailed order={order as Order} isLoading={loading} />}
     </CdsTransactionLayout>
   );
 };

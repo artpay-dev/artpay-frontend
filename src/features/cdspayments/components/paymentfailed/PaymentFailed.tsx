@@ -1,18 +1,10 @@
 import SkeletonCard from "../ui/paymentprovidercard/SkeletonCard.tsx";
 import PaymentProviderCard from "../ui/paymentprovidercard/PaymentProviderCard.tsx";
-import ArtpayIcon from "../ui/paymentprovidercard/ArtpayIcon.tsx";
 import { Order } from "../../../../types/order.ts";
-import KlarnaIcon from "../ui/paymentprovidercard/KlarnaIcon.tsx";
-import { ReactElement } from "react";
-import CompletePaymentCard from "../ui/completepaymentcard/CompletePaymentCard.tsx";
+import FailedPaymentCard from "../ui/failedpaymentcard/FailedPaymentCard.tsx";
 
-const PaymentFailed1 = ({order, isLoading}: {order: Order, isLoading: boolean}) => {
+const PaymentFailed = ({order, isLoading}: {order: Order, isLoading: boolean}) => {
   const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.06 : Number(order?.total) / 1.124658;
-
-  const icons: Record<Order["payment_method"], ReactElement> = {
-    "klarna": <KlarnaIcon />,
-    "santander": <ArtpayIcon />,
-  }
 
 
   return (
@@ -42,14 +34,11 @@ const PaymentFailed1 = ({order, isLoading}: {order: Order, isLoading: boolean}) 
               <SkeletonCard />
             ) : (
               <div className={"space-y-6"}>
-                <PaymentProviderCard subtotal={subtotal} backgroundColor={"bg-[#42B39640]"}>
+                <PaymentProviderCard subtotal={subtotal} backgroundColor={"bg-red-200"}>
                   <div className={"space-y-4"}>
                     <div className={"flex gap-6 items-center "}>
-                      <span>
-                        {icons[order.payment_method]}
-                      </span>
                       <h3 className={"text-lg leading-[125%] text-tertiary"}>
-                        Complimenti hai acquistato il tuo lotto con artpay!
+                        Ci dispiace ma qualcosa è andato storto!
                       </h3>
                     </div>
                     <div className={"flex flex-col gap-1"}>
@@ -58,17 +47,7 @@ const PaymentFailed1 = ({order, isLoading}: {order: Order, isLoading: boolean}) 
                     </div>
                     <div className={"flex flex-col gap-1"}>
                       <span className={"text-secondary"}>Stato</span>
-                      <p>Acquistata</p>
-                    </div>
-                    {order.date_completed && (
-                      <div className={"flex flex-col gap-1"}>
-                        <span className={"text-secondary"}>Data di acquisto:</span>
-                        <p>{new Date(order.date_completed).toLocaleDateString()}</p>
-                      </div>
-                    )}
-                    <div className={"flex flex-col gap-1"}>
-                      <span className={"text-secondary"}>Modalità di acquisto</span>
-                      <p>{order.payment_method || 'Carico...'}</p>
+                      <p>Errore durante il pagamento.</p>
                     </div>
                   </div>
                 </PaymentProviderCard>
@@ -79,7 +58,7 @@ const PaymentFailed1 = ({order, isLoading}: {order: Order, isLoading: boolean}) 
             {!order || isLoading ? (
               <SkeletonCard />
             ) : (
-              <CompletePaymentCard  />
+              <FailedPaymentCard />
             )}
           </li>
         </ul>
@@ -88,4 +67,4 @@ const PaymentFailed1 = ({order, isLoading}: {order: Order, isLoading: boolean}) 
   );
 };
 
-export default PaymentFailed1;
+export default PaymentFailed;

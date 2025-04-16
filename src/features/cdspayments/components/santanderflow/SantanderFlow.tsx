@@ -39,7 +39,7 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
     try {
       if (!order) return;
 
-      const restoreToOnHold = data.updateOrder(order?.id, {
+      const restoreToOnHold = await data.updateOrder(order?.id, {
         status: "on-hold",
         payment_method: "bnpl",
         customer_note: "",

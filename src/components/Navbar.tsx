@@ -145,7 +145,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
       navigate("/acquisto");
     }*/
     localStorage.setItem("isNotified", "true");
-    navigate("/checkout");
+    navigate("/acquisto");
   };
 
   const handleLogout = async () => {

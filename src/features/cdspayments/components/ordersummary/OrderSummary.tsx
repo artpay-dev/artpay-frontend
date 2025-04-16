@@ -36,12 +36,21 @@ const OrderSummary = ({vendor, order} : OrderDetailsProps ) => {
         <span className={"text-secondary"}>Prezzo</span>
         <span className={"text-tertiary"}>€&nbsp;{subtotal.toFixed(2)}</span>
       </div>
-      <PaymentProviderCard backgroundColor={'bg-[#FAFAFB]'}>
-        <div className={'space-y-2'}>
-          <span className={'text-[#808791] block'}>Stato</span>
-          {orderNote != "" && orderNote != "Prestito ottenuto"  ? <p>{orderNote}</p> : order?.status == "completed" ? <p>Transazione conclusa</p> : <p>Pagamento da completare</p>}
-        </div>
-      </PaymentProviderCard>
+      {order?.status != "failed" ? (
+        <PaymentProviderCard backgroundColor={'bg-[#FAFAFB]'}>
+          <div className={'space-y-2'}>
+            <span className={'text-[#808791] block'}>Stato</span>
+            {orderNote != "" && orderNote != "Prestito ottenuto"  ? <p>{orderNote}</p> : order?.status == "completed" ? <p>Transazione conclusa</p> : <p>Pagamento da completare</p>}
+          </div>
+        </PaymentProviderCard>
+      ) : (
+        <PaymentProviderCard backgroundColor={'bg-[#FAFAFB]'}>
+          <div className={'space-y-2'}>
+            <span className={'text-[#808791] block'}>Stato</span>
+            <p>Problemi durante l'elaborazione del pagamento.</p>
+          </div>
+        </PaymentProviderCard>
+      )}
     </div>
   );
 };

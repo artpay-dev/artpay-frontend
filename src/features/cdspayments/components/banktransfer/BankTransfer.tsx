@@ -5,12 +5,15 @@ import { uploadFile } from "@uploadcare/upload-client";
 import useToolTipStore from "../../stores/tooltipStore.ts";
 import usePaymentStore from "../../stores/paymentStore.ts";
 import { useData } from "../../../../hoc/DataProvider.tsx";
+import { sendBrevoEmail } from "../../utils.ts";
 
 const BankTransfer = ({ order }: { order: Order }) => {
-  const {setPaymentData, orderNote, user} = usePaymentStore()
+  const { setPaymentData, orderNote, user } = usePaymentStore();
 
-  const [step, setStep] = useState(orderNote == "Documentazione caricata, in attesa di conferma da artpay" || orderNote == "Bonifico ricevuto" ? 3 : 1);
-  const data = useData()
+  const [step, setStep] = useState(
+    orderNote == "Documentazione caricata, in attesa di conferma da artpay" || orderNote == "Bonifico ricevuto" ? 3 : 1,
+  );
+  const data = useData();
 
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +25,6 @@ const BankTransfer = ({ order }: { order: Order }) => {
 
   const [fileData, setFileData] = useState<File | null>(null);
   const { showToolTip } = useToolTipStore();
-
 
   const handleCopy = async (inputRef: React.RefObject<HTMLParagraphElement>) => {
     if (inputRef.current) {
@@ -66,26 +68,39 @@ const BankTransfer = ({ order }: { order: Order }) => {
         });
         setStep(3);
 
-        setPaymentData({
-          orderNote: "Documentazione caricata, in attesa di conferma da artpay"
-        })
         const updateOrder = data.updateOrder(order?.id, {
           customer_note: "Documentazione caricata, in attesa di conferma da artpay",
-          billing: user?.billing.invoice_type ? user?.billing ? { ...user?.billing } : { ...user?.shipping } : undefined
+          billing: user?.billing.invoice_type
+            ? user?.billing
+              ? { ...user?.billing }
+              : { ...user?.shipping }
+            : undefined,
         });
         if (!updateOrder) throw Error("Error updating order note");
         console.log("Order note updated");
 
+        await sendBrevoEmail({
+          toEmail: "hello@artpay.art",
+          toName: "Team Artpay",
+          params: {
+            order: order.id,
+            user: `${user?.first_name} ${user?.last_name}` ,
+            email: user?.email,
+            fileName: result.originalFilename,
+          },
+        });
 
+        setPaymentData({
+          orderNote: "Documentazione caricata, in attesa di conferma da artpay",
+        });
       }
-
     } catch (e) {
       console.error(e);
       showToolTip({
         visible: true,
         message: "Errore durante l'invio.",
-        type: "error"
-      })
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -107,7 +122,7 @@ const BankTransfer = ({ order }: { order: Order }) => {
             </span>
           </label>
           <div>
-            <ul className={"ps-1.5"}>
+            <ul className={"ps-1.5 "}>
               <li
                 className={
                   'leading-5 border-l border-gray-200 pb-8 before:absolute before:content-["•"] before:text-primary before:text-3xl before:-left-4 before:translate-x-1/2 relative ps-4'
@@ -128,10 +143,12 @@ const BankTransfer = ({ order }: { order: Order }) => {
                           Copia intestatario
                         </p>
                       </li>
-                      <li className={"leading-5"}>
-                        <span>
+                      <li className={"leading-5 "}>
+                        <span className={""}>
                           Iban artpay: <br />
-                          <strong ref={bankRef}>IT00A0000000000000000000000</strong>
+                          <strong ref={bankRef} className={"text-base"}>
+                            IT40P0301503200000003833197
+                          </strong>
                         </span>
                         <p
                           onClick={() => handleCopy(bankRef)}
@@ -158,6 +175,9 @@ const BankTransfer = ({ order }: { order: Order }) => {
                           className={"text-primary underline font-normal cursor-pointer"}>
                           Copia causale
                         </p>
+                        <p className={"text-[#D49B38] mt-6"}>
+                          Attenzione! In assenza della causale corretta potrebbero verificarsi complicazioni.
+                        </p>
                       </li>
                     </ul>
                   </div>
@@ -165,7 +185,9 @@ const BankTransfer = ({ order }: { order: Order }) => {
                 {step != 1 && (
                   <>
                     <p>Compila il bonifico</p>
-                    <button className={"text-secondary font-normal underline cursor-pointer block"} onClick={() => setStep(1)}>
+                    <button
+                      className={"text-secondary font-normal underline cursor-pointer block"}
+                      onClick={() => setStep(1)}>
                       Annulla conferma bonifico
                     </button>
                   </>
@@ -205,12 +227,18 @@ const BankTransfer = ({ order }: { order: Order }) => {
                 {step == 3 && (
                   <>
                     <p>File caricato</p>
-                    <button className={'underline font-normal text-secondary cursor-pointer'} onClick={() => setStep(2)}>Aggiorna documento</button>
+                    <button
+                      className={"underline font-normal text-secondary cursor-pointer"}
+                      onClick={() => setStep(2)}>
+                      Aggiorna documento
+                    </button>
                   </>
                 )}
               </li>
               <li
-                className={`${step == 3 ? 'before:text-[#42B396]' : 'before:text-secondary' } leading-5 border-l border-gray-200 pb-8 before:absolute before:content-["•"] before:text-3xl before:-left-4 before:translate-x-1/2 relative ps-4`}>
+                className={`${
+                  step == 3 ? "before:text-[#42B396]" : "before:text-secondary"
+                } leading-5 border-l border-gray-200 pb-8 before:absolute before:content-["•"] before:text-3xl before:-left-4 before:translate-x-1/2 relative ps-4`}>
                 {step > 2 && (
                   <span>
                     <svg
@@ -229,8 +257,10 @@ const BankTransfer = ({ order }: { order: Order }) => {
                 )}
                 <strong>Step 3</strong>
                 {step == 3 ? (
-                  <p className={'text-balance font-normal'}>Complimenti hai inviato con successo i documenti, ti aggiorneremo sui risultati!</p>
-                ): (
+                  <p className={"text-balance font-normal"}>
+                    Complimenti hai inviato con successo i documenti, ti aggiorneremo sui risultati!
+                  </p>
+                ) : (
                   <p className={"text-secondary"}>Completamento</p>
                 )}
               </li>

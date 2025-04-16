@@ -23,7 +23,7 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
         let orderResp;
 
         if (oreder_params) {
-          orderResp = await data.getOrder(Number(oreder_params))
+          orderResp = await data.getOrder(Number(oreder_params));
           if (orderResp) {
             console.log("Ordine nei parametri");
             localStorage.setItem("redirectToAcquistoEsterno", "true");
@@ -75,25 +75,23 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
           orderResp = listOrders[0];
         }
 
+        if (!orderResp && !hasPayment_intent) {
+          localStorage.removeItem("CdsOrder");
+          localStorage.removeItem("showCheckout");
+          localStorage.removeItem("checkoutUrl");
+          localStorage.removeItem("checkOrder");
+          navigate("/");
 
-        if(!orderResp && !hasPayment_intent) {
-            localStorage.removeItem("CdsOrder");
-            localStorage.removeItem("showCheckout");
-            localStorage.removeItem("checkoutUrl");
-            localStorage.removeItem("checkOrder");
-            navigate("/");
-
-            throw new Error("Nessun ordine trovato");
+          throw new Error("Nessun ordine trovato");
         }
 
         if (!user) {
-          const resp = await data.getUserProfile()
-          if(!resp) throw new Error("User not found");
+          const resp = await data.getUserProfile();
+          if (!resp) throw new Error("User not found");
           setPaymentData({
             user: resp,
-          })
+          });
         }
-
 
         if (!vendor) {
           const productId = orderResp?.line_items[0]?.product_id?.toString();
@@ -110,6 +108,7 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
 
         if (hasPayment_intent) {
           const successPayment = searchParams.get("redirect_status") === "succeeded";
+          const failedPayment = searchParams.get("redirect_status") === "failed";
 
           if (successPayment) {
             try {
@@ -118,9 +117,11 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
               if (!updateOrderStatus) throw new Error("Errore during complete order setting");
 
               if (user?.billing.invoice_type == "receipt") {
-                const updateBilling = await data.updateOrder(orderResp.id, { billing: user?.billing ? { ...user?.billing } : { ...user?.shipping }, });
-                updateOrderStatus = updateBilling
-                console.log(updateBilling)
+                const updateBilling = await data.updateOrder(orderResp.id, {
+                  billing: user?.billing ? { ...user?.billing } : { ...user?.shipping },
+                });
+                updateOrderStatus = updateBilling;
+                console.log(updateBilling);
               }
 
               console.log("Payment completed:", updateOrderStatus);
@@ -138,6 +139,19 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
             } catch (e) {
               console.error(e);
             }
+          } else if (failedPayment) {
+            const updateOrderStatus = await data.setOrderStatus(orderResp.id, "failed");
+            if (!updateOrderStatus) throw new Error("Errore during failed order setting");
+
+
+            console.log("Payment failed:", updateOrderStatus);
+
+            setPaymentData({
+              order: updateOrderStatus,
+              paymentStatus: updateOrderStatus.status,
+              paymentMethod: updateOrderStatus.payment_method,
+              loading: false,
+            });
           }
         }
 
@@ -145,7 +159,7 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
           order: orderResp,
           paymentStatus: orderResp?.status,
           paymentMethod: orderResp?.payment_method,
-          orderNote: orderResp?.customer_note
+          orderNote: orderResp?.customer_note,
         });
       } catch (error) {
         console.error(error);
@@ -155,9 +169,6 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
     };
 
     fetchPaymentDetails();
-
-
-
   }, [paymentMethod, paymentStatus]);
 
   return <>{children}</>;

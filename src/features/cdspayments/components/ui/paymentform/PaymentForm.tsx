@@ -2,10 +2,12 @@ import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js"
 import { useState } from "react";
 import AgreementCheckBox from "../agreementcheckbox/AgreementCheckBox.tsx";
 import { useEnvDetector } from "../../../../../utils.ts";
+import usePaymentStore from "../../../stores/paymentStore.ts";
 
 const PaymentForm = () => {
   const stripe = useStripe();
   const elements = useElements();
+  const {order} = usePaymentStore()
 
   const environment = useEnvDetector();
 
@@ -14,9 +16,9 @@ const PaymentForm = () => {
   const [isChecked, setIsChecked] = useState(false);
 
   const returnUrl:Record<any, any> = {
-    local: "http://localhost:5173/acquisto-esterno",
-    staging: "https://staging2.artpay.art/acquisto-esterno",
-    production: "http://artpay.art/acquisto-esterno",
+    local: "http://localhost:5173/acquisto-esterno?order=" + order?.id,
+    staging: "https://staging2.artpay.art/acquisto-esterno?order=" + order?.id,
+    production: "http://artpay.art/acquisto-esterno?order=" + order?.id,
   };
 
   const handleCheckBox = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +77,7 @@ const PaymentForm = () => {
         </span>
       </button>
       {/* Show any error or success messages */}
-      {message && <div id="payment-message">{message}</div>}
+      {message && <div id="payment-message " className={'text-red-500 text-sm mt-4'}>*{message}</div>}
     </form>
   );
 };

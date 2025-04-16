@@ -24,6 +24,7 @@ const PaymentDraw = () => {
         if (!user) return
 
         const listOrders = await data.listOrders({
+          status: ["processing", "completed", "on-hold", "failed"],
           customer: Number(user.id) || 18,
         });
         console.log(listOrders);
