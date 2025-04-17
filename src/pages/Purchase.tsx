@@ -115,10 +115,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
             if (resp.payment_method === "bnpl" && orderMode === "redeem") {
               resp.payment_method = "";
               paymentIntent = await data.createRedeemIntent({ wc_order_key: resp.order_key });
-            } /*else if (resp.payment_method === "bnpl") {
-              localStorage.setItem("redirectToAcquistoEsterno", "true");
-              paymentIntent = await data.createPaymentIntentCds({ wc_order_key: resp.order_key });
-            } */else {
+            } else {
               if (orderMode === "loan") {
                 paymentIntent = await data.createBlockIntent({ wc_order_key: resp.order_key });
               } else if (orderMode === "redeem") {

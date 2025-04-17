@@ -80,12 +80,12 @@ const PaymentDraw = () => {
                           })
                           navigate(`/acquisto-esterno?order=${order.id}`);
                         }}
-                        className={"artpay-button-style bg-white border border-primary  text-primary py-3! hover:text-primary-hover hover:border-primary-hover transition-all"}>
+                        className={"artpay-button-style bg-white border border-primary  text-primary py-2.5! hover:text-primary-hover hover:border-primary-hover transition-all"}>
                         Gestisci transazione
                       </button>
                     </div>
                   ) : (
-                    <p className={'bg-[#42B39640] p-3 rounded-lg flex items-center'}><CheckCircle color={'success'} /> Transazione conclusa</p>
+                    <p className={'bg-[#42B39640] p-3 rounded-lg flex items-center mt-6 gap-2'}><CheckCircle color={'success'} /> Transazione conclusa</p>
                   )}
                 </li>
               );

@@ -50,7 +50,9 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   const handleOrders = async () => {
     const shouldCheck = JSON.parse(localStorage.getItem("checkOrder") ?? "true");
 
-    if (!shouldCheck && !location.pathname.startsWith('/thank')) return;
+    console.log(location.pathname);
+
+    if (!shouldCheck && !location.pathname.startsWith('/thank-you-page')) return;
 
     try {
       const pendingOrder = await data.getPendingOrder();
@@ -89,13 +91,12 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
           const processedOrders = await data.getProcessingOrder();
           console.log(processedOrders);
           if (!processedOrders) {
-            localStorage.removeItem("showCheckout");
-            localStorage.removeItem("checkoutUrl");
-            return
+            return;
           }
 
-
           if (processedOrders.created_via == "gallery_auction") {
+            localStorage.removeItem("showCheckout");
+            setShowCheckout(false);
             setPaymentData({
               order: orders,
             })
