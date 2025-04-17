@@ -2,7 +2,7 @@ import usePaymentStore from "../../../stores/paymentStore.ts";
 import { useEffect, useState } from "react";
 import { useData } from "../../../../../hoc/DataProvider.tsx";
 import { Order } from "../../../../../types/order.ts";
-import { Close } from "@mui/icons-material";
+import { CheckCircle, Close } from "@mui/icons-material";
 import { useNavigate } from "../../../../../utils.ts";
 import { useAuth } from "../../../../../hoc/AuthProvider.tsx";
 import { User } from "../../../../../types/user.ts";
@@ -55,9 +55,8 @@ const PaymentDraw = () => {
       <section className={''}>
         {!loading && orders && orders.length > 0 ? (
           <ul className={'flex flex-col gap-6 mt-8 px-8'}>
-            {orders.slice(0,3).map((order) => {
+            {orders.filter((order) => order.created_via == 'gallery_auction' ).slice(0,3).map((order) => {
               const orderDesc = order?.meta_data.filter((data) => data.key == "original_order_desc").map((data) => data.value);
-              /*const subtotal= !order?.fee_lines.length ? (Number(order?.total) / 1.06) : (Number(order?.total) / 1.124658)*/
               const subtotal = Number(order.total)
               return (
                 <li key={order.id} className={"border border-[#E2E6FC] p-4 rounded-lg space-y-2 max-w-sm"}>
@@ -86,7 +85,7 @@ const PaymentDraw = () => {
                       </button>
                     </div>
                   ) : (
-                    <p className={'bg-[#FAFAFB] p-3 rounded-lg'}>Transazione conclusa</p>
+                    <p className={'bg-[#42B39640] p-3 rounded-lg flex items-center'}><CheckCircle color={'success'} /> Transazione conclusa</p>
                   )}
                 </li>
               );

@@ -2,7 +2,15 @@ import usePaymentStore from "../../features/cdspayments/stores/paymentStore.ts";
 import { useLocation } from "react-router-dom";
 import { Order } from "../../types/order.ts";
 
-const LogoFastArtpay = () => {
+const sizes : Record<string, string> = {
+  small: "size-8",
+  medium: "size-10",
+  large: "size-12",
+}
+
+
+const LogoFastArtpay = ({className = "", size = 'medium'} : {className?: string, size?: string}) => {
+  const sizeStyle = sizes[size];  
   const { order, setPaymentData, openDraw } = usePaymentStore();
   const pathname = useLocation().pathname;
 
@@ -19,14 +27,14 @@ const LogoFastArtpay = () => {
   };
 
   return (
-    <div className="relative cursor-pointer" onClick={handleNavigate}>
+    <div className={`relative cursor-pointer ${className}`} onClick={handleNavigate}>
       <svg
         width="43"
         height="43"
         viewBox="0 0 43 43"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-      >
+        className={`${sizeStyle} `}>
         <circle cx="21.5" cy="21.5" r="21.5" fill="#3F55E9" />
         <g>
           <path

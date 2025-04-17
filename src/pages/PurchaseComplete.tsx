@@ -114,7 +114,7 @@ const PurchaseComplete: React.FC<PurchaseCompleteProps> = ({}) => {
 
                 localStorage.removeItem("showCheckout");
                 localStorage.removeItem("checkoutUrl");
-                localStorage.setItem("checkOrder", "true")
+
               } catch (e) {
                 console.error(e);
                 // TODO: errore

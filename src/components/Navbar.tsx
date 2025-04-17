@@ -50,7 +50,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   const handleOrders = async () => {
     const shouldCheck = JSON.parse(localStorage.getItem("checkOrder") ?? "true");
 
-    if (!shouldCheck) return;
+    if (!shouldCheck && !location.pathname.startsWith('/thank')) return;
 
     try {
       const pendingOrder = await data.getPendingOrder();
@@ -96,7 +96,6 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
 
 
           if (processedOrders.created_via == "gallery_auction") {
-            //localStorage.setItem("checkoutUrl", "/acquisto-esterno");
             setPaymentData({
               order: orders,
             })
@@ -135,13 +134,6 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   };
 
   const handleCheckout = () => {
-    /*const checkoutUrl = localStorage.getItem("checkoutUrl");
-    if (checkoutUrl) {
-      navigate(checkoutUrl);
-      localStorage.setItem("isNotified", "true");
-    } else {
-      navigate("/acquisto");
-    }*/
     localStorage.setItem("isNotified", "true");
     navigate("/acquisto");
   };
@@ -272,20 +264,18 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
           </IconButton>
         )}
         {auth.isAuthenticated ? (
-          <>
+          <div className={'flex items-center justify-between gap-2'}>
             {!isMobile && (
               <Typography variant="body1" fontWeight={500} color="textPrimary">
                 Ciao {auth.user?.username}!
               </Typography>
             )}
-            <IconButton sx={{ mr: showCheckout ? 4 : 0, ml: 1 }} onClick={() => handleProfileClick()} color="inherit">
+            <IconButton onClick={() => handleProfileClick()} color="inherit">
               <UserIcon fontSize="inherit" color="inherit" />
             </IconButton>
-            <LogoFastArtpay />
-
             {showCheckout && (
               <IconButton
-                sx={{ mr: 0, transform: { xs: undefined, md: "translateX(8px)" }, position: "relative" }}
+                sx={{position: "relative" }}
                 onClick={() => handleCheckout()}
                 color="primary">
                 <ShoppingBagIcon color="inherit" />
@@ -302,7 +292,8 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
                 />
               </IconButton>
             )}
-          </>
+            <LogoFastArtpay className={'lg:translate-x-1/2'} />
+          </div>
         ) : (
           <>
             {!isMobile && galleryLink}

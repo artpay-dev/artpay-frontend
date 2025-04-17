@@ -82,7 +82,6 @@ function AppContent() {
                     <Route path="/artisti" element={<Artists />} />
                     <Route path="/tutte-le-opere" element={<Artworks />} />
                     <Route path="/acquisto" element={<Purchase />} />
-                    {/*<Route path="/acquisto-esterno" element={<Purchase orderMode="onHold"/>} />*/}
                     <Route path="/acquisto-esterno" >
                       <Route element={<CdsPaymentsPage />} index />
                     </Route>
