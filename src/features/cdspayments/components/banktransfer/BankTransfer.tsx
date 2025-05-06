@@ -319,16 +319,7 @@ const BankTransfer = ({ order, handleRestoreOrder }: { order: Order; handleResto
             </button>
           </div>
         )}
-        {step == 3 && (
-          <div className={"space-y-6"}>
-            <button
-              type={"button"}
-              className={"artpay-button-style py-3! disabled:opacity-65 disabled:cursor-not-allowed text-secondary"}
-              onClick={handleRestoreOrder}>
-              Annulla
-            </button>
-          </div>
-        )}
+
       </div>
     </section>
   );
