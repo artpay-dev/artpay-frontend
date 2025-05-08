@@ -19,13 +19,15 @@ import Checkbox from "./Checkbox.tsx";
 export interface UserDataFormProps {
   defaultValues?: BillingData;
   shippingData?: ShippingData;
+  isOnlyCDS?: boolean;
   onSubmit?: (formData: BillingData) => Promise<void>;
   disabled?: boolean;
 }
 
 const BillingDataForm: React.FC<UserDataFormProps> = ({
                                                         defaultValues,
-                                                        shippingData = {},
+                                                        shippingData,
+                                                        isOnlyCDS = false,
                                                         onSubmit,
                                                         disabled = false
                                                       }) => {
@@ -47,6 +49,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
   const sameAsShipping = watch("same_as_shipping");
 
   const handleCopyShippingData = (checked: boolean) => {
+    if (!shippingData) return;
     if (checked) {
       setIsSaving(true);
       Object.keys(shippingData).forEach((key: string) => {
@@ -327,7 +330,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
             </Grid>
           </>
         )}
-        {isPrivateCustomer && (
+        {isPrivateCustomer && !isOnlyCDS && (
           <>
             <Grid item xs={12}>
               <FormControl fullWidth error={!!errors.private_customer}>

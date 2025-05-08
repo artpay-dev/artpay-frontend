@@ -159,6 +159,7 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
                       disabled={saving}
                       defaultValues={user?.billing}
                       shippingData={user?.shipping}
+                      isOnlyCDS={true}
                       onSubmit={(formData) => handleProfileDataSubmit(formData)}
                     />
                   ) : (
@@ -167,9 +168,12 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
                 </PaymentProviderCard>
               </>
             )}
-            <button className={"text-[#EC6F7B] artpay-button-style mt-8 bg-[#FAFAFB] disabled:cursor-not-allowed disabled:opacity-65"} onClick={handleCancelPayment} disabled={loading}>
-              Elimina Transazione
-            </button>
+            <div className={"flex flex-col items-center space-y-6 mt-12"}>
+              <p className={'leading-[125%]'}>Puoi annullare il pagamento quando vuoi! Potrai sempre aggiungerlo nuovamente! </p>
+              <button className={"text-[#EC6F7B] artpay-button-style bg-[#FAFAFB] disabled:cursor-not-allowed disabled:opacity-65"} onClick={handleCancelPayment} disabled={loading}>
+                Elimina Transazione
+              </button>
+            </div>
             {vendor && <VendorDetails vendor={vendor} />}
           </main>
         </div>
