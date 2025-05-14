@@ -150,7 +150,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
               <AgreementCheckBox isChecked={isChecked} handleChange={handleCheckBox} />
               <button
                 onClick={processOrder}
-                className={"artpay-button-style bg-primary text-white py-3! disabled:opacity-65"}
+                className={"artpay-button-style bg-primary text-white disabled:opacity-65"}
                 disabled={!isChecked}>
                 Avvia richiesta prestito
               </button>
