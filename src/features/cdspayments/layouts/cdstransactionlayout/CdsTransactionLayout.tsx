@@ -9,7 +9,7 @@ import CdsTransactionsProvider from "../../hoc/cdstransactionsprovider/CdsTransa
 import Tooltip from "../../components/ui/tooltip/ToolTip.tsx";
 import BillingDataForm from "../../../../components/BillingDataForm.tsx";
 import BillingDataPreview from "../../../../components/BillingDataPreview.tsx";
-import { BillingData } from "../../../../types/user.ts";
+import { BillingData, UserProfile } from "../../../../types/user.ts";
 import { useData } from "../../../../hoc/DataProvider.tsx";
 import PaymentProviderCard from "../../components/ui/paymentprovidercard/PaymentProviderCard.tsx";
 import { useNavigate } from "../../../../utils.ts";
@@ -21,9 +21,19 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
   const data = useData();
   const [saving, setSaving] = useState(false);
   const [requireInvoice, setRequireInvoice] = useState<boolean>(user?.billing.invoice_type == "receipt");
+  const [profile, setProfile] = useState<UserProfile>();
 
   const navigate = useNavigate();
 
+  const getUserProfile = async () => {
+    try {
+      const resp = await data.getUserProfile()
+      if (!resp) throw new Error("Error getting user profile");
+      setProfile(resp);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   const handleCancelPayment = async () => {
     setPaymentData({
@@ -100,6 +110,8 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
     if (user) {
       setRequireInvoice(user?.billing.invoice_type == "receipt");
     }
+    getUserProfile();
+
   }, [user]);
 
 
@@ -124,7 +136,7 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
             {!order ? <SkeletonOrderDetails /> : <OrderSummary vendor={vendor} order={order} />}
             {children}
 
-            {paymentMethod != "bnpl" && (order?.status == "processing" || order?.status == "on-hold")  && (
+            {paymentMethod != "bnpl" && (order?.status == "processing" || order?.status == "on-hold") && (
               <>
                 <PaymentProviderCard className={"mt-6 "} backgroundColor={"bg-[#FAFAFB]"}>
                   <p className={"flex gap-2"}>
@@ -160,7 +172,7 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
                       defaultValues={user?.billing}
                       shippingData={user?.shipping}
                       isOnlyCDS={true}
-                      onSubmit={(formData) => handleProfileDataSubmit(formData)}
+                      onSubmit={(formData) => handleProfileDataSubmit({ ...formData, email: profile?.email })}
                     />
                   ) : (
                     <BillingDataPreview value={user?.billing} />
@@ -169,8 +181,15 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
               </>
             )}
             <div className={"flex flex-col items-center space-y-6 mt-12"}>
-              <p className={'leading-[125%]'}>Puoi annullare il pagamento quando vuoi! Potrai sempre aggiungerlo nuovamente! </p>
-              <button className={"text-[#EC6F7B] artpay-button-style bg-[#FAFAFB] disabled:cursor-not-allowed disabled:opacity-65"} onClick={handleCancelPayment} disabled={loading}>
+              <p className={"leading-[125%]"}>
+                Puoi annullare il pagamento quando vuoi! Potrai sempre aggiungerlo nuovamente!{" "}
+              </p>
+              <button
+                className={
+                  "text-[#EC6F7B] artpay-button-style bg-[#FAFAFB] disabled:cursor-not-allowed disabled:opacity-65"
+                }
+                onClick={handleCancelPayment}
+                disabled={loading}>
                 Elimina Transazione
               </button>
             </div>

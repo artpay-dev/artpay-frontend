@@ -64,6 +64,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
     if (onSubmit) {
       setIsSaving(true);
       onSubmit(data).then(() => {
+        console.log(data)
         setIsSaving(false);
       });
     }
