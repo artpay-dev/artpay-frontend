@@ -92,7 +92,7 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
       backgroundColor={"bg-[#FFE9EE]"}
       cardTitle={"Pagamento con klarna"}
       icon={<KlarnaIcon />}
-      subtitle={"Pagamento in 3 rate fino a €2500"}>
+      subtitle={"Pagamento in 3 rate fino a €2.500,00"}>
       {paymentSelected ? (
         <>
           {order?.payment_method == "klarna" && paymentIntent ? (
@@ -121,23 +121,23 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
             order &&
             Number(order?.total) <= 2500 && (
               <>
-                <p className={"border-b border-zinc-300 pb-6"}>{`Tre rate senza interessi da € ${quote.toFixed(2)}`}</p>
+                <p className={"border-b border-zinc-300 pb-6"}>{`Tre rate senza interessi da € ${quote.toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}`}</p>
                 <ul className={"space-y-4 py-4"}>
                   <li className={"w-full flex justify-between"}>
-                    Subtotale: <span>€&nbsp;{subtotal?.toFixed(2)}</span>
+                    Subtotale: <span>€&nbsp;{subtotal?.toLocaleString('it-IT', { maximumFractionDigits: 2 , minimumFractionDigits: 2})}</span>
                   </li>
                   <li className={"w-full flex justify-between"}>
-                    Commissioni artpay: <span>€&nbsp;{fee.toFixed(2)}</span>
+                    Commissioni artpay: <span>€&nbsp;{fee.toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</span>
                   </li>
                   <li className={"w-full flex justify-between"}>
-                    <strong>Totale:</strong> <strong>€&nbsp;{(Number(subtotal) + Number(fee)).toFixed(2)}</strong>
+                    <strong>Totale:</strong> <strong>€&nbsp;{(Number(subtotal) + Number(fee)).toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</strong>
                   </li>
                 </ul>
                 <div className={"flex justify-center"}>
                   <button
                     onClick={handlingKlarnaSelection}
                     className={"artpay-button-style bg-klarna hover:bg-klarna-hover"}>
-                    Paga la prima rata da € {quote.toFixed(2)}
+                    Paga la prima rata da € {quote.toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
                   </button>
                 </div>
               </>
