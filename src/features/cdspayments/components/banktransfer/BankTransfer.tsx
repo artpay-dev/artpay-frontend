@@ -56,7 +56,7 @@ const BankTransfer = ({ order, handleRestoreOrder }: { order: Order; handleResto
     try {
       setLoading(true);
       const result = await uploadFile(fileData, {
-        publicKey: "540a694a43b2050cb29c",
+        publicKey: "8a0960a7c6a499647503",
         store: "auto",
         metadata: {
           subsystem: "js-client",
@@ -82,7 +82,7 @@ const BankTransfer = ({ order, handleRestoreOrder }: { order: Order; handleResto
         console.log("Order note updated");
 
         await sendBrevoEmail({
-          toEmail: "hello@artpay.art",
+          toEmail: "giacomo@artpay.art",
           toName: "Team Artpay",
           params: {
             order: order.id,
