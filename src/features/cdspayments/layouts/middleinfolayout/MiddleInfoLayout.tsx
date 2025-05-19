@@ -3,8 +3,11 @@ import Logo from "../../../../components/icons/Logo.tsx";
 import { Link, useNavigate } from "react-router-dom";
 import { useData } from "../../../../hoc/DataProvider.tsx";
 import { Gallery } from "../../../../types/gallery.ts";
+import ArticleDraw from "../../components/ui/articledraw/ArticleDraw.tsx";
+import useArticleStore from "../../stores/articleDrawStore.ts";
 
 const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
+  const {setOpenArticleDraw, openArticleDraw} = useArticleStore();
   const navigate = useNavigate();
   const [vendor, setVendor] = useState<Gallery | null>(null);
   const data = useData();
@@ -20,31 +23,41 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    getVendor();
-  }, []);
+    if (!vendor) getVendor();
+
+    if (openArticleDraw) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+
+  }, [openArticleDraw]);
 
   return (
-    <section>
-      <div className="min-h-screen flex flex-col bg-primary">
-        <div className="mx-auto container max-w-md relative bg-white">
-          <header className={"fixed w-full z-50 top-6 px-2 max-w-md "}>
+    <section >
+      {openArticleDraw && <div className={"overlay fixed z-50 inset-0 w-full h-screen bg-zinc-950/65 animate-fade-in"}></div>}
+      <div className={` min-h-screen flex flex-col bg-primary`}>
+        <div className={` mx-auto container max-w-md relative bg-white`}>
+          <ArticleDraw />
+          <header className={"fixed w-full z-30 top-6 px-2 max-w-md "}>
             <nav className={"p-4 custom-navbar flex justify-center items-center w-full bg-white "}>
               <Logo />
             </nav>
           </header>
-          <section className="px-8  bg-white pt-35">
+          <section className="px-8  bg-white pt-35 ">
             {!vendor ? (
-              <div className="space-y-4 animate-pulse">
+              <div className="space-y-4 animate-pulse pb-12">
                 <div className="flex items-center gap-2.5">
-                  <div className="size-8 overflow-hidden border border-gray-200 rounded-sm p-1 bg-white">
+                  <div className="size-12 overflow-hidden border border-gray-200 rounded-sm p-1 bg-white">
                     <div className="w-full h-full bg-gray-300"></div>
                   </div>
-                  <div className="h-4 w-2/3 bg-gray-300 rounded"></div>
+                  <div className="h-6 w-2/3 bg-gray-300 rounded"></div>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="h-3 w-1/4 bg-gray-300 rounded"></span>
-                  <span className="h-4 w-1/2 bg-gray-300 rounded"></span>
-                  <span className="h-3 w-1/4 bg-gray-300 rounded"></span>
+                  <span className="h-4 w-2/4 bg-gray-300 rounded"></span>
+                  <span className="h-4 w-2/2 bg-gray-300 rounded"></span>
+                  <span className="h-4 w-2/4 bg-gray-300 rounded"></span>
+                  <span className="h-4 w-2/4 bg-gray-300 rounded"></span>
                   <span className="h-4 w-1/3 bg-gray-300 rounded"></span>
                 </div>
               </div>
@@ -64,7 +77,10 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
                 </div>
                 <p className={'mt-8 mb-4 leading-[125%] line-clamp-4 text-balance'}>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eos error eum laboriosam maxime optio perspiciatis quaerat qui similique. Lorem ipsum dolor.
                 </p>
-                <button className={'underline text-secondary'}>Leggi tutto</button>
+                <button onClick={()=> {
+                  setOpenArticleDraw({openArticleDraw: true})
+                }}
+                  className={'underline text-secondary cursor-pointer'}>Leggi tutto</button>
               </article>
             )}
           </section>
