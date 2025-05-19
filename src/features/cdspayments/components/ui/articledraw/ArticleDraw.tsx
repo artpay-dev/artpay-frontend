@@ -65,8 +65,13 @@ const ArticleDraw = () => {
         <button
           className={"artpay-button-style bg-primary hover:bg-primary-hover text-white"}
           onClick={() => {
-            setOpenArticleDraw({ openArticleDraw: false });
-            navigate("/acquisto-esterno");
+            if (openArticleDraw) {
+              document.body.classList.remove("overflow-hidden");
+            }
+            if (!document.body.classList.contains("overflow-hidden")) {
+              navigate("/acquisto-esterno");
+            }
+
           }}>
           Paga a rate
         </button>
