@@ -48,7 +48,7 @@
     "@types/archiver": "^6.0.2",
     "@types/fs-extra": "^11.0.4",
     "@types/google.maps": "^3.55.7",
-    "@types/node": "^20.11.27",
+    "@types/node": "^20.17.48",
     "@types/react": "^18.2.15",
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-dom": "^18.2.7",
@@ -65,7 +65,7 @@
     "fs-extra": "^11.2.0",
     "prettier": "3.1.0",
     "sass": "^1.69.5",
-    "typescript": "^5.0.2",
+    "typescript": "^5.8.3",
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-mkcert": "^1.17.5",
     "vite-plugin-php": "^1.0.10"
