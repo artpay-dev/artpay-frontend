@@ -25,12 +25,6 @@ export default defineConfig({
         rewrite: (path) => {
           return path;
         },
-      },
-      "/api-sandbox": {
-        target: "https://sbx-origination.heidipay.io",
-        changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path.replace(/^\/api-sandbox/, ""),
       }
     },
     /*https: {

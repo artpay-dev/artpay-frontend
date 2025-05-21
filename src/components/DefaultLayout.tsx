@@ -40,6 +40,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
 
   const { openDraw } = usePaymentStore();
 
+
   useEffect(() => {
     if (authRequired && !auth.isAuthenticated) {
       auth.login();

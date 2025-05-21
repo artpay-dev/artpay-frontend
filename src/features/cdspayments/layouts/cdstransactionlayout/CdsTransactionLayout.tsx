@@ -14,9 +14,12 @@ import { useData } from "../../../../hoc/DataProvider.tsx";
 import PaymentProviderCard from "../../components/ui/paymentprovidercard/PaymentProviderCard.tsx";
 import { useNavigate } from "../../../../utils.ts";
 import { clearLocalStorage } from "../../utils.ts";
+import BillingModal from "../../../heylight/components/billingmodal/BillingModal.tsx";
+import useModalStore from "../../../heylight/store/addressModalStore.ts";
 
 const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
   const { order, vendor, user, setPaymentData, paymentMethod, loading } = usePaymentStore();
+  const {visible, showModal} = useModalStore()
   const [shippingDataEditing, setShippingDataEditing] = useState(false);
   const data = useData();
   const [saving, setSaving] = useState(false);
@@ -112,11 +115,23 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
     }
     getUserProfile();
 
-  }, [user]);
+    if (user?.billing.email) {
+      showModal({visible: true})
+    }
+
+    if (visible) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+
+  }, [user, visible]);
 
 
   return (
     <CdsTransactionsProvider>
+      {visible && <div className={"overlay fixed z-80 inset-0 w-full h-screen bg-zinc-950/65 animate-fade-in"}></div>}
+      {visible && <BillingModal />}
       <Tooltip />
       <div className="min-h-screen flex flex-col bg-primary pt-35">
         <div className="mx-auto container max-w-md">
