@@ -125,7 +125,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
       disabled={disabled}
       icon={<ArtpayIcon />}
       cardTitle={"Pagamento con prestito"}
-      subtitle={"A partire da € 1500.00 fino a € 30000.00 Commissioni artpay: 6%"}
+      subtitle={"A partire da € 1.500,00 fino a € 30.000,00 Commissioni artpay: 6%"}
       paymentSelected={paymentSelected}>
       {!disabled && paymentSelected ? (
         <>
@@ -136,13 +136,13 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
           </ol>
           <ul className={"space-y-4 py-4"}>
             <li className={"w-full flex justify-between"}>
-              Subtotale: <span>€&nbsp;{subtotal?.toFixed(2)}</span>
+              Subtotale: <span>€&nbsp;{subtotal?.toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</span>
             </li>
             <li className={"w-full flex justify-between"}>
-              Commissioni artpay: <span>€&nbsp;{fee.toFixed(2)}</span>
+              Commissioni artpay: <span>€&nbsp;{fee.toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</span>
             </li>
             <li className={"w-full flex justify-between"}>
-              <strong>Totale:</strong> <strong>€&nbsp;{(Number(subtotal) + Number(fee)).toFixed(2)}</strong>
+              <strong>Totale:</strong> <strong>€&nbsp;{(Number(subtotal) + Number(fee)).toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</strong>
             </li>
           </ul>
           {order?.payment_method == "santander" ? (

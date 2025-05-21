@@ -1,11 +1,8 @@
 import SkeletonCard from "../ui/paymentprovidercard/SkeletonCard.tsx";
-import PaymentProviderCard from "../ui/paymentprovidercard/PaymentProviderCard.tsx";
 import { Order } from "../../../../types/order.ts";
 import FailedPaymentCard from "../ui/failedpaymentcard/FailedPaymentCard.tsx";
 
 const PaymentFailed = ({order, isLoading}: {order: Order, isLoading: boolean}) => {
-  const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.06 : Number(order?.total) / 1.124658;
-
 
   return (
     <section className={"space-y-6"}>
@@ -29,31 +26,6 @@ const PaymentFailed = ({order, isLoading}: {order: Order, isLoading: boolean}) =
           Pagamenti
         </h3>
         <ul className={"flex flex-col items-center space-y-6 "}>
-          <li className={"w-full"}>
-            {!order || isLoading ? (
-              <SkeletonCard />
-            ) : (
-              <div className={"space-y-6"}>
-                <PaymentProviderCard subtotal={subtotal} backgroundColor={"bg-red-200"}>
-                  <div className={"space-y-4"}>
-                    <div className={"flex gap-6 items-center "}>
-                      <h3 className={"text-lg leading-[125%] text-tertiary"}>
-                        Ci dispiace ma qualcosa è andato storto!
-                      </h3>
-                    </div>
-                    <div className={"flex flex-col gap-1"}>
-                      <span className={"text-secondary"}>N. Ordine</span>
-                      <span className={"text-lg"}>{order.id}</span>
-                    </div>
-                    <div className={"flex flex-col gap-1"}>
-                      <span className={"text-secondary"}>Stato</span>
-                      <p>Errore durante il pagamento.</p>
-                    </div>
-                  </div>
-                </PaymentProviderCard>
-              </div>
-            )}
-          </li>
           <li className={'w-full'}>
             {!order || isLoading ? (
               <SkeletonCard />
