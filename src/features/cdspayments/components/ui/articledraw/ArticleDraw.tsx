@@ -1,5 +1,6 @@
 import { Close } from "@mui/icons-material";
 import useArticleStore from "../../../stores/articleDrawStore.ts";
+import cover_Sa from "../../../../../assets/images/cover_Sa.svg";
 import { Link, useNavigate } from "react-router-dom";
 
 const ArticleDraw = () => {
@@ -34,7 +35,7 @@ const ArticleDraw = () => {
           <p className={"text-secondary text-sm mt-10 mb-16"}>By Author - 15 Aprile 2024 - 5 minuti di lettura</p>
           <main>
             <img
-              src="/images/cover-sa.svg"
+              src={cover_Sa}
               width={600}
               height={400}
               alt="Artpay per Sant'Agostino"
