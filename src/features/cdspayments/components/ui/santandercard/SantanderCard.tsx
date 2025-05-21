@@ -1,5 +1,4 @@
 import PaymentProviderCard from "../paymentprovidercard/PaymentProviderCard.tsx";
-import ArtpayIcon from "../paymentprovidercard/ArtpayIcon.tsx";
 import ArtpayButton from "../artpaybutton/ArtpayButton.tsx";
 import { PaymentProviderCardProps } from "../../../types.ts";
 import { NavLink } from "react-router-dom";
@@ -8,6 +7,7 @@ import usePaymentStore from "../../../stores/paymentStore.ts";
 import { calculateArtPayFee } from "../../../utils.ts";
 import { useData } from "../../../../../hoc/DataProvider.tsx";
 import AgreementCheckBox from "../agreementcheckbox/AgreementCheckBox.tsx";
+import SantanderIcon from "../../../../../components/icons/SantanderIcon.tsx";
 
 const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<PaymentProviderCardProps>) => {
   const [fee, setFee] = useState<number>(0);
@@ -123,7 +123,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
   return (
     <PaymentProviderCard
       disabled={disabled}
-      icon={<ArtpayIcon />}
+      icon={<SantanderIcon />}
       cardTitle={"Pagamento con prestito"}
       subtitle={"A partire da € 1.500,00 fino a € 30.000,00 Commissioni artpay: 6%"}
       paymentSelected={paymentSelected}>

@@ -1,6 +1,6 @@
 import PaymentProviderCard from "../ui/paymentprovidercard/PaymentProviderCard.tsx";
-import ArtpayIcon from "../ui/paymentprovidercard/ArtpayIcon.tsx";
 import KlarnaIcon from "../ui/paymentprovidercard/KlarnaIcon.tsx";
+import SantanderIcon from "../../../../components/icons/SantanderIcon.tsx";
 
 const Payments = () => {
   return (
@@ -34,7 +34,7 @@ const Payments = () => {
           </li>
           <li className={"w-full flex"}>
             <PaymentProviderCard
-              icon={<ArtpayIcon />}
+              icon={<SantanderIcon />}
               cardTitle={"Pagamento con prestito"}
               subtitle={"A partire da € 1.500,00 fino a € 30.000,00 Commissioni artpay: 6%"}>
               <ol className={"list-decimal ps-4 space-y-1"}>
