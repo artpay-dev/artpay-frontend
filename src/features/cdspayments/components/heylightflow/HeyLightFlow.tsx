@@ -1,7 +1,7 @@
 import SkeletonCard from "../ui/paymentprovidercard/SkeletonCard.tsx";
 import { Order } from "../../../../types/order.ts";
 import PaymentProviderCard from "../ui/paymentprovidercard/PaymentProviderCard.tsx";
-import ArtpayIcon from "../ui/paymentprovidercard/ArtpayIcon.tsx";
+import HeyLightIcon from "../../../../components/icons/HeyLightIcon.tsx";
 
 type HeyLightProps = {
   isLoading?: boolean;
@@ -45,7 +45,7 @@ const HeyLightFlow = ({ isLoading, order }: HeyLightProps) => {
                   <div className={"space-y-4"}>
                     <div className={"flex gap-6 items-center "}>
                       <span>
-                        <ArtpayIcon />
+                        <HeyLightIcon />
                       </span>
                       <h3 className={"text-lg leading-[125%] text-tertiary text-balance"}>
                         Complimenti il tuo lotto è pronto per completare il pagamento

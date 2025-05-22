@@ -8,6 +8,7 @@ import usePaymentStore from "../../../cdspayments/stores/paymentStore.ts";
 import { calculateArtPayFee } from "../../../cdspayments/utils.ts";
 import axios from "axios";
 import IFrameHeyLight from "../iFrameHeyLight.tsx";
+import HeyLightIcon from "../../../../components/icons/HeyLightIcon.tsx";
 //import { UserProfile } from "../../../../types/user.ts";
 
 
@@ -180,7 +181,7 @@ const HeyLightCard = ({subtotal, disabled, paymentSelected = true} : Partial<Pay
 
 
   return (
-    <PaymentProviderCard cardTitle={'HeyLight'} backgroundColor={'bg-[#F8F8F8]'} subtitle={'Fino a € 5000.00. Commissioni artpay: 6%'} disabled={disabled} subtotal={subtotal}>
+    <PaymentProviderCard icon={<HeyLightIcon />} cardTitle={'HeyLight'} backgroundColor={'bg-[#F2E9F7]'} subtitle={'Da € 100.00 fino a € 5000.00. Commissioni artpay: 6%'} disabled={disabled} subtotal={subtotal}>
         <IFrameHeyLight />
       {!disabled && paymentSelected ? (
         <>
@@ -200,7 +201,7 @@ const HeyLightCard = ({subtotal, disabled, paymentSelected = true} : Partial<Pay
               <AgreementCheckBox isChecked={isChecked} handleChange={handleCheckBox} />
               <button
                 onClick={handlePayment}
-                className={"artpay-button-style bg-[#FF2B11] text-white py-3! disabled:opacity-65"}
+                className={"artpay-button-style bg-[#9145BC] text-white disabled:opacity-65"}
                 disabled={!isChecked}>
                 Avvia richiesta prestito
               </button>
@@ -209,7 +210,7 @@ const HeyLightCard = ({subtotal, disabled, paymentSelected = true} : Partial<Pay
           ) : (
             <>
               <div className={"flex justify-center"}>
-                <button className={'artpay-button-style bg-[#FF2B11] text-white py-3!'} onClick={handlingHeyLightSelection}>Continua con HeyLight</button>
+                <button className={'artpay-button-style bg-[#9145BC] text-white '} onClick={handlingHeyLightSelection}>Continua con HeyLight</button>
               </div>
               <NavLink to={"/"} className={"text-tertiary underline underline-offset-2 mt-8 block"}>
                 Scopri di più
