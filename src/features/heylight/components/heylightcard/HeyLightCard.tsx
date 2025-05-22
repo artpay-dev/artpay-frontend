@@ -144,13 +144,13 @@ const HeyLightCard = ({subtotal, disabled, paymentSelected = true} : Partial<Pay
       const redirectUrl = createApplication.data.redirect_url;
 
       if (redirectUrl) {
-        const updateOrder = await data.updateOrder(order.id, { payment_method: "heylight", status: "processing", customer_note: `Contratto N. ${createApplication.data.application_uuid}` });
+        const updateOrder = await data.updateOrder(order.id, { payment_method: "heylight", status: "processing", customer_note: `Contratto N. ${createApplication.data.external_contract_uuid}.` });
         if (updateOrder.status == 'processing') window.open(redirectUrl, "_blank");
         setPaymentData({
           order: updateOrder,
           paymentStatus: "processing",
           paymentMethod: "heylight",
-          orderNote: createApplication.data.application_uuid,
+          orderNote: `Contratto N. ${createApplication.data.external_contract_uuid}.`,
         })
       }
 
