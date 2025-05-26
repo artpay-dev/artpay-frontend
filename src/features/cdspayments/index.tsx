@@ -28,8 +28,8 @@ const CdsPayments = () => {
     <CdsTransactionLayout>
       {choosePaymentMethod && !completedOrder && !failedOrder && <PaymentMethodsList order={order as Order} isLoading={loading} /> }
       {!choosePaymentMethod && !processedOrder && !completedOrder && !failedOrder && <ConfirmPayment order={order as Order} isLoading={loading} /> }
-      {processedOrder && orderNote.startsWith('Contratto') && (<HeyLightFlow order={order as Order} isLoading={loading} />)}
-      {processedOrder && !orderNote.startsWith('Contratto') && (<SantanderFlow order={order as Order} isLoading={loading} />)}
+      {processedOrder && orderNote.startsWith('Ctr') && (<HeyLightFlow order={order as Order} isLoading={loading} />)}
+      {processedOrder && !orderNote.startsWith('Ctr') && (<SantanderFlow order={order as Order} isLoading={loading} />)}
       {completedOrder && <PaymentComplete order={order as Order} isLoading={loading} />}
       {failedOrder && <PaymentFailed order={order as Order} isLoading={loading} />}
     </CdsTransactionLayout>

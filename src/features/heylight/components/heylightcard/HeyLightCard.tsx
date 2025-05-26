@@ -137,20 +137,21 @@ const HeyLightCard = ({subtotal, disabled, paymentSelected = true} : Partial<Pay
           zip_code: user.billing.postcode,
           city: user.billing.city
         },
-        products: getProducts
+        products: getProducts,
+        order_reference: `${order.id}`
       };
 
       const createApplication = await axios.post(`${import.meta.env.VITE_ARTPAY_WEB_SERVICE}/api/heylight/new-application`, paymentRequest);
       const redirectUrl = createApplication.data.redirect_url;
 
       if (redirectUrl) {
-        const updateOrder = await data.updateOrder(order.id, { payment_method: "heylight", status: "processing", customer_note: `Contratto N. ${createApplication.data.external_contract_uuid}.` });
+        const updateOrder = await data.updateOrder(order.id, { payment_method: "heylight", status: "processing", customer_note: `Ctr-${createApplication.data.external_contract_uuid}`});
         if (updateOrder.status == 'processing') window.open(redirectUrl, "_blank");
         setPaymentData({
           order: updateOrder,
           paymentStatus: "processing",
           paymentMethod: "heylight",
-          orderNote: `Contratto N. ${createApplication.data.external_contract_uuid}.`,
+          orderNote: `Ctr-${createApplication.data.external_contract_uuid}`
         })
       }
 

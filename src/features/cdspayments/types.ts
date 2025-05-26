@@ -57,4 +57,5 @@ export type HeyLightPaymentRequest = {
   }[];
   pricing_structure_code: string;
   language: string;
+  order_reference: string;
 }

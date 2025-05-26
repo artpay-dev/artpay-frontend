@@ -10,11 +10,11 @@ type HeyLightProps = {
   order?: Order;
 };
 
-function extractFullNumber(str:string) {
-  const regex = /\b\d{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b/;
-  const match = str.match(regex);
-  return match ? match[0] : null;
+function extractUuid(note: string) {
+  const match = note.match(/Ctr-([a-zA-Z0-9-]+)/);
+  return match ? match[1] : null;
 }
+
 
 const copyes:Record<string, {h3: string, state: string}> = {
   success: {
@@ -42,7 +42,8 @@ const copyes:Record<string, {h3: string, state: string}> = {
 
 const HeyLightFlow = ({ isLoading, order }: HeyLightProps) => {
   const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.06 : Number(order?.total) / 1.124658;
-  const external_uuid = order ? extractFullNumber(order?.customer_note) : ""
+  const external_uuid = order ? extractUuid(order.customer_note) : ""
+  console.log(external_uuid)
   const [applicationStatus, setApplicationStatus] = useState<string | null>(null)
 
   const getApplicationStatus = async () => {
@@ -67,7 +68,8 @@ const HeyLightFlow = ({ isLoading, order }: HeyLightProps) => {
 
   }, []);
 
-
+  console.log(applicationStatus)
+  console.log(external_uuid)
 
   return (
     <section className={"space-y-6"}>
