@@ -58,7 +58,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
       const pendingOrder = await data.getPendingOrder();
       console.log(pendingOrder);
 
-      if (pendingOrder) {
+      if (pendingOrder && pendingOrder.created_via != "gallery_auction") {
         setShowCheckout(true);
         setHasPendingOrder(true);
         localStorage.setItem("showCheckout", "true");
@@ -79,7 +79,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
           console.log(orders)
 
           if(orders.created_via == "gallery_auction") {
-            //localStorage.setItem("checkoutUrl", "/acquisto-esterno");
+            localStorage.removeItem("showCheckout");
             setPaymentData({
               order: orders,
             })
@@ -93,7 +93,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
           if (!processedOrders) {
             return;
           }
-
+          console.log(processedOrders)
           if (processedOrders.created_via == "gallery_auction") {
             localStorage.removeItem("showCheckout");
             setShowCheckout(false);
@@ -274,7 +274,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
             <IconButton onClick={() => handleProfileClick()} color="inherit">
               <UserIcon fontSize="inherit" color="inherit" />
             </IconButton>
-            {showCheckout && (
+            {showCheckout &&  (
               <IconButton
                 sx={{position: "relative" }}
                 onClick={() => handleCheckout()}
