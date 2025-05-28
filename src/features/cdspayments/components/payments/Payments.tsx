@@ -1,22 +1,11 @@
-import { Order } from "../../../../types/order.ts";
-import SkeletonCard from "../ui/paymentprovidercard/SkeletonCard.tsx";
-import KlarnaCard from "../ui/klarnacard/KlarnaCard.tsx";
-import SantanderCard from "../ui/santandercard/SantanderCard.tsx";
-import usePaymentStore from "../../stores/paymentStore.ts";
+import PaymentProviderCard from "../ui/paymentprovidercard/PaymentProviderCard.tsx";
+import KlarnaIcon from "../ui/paymentprovidercard/KlarnaIcon.tsx";
+import SantanderIcon from "../../../../components/icons/SantanderIcon.tsx";
 
-type PaymentsProps = {
-  order: Order;
-  isLoading?: boolean;
-};
-
-const Payments = ({ order, isLoading }: PaymentsProps) => {
-  const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.06 : Number(order?.total) / 1.124658;
-  const { paymentMethod } = usePaymentStore();
-
-
+const Payments = () => {
   return (
     <section className={"space-y-6"}>
-      <div className={"border-t border-secondary mt-12 "}>
+      <div>
         <h3 className={"text-secondary py-4.5 flex items-center gap-2"}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g>
@@ -33,32 +22,29 @@ const Payments = ({ order, isLoading }: PaymentsProps) => {
               </clipPath>
             </defs>
           </svg>
-          Pagamenti
+          Metodi di pagamento
         </h3>
-          <ul className={"flex flex-col items-center space-y-6"}>
-            <li className={"w-full flex"}>
-              {!order || isLoading ? (
-                <SkeletonCard />
-              ) : (
-                <KlarnaCard
-                  paymentSelected={paymentMethod == 'klarna'}
-                  subtotal={subtotal}
-                  disabled={Number(order.total) > 2500 || isLoading}
-                />
-              )}
-            </li>
-            <li className={"w-full"}>
-              {!order || isLoading ? (
-                <SkeletonCard />
-              ) : (
-                <SantanderCard
-                  subtotal={subtotal}
-                  paymentSelected={paymentMethod == 'santander'}
-                  disabled={Number(order.total) <= 1500 || Number(order.total) >= 30000 || isLoading}
-                />
-              )}
-            </li>
-          </ul>
+        <ul className={"flex flex-col items-center space-y-6"}>
+          <li className={"w-full"}>
+            <PaymentProviderCard
+              backgroundColor={"bg-[#FFE9EE]"}
+              cardTitle={"Pagamento con klarna"}
+              icon={<KlarnaIcon />}
+              subtitle={"Pagamento in 3 rate fino a €2.500,00. Commissioni artpay: 6% + 5%"}></PaymentProviderCard>
+          </li>
+          <li className={"w-full flex"}>
+            <PaymentProviderCard
+              icon={<SantanderIcon />}
+              cardTitle={"Pagamento con prestito"}
+              subtitle={"A partire da € 1.500,00 fino a € 30.000,00 Commissioni artpay: 6%"}>
+              <ol className={"list-decimal ps-4 space-y-1"}>
+                <li>Avvia finanziamento</li>
+                <li>Calcola la rata e richiedi prestito</li>
+                <li>Completa pagamento</li>
+              </ol>
+            </PaymentProviderCard>
+          </li>
+        </ul>
       </div>
     </section>
   );
