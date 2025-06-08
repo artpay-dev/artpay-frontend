@@ -1,12 +1,12 @@
 import SkeletonCard from "../ui/paymentprovidercard/SkeletonCard.tsx";
 import { Order } from "../../../../types/order.ts";
 import PaymentProviderCard from "../ui/paymentprovidercard/PaymentProviderCard.tsx";
-import ArtpayIcon from "../ui/paymentprovidercard/ArtpayIcon.tsx";
 import { ArrowRight } from "@mui/icons-material";
 import { useAuth } from "../../../../hoc/AuthProvider.tsx";
 import usePaymentStore from "../../stores/paymentStore.ts";
 import { useData } from "../../../../hoc/DataProvider.tsx";
 import BankTransfer from "../banktransfer/BankTransfer.tsx";
+import SantanderIcon from "../../../../components/icons/SantanderIcon.tsx";
 
 type SantanderFlowProps = {
   isLoading?: boolean;
@@ -122,7 +122,7 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
                   <div className={"space-y-4"}>
                     <div className={"flex gap-6 items-center "}>
                       <span>
-                        <ArtpayIcon />
+                        <SantanderIcon />
                       </span>
                       <h3 className={"text-lg leading-[125%] text-tertiary text-balance"}>
                         Complimenti il tuo lotto è pronto per {orderNote == "" ? <span>richiedere il prestito</span> : <span>completare il pagamento</span>}

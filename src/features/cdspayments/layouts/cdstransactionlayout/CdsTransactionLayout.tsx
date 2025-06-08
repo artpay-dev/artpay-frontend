@@ -182,7 +182,7 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
             )}
             <div className={"flex flex-col items-center space-y-6 mt-12"}>
               <p className={"leading-[125%]"}>
-                Puoi annullare il pagamento quando vuoi! Potrai sempre aggiungerlo nuovamente!{" "}
+                Se interrompi la procedura con artpay il tuo lotto verrà rimosso dal carrello. Potrai aggiungerlo di nuovo in un secondo momento.
               </p>
               <button
                 className={

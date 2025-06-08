@@ -90,9 +90,9 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
     <PaymentProviderCard
       disabled={disabled}
       backgroundColor={"bg-[#FFE9EE]"}
-      cardTitle={"Pagamento con klarna"}
+      cardTitle={"Klarna"}
       icon={<KlarnaIcon />}
-      subtitle={"Pagamento in 3 rate fino a €2.500,00"}>
+      subtitle={"Paga in 3 rate fino a €2.500,00"}>
       {paymentSelected ? (
         <>
           {order?.payment_method == "klarna" && paymentIntent ? (
@@ -126,8 +126,11 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
                   <li className={"w-full flex justify-between"}>
                     Subtotale: <span>€&nbsp;{subtotal?.toLocaleString('it-IT', { maximumFractionDigits: 2 , minimumFractionDigits: 2})}</span>
                   </li>
-                  <li className={"w-full flex justify-between"}>
-                    Commissioni artpay: <span>€&nbsp;{fee.toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</span>
+                  <li >
+                    <div className={"w-full flex justify-between"}>
+                      Commissioni artpay: <span>€&nbsp;{fee.toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</span>
+                    </div>
+                    <p className={'text-secondary text-xs'}>Inclusi costi del finanziamento</p>
                   </li>
                   <li className={"w-full flex justify-between"}>
                     <strong>Totale:</strong> <strong>€&nbsp;{(Number(subtotal) + Number(fee)).toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</strong>
