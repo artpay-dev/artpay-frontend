@@ -15,8 +15,8 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
 
   const getVendor = async () => {
     try {
-      //const vendorResp: Gallery = await data.getGallery("76");
-      const vendorResp: Gallery = await data.getGallery("21");
+      const vendorResp: Gallery = await data.getGallery("76");
+      //const vendorResp: Gallery = await data.getGallery("21");
       if (!vendorResp) throw new Error("Vendor not found");
       setVendor(vendorResp);
     } catch (e) {

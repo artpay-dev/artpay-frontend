@@ -41,6 +41,8 @@ import LandingForCampaignPage from "./pages/LandingForCampaignPage.tsx";
 import CdsPaymentsPage from "./pages/CdsPaymentsPage.tsx";
 import PaymentDraw from "./features/cdspayments/components/ui/paymentdraw/PaymentDraw.tsx";
 import { useScrollToTop } from "./utils.ts";
+import KlarnaPage from "./pages/KlarnaPage.tsx";
+import SantanderPage from "./pages/SantanderPage.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -87,6 +89,8 @@ function AppContent() {
                       <Route element={<CdsPaymentsPage />} index />
                     </Route>
                     <Route path="/completa-acquisto/:order_id" element={<Purchase orderMode="redeem" />} />
+                    <Route path="/guide/klarna" element={<KlarnaPage />} />
+                    <Route path="/guide/santander" element={<SantanderPage />} />
                     <Route path="/acconto-blocca-opera" element={<Purchase orderMode="loan" />} />
                     <Route path="/opera-bloccata/:slug_opera" element={<ArtworkReserved />} />
                     <Route path="/profile" element={<Profile />} />

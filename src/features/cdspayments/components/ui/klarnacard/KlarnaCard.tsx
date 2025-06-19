@@ -147,7 +147,7 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
             )
           )}
           <NavLink
-            to={"/"}
+            to={"/guide/klarna"}
             className={`text-tertiary underline underline-offset-2 mt-8 block ${disabled ? 'cursor-not-allowed': 'cursor-pointer'} `}
             aria-disabled={disabled}>
             Scopri di più

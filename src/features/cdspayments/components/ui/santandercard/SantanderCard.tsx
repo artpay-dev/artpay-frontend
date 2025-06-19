@@ -164,7 +164,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
               <div className={"flex justify-center"}>
                 <ArtpayButton onClick={handlingArtpaySelection} disabled={disabled} />
               </div>
-              <NavLink to={"/"} className={"text-tertiary underline underline-offset-2 mt-8 block"}>
+              <NavLink to={"/guide/santander"} className={"text-tertiary underline underline-offset-2 mt-8 block"}>
                 Scopri di più
               </NavLink>
             </>
