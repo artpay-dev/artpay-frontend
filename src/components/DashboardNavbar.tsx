@@ -8,7 +8,7 @@ import MessageIcon from "./icons/custom/MessageIcon.tsx";
 
 const DashboardNavbar = () => {
   return (
-    <header className={"fixed w-full z-50 top-6 px-2 flex justify-end"}>
+    <header className={"fixed w-full z-10 top-6 px-2 flex justify-end"}>
       <nav className={"px-6 py-4 custom-navbar flex justify-end items-center bg-white space-x-4 "}>
         <ul className={'flex space-x-8 items-center'}>
           <li className={"flex items-center justify-center space-x-2.5"}>

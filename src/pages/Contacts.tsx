@@ -16,7 +16,7 @@ const Contacts: React.FC<ContactsProps> = ({}) => {
 
   const px = getDefaultPaddingX();
 
-  return (<DefaultLayout sx={{ minHeight: "30vh" }}>
+  return (<DefaultLayout sx={{ minHeight: "30vh" }} hasNavBar={false}>
     <Grid sx={{ mt: 18, px: px }} container>
       <Grid item xs={12} mb={3}>
         <Typography variant="h1">Contatti</Typography>

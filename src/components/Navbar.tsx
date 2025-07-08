@@ -1,28 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Box,
   Button,
   IconButton,
-  Link,
   SxProps,
   Theme,
-  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import Logo from "./icons/Logo";
 import { Search } from "@mui/icons-material";
 import { useAuth } from "../hoc/AuthProvider.tsx";
-import UserIcon from "./icons/UserIcon.tsx";
-
-import ShoppingBagIcon from "./icons/ShoppingBagIcon.tsx";
 import MenuIcon from "./icons/MenuIcon.tsx";
 import { useEnvDetector, useNavigate } from "../utils.ts";
-import { useData } from "../hoc/DataProvider.tsx";
-import { useLocation } from "react-router-dom";
-import LogoFastArtpay from "./icons/LogoFastArtpay.tsx";
-import usePaymentStore from "../features/cdspayments/stores/paymentStore.ts";
 
 export interface NavbarProps {
   onMenuToggle?: (isOpen: boolean) => void;
@@ -31,94 +22,12 @@ export interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   const theme = useTheme();
   const auth = useAuth();
-  const data = useData();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const {setPaymentData} = usePaymentStore()
 
   const environment = useEnvDetector();
 
   const [showMenu, setShowMenu] = useState(false);
-  const [hasPendingOrder, setHasPendingOrder] = useState(false);
-
-  const [showCheckout, setShowCheckout] = useState<boolean>(
-    JSON.parse(localStorage.getItem("showCheckout") as string) || false,
-  );
-
-  const handleOrders = async () => {
-    const shouldCheck = JSON.parse(localStorage.getItem("checkOrder") ?? "true");
-
-    console.log(location.pathname);
-
-    if (!shouldCheck && !location.pathname.startsWith('/thank-you-page')) return;
-
-    try {
-      const pendingOrder = await data.getPendingOrder();
-      console.log(pendingOrder);
-
-      if (pendingOrder && pendingOrder.created_via != "gallery_auction") {
-        setShowCheckout(true);
-        setHasPendingOrder(true);
-        localStorage.setItem("showCheckout", "true");
-      } else {
-        localStorage.removeItem("showCheckout");
-      }
-
-      if (auth.isAuthenticated) {
-        const orders = await data.getOnHoldOrder();
-        console.log(orders);
-        if (orders) {
-          const redirectToAcquistoEsterno = localStorage.getItem("redirectToAcquistoEsterno");
-
-          if (!redirectToAcquistoEsterno && location.pathname !== "/acquisto-esterno") {
-            navigate("/acquisto-esterno");
-          }
-
-          console.log(orders)
-
-          if(orders.created_via == "gallery_auction") {
-            localStorage.removeItem("showCheckout");
-            setPaymentData({
-              order: orders,
-            })
-          } else {
-            localStorage.setItem("showCheckout", "true");
-            setShowCheckout(true);
-          }
-        } else {
-          const processedOrders = await data.getProcessingOrder();
-          console.log(processedOrders);
-          if (!processedOrders) {
-            return;
-          }
-          console.log(processedOrders)
-          if (processedOrders.created_via == "gallery_auction") {
-            localStorage.removeItem("showCheckout");
-            setShowCheckout(false);
-            setPaymentData({
-              order: orders,
-            })
-          } else {
-            localStorage.setItem("showCheckout", "true");
-            setShowCheckout(true);
-          }
-        }
-      }
-
-      localStorage.setItem("checkOrder", "false");
-    } catch (error) {
-      console.error("Errore nel recupero degli ordini:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (localStorage.getItem("checkOrder") === null) {
-      localStorage.setItem("checkOrder", "true");
-    }
-    handleOrders();
-  }, [auth.isAuthenticated, data, hasPendingOrder]);
 
   const menuOpen = showMenu && isMobile;
 
@@ -131,23 +40,8 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
     transition: "all 0.5s",
     overflow: "hidden",
     zIndex: 5
-    //borderRadius: 0
   };
 
-  const handleCheckout = () => {
-    localStorage.setItem("isNotified", "true");
-    navigate("/acquisto");
-  };
-
-  const handleLogout = async () => {
-    await auth.logout();
-    navigate("/");
-    handleShowMenu(false);
-  };
-  const handleLogin = async () => {
-    auth.login();
-    handleShowMenu(false);
-  };
 
   const handleShowMenu = (newValue: boolean) => {
     setShowMenu(newValue);
@@ -156,13 +50,6 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
     }
   };
 
-  const handleProfileClick = () => {
-    if (auth.isAuthenticated) {
-      handleNavigate("/profile");
-    } else {
-      handleLogin();
-    }
-  };
 
   const handleNavigate = (link: string) => {
     handleShowMenu(false);
@@ -173,40 +60,18 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
     }
   };
 
-  const authButton = (
-    <div className={"mb-8 md:mb-0"}>
-      <Button sx={{ minWidth: "150px" }} onClick={() => handleLogin()} color="primary" variant="outlined">
-        Login/Registrati
-      </Button>
-    </div>
-  );
-
-  const galleryLink = (
-    <Link sx={{ mr: isMobile ? 0 : 2, minWidth: "120px" }} href="https://gallerie.artpay.art" color="tertiary.main">
-      Sei una galleria?
-    </Link>
-  );
-
   type MenuLinks = {
     label: string;
     href: string;
     requireAuth: boolean;
   };
 
-  let menuLinks: MenuLinks[];
-
-  if (environment === "production") {
-    menuLinks = [{ label: "Chi siamo", href: "/chi-siamo", requireAuth: false }];
-  } else {
-    menuLinks = [
-      { label: "Gallerie", href: "/gallerie ", requireAuth: true },
-      //{ label: "Collezionisti", href: "/artpay-per-collezionisti", requireAuth: false },
-      { label: "Chi siamo", href: "/chi-siamo", requireAuth: false },
-      //{ label: "ArtMatch", href: "https://artpay.art/art-match" }
-    ];
-  }
-
-  //onMenuToggle
+  const menuLinks: MenuLinks[] = [
+    /*{ label: "Gallerie", href: "/gallerie ", requireAuth: true },*/
+    //{ label: "Collezionisti", href: "/artpay-per-collezionisti", requireAuth: false },
+    { label: "Chi siamo", href: "/chi-siamo", requireAuth: false },
+    //{ label: "ArtMatch", href: "https://artpay.art/art-match" }
+  ];
 
   return (
     <AppBar
@@ -230,7 +95,6 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
           alignItems="center"
           onClick={() => handleNavigate("/")}>
           <Logo />
-          {/*<BetaLabel ml={1} mt={0.5} />*/}
         </Box>
         {!isMobile && (
           <Box sx={{ ml: 3 }}>
@@ -252,7 +116,6 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
               })}
           </Box>
         )}
-        {/*<TextField sx={{flexGrow:0, ml: 1}} variant="standard" InputProps={{startAdornment: <InputAdornment position="start"><Search/></InputAdornment>}}/>*/}
         {!isMobile && false && (
           <IconButton>
             <Search />
@@ -264,96 +127,12 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
             <Search />
           </IconButton>
         )}
-        {auth.isAuthenticated ? (
-          <div className={'flex items-center justify-between gap-2'}>
-            {!isMobile && (
-              <Typography variant="body1" fontWeight={500} color="textPrimary">
-                Ciao {auth.user?.username}!
-              </Typography>
-            )}
-            <IconButton onClick={() => handleProfileClick()} color="inherit">
-              <UserIcon fontSize="inherit" color="inherit" />
-            </IconButton>
-            {showCheckout &&  (
-              <IconButton
-                sx={{position: "relative" }}
-                onClick={() => handleCheckout()}
-                color="primary">
-                <ShoppingBagIcon color="inherit" />
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: 4,
-                    right: 4,
-                    width: 8,
-                    height: 8,
-                    bgcolor: "red",
-                    borderRadius: "50%",
-                  }}
-                />
-              </IconButton>
-            )}
-            <LogoFastArtpay className={'lg:translate-x-1/2'} />
-          </div>
-        ) : (
-          <>
-            {!isMobile && galleryLink}
-            {!isMobile ? (
-              authButton
-            ) : (
-              <IconButton onClick={() => handleProfileClick()} color="primary">
-                <UserIcon color="primary" />
-              </IconButton>
-            )}
-          </>
-
-        )}
         {isMobile && (
           <IconButton sx={{ transform: "translateX(8px)" }} onClick={() => handleShowMenu(!showMenu)}>
             <MenuIcon color="inherit" />
           </IconButton>
         )}
       </Box>
-      {menuOpen && (
-        <Box flexGrow={1} pt={3} display="flex" flexDirection="column" sx={{ height: "auto" }}>
-          {menuLinks
-            .filter((l) => auth.isAuthenticated || !l.requireAuth)
-            .map((link, i) => {
-              if (link.label === "Chi siamo" && environment !== "production" && auth.isAuthenticated) return;
-
-              return (
-                <Button
-                  key={`btn-link-mobile-${i}`}
-                  sx={{}}
-                  onClick={() => handleNavigate(link.href)}
-                  color="inherit"
-                  variant="text">
-                  {link.label}
-                </Button>
-              );
-            })}
-
-          <Box flexGrow={1}></Box>
-          {auth.isAuthenticated ? (
-            <>
-              <hr className={"text-gray-300 mt-4 mb-6"} />
-              <Typography sx={{ textAlign: "center" }} color="primary">
-                Ciao {auth.user?.username}
-              </Typography>
-              <Button sx={{ mb: 6 }} onClick={() => handleLogout()} color="tertiary" variant="text">
-                Logout
-              </Button>
-            </>
-          ) : (
-            <Box display="flex" flexDirection="column" alignItems="center" gap={2} sx={{ mb: 6 }}>
-              <Box my={1} sx={{ textAlign: "center" }}>
-                {galleryLink}
-              </Box>
-              {authButton}
-            </Box>
-          )}
-        </Box>
-      )}
     </AppBar>
   );
 };

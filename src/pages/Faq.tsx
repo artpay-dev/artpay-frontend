@@ -15,7 +15,7 @@ const Faq: React.FC<FaqProps> = ({}) => {
   const px = getDefaultPaddingX();
 
   return (
-    <DefaultLayout>
+    <DefaultLayout hasNavBar={false}>
       <Box sx={{ px: px, pt: { xs: 12, md: 16, lg: 18 } }} mb={6}>
         <Typography variant="h1">Faq</Typography>
         <Typography sx={{ mt: 3 }} variant="subtitle1">

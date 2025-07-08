@@ -10,7 +10,7 @@ const SantanderPage = () => {
   };
 
   return (
-    <DefaultLayout>
+    <DefaultLayout hasNavBar={false}>
       <section className={"mt-28  h-full px-8 lg:mx-auto lg:max-w-5xl lg:px-0 lg:mt-36"}>
         <button className={"underline cursor-pointer self-start mb-14 "} onClick={handleBack}>
           Torna indietro

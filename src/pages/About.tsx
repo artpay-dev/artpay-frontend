@@ -71,6 +71,7 @@ const About: React.FC<AboutProps> = ({}) => {
   return (
     <DefaultLayout
       pb={3}
+      hasNavBar={false}
       pageLoading={!ready}
       topBar={<HeroAbout {...heroContent} buttonAction={auth.isAuthenticated ? undefined : () => auth.login()} />}
       maxWidth="xl">

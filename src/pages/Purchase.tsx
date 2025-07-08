@@ -348,7 +348,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
       setSubtotal(totalSum + totalTaxSum);
 
       localStorage.setItem("showCheckout", "true");
-      localStorage.setItem("checkOrder", "true");
     }
   }, [pendingOrder]);
 

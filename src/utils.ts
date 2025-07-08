@@ -468,7 +468,11 @@ export const formatMessageDate = (dt?: string | Date) => {
 // import { useNavigate } from "react-router-dom";
 export const useNavigate = () => {
   return (to: string) => {
-    window.location.href = to;
+    if (to === 'back') {
+      window.history.back();
+    } else {
+      window.location.href = to;
+    }
   };
 };
 

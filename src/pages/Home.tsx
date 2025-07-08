@@ -62,7 +62,7 @@ const Home: React.FC<HomeProps> = ({}) => {
   const px = getDefaultPaddingX();
 
   return (
-    <DefaultLayout pageLoading={!isReady} topBar={<HeroHome />} maxWidth="xl">
+    <DefaultLayout pageLoading={!isReady} topBar={<HeroHome />} maxWidth="xl" hasNavBar={false}>
       <Box sx={{ px: px, my: { xs: 6, md: 12 }, maxWidth: theme.breakpoints.values["xl"], ml: "auto", mr: "auto" }}>
         <Typography variant="display3" sx={{}}>
           Scopri l’eccellenza dei migliori galleristi italiani e le loro collezioni.

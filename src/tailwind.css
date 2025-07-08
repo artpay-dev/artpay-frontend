@@ -78,6 +78,11 @@ html {
     border-radius: 36px;
 }
 
+.custom-sidebar {
+    box-shadow: rgba(62, 78, 236, 0.15) 0px 4px 16px 0px;
+    border-radius: 0 36px 36px 0;
+}
+
 .SwiperCard,
 .swiper-slide.SwiperCard {
 }

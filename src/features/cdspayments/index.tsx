@@ -21,7 +21,6 @@ const CdsPayments = () => {
   console.log('Order:',order)
   console.log("Note:", orderNote)
 
-  localStorage.setItem("checkOrder", "true");
 
   return (
     <CdsTransactionLayout>

@@ -6,9 +6,11 @@ import Footer from "./Footer.tsx";
 import { Breakpoint } from "@mui/system";
 import Loader from "./Loader.tsx";
 import usePaymentStore from "../features/cdspayments/stores/paymentStore.ts";
+import GalleryNavbar from "./GalleryNavbar.tsx";
 
 export interface DefaultLayoutProps {
   authRequired?: boolean;
+  hasNavBar?: boolean;
   background?: string;
   children?: ReactNode | ReactNode[];
   topBar?: ReactNode | ReactNode[];
@@ -21,6 +23,7 @@ export interface DefaultLayoutProps {
 
 const DefaultLayout: React.FC<DefaultLayoutProps> = ({
   authRequired = false,
+  hasNavBar = true,
   children,
   topBar,
   background,
@@ -74,9 +77,14 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
     );
   }
 
+
   return (
     <>
-      <Navbar onMenuToggle={handleMenuToggle} />
+      {hasNavBar ? (
+        <GalleryNavbar onMenuToggle={handleMenuToggle} />
+      ) : (
+        <Navbar onMenuToggle={handleMenuToggle} />
+      )}
       {topBar || ""}
       <Container
         sx={{
