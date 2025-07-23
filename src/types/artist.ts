@@ -1,4 +1,4 @@
-type ArtistArtwork = {
+export type ArtistArtwork = {
   ID: string;
   artwork_name: string;
   price: string;

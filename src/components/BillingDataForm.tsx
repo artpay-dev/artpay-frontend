@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import {
+  Autocomplete,
   TextField,
   Button,
   FormControl,
@@ -9,12 +10,15 @@ import {
   MenuItem,
   Grid,
   FormHelperText,
-  RadioGroup
+  RadioGroup,
 } from "@mui/material";
 import countries from "../countries";
 import { BaseUserData, BillingData, ShippingData } from "../types/user.ts";
 import RadioButton from "./RadioButton.tsx";
 import Checkbox from "./Checkbox.tsx";
+import comuni_italiani from "../comuni.json";
+
+const province_italiane = [...new Set(comuni_italiani.map(comune => comune.provincia.nome))]
 
 export interface UserDataFormProps {
   defaultValues?: BillingData;
@@ -25,23 +29,23 @@ export interface UserDataFormProps {
 }
 
 const BillingDataForm: React.FC<UserDataFormProps> = ({
-                                                        defaultValues,
-                                                        shippingData,
-                                                        isOnlyCDS = false,
-                                                        onSubmit,
-                                                        disabled = false
-                                                      }) => {
+  defaultValues,
+  shippingData,
+  isOnlyCDS = false,
+  onSubmit,
+  disabled = false,
+}) => {
   const {
     control,
     handleSubmit,
     watch,
     setValue,
-    formState: { errors, disabled: formDisabled }
+    formState: { errors, disabled: formDisabled },
   } = useForm<BillingData>({
     defaultValues: {
       ...defaultValues,
-      country: defaultValues?.country || "IT"
-    }
+      country: defaultValues?.country || "IT",
+    },
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -64,7 +68,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
     if (onSubmit) {
       setIsSaving(true);
       onSubmit(data).then(() => {
-        console.log(data)
+        console.log(data);
         setIsSaving(false);
       });
     }
@@ -195,14 +199,25 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
             control={control}
             rules={{ required: "Città richiesta" }}
             render={({ field }) => (
-              <TextField
-                disabled={isDisabled}
-                label="Città*"
-                variant="outlined"
-                fullWidth
-                {...field}
-                error={!!errors.city}
-                helperText={errors.city?.message}
+              <Autocomplete
+                options={comuni_italiani}
+                getOptionLabel={(option) => option.nome}
+                isOptionEqualToValue={(option, value) => option.nome === value.nome}
+                onChange={(_, selectedOption) =>
+                  field.onChange(selectedOption ? selectedOption.nome : "")
+                }
+                value={
+                  comuni_italiani.find((comune) => comune.nome === field.value) || null
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Città*"
+                    variant="outlined"
+                    error={!!errors.city}
+                    helperText={errors.city?.message}
+                  />
+                )}
               />
             )}
           />
@@ -235,12 +250,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
               control={control}
               rules={{ required: "Paese richiesto" }}
               render={({ field }) => (
-                <Select
-                  disabled={isDisabled}
-                  labelId="country-label"
-                  defaultValue="IT"
-                  label="Paese"
-                  {...field}>
+                <Select disabled={isDisabled} labelId="country-label" defaultValue="IT" label="Paese" {...field}>
                   {countries.map((country) => (
                     <MenuItem value={country.code} key={country.code}>
                       {country.name}
@@ -259,14 +269,21 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
             control={control}
             rules={{ required: "Provincia richiesta" }}
             render={({ field }) => (
-              <TextField
-                disabled={isDisabled}
-                label="Provincia*"
-                variant="outlined"
-                fullWidth
-                {...field}
-                error={!!errors.state}
-                helperText={errors.state?.message}
+              <Autocomplete
+                options={province_italiane}
+                getOptionLabel={(option) => option}
+                isOptionEqualToValue={(option, value) => option === value}
+                onChange={(_, value) => field.onChange(value || "")}
+                value={field.value || null}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Provincia*"
+                    variant="outlined"
+                    error={!!errors.state}
+                    helperText={errors.state?.message}
+                  />
+                )}
               />
             )}
           />

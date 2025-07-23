@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
-import { Artist } from "../types/artist.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import { useNavigate, useParams } from "react-router-dom";
 import { Box, Button, Chip, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
@@ -16,9 +15,74 @@ import { useAuth } from "../hoc/AuthProvider.tsx";
 import ShareIcon from "../components/icons/ShareIcon.tsx";
 import ArtworksList from "../components/ArtworksList.tsx";
 import { ArtistCardProps } from "../components/ArtistCard.tsx";
-import ArtistsList from "../components/ArtistsList.tsx";
 import { Gallery } from "../types/gallery.ts";
 import ArtworksGrid from "../components/ArtworksGrid.tsx";
+import { ArtistArtwork } from "../types/artist.ts";
+
+
+type Artist = {
+  id: number;
+  date: string;
+  date_gmt: string;
+  guid: {
+    rendered: string;
+  };
+  modified: string;
+  modified_gmt: string;
+  slug: string;
+  status: string;
+  type: string;
+  link: string;
+  title: {
+    rendered: string;
+  };
+  content: {
+    rendered: string;
+    protected: boolean;
+  };
+  excerpt: {
+    rendered: string;
+    protected: boolean;
+  };
+  author: number;
+  featured_media: number;
+  template: string;
+  categoria_artisti: number[];
+  meta: [];
+  artworks?: ArtistArtwork[];
+  featured_img?: [string, number, number, boolean];
+  full_img?: [string, number, number, boolean];
+  medium_img?: [string, number, number, boolean];
+  thumb_img?: [string, number, number, boolean];
+  acf: {
+    birth_nation: string;
+    birth_year: string;
+    location: string;
+  };
+  _links: {
+    self: {
+      href: string;
+    }[];
+    collection: {
+      href: string;
+    }[];
+    about: {
+      href: string;
+    }[];
+    author: {
+      embeddable: boolean;
+      href: string;
+    }[];
+    "wp:attachment": {
+      href: string;
+    }[];
+    curies: {
+      name: string;
+      href: string;
+      templated: boolean;
+    }[];
+  };
+};
 
 export interface ArtistProps {}
 
@@ -42,6 +106,8 @@ const Artist: React.FC<ArtistProps> = ({}) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const artistImage = artist?.medium_img?.length ? artist?.medium_img[0] : "";
+
+  console.log(artist)
 
   const navigate = useNavigate();
 
@@ -133,18 +199,20 @@ const Artist: React.FC<ArtistProps> = ({}) => {
         }}
         gap={2}
         display="flex">
-        <Box
-          sx={{
-            minWidth: { xs: "100%", md: "420px", lg: "396px" },
-            height: { xs: "100%", md: "420px", lg: "294px" },
-            maxHeight: { xs: "100%", md: "420px", lg: "294px" },
-            marginBottom: { xs: "48px" , md: "96px" }
-          }}>
-          <img
-            src={artistImage}
-            className="object-cover w-full min-h-96 max-h-96 lg:max-h-none lg:h-[294px] lg:w-[396px] rounded-b-2xl md:rounded-2xl "
-          />
-        </Box>
+        {artistImage && (
+          <Box
+            sx={{
+              minWidth: { xs: "100%", md: "420px", lg: "396px" },
+              height: { xs: "100%", md: "420px", lg: "294px" },
+              maxHeight: { xs: "100%", md: "420px", lg: "294px" },
+              marginBottom: { xs: "48px" , md: "96px" }
+            }}>
+            <img
+              src={artistImage}
+              className="object-cover w-full min-h-96 max-h-96 lg:max-h-none lg:h-[294px] lg:w-[396px] rounded-b-2xl md:rounded-2xl "
+            />
+          </Box>
+        )}
         <Box display="flex" flexDirection="column" justifyContent="start" sx={{ maxWidth: "100%" , px: {xs: 4, md: 0}}}>
           <Box display="flex">
             <Typography variant="h1" style={{ cursor: "pointer", flexGrow: 1 }}>
