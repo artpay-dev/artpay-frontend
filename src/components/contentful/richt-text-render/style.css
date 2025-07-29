@@ -1,0 +1,7 @@
+li > p {
+    padding: 0 !important;
+}
+
+blockquote > p {
+    padding: 0 !important;
+}

@@ -15,10 +15,11 @@ const Navbar: React.FC = () => {
 
   const menuLinks: MenuLinks[] = [
     { label: "Chi siamo", href: "/chi-siamo", requireAuth: false },
+    { label: "Guide", href: "/guide", requireAuth: false },
   ];
 
   return (
-    <header className={"fixed w-full z-10 top-6 px-6 flex items-center gap-8 justify-between "}>
+    <header className={"fixed w-full z-20 top-6 px-6 flex items-center gap-8 justify-between md:px-12"}>
         <nav className={"px-6 py-4.5 custom-navbar flex justify-center md:justify-start items-center bg-white space-x-4 w-full max-w-7xl mx-auto"}>
           <Link to={'/'}>
             <Logo />

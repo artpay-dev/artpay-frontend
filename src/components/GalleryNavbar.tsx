@@ -132,7 +132,7 @@ const GalleryNavbar: React.FC<GalleryNavbarProps> = ({ onMenuToggle }) => {
   };
 
   return (
-    <header className={"fixed w-full z-10 top-6 px-6 md:px-12"}>
+    <header className={"fixed w-full z-20 top-6 px-6 md:px-12"}>
       <div className={"flex items-center gap-8 justify-between max-w-8xl mx-auto"}>
         {location.pathname.startsWith("/gallerie") ? (
           <div></div>
