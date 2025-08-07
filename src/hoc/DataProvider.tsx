@@ -42,8 +42,6 @@ import {
 } from "../types/user.ts";
 import dayjs from "dayjs";
 
-
-
 const availableShippingMethods: ShippingMethodOption[] = [
   {
     id: 3,
