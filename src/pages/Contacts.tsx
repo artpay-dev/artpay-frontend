@@ -1,7 +1,7 @@
 import React from "react";
 import { getDefaultPaddingX } from "../utils.ts";
 import DefaultLayout from "../components/DefaultLayout.tsx";
-import { Box, Button, Grid, Typography } from "@mui/material";
+import { Box, Button, Grid, GridProps, Typography } from "@mui/material";
 import { useNavigate } from "../utils.ts";
 
 import imgContacts from "../assets/images/image-contacts.svg";
@@ -13,15 +13,23 @@ export interface ContactsProps {
 
 const Contacts: React.FC<ContactsProps> = ({}) => {
   const navigate = useNavigate();
-
   const px = getDefaultPaddingX();
 
-  return (<DefaultLayout sx={{ minHeight: "30vh" }}>
-    <Grid sx={{ mt: 18, px: px }} container>
+  const centeredGridSx: GridProps["sx"] = {
+    marginLeft: "auto",
+    marginRight: "auto",
+    px: px,
+    py: { xs: 6, md: 12 },
+    position: "relative"
+  };
+
+
+  return (<DefaultLayout sx={{ minHeight: "30vh" }} hasNavBar={false}>
+    <Grid sx={{ mt: 18, px: px, ...centeredGridSx }} container>
       <Grid item xs={12} mb={3}>
         <Typography variant="h1">Contatti</Typography>
       </Grid>
-      <Grid item xs={12} sm={6} lg={3}>
+      <Grid item xs={12} sm={6} lg={3} sx={{}}>
         <Typography sx={{ maxWidth: "294px" }} variant="body1">
           Contattaci per qualsiasi domanda o richiesta! Puoi scriverci direttamente via email o compilare il nostro
           modulo di contatto qui. Siamo qui per aiutarti!

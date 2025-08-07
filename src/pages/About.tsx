@@ -71,10 +71,11 @@ const About: React.FC<AboutProps> = ({}) => {
   return (
     <DefaultLayout
       pb={3}
+      hasNavBar={false}
       pageLoading={!ready}
       topBar={<HeroAbout {...heroContent} buttonAction={auth.isAuthenticated ? undefined : () => auth.login()} />}
-      maxWidth="xl">
-      <Grid sx={{ ...centeredGridSx, flexDirection: isMobile ? "column" : undefined }} container>
+      >
+      <Grid sx={{ ...centeredGridSx, maxWidth: 'xl',  flexDirection: isMobile ? "column" : undefined }} container>
         <Grid xs={12} sm={4} lg={5} sx={{ pb: { xs: 3, sm: 0 }, height: "auto" }} item>
           <img style={{ width: imgWidth, maxWidth: "300px", minHeight: isMobile ? "70px" : undefined }} src={imgLogo} />
         </Grid>
@@ -119,11 +120,11 @@ const About: React.FC<AboutProps> = ({}) => {
         </PromoCard>
       </Box>*/}
       {/*<OnboardingCards sx={{ my: 8 }} />*/}
-      <Grid sx={{ px: px }} my={12} container>
+      <Grid sx={{ px: px , ...centeredGridSx, maxWidth: 'xl'}} my={12} container>
         <Grid xs={12} mb={{ xs: 4, md: 6 }} item>
           <Typography variant="display3">Artpay in persona</Typography>
         </Grid>
-        <Grid xs={12} md={6} item>
+        <Grid xs={12} md={6} item sx={{maxWidth: 'xl'}}>
           <Typography
             sx={{ maxWidth: { xs: undefined, md: "506px" }, pr: { xs: undefined, md: 6, lg: 0 } }}
             variant="h4">
@@ -148,10 +149,10 @@ const About: React.FC<AboutProps> = ({}) => {
           </Typography>
         </Grid>
       </Grid>
-      <Box sx={{ px: px }}>
+      <Box sx={{ px: px, ...centeredGridSx, maxWidth: 'xl' }}>
         <NewsletterBig />
+        <EmailContactBox />
       </Box>
-      <EmailContactBox />
     </DefaultLayout>
   );
 };

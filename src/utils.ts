@@ -115,7 +115,7 @@ export const artistToGalleryItem = (artist: Artist, size: CardSize = "medium"): 
     id: `${artist.id}`,
     slug: artist.slug,
     isFavourite: false,
-    subtitle: `${artist.acf?.location}, ${artist.acf?.birth_year}`,
+    subtitle: `${artist.acf?.location ? artist.acf?.location + "," : ""} ${artist.acf?.birth_year || ""}`,
     title: artist.title?.rendered || "",
     description: artist.excerpt?.rendered || "",
     artworksCount: artist.artworks?.length || 0,
@@ -468,7 +468,11 @@ export const formatMessageDate = (dt?: string | Date) => {
 // import { useNavigate } from "react-router-dom";
 export const useNavigate = () => {
   return (to: string) => {
-    window.location.href = to;
+    if (to === 'back') {
+      window.history.back();
+    } else {
+      window.location.href = to;
+    }
   };
 };
 
@@ -497,6 +501,8 @@ export const useScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 0);
   }, [pathname]);
 };

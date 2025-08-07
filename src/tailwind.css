@@ -14,6 +14,8 @@
     --text-4xl: 2.5rem;
     --text-4xl--line-height: 105%;
 
+    --max-width-8xl: 1440px;
+
     --shadow-custom: rgba(62, 78, 236, 0.15) 0px 4px 16px 0px;
 
     --shadow-custom-top: #3E4EEC26 0px -5px 16px 0px;
@@ -76,6 +78,11 @@ html {
 .custom-navbar {
     box-shadow: rgba(62, 78, 236, 0.15) 0px 4px 16px 0px;
     border-radius: 36px;
+}
+
+.custom-sidebar {
+    box-shadow: rgba(62, 78, 236, 0.15) 0px 4px 16px 0px;
+    border-radius: 0 36px 36px 0;
 }
 
 .SwiperCard,

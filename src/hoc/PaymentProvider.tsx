@@ -54,7 +54,7 @@ export const PaymentProvider: React.FC<PaymentProviderProps> = ({ children }) =>
       return stripe;
     }
   };
-  console.log(paymentProvider);
+
   //
   return (
     <>

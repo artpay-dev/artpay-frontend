@@ -41,9 +41,9 @@ import LandingForCampaignPage from "./pages/LandingForCampaignPage.tsx";
 import CdsPaymentsPage from "./pages/CdsPaymentsPage.tsx";
 import PaymentDraw from "./features/cdspayments/components/ui/paymentdraw/PaymentDraw.tsx";
 import { useScrollToTop } from "./utils.ts";
-import KlarnaPage from "./pages/KlarnaPage.tsx";
-import SantanderPage from "./pages/SantanderPage.tsx";
-import SaPage from "./pages/SaPage.tsx";
+import Tutorials from "./pages/Tutorials.tsx";
+import SinglePostPage from "./pages/SinglePostPage.tsx";
+import DashboardPage from "./pages/DashboardPage.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -73,6 +73,7 @@ function AppContent() {
                 <PaymentProvider>
                   <Routes>
                     <Route path="/" element={<Home />} />
+                    <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/showcase" element={<Showcase />} />
                     <Route path="/gallerie" element={<Galleries />} />
                     <Route path="/landing" element={<LandingPage />} />
@@ -90,9 +91,10 @@ function AppContent() {
                       <Route element={<CdsPaymentsPage />} index />
                     </Route>
                     <Route path="/completa-acquisto/:order_id" element={<Purchase orderMode="redeem" />} />
-                    <Route path="/guide/klarna" element={<KlarnaPage />} />
+                   {/* <Route path="/guide/klarna" element={<KlarnaPage />} />
                     <Route path="/guide/santander" element={<SantanderPage />} />
-                    <Route path="/guide/santagostino" element={<SaPage />} />
+                    <Route path="/guide/santagostino" element={<SaPage />} />*/}
+                    <Route path="/guide/:slug" element={<SinglePostPage />} />
                     <Route path="/acconto-blocca-opera" element={<Purchase orderMode="loan" />} />
                     <Route path="/opera-bloccata/:slug_opera" element={<ArtworkReserved />} />
                     <Route path="/profile" element={<Profile />} />
@@ -125,6 +127,7 @@ function AppContent() {
                     <Route path="/errore/:code" element={<Error />} />
                     <Route path="/errore" element={<Error />} />
                     <Route path={"/landing-campaign"} element={<LandingForCampaignPage />} />
+                    <Route path={"/guide"} element={<Tutorials />} />
                   </Routes>
                 </PaymentProvider>
               </DataProvider>

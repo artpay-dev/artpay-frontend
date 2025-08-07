@@ -9,7 +9,7 @@ const sizes : Record<string, string> = {
 }
 
 
-const LogoFastArtpay = ({className = "", size = 'medium'} : {className?: string, size?: string}) => {
+const LogoFastArtpay = ({className = "", size = 'medium', showCheckOut = false} : {className?: string, size?: string, showCheckOut: boolean}) => {
   const sizeStyle = sizes[size];  
   const { order, setPaymentData, openDraw } = usePaymentStore();
   const pathname = useLocation().pathname;
@@ -48,7 +48,7 @@ const LogoFastArtpay = ({className = "", size = 'medium'} : {className?: string,
           </clipPath>
         </defs>
       </svg>
-      {cdsOrder?.status === "on-hold" && cdsOrder.created_via == "gallery_auction" && (
+      {cdsOrder?.status === "on-hold" && cdsOrder.created_via == "gallery_auction" || showCheckOut && (
         <>
           <span className="bg-red-400 rounded-full size-3 block absolute top-0 right-0 z-10 animate-ping opacity-65"></span>
           <span className="bg-red-400 rounded-full size-3 block absolute top-0 right-0 z-10"></span>

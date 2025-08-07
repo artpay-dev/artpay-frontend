@@ -42,6 +42,8 @@ import ArtworkIcon from "../components/icons/ArtworkIcon.tsx";
 import CertificateIcon from "../components/icons/CertificateIcon.tsx";
 import { Send } from "@mui/icons-material";
 import QrCodeIcon from "../components/icons/QrCodeIcon.tsx";
+import ArtworkPageSkeleton from "../components/ArtworkPageSkeleton.tsx";
+import CardGridSkeleton from "../components/CardGridSkeleton.tsx";
 
 export interface ArtworkProps {}
 
@@ -64,8 +66,6 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   const [userProfile, setUserProfile] = useState<UserProfile>();
 
   const belowSm = useMediaQuery(theme.breakpoints.down("sm"));
-
-  console.log(artwork)
 
   const artworkTechnique = artwork ? data.getCategoryMapValues(artwork, "tecnica").join(" ") : "";
   const artworkCertificate = artwork ? data.getCategoryMapValues(artwork, "certificato").join(" ") : "";
@@ -245,188 +245,201 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
 
   return (
     <DefaultLayout pageLoading={!isReady}>
-      <Box sx={{ px: { ...px, xs: 0 }, mt: { xs: 0, sm: 12, md: 18 } }} display="flex" justifyContent="center" overflow={'visible'}>
-        <div className={'flex flex-col w-full lg:flex-row '}>
-          <div className={'w-full max-w-2xl lg:min-w-sm lg:min-h-screen '}>
-            <img
-              src={artwork?.images?.length ? artwork.images[0].woocommerce_single : ""}
-              alt={artwork?.images[0]?.name}
-              className={` object-contain sticky top-0 w-full`}
-            />
-          </div>
-          <div className={'flex flex-col pt-6 lg:0 max-w-2xl px-8 '}>
-            <div className={'flex items-center mb-2'}>
-              <Typography
-                sx={{ textTransform: "uppercase", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
-                color="primary"
-                variant="body1">
-                <Link
-                  sx={{ textDecoration: "none" }}
-                  onClick={() => navigate(`/gallerie/${galleryDetails?.shop?.slug}`)}>
-                  {galleryDetails?.display_name}
-                </Link>
-              </Typography>
-              <Box flexGrow={1} />
-              <IconButton onClick={() => handleSetArtworkFavourite()}>
-                {isArtworkFavourite ? (
-                  <FavouriteFilledIcon color="primary" fontSize="small" />
-                ) : (
-                  <FavouriteIcon fontSize="small" />
-                )}
-              </IconButton>
-              <IconButton onClick={handleShare}>
-                <ShareIcon />
-              </IconButton>
-              <IconButton onClick={handleShowQrCode} size="medium">
-                <QrCodeIcon />
-              </IconButton>
+      {!isReady ? (
+        <ArtworkPageSkeleton />
+      ):(
+        <Box sx={{mt: { xs: 0, sm: 12, md: 18 } }} display="flex" justifyContent="center" overflow={'visible'}>
+          <div className={'flex flex-col w-full lg:flex-row '}>
+            <div className={'w-full max-w-2xl lg:min-w-sm lg:min-h-screen rounded-2xl overflow-hidden'}>
+              <img
+                src={artwork?.images?.length ? artwork.images[0].woocommerce_single : ""}
+                alt={artwork?.images[0]?.name}
+                className={` object-contain sticky top-0 w-full rounded-2xl `}
+              />
             </div>
-            <Typography sx={{}} variant="h1">
-              {artwork?.name}
-            </Typography>
-            <Typography variant="h1" color="textSecondary">
-              {getPropertyFromMetadata(artwork?.meta_data || [], "artist")?.artist_name}
-            </Typography>
-            <Typography color="textSecondary" variant="body1" fontWeight={500} sx={{ mt: 2 }}>
-              {artworkTechnique}
-            </Typography>
-            <Typography color="textSecondary" variant="body1" fontWeight={500}>
-              {getArtworkDimensions(artwork)}
-            </Typography>
-            <Box mt={2}>
-              <Typography variant="subtitle1" color="textSecondary">
-                <ArtworkIcon sx={{ mr: 0.5 }} fontSize="inherit" /> {artworkUnique}
-              </Typography>
-              <Typography sx={{ mt: 0 }} variant="subtitle1" color="textSecondary">
-                <CertificateIcon sx={{ mr: 0.5 }} fontSize="inherit" /> {artworkCertificate}
-              </Typography>
-              {isOutOfStock && !isReserved && (
-                <Typography sx={{ mt: 3 }} variant="subtitle1" color="textSecondary">
-                  <LockIcon color="error" fontSize="inherit" /> Opera non disponibile
-                </Typography>
-              )}
-              {isReserved && (
-                <>
-                  <Typography sx={{ mt: 3 }} variant="subtitle1" color="textSecondary">
-                    <LockIcon color="error" fontSize="inherit" /> Opera prenotata. Trattativa in corso
-                  </Typography>
-                  <Typography sx={{ mt: 1 }} variant="subtitle1" color="textSecondary">
-                    <HourglassIcon fontSize="inherit" /> Bloccata fino al{" "}
-                    {parseDate(artwork?.acf.customer_reserved_until)}
-                  </Typography>
-                </>
-              )}
-            </Box>
-            <Divider sx={{ mt: 6 }} />
-            <Box display="flex" alignItems="center" my={3}>
-              <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
-                € {formatCurrency(+(artwork?.price || 0))}
-              </Typography>
-              <Box flexGrow={1} />
-              <Button
-                variant="contained"
-                disabled={isOutOfStock || isReserved}
-                onClick={() => handlePurchase(artwork?.id)}>
-                Compra opera
-              </Button>
-            </Box>
-            <Divider />
-            <Box mt={2} sx={{ my: 3 }} display="flex" alignItems="center" gap={1}>
-              <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
-                € {formatCurrency((+(artwork?.price || 0) * data.downpaymentPercentage()) / 100)}
-              </Typography>
-              <Box flexGrow={1} />
-              <Box display="flex" flexDirection="column" alignItems="flex-end">
-                <Button variant="outlined" disabled={isOutOfStock || isReserved} onClick={handleLoanPurchase}>
-                  Prenota l’opera
-                </Button>
-                <Typography sx={{ mt: 1 }} variant="body2">
-                  Non sai come funziona?{" "}
-                  <Link color="inherit" href="#prenota-opera">
-                    Scopri di più!
+            <div className={'flex flex-col pt-6 lg:0 max-w-2xl px-8 md:px-8'}>
+              <div className={'flex items-center mb-2'}>
+                <Typography
+                  sx={{ textTransform: "uppercase", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+                  color="primary"
+                  variant="body1">
+                  <Link
+                    sx={{ textDecoration: "none" }}
+                    onClick={() => navigate(`/gallerie/${galleryDetails?.shop?.slug}`)}>
+                    {galleryDetails?.display_name}
                   </Link>
                 </Typography>
+                <Box flexGrow={1} />
+                <IconButton onClick={() => handleSetArtworkFavourite()}>
+                  {isArtworkFavourite ? (
+                    <FavouriteFilledIcon color="primary" fontSize="small" />
+                  ) : (
+                    <FavouriteIcon fontSize="small" />
+                  )}
+                </IconButton>
+                <IconButton onClick={handleShare}>
+                  <ShareIcon />
+                </IconButton>
+                <IconButton onClick={handleShowQrCode} size="medium">
+                  <QrCodeIcon />
+                </IconButton>
+              </div>
+              <Typography sx={{}} variant="h1">
+                {artwork?.name}
+              </Typography>
+              <Typography variant="h1" color="textSecondary">
+                {getPropertyFromMetadata(artwork?.meta_data || [], "artist")?.artist_name}
+              </Typography>
+              <Typography color="textSecondary" variant="body1" fontWeight={500} sx={{ mt: 2 }}>
+                {artworkTechnique}
+              </Typography>
+              <Typography color="textSecondary" variant="body1" fontWeight={500}>
+                {getArtworkDimensions(artwork)}
+              </Typography>
+              <Box mt={2}>
+                <Typography variant="subtitle1" color="textSecondary">
+                  <ArtworkIcon sx={{ mr: 0.5 }} fontSize="inherit" /> {artworkUnique}
+                </Typography>
+                <Typography sx={{ mt: 0 }} variant="subtitle1" color="textSecondary">
+                  <CertificateIcon sx={{ mr: 0.5 }} fontSize="inherit" /> {artworkCertificate}
+                </Typography>
+                {isOutOfStock && !isReserved && (
+                  <Typography sx={{ mt: 3 }} variant="subtitle1" color="textSecondary">
+                    <LockIcon color="error" fontSize="inherit" /> Opera non disponibile
+                  </Typography>
+                )}
+                {isReserved && (
+                  <>
+                    <Typography sx={{ mt: 3 }} variant="subtitle1" color="textSecondary">
+                      <LockIcon color="error" fontSize="inherit" /> Opera prenotata. Trattativa in corso
+                    </Typography>
+                    <Typography sx={{ mt: 1 }} variant="subtitle1" color="textSecondary">
+                      <HourglassIcon fontSize="inherit" /> Bloccata fino al{" "}
+                      {parseDate(artwork?.acf.customer_reserved_until)}
+                    </Typography>
+                  </>
+                )}
               </Box>
-            </Box>
-            <Divider sx={{ mb: 3 }} />
-            <Box
-              display="flex"
-              sx={{
-                background: theme.palette.secondary.main,
-                color: theme.palette.secondary.contrastText,
-                alignItems: { xs: "flex-start", sm: "center" },
-                py: 3,
-                px: 3,
-                borderRadius: "5px",
-              }}>
-              <img src={artworkLoanBannerIcon} style={{ transform: `translateX(-${theme.spacing(3)})` }} />
-              <Box
-                display="flex"
-                sx={{ flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" } }}
-                flexGrow={1}>
-                <Typography
-                  variant="body2"
-                  color="white"
-                  sx={{ maxWidth: { xs: undefined, sm: "calc(100% - 150px)", md: "180px", lg: "248px" } }}>
-                  Per i tuoi acquisti d'arte su artpay, puoi scegliere la migliore proposta di prestito tra quelle degli
-                  istituti bancari nostri partner.
+              <Divider sx={{ mt: 6 }} />
+              <Box display="flex" alignItems="center" my={3}>
+                <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
+                  € {formatCurrency(+(artwork?.price || 0))}
                 </Typography>
                 <Box flexGrow={1} />
-                <Link variant="body1" color="inherit" href="#scopri-di-piu" sx={{ mt: { xs: 3, sm: 0 } }}>
-                  Scopri di più
-                </Link>
-              </Box>
-            </Box>
-            <Divider sx={{ mt: 3 }} />
-            <Box
-              display="flex"
-              flexDirection={{ xs: "column", sm: "row" }}
-              gap={{ xs: 3, sm: 0 }}
-              mt={{ xs: 3 }}
-              alignItems={{ xs: "center", md: "center" }}>
-              <Box flexGrow={1} display="flex" flexDirection={{xs: "row", sm: "column"}} sx={{ gap: { xs: 1, sm: 1 } }}>
-                <Typography variant="subtitle1">{galleryDetails?.display_name}</Typography>
-                <Typography variant="subtitle1" color="textSecondary">
-                  {galleryDetails?.address?.city}
-                </Typography>
-              </Box>
-              <Box display="flex" flexDirection={{ xs: "row", sm: "column" }} sx={{ mt: { xs: 0, sm: 0 } }}>
-                <Button variant="outlined" endIcon={<Send />} onClick={() => handleSendMessage()}>
-                  Contatta la galleria
+                <Button
+                  variant="contained"
+                  disabled={isOutOfStock || isReserved}
+                  onClick={() => handlePurchase(artwork?.id)}>
+                  Compra opera
                 </Button>
               </Box>
-            </Box>
-            <Divider sx={{ mt: 3 }} />
-            <div className={`px-[${px.toString()}] mt-6`} >
-              <div className={'flex flex-col justify-center gap-6'}>
-                {artwork && <ArtworkDetails artwork={artwork} artist={artistDetails} />}
-                <Divider />
-                {artistDetails && <ArtistDetails artist={artistDetails} />}
-                <Divider />
-                {galleryDetails && <GalleryDetails gallery={galleryDetails} />}
-
+              <Divider />
+              <Box mt={2} sx={{ my: 3 }} display="flex" alignItems="center" gap={1}>
+                <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
+                  € {formatCurrency((+(artwork?.price || 0) * data.downpaymentPercentage()) / 100)}
+                </Typography>
+                <Box flexGrow={1} />
+                <Box display="flex" flexDirection="column" alignItems="flex-end">
+                  <Button variant="outlined" disabled={isOutOfStock || isReserved} onClick={handleLoanPurchase}>
+                    Prenota l’opera
+                  </Button>
+                  <Typography sx={{ mt: 1 }} variant="body2">
+                    Non sai come funziona?{" "}
+                    <Link color="inherit" href="#prenota-opera">
+                      Scopri di più!
+                    </Link>
+                  </Typography>
+                </Box>
+              </Box>
+              <Divider sx={{ mb: 3 }} />
+              <Box
+                display="flex"
+                sx={{
+                  background: theme.palette.secondary.main,
+                  color: theme.palette.secondary.contrastText,
+                  alignItems: { xs: "flex-start", sm: "center" },
+                  py: 3,
+                  px: 3,
+                  borderRadius: "5px",
+                }}>
+                <img src={artworkLoanBannerIcon} style={{ transform: `translateX(-${theme.spacing(3)})` }} />
+                <Box
+                  display="flex"
+                  sx={{ flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" } }}
+                  flexGrow={1}>
+                  <Typography
+                    variant="body2"
+                    color="white"
+                    sx={{ maxWidth: { xs: undefined, sm: "calc(100% - 150px)", md: "180px", lg: "248px" } }}>
+                    Per i tuoi acquisti d'arte su artpay, puoi scegliere la migliore proposta di prestito tra quelle degli
+                    istituti bancari nostri partner.
+                  </Typography>
+                  <Box flexGrow={1} />
+                  <Link variant="body1" color="inherit" href="#scopri-di-piu" sx={{ mt: { xs: 3, sm: 0 } }}>
+                    Scopri di più
+                  </Link>
+                </Box>
+              </Box>
+              <Divider sx={{ mt: 3 }} />
+              <Box
+                display="flex"
+                flexDirection={{ xs: "column", sm: "row" }}
+                gap={{ xs: 3, sm: 0 }}
+                mt={{ xs: 3 }}
+                alignItems={{ xs: "center", md: "center" }}>
+                <Box flexGrow={1} display="flex" flexDirection={{xs: "row", sm: "column"}} sx={{ gap: { xs: 1, sm: 1 } }}>
+                  <Typography variant="subtitle1">{galleryDetails?.display_name}</Typography>
+                  <Typography variant="subtitle1" color="textSecondary">
+                    {galleryDetails?.address?.city}
+                  </Typography>
+                </Box>
+                <Box display="flex" flexDirection={{ xs: "row", sm: "column" }} sx={{ mt: { xs: 0, sm: 0 } }}>
+                  <Button variant="outlined" endIcon={<Send />} onClick={() => handleSendMessage()}>
+                    Contatta la galleria
+                  </Button>
+                </Box>
+              </Box>
+              <Divider sx={{ mt: 3 }} />
+              <div className={`px-[${px.toString()}] mt-6`} >
+                <div className={'flex flex-col justify-center gap-6'}>
+                  {artwork && <ArtworkDetails artwork={artwork} artist={artistDetails} />}
+                  <Divider />
+                  {artistDetails && <ArtistDetails artist={artistDetails} />}
+                  <Divider />
+                  {galleryDetails && <GalleryDetails gallery={galleryDetails} />}
+                  <Divider />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </Box>
-      <Box sx={{ px: belowSm ? 0 : px }}>
-        <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 2, sm: 0}}} marginTop={6} variant="h2">
+        </Box>
+      )}
+
+      <Box>
+        <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 4, sm: 0}}} marginTop={6} variant="h2">
           Opere dello stesso artista
         </Typography>
-        <ArtworksList disablePadding  items={artistArtworks || []} />
-        <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 2, sm: 0}}} marginTop={6} variant="h2">
+        {!artistArtworks ? (
+          <CardGridSkeleton count={4} />
+          ) : (
+          <ArtworksList disablePadding  items={artistArtworks || []} />
+        )}
+        <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 4, sm: 0}}} marginTop={6} variant="h2">
           Opere della galleria
         </Typography>
-        <ArtworksList
-          disablePadding
-          items={galleryArtworks || []}
-          onSelect={handleGalleryArtworkSelect}
-        />
+        {!galleryArtworks ? (
+          <CardGridSkeleton />
+          ) : (
+          <ArtworksList
+            disablePadding
+            items={galleryArtworks || []}
+            onSelect={handleGalleryArtworkSelect}
+          />
+        )}
         <ArtworksList disablePadding title="Simili per prezzo" items={[]} />
       </Box>
       <Box id="prenota-opera" sx={{ top: "-20px", position: "relative" }}></Box>
-      <Grid sx={{ pt: 12, px: px }} spacing={3} display="flex" container>
+      <Grid className={'pt-24 px-8 md:px-0'} spacing={3} display="flex" container>
         <Grid xs={12} item>
           <Typography variant="h2">
             Non vuoi farti sfuggire un’opera? <span style={{ color: theme.palette.primary.main }}>Prenotala!</span>
@@ -494,7 +507,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         </Grid>
       </Grid>
       <div style={{ top: "-80px", position: "relative", visibility: "hidden" }} id="scopri-di-piu" />
-      <Box sx={{ px: { ...px, xs: 0 }, mt: 3, mb: 12 }}>
+      <Box sx={{mt: 3, mb: 12 }}>
         <LoanCard artwork={artwork} />
       </Box>
     </DefaultLayout>

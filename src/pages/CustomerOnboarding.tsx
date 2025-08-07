@@ -38,7 +38,7 @@ const CustomerOnboarding: React.FC<CustomerOnboardingProps> = ({}) => {
   const px = getDefaultPaddingX();
 
   return (
-    <DefaultLayout sx={{ overflowX: "hidden" }}>
+    <DefaultLayout sx={{ overflowX: "hidden" }} hasNavBar={false}>
       <Hero imgOffset={{ xs: 6, sm: 8 }}>
         <Typography variant="body1" color="primary" sx={{ textTransform: "uppercase" }}>
           Artpay per collezionisti

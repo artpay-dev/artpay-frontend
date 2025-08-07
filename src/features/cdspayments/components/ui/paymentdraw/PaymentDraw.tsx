@@ -15,6 +15,7 @@ const PaymentDraw = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const user: User = JSON.parse(localStorage.getItem("artpay-user") as string);
+  console.log(orders);
 
   useEffect(() => {
     const getOrders = async () => {
@@ -23,10 +24,10 @@ const PaymentDraw = () => {
         if (!user) return;
 
         const listOrders = await data.listOrders({
-          status: ["processing", "completed", "on-hold", "failed"],
+          status: ["processing", "completed", "on-hold", "failed", "pending"],
           customer: Number(user.id) || 18,
         });
-        console.log(listOrders);
+
         if (!listOrders) throw new Error("Order list not found");
         setOrders(listOrders);
       } catch (e) {
@@ -63,21 +64,22 @@ const PaymentDraw = () => {
         {!loading && orders && orders.length > 0 ? (
           <ul className={"flex flex-col gap-6 mt-4 px-8"}>
             {orders
-              .filter((order) => order.created_via == "gallery_auction")
-              .slice(0, 3)
+              .slice(0, 5)
               .map((order) => {
-                const orderDesc = order?.meta_data
+                const orderDesc: string[] = order?.meta_data
                   .filter((data) => data.key == "original_order_desc")
-                  .map((data) => data.value);
+                  .map((data) => data.value)
+
                 const subtotal = Number(order.total);
+
                 return (
                   <li key={order.id} className={"border border-[#E2E6FC] p-4 rounded-lg space-y-4 max-w-sm"}>
                     <div className={"flex items-center"}>
-                      <p className={"text-secondary"}>{orderDesc}</p>
+                      <p className={"text-secondary"}>{orderDesc.length > 0 ? orderDesc : order?.line_items[0].name}</p>
                     </div>
                     <div className={"flex flex-col gap-1"}>
                       <span className={"text-secondary"}>Tipo</span>
-                      <span className={"text-tertiary"}>Casa d'asta</span>
+                      <span className={"text-tertiary"}>{order.created_via == "gallery_auction" ? "Casa D'Asta" : "Galleria"}</span>
                     </div>
                     <div className={"flex flex-col gap-1"}>
                       <span className={"text-secondary"}>Prezzo</span>
@@ -90,7 +92,7 @@ const PaymentDraw = () => {
                             setPaymentData({
                               openDraw: !openDraw,
                             });
-                            navigate(`/acquisto-esterno?order=${order.id}`);
+                            order.created_via == "gallery_auction" ? navigate(`/acquisto-esterno?order=${order.id}`) : navigate(`/acquisto?order=${order.id}`);
                           }}
                           className={
                             "cursor-pointer rounded-full bg-white border border-primary  text-primary py-2 px-6 w-full hover:text-primary-hover hover:border-primary-hover transition-all"

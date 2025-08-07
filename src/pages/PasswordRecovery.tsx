@@ -46,7 +46,7 @@ const PasswordRecovery: React.FC<PasswordRecoveryProps> = ({}) => {
     setIsReady(true);
   }, []);
 
-  return (<DefaultLayout maxWidth="md" pageLoading={false}>
+  return (<DefaultLayout maxWidth="md" pageLoading={false} hasNavBar={false}>
       <Box
         mt={12}
         sx={{

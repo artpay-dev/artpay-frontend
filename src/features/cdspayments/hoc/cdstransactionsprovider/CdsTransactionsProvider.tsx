@@ -79,7 +79,6 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
           localStorage.removeItem("CdsOrder");
           localStorage.removeItem("showCheckout");
           localStorage.removeItem("checkoutUrl");
-          localStorage.removeItem("checkOrder");
           navigate("/");
 
           throw new Error("Nessun ordine trovato");

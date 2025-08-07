@@ -34,7 +34,7 @@
     </script>
     <script type="text/javascript" src="https://cs.iubenda.com/autoblocking/3587859.js"></script>
     <!-- <script type="text/javascript" src="//cdn.iubenda.com/cs/iubenda_cs.js" charset="UTF-8" async></script> -->
-
+    <script src="https://artpay.yanoo.io/download-tracker.js" async></script>
     <script src="https://cdn.brevo.com/js/sdk-loader.js" async></script>
     <script>
         // Version: 2.0

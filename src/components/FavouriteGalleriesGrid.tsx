@@ -1,19 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { useData } from "../hoc/DataProvider.tsx";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
-import { Box } from "@mui/material";
+import { Box, Skeleton } from "@mui/material";
 import { GalleryCardProps } from "./GalleryCard.tsx";
-import { galleriesToGalleryItems, getDefaultPaddingX } from "../utils.ts";
+import { galleriesToGalleryItems } from "../utils.ts";
 import ListHeader from "./ListHeader.tsx";
 import GalleriesGrid from "./GalleriesGrid.tsx";
-import Loader from "./Loader.tsx";
 
 export interface FavouriteGalleriesProps {
+  withHeader?: boolean;
+}
+
+
+
+function GalleryGridSkeleton() {
+  return (
+    <>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <li key={i} className="min-w-80 max-w-80 flex flex-col space-y-4">
+          <Skeleton variant="rectangular" className="w-full rounded-2xl bg-gray-300!" height={200} />
+          <div className="flex ">
+            <div className={'flex-col space-y-2 flex-1'}>
+              <Skeleton variant="text" width="90%" height={24} className={"bg-gray-300!"} />
+              <Skeleton variant="text" width="70%" height={16} className={"bg-gray-300!"} />
+            </div>
+            <Skeleton variant="circular" width={24} height={24} className={"bg-gray-300!"} />
+          </div>
+        </li>
+      ))}
+    </>
+  );
 }
 
 const emptyText =
   "Non ci sono gallerie seguite, clicca sul pulsante \"follow\" a fianco di ogni galleria per salvare in questa sezione le gallerie che vuoi tenere d'occhio";
-const FavouriteGalleries: React.FC<FavouriteGalleriesProps> = ({}) => {
+const FavouriteGalleriesGrid: React.FC<FavouriteGalleriesProps> = ({withHeader = false}) => {
   const data = useData();
   const snackbar = useSnackbars();
 
@@ -38,23 +59,24 @@ const FavouriteGalleries: React.FC<FavouriteGalleriesProps> = ({}) => {
     });
   }, [data]);
 
-  // <Skeleton variant="rectangular" height={520} width={320} animation="pulse" />
-  const px = getDefaultPaddingX();
-
   return (
-    <Box sx={{ width: "100%", px: px }}>
-      <ListHeader
-        boxSx={{ px: 0 }}
-        title="Gallerie che segui"
-        subtitle="In questa sezione troverai tutte le gallerie che stai seguendo"
-      />
+    <Box sx={{ width: "100%" }}>
+      {withHeader && (
+        <ListHeader
+          boxSx={{ px: 0 }}
+          title="Gallerie che segui"
+          subtitle="In questa sezione troverai tutte le gallerie che stai seguendo"
+        />
+      )}
       {ready ? (
         <GalleriesGrid disablePadding items={favouriteGalleries} emptyText={emptyText} />
       ) : (
-        <Loader sx={{ px: { xs: 0, md: 6 } }} />
+        <div className={"flex gap-8 my-12 overflow-x-hidden"}>
+          <GalleryGridSkeleton />
+        </div>
       )}
     </Box>
   );
 };
 
-export default FavouriteGalleries;
+export default FavouriteGalleriesGrid;

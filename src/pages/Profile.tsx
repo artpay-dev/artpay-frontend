@@ -7,9 +7,9 @@ import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
 import TabPanel from "../components/TabPanel.tsx";
 import FavouriteArtworks from "../components/FavouriteArtworks.tsx";
 import FavouriteArtists from "../components/FavouriteArtists.tsx";
-import FavouriteGalleries from "../components/FavouriteGalleries.tsx";
+import FavouriteGalleriesGrid from "../components/FavouriteGalleriesGrid.tsx";
 import ProfileHeader from "../components/ProfileHeader.tsx";
-import { getDefaultPaddingX, useNavigate } from "../utils.ts";
+import { useNavigate } from "../utils.ts";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import OrdersHistory from "../components/OrdersHistory.tsx";
 import { useParams } from "react-router-dom";
@@ -38,7 +38,6 @@ const Profile: React.FC<ProfileProps> = ({}) => {
     navigate("/");
   };
 
-  const px = getDefaultPaddingX();
 
   useEffect(() => {
     data.getUserProfile().then((resp) => {
@@ -59,7 +58,7 @@ const Profile: React.FC<ProfileProps> = ({}) => {
           </Button>
         ]}
       />
-      <Box px={{ ...px, xs: 0, sm: 0 }}>
+      <Box px={{ xs: 0, sm: 0 }}>
         <Box
           sx={{
             borderBottom: 1,
@@ -67,7 +66,6 @@ const Profile: React.FC<ProfileProps> = ({}) => {
             mt: { xs: 3, md: 6 }
           }}>
           <ResponsiveTabs
-            breakpoint="md"
             value={selectedTabPanel}
             onChange={(_, newValue) => {
               window.history.replaceState(null, "", `/profile/${subPageSlugs[newValue]}`);
@@ -91,7 +89,7 @@ const Profile: React.FC<ProfileProps> = ({}) => {
           <OrdersHistory mode="on-hold" title="Opere bloccate" />
         </TabPanel>
         <TabPanel value={selectedTabPanel} index={2}>
-          <FavouriteGalleries />
+          <FavouriteGalleriesGrid />
         </TabPanel>
         <TabPanel value={selectedTabPanel} index={3}>
           <FavouriteArtists />

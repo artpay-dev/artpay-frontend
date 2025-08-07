@@ -31,7 +31,6 @@ export const clearLocalStorage = (order: Order) => {
   localStorage.removeItem(`showCheckout`);
   localStorage.removeItem(`checkoutUrl`);
   localStorage.removeItem(`CdsOrder`);
-  localStorage.setItem("checkOrder", "true");
 };
 
 type SendBrevoEmailParams = {

@@ -70,12 +70,12 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
 
 
   return (
-    <div className={`w-fit ${mode === 'grid' ? '' : 'pl-4'} lg:pl-0 h-full ` + cardSizeClass}>
-      <div className={'w-full rounded-sm overflow-hidden cursor-pointer'}>
+    <div className={`w-fit ${mode === 'grid' ? '' : 'pl-8'} lg:pl-0 h-full ` + cardSizeClass}>
+      <div className={'w-full rounded-2xl overflow-hidden cursor-pointer'}>
         <img
           src={imgUrl}
           onClick={onClick}
-          className={'object-cover h-full w-full aspect-square'}
+          className={'object-cover h-full w-full aspect-square rounded-2xl'}
         />
       </div>
       <div className={`mt-4 py-4 flex flex-col justify-between `}>
