@@ -111,7 +111,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
       .finally(() => {
         setIsReady(true);
       });
-    //data.getGallery()
+
     // TODO: loadData
   }, [urlParams.slug]);
 
