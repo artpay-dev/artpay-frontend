@@ -165,7 +165,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
       {!isReady || !galleryContent ? (
         <GallerySkeleton />
       ) : (
-        <div className={"flex gap-6 flex-col md:flex-row mb-12 md:mb-36"}>
+        <div className={"flex gap-6 flex-col md:flex-row "}>
           <div className={"relative mb-12"}>
             <Box
               sx={{
@@ -228,7 +228,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
         </div>
       )}
 
-      <div className={"mb-24 "}>
+      <div className={"mb-24 mt-12 md:mt-36"}>
         <Box
           sx={{
             borderBottom: 1,
