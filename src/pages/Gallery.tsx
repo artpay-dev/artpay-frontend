@@ -176,7 +176,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
               }}>
               <img
                 src={galleryContent?.coverImage}
-                className="object-cover w-full min-h-96 max-h-96 lg:max-h-none md:h-[420px] md:w-[420px] lg:h-[612px] lg:w-[612px] rounded-b-2xl md:rounded-2xl "
+                className="object-cover w-full min-h-96 max-h-96 md:min-h-[420px] md:max-h-[420px] md:w-[420px] lg:min-h-[612px] lg:max-h-[612px] lg:w-[612px] rounded-b-2xl md:rounded-2xl "
               />
             </Box>
             <Box
