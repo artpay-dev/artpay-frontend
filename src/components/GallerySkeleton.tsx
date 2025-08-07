@@ -1,6 +1,6 @@
 const GallerySkeleton = () => {
   return (
-    <div className="flex gap-6 flex-col md:flex-row mb-12 md:mb-36 animate-pulse">
+    <div className="flex gap-6 flex-col md:flex-row  animate-pulse">
       {/* Image Skeleton */}
       <div className="relative mb-12">
         <div className="w-full md:w-[420px] lg:w-[612px] h-[384px] md:h-[420px] lg:h-[612px] bg-gray-300 rounded-b-2xl md:rounded-2xl" />
