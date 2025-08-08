@@ -44,6 +44,8 @@ import { useScrollToTop } from "./utils.ts";
 import Tutorials from "./pages/Tutorials.tsx";
 import SinglePostPage from "./pages/SinglePostPage.tsx";
 import DashboardPage from "./pages/DashboardPage.tsx";
+import KlarnaPage from "./pages/KlarnaPage.tsx";
+import SantanderPage from "./pages/SantanderPage.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -91,9 +93,9 @@ function AppContent() {
                       <Route element={<CdsPaymentsPage />} index />
                     </Route>
                     <Route path="/completa-acquisto/:order_id" element={<Purchase orderMode="redeem" />} />
-                   {/* <Route path="/guide/klarna" element={<KlarnaPage />} />
-                    <Route path="/guide/santander" element={<SantanderPage />} />
-                    <Route path="/guide/santagostino" element={<SaPage />} />*/}
+                     <Route path="/guidda-klarna" element={<KlarnaPage />} />
+                    <Route path="/guida-santander" element={<SantanderPage />} />
+
                     <Route path="/guide/:slug" element={<SinglePostPage />} />
                     <Route path="/acconto-blocca-opera" element={<Purchase orderMode="loan" />} />
                     <Route path="/opera-bloccata/:slug_opera" element={<ArtworkReserved />} />
