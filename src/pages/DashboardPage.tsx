@@ -37,6 +37,7 @@ const Skeleton = () => {
 
 const DashboardPage = () => {
   const [artworks, setArtworks] = useState<ArtworkCardProps[]>([]);
+  const [favoriteGalleries, setFavouriteGalleries] = useState<number[]>([])
   const [loading, setLoading] = useState(true);
   const data = useData();
   const snackbar = useSnackbars();
@@ -56,9 +57,23 @@ const DashboardPage = () => {
     }
   }
 
+  const getFavoriteGalleries = async () => {
+    try {
+      const responseIds = await data.getFavouriteGalleries();
+      if (!responseIds) throw new Error("Failed to fetch artwork ids");
+
+      setFavouriteGalleries(responseIds);
+    } catch (error) {
+      snackbar.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
 
   useEffect(() => {
     getArtworks();
+    getFavoriteGalleries();
 
   }, [data]);
 
@@ -72,16 +87,18 @@ const DashboardPage = () => {
       <section className={'space-y-24 mb-22'}>
         {/*<ArtMatch />*/}
         <div>
-          <div className={"flex justify-between pe-8 md:pe-0"}>
-            <h3 className={"ps-8 md:px-0 text-3xl leading-[105%] font-normal max-w-lg text-balance"}>Lista dei desideri</h3>
-            <NavLink
-              to={'/profile/opere-preferite'}
-              className={
-                "cursor-pointer border border-primary py-2 px-4 text-primary rounded-full hover:bg-primary hover:text-white transition-all hidden md:block"
-              }>
-              Vedi tutte
-            </NavLink>
-          </div>
+          {artworks.length > 0 && (
+            <div className={"flex justify-between pe-8 md:pe-0"}>
+              <h3 className={"ps-8 md:px-0 text-3xl leading-[105%] font-normal max-w-lg text-balance"}>Lista dei desideri</h3>
+              <NavLink
+                to={'/profile/opere-preferite'}
+                className={
+                  "cursor-pointer border border-primary py-2 px-4 text-primary rounded-full hover:bg-primary hover:text-white transition-all hidden md:block"
+                }>
+                Vedi tutte
+              </NavLink>
+            </div>
+          )}
           {loading ? (
             <div className={"flex gap-8 my-12 overflow-x-hidden"}>
               {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} />)}
@@ -94,21 +111,23 @@ const DashboardPage = () => {
             </div>
           )}
         </div>
-        <div>
-          <div className={"flex justify-between pe-8 md:pe-0"}>
-            <h3 className={"ps-8 md:px-0 text-3xl leading-[105%] font-normal max-w-lg text-balance"}>Shop seguiti</h3>
-            <NavLink
-              to={'/profile/gallerie'}
-              className={
-                "cursor-pointer border border-primary py-2 px-4 text-primary rounded-full hover:bg-primary hover:text-white transition-all hidden md:block"
-              }>
-              Vedi tutte
-            </NavLink>
+        {favoriteGalleries.length > 0 && (
+          <div>
+            <div className={"flex justify-between pe-8 md:pe-0"}>
+              <h3 className={"ps-8 md:px-0 text-3xl leading-[105%] font-normal max-w-lg text-balance"}>Shop seguiti</h3>
+              <NavLink
+                to={'/profile/gallerie'}
+                className={
+                  "cursor-pointer border border-primary py-2 px-4 text-primary rounded-full hover:bg-primary hover:text-white transition-all hidden md:block"
+                }>
+                Vedi tutte
+              </NavLink>
+            </div>
+            <div className={"my-12 pl-8 md:pl-0"}>
+              <FavouriteGalleriesList />
+            </div>
           </div>
-          <div className={"my-12 pl-8 md:pl-0"}>
-            <FavouriteGalleriesList />
-          </div>
-        </div>
+        )}
         <div className={"tutorials-wrapper pl-8 md:pl-0"}>
           <div className={"flex justify-between pe-8 md:pe-0 items-center"}>
             <div className={'space-y-2'}>

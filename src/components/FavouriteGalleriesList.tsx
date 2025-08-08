@@ -43,6 +43,7 @@ const FavouriteGalleriesList : React.FC<FavouriteGalleriesProps> = ({withHeader 
     Promise.all([
       data.getFavouriteGalleries().then((ids) => {
         return data.getGalleries(ids).then((resp) => {
+          console.log(resp);
           setFavouriteGalleries(galleriesToGalleryItems(resp));
         });
       })

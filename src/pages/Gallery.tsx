@@ -160,6 +160,10 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
 
   //const px = getDefaultPaddingX();
 
+  console.log(galleryInfo);
+
+  console.log(galleryContent);
+
   return (
     <DefaultLayout>
       {!isReady || !galleryContent ? (
@@ -217,7 +221,9 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
               alt={galleryContent?.description}
             />
             <Typography variant="subtitle1" sx={{ mt: 6, maxWidth: { md: "400px" } }}>
-              {galleryContent?.description}
+              {galleryContent?.description ? galleryContent.description : (
+                galleryInfo?.description
+              )}
             </Typography>
             {galleryContent?.productsCount != 0 && (
               <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 3 }}>
@@ -228,7 +234,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
         </div>
       )}
 
-      <div className={"mb-24 pt-12 md:pt-36 md:mt-36"}>
+      <div className={"mb-24 pt-12 md:pt-36 "}>
         <Box
           sx={{
             borderBottom: 1,

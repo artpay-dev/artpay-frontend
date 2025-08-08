@@ -72,6 +72,8 @@ const GalleriesList: React.FC<GalleriesListProps> = ({
     }
   };
 
+  console.log(items);
+
   const handleSelectGallery = (index: number) => {
     const selectedGallery = items[index];
     navigate(`/gallerie/${selectedGallery.slug}`);

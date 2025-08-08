@@ -653,7 +653,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     },
     async getGalleries(ids?: number[]): Promise<Gallery[]> {
       if (!ids) {
-        const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(`${baseUrl}/wp-json/mvx/v1/vendors`, {
+        const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(`${baseUrl}/wp-json/mvx/v1/vendors?page=1&per_page=100`, {
           headers: { Authorization: auth.getGuestAuth() },
         });
         return resp.data;

@@ -137,7 +137,7 @@ export const galleryToGalleryContent = (gallery: Gallery): GalleryContent => ({
 export const galleryToGalleryItem = (gallery: Gallery): GalleryCardProps => ({
   id: gallery.id,
   title: gallery.display_name,
-  slug: gallery.nice_name,
+  slug: gallery.shop.slug,
   subtitle: `${gallery.address?.city}`,
   imgUrl: gallery.shop.banner,
   logoUrl: gallery.shop.image
