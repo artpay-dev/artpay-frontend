@@ -4,7 +4,7 @@ import usePaymentStore from "../../stores/paymentStore.ts";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Artwork } from "../../../../types/artwork.ts";
 import { Gallery } from "../../../../types/gallery.ts";
-import { clearLocalStorage } from "../../utils.ts";
+import { clearLocalStorage, sendPaymentNotification } from "../../utils.ts";
 
 const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
   const data = useData();
@@ -123,7 +123,10 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
                 console.log(updateBilling);
               }
 
-              console.log("Payment completed:", updateOrderStatus);
+              sendPaymentNotification({
+                ...vendor,
+                url: import.meta.env.VITE_ARTPAY_WEB_SERVICE + '/api/test/notification',
+              }, orderResp)
 
               setPaymentData({
                 order: updateOrderStatus,

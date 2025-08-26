@@ -122,3 +122,23 @@ export const sendBrevoEmail = async ({
     throw new Error("Errore invio email");
   }
 };
+
+export const sendPaymentNotification = async (vendor: any, order: any) => {
+  if (!order.order_key) throw new Error("order_key is required");
+  if (!vendor.url) throw new Error("Endpoint not specified");
+  try {
+    const orderStatus = await axios.get(`${import.meta.env.VITE_SERVER_URL}/wp-json/api/v1/external-order/${order.order_key}`);
+    if (!orderStatus) throw new Error("Error getting order status");
+
+    console.log(orderStatus);
+
+    const response = await axios.post(vendor.url, {
+      ...orderStatus
+    });
+
+    console.log(response);
+
+  } catch (error: any) {
+    console.error("Errore invio", error.response?.data || error.message);
+  }
+};
