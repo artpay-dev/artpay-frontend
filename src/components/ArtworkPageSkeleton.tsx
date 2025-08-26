@@ -1,10 +1,10 @@
 const ArtworkPageSkeleton = () => {
   return (
     <div className="mt-0 sm:mt-12 md:mt-18 flex justify-center overflow-visible animate-pulse">
-      <div className="flex flex-col w-full lg:flex-row max-w-screen-xl px-4 gap-8">
+      <div className="flex flex-col w-full lg:flex-row max-w-screen-xl gap-8">
         {/* Immagine opera */}
-        <div className="w-full max-w-2xl lg:min-w-sm lg:min-h-screen rounded-2xl overflow-hidden">
-          <div className="sticky top-0 w-full aspect-square bg-gray-300 rounded-2xl" />
+        <div className="w-full max-w-2xl lg:min-w-sm lg:min-h-screen rounded-b-2xl md:rounded-2xl overflow-hidden">
+          <div className="sticky top-0 w-full aspect-square bg-gray-300 rounded-b-2xl md:rounded-2xl" />
         </div>
 
         {/* Dettagli opera */}

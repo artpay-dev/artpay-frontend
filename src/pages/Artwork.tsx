@@ -1,5 +1,5 @@
-import { Box, Button, Divider, Grid, IconButton, Link, Typography, useMediaQuery, useTheme } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { Box, Button, Divider, IconButton, Link, Typography, useMediaQuery, useTheme } from "@mui/material";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout";
 import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
 import { useParams } from "react-router-dom";
@@ -27,12 +27,6 @@ import FavouriteFilledIcon from "../components/icons/FavouriteFilledIcon.tsx";
 import { FavouritesMap } from "../types/post.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
-import artworkLoanBannerIcon from "../assets/images/artwork_loan_banner_icon.svg";
-import PromoCardSmall from "../components/PromoCardSmall.tsx";
-import prenotaOpera from "../assets/images/prenota_opera.svg";
-import richiediPrestito from "../assets/images/richiedi_prestito.svg";
-import completaAcquisto from "../assets/images/completa_acquisto.svg";
-import LoanCard from "../components/LoanCard.tsx";
 import LockIcon from "../components/icons/LockIcon.tsx";
 import HourglassIcon from "../components/icons/HourglassIcon.tsx";
 import ShareIcon from "../components/icons/ShareIcon.tsx";
@@ -40,14 +34,17 @@ import MessageDialog from "../components/MessageDialog.tsx";
 import { UserProfile } from "../types/user.ts";
 import ArtworkIcon from "../components/icons/ArtworkIcon.tsx";
 import CertificateIcon from "../components/icons/CertificateIcon.tsx";
-import { Send } from "@mui/icons-material";
 import QrCodeIcon from "../components/icons/QrCodeIcon.tsx";
 import ArtworkPageSkeleton from "../components/ArtworkPageSkeleton.tsx";
 import CardGridSkeleton from "../components/CardGridSkeleton.tsx";
+import klarna_card from "../assets/images/klarnacard.svg"
+import santander_card from "../assets/images/santandercard.svg"
+import cards_group from "../assets/images/cardsgroup.svg"
+import MiniLockerIcon from "../components/icons/MiniLockerIcon.tsx";
 
-export interface ArtworkProps {}
 
-const Artwork: React.FC<ArtworkProps> = ({}) => {
+
+const Artwork: React.FC = () => {
   const data = useData();
   const auth = useAuth();
   const urlParams = useParams();
@@ -58,7 +55,6 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
 
   const [isReady, setIsReady] = useState(false);
   const [artwork, setArtwork] = useState<Artwork>();
-  const [galleryArtworks, setGalleryArtworks] = useState<ArtworkCardProps[]>();
   const [artistArtworks, setArtistArtworks] = useState<ArtworkCardProps[]>();
   const [galleryDetails, setGalleryDetails] = useState<Gallery | undefined>();
   const [artistDetails, setArtistDetails] = useState<Artist | undefined>();
@@ -67,33 +63,38 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
 
   const belowSm = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const artworkTechnique = artwork ? data.getCategoryMapValues(artwork, "tecnica").join(" ") : "";
-  const artworkCertificate = artwork ? data.getCategoryMapValues(artwork, "certificato").join(" ") : "";
-  const artworkUnique = artwork ? data.getCategoryMapValues(artwork, "rarita").join(" ") : "";
+  const artworkTechnique = useMemo(() => 
+    artwork ? data.getCategoryMapValues(artwork, "tecnica").join(" ") : "",
+    [artwork, data]
+  );
+  const artworkCertificate = useMemo(() => 
+    artwork ? data.getCategoryMapValues(artwork, "certificato").join(" ") : "",
+    [artwork, data]
+  );
+  const artworkUnique = useMemo(() => 
+    artwork ? data.getCategoryMapValues(artwork, "rarita").join(" ") : "",
+    [artwork, data]
+  );
 
-  // const heroImgUrl = artwork?.images.length ? artwork.images[0].src : "";
-  const isArtworkFavourite = artwork?.id ? favouriteArtworks.indexOf(artwork.id) !== -1 : false;
+  const isArtworkFavourite = useMemo(() => 
+    artwork?.id ? favouriteArtworks.includes(artwork.id) : false,
+    [artwork?.id, favouriteArtworks]
+  );
 
-  const isOutOfStock = artwork?.stock_status === "outofstock";
-  const isReserved = artwork?.acf.customer_buy_reserved || false;
+  const isOutOfStock = useMemo(() => artwork?.stock_status === "outofstock", [artwork?.stock_status]);
+  const isReserved = useMemo(() => artwork?.acf.customer_buy_reserved || false, [artwork?.acf.customer_buy_reserved]);
 
-  const handleGalleryArtworkSelect = (i: number) => {
-    if (galleryArtworks && galleryArtworks[i]) {
-      setIsReady(false);
-      navigate(`/opere/${galleryArtworks[i].slug}`);
-    }
-  };
 
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
     await dialogs.share(window.location.href);
-  };
+  }, [dialogs]);
 
-  const handleShowQrCode = () => {
+  const handleShowQrCode = useCallback(() => {
     const qrUrl = `${window.location.protocol}//${window.location.host}/opere/${artwork?.slug}`;
     dialogs.qrCode(qrUrl);
-  };
+  }, [artwork?.slug, dialogs]);
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = useCallback(async () => {
     if (!artwork) {
       return;
     }
@@ -116,33 +117,27 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       },
       { maxWidth: "md", fullScreen: belowSm },
     );
-  };
+  }, [artwork, auth, dialogs, galleryDetails?.display_name, data, userProfile, belowSm]);
 
-  const handleSetArtworkFavourite = async () => {
+  const handleSetArtworkFavourite = useCallback(async () => {
     if (!auth.isAuthenticated) {
       auth.login();
       return;
     }
     if (artwork?.id) {
       try {
-        if (isArtworkFavourite) {
-          await data.removeFavouriteArtwork(artwork.id.toString()).then((resp) => {
-            setFavouriteArtworks(resp);
-          });
-        } else {
-          await data.addFavouriteArtwork(artwork.id.toString()).then((resp) => {
-            setFavouriteArtworks(resp);
-          });
-        }
+        const resp = isArtworkFavourite 
+          ? await data.removeFavouriteArtwork(artwork.id.toString())
+          : await data.addFavouriteArtwork(artwork.id.toString());
+        setFavouriteArtworks(resp);
       } catch (e) {
-        //TODO: notify error
         console.error(e);
-        await snackbar.error(e);
+        snackbar.error(e);
       }
     }
-  };
+  }, [auth, artwork?.id, isArtworkFavourite, data, snackbar]);
 
-  const handlePurchase = (artworkId?: number) => {
+  const handlePurchase = useCallback((artworkId?: number) => {
     if (!artworkId) {
       return;
     }
@@ -157,9 +152,9 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         snackbar.error("Si è verificato un errore");
         setIsReady(true);
       });
-  };
+  }, [data, navigate, snackbar]);
 
-  const handleLoanPurchase = () => {
+  const handleLoanPurchase = useCallback(() => {
     if (!artwork?.id) {
       return;
     }
@@ -171,61 +166,55 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       })
       .catch((e) => snackbar.error(e))
       .finally(() => setIsReady(true));
-  };
+  }, [artwork?.id, data, navigate, snackbar]);
 
   useEffect(() => {
-    //TODO: page loader
-    // setIsReady(false);
-    if (!urlParams.slug_opera) {
-      navigate("/");
-      return;
-    }
-    data
-      .getArtworkBySlug(urlParams.slug_opera)
-      .then(async (resp) => {
-        // setIsReady(false);
-        setArtwork(resp);
-        const [galleryArtworks, favouriteArtworks] = await Promise.all([
-          data.listArtworksForGallery(resp.vendor),
-          data.getFavouriteArtworks().catch((e) => {
-            snackbar.error(e);
-            return [];
-          }),
-          //data.getGallery(resp.vendor),
+    const fetchArtworkData = async () => {
+      if (!urlParams.slug_opera) {
+        navigate("/");
+        return;
+      }
+
+      try {
+        const artwork = await data.getArtworkBySlug(urlParams.slug_opera);
+        setArtwork(artwork);
+
+        const [galleryArtworks, favouriteArtworks, galleryDetails, artistDetails, userProfile] = await Promise.all([
+          data.listArtworksForGallery(artwork.vendor),
+          data.getFavouriteArtworks().catch(() => []),
+          artwork.vendor ? data.getGallery(artwork.vendor) : Promise.resolve(undefined),
+          getPropertyFromMetadata(artwork.meta_data, "artist")?.ID 
+            ? data.getArtist(getPropertyFromMetadata(artwork.meta_data, "artist")!.ID)
+            : Promise.resolve(undefined),
+          auth.isAuthenticated ? data.getUserProfile().catch(() => undefined) : Promise.resolve(undefined)
         ]);
+
         setFavouriteArtworks(favouriteArtworks);
-        if (resp.vendor) {
-          const galleryDetails = await data.getGallery(resp.vendor);
-          setGalleryDetails(galleryDetails);
-        }
-        const artistId = getPropertyFromMetadata(resp.meta_data, "artist")?.ID;
-        if (artistId) {
-          const artistDetails = await data.getArtist(artistId);
-          setArtistDetails(artistDetails);
-          //TODO: filtro per artista
-          const artworksIds = (artistDetails.artworks || []).map((a) => a.ID.toString());
+        setGalleryDetails(galleryDetails);
+        setArtistDetails(artistDetails);
+        setUserProfile(userProfile);
+
+        if (artistDetails) {
+          const artworkIds = new Set((artistDetails.artworks || []).map(a => a.ID.toString()));
           setArtistArtworks(
-            artworksToGalleryItems(galleryArtworks.filter((a) => artworksIds.indexOf(a.id.toString()) !== -1)),
+            artworksToGalleryItems(
+              galleryArtworks.filter(a => artworkIds.has(a.id.toString()))
+            )
           );
         }
 
-        if (auth.isAuthenticated) {
-          data.getUserProfile().then((resp) => setUserProfile(resp));
-        }
-
-        // setGalleryDetails(galleryDetails);
-        //const galleryArtworks = await data.listArtworksForArtist(resp.vendor);
-        setGalleryArtworks(artworksToGalleryItems(galleryArtworks));
-
         setIsReady(true);
-      })
-      .catch((err) => {
+      } catch (err) {
         if (err === "Not found") {
           navigate("/errore/404");
         }
-        throw err;
-      });
-  }, [urlParams.id, urlParams.slug_opera]);
+        console.error(err);
+        setIsReady(true);
+      }
+    };
+
+    void fetchArtworkData();
+  }, [urlParams.slug_opera, data, navigate, auth.isAuthenticated]);
 
   useEffect(() => {
     const handleFavouritesUpdated = (e: CustomEvent<FavouritesMap>) => {
@@ -241,7 +230,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
   }, [artwork?.id]);
 
 
-  const px = getDefaultPaddingX();
+  const px = useMemo(() => getDefaultPaddingX(), []);
 
   return (
     <DefaultLayout pageLoading={!isReady}>
@@ -250,11 +239,11 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
       ):(
         <Box sx={{mt: { xs: 0, sm: 12, md: 18 } }} display="flex" justifyContent="center" overflow={'visible'}>
           <div className={'flex flex-col w-full lg:flex-row '}>
-            <div className={'w-full max-w-2xl lg:min-w-sm lg:min-h-screen rounded-2xl overflow-hidden'}>
+            <div className={'w-full max-w-2xl lg:min-w-sm lg:min-h-screen rounded-b-2xl md:rounded-2xl overflow-hidden'}>
               <img
                 src={artwork?.images?.length ? artwork.images[0].woocommerce_single : ""}
                 alt={artwork?.images[0]?.name}
-                className={` object-contain sticky top-0 w-full rounded-2xl `}
+                className={` object-contain sticky top-0 w-full rounded-b-2xl md:rounded-2xl `}
               />
             </div>
             <div className={'flex flex-col pt-6 lg:0 max-w-2xl px-8 md:px-8'}>
@@ -270,7 +259,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
                   </Link>
                 </Typography>
                 <Box flexGrow={1} />
-                <IconButton onClick={() => handleSetArtworkFavourite()}>
+                <IconButton onClick={handleSetArtworkFavourite}>
                   {isArtworkFavourite ? (
                     <FavouriteFilledIcon color="primary" fontSize="small" />
                   ) : (
@@ -284,7 +273,7 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
                   <QrCodeIcon />
                 </IconButton>
               </div>
-              <Typography sx={{}} variant="h1">
+              <Typography variant="h1">
                 {artwork?.name}
               </Typography>
               <Typography variant="h1" color="textSecondary">
@@ -320,67 +309,44 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
                   </>
                 )}
               </Box>
-              <Divider sx={{ mt: 6 }} />
-              <Box display="flex" alignItems="center" my={3}>
-                <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
-                  € {formatCurrency(+(artwork?.price || 0))}
-                </Typography>
-                <Box flexGrow={1} />
-                <Button
-                  variant="contained"
-                  disabled={isOutOfStock || isReserved}
-                  onClick={() => handlePurchase(artwork?.id)}>
-                  Compra opera
-                </Button>
-              </Box>
-              <Divider />
-              <Box mt={2} sx={{ my: 3 }} display="flex" alignItems="center" gap={1}>
-                <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
-                  € {formatCurrency((+(artwork?.price || 0) * data.downpaymentPercentage()) / 100)}
-                </Typography>
-                <Box flexGrow={1} />
-                <Box display="flex" flexDirection="column" alignItems="flex-end">
-                  <Button variant="outlined" disabled={isOutOfStock || isReserved} onClick={handleLoanPurchase}>
-                    Prenota l’opera
-                  </Button>
-                  <Typography sx={{ mt: 1 }} variant="body2">
-                    Non sai come funziona?{" "}
-                    <Link color="inherit" href="#prenota-opera">
-                      Scopri di più!
-                    </Link>
+              <Box display="flex" flexDirection={"column"}  mt={12} bgcolor={'#EFF1FF'} borderRadius={2} padding={2} >
+                <div className={'flex w-full justify-between items-center mb-6 border-b border-[#010F22]/20  pb-6'}>
+                  <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
+                    € {formatCurrency(+(artwork?.price || 0))}
                   </Typography>
-                </Box>
+                  <Button
+                    variant="contained"
+                    disabled={isOutOfStock || isReserved}
+                    onClick={() => handlePurchase(artwork?.id)}>
+                    Compra opera
+                  </Button>
+                </div>
+                <div className={'flex flex-col w-full md:flex-row justify-between space-y-4 md:space-y-0'}>
+                  <p className={'text-secondary leading-6'}>Metodi di pagamento</p>
+                  <ul className={'flex gap-2'}>
+                    <li><img src={klarna_card} alt={'Klarna payment Card '}/></li>
+                    <li><img src={santander_card} alt={'Santander payment Card '}/></li>
+                    <li><img src={cards_group} alt={'Other payment cards '}/></li>
+                  </ul>
+                </div>
+              </Box>
+
+              <Box mt={3} sx={{ my: 3 }} display="flex" flexDirection={"column"} gap={1} bgcolor={'#FAFAFB'} borderRadius={2} padding={2}>
+                <div className={'flex w-full justify-between items-center mb-6 border-b border-[#010F22]/20  pb-6'}>
+                  <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
+                    € {formatCurrency((+(artwork?.price || 0) * data.downpaymentPercentage()) / 100)}
+                  </Typography>
+                  <Button variant="outlined" disabled={isOutOfStock || isReserved} onClick={handleLoanPurchase}>
+                    Prenota ora
+                  </Button>
+
+                </div>
+                  <div className={'flex justify-between items-center gap-4'}>
+                    <p className={'text-sm text-secondary text-balance '}>Blocchi l’opera per 7 giorni versando solo il 5%. Se non concludi l’acquisto, ti rimborsiamo tutto</p>
+                    <MiniLockerIcon className={'size-16 md:size-8'}/>
+                  </div>
               </Box>
               <Divider sx={{ mb: 3 }} />
-              <Box
-                display="flex"
-                sx={{
-                  background: theme.palette.secondary.main,
-                  color: theme.palette.secondary.contrastText,
-                  alignItems: { xs: "flex-start", sm: "center" },
-                  py: 3,
-                  px: 3,
-                  borderRadius: "5px",
-                }}>
-                <img src={artworkLoanBannerIcon} style={{ transform: `translateX(-${theme.spacing(3)})` }} />
-                <Box
-                  display="flex"
-                  sx={{ flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" } }}
-                  flexGrow={1}>
-                  <Typography
-                    variant="body2"
-                    color="white"
-                    sx={{ maxWidth: { xs: undefined, sm: "calc(100% - 150px)", md: "180px", lg: "248px" } }}>
-                    Per i tuoi acquisti d'arte su artpay, puoi scegliere la migliore proposta di prestito tra quelle degli
-                    istituti bancari nostri partner.
-                  </Typography>
-                  <Box flexGrow={1} />
-                  <Link variant="body1" color="inherit" href="#scopri-di-piu" sx={{ mt: { xs: 3, sm: 0 } }}>
-                    Scopri di più
-                  </Link>
-                </Box>
-              </Box>
-              <Divider sx={{ mt: 3 }} />
               <Box
                 display="flex"
                 flexDirection={{ xs: "column", sm: "row" }}
@@ -394,13 +360,13 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
                   </Typography>
                 </Box>
                 <Box display="flex" flexDirection={{ xs: "row", sm: "column" }} sx={{ mt: { xs: 0, sm: 0 } }}>
-                  <Button variant="outlined" endIcon={<Send />} onClick={() => handleSendMessage()}>
+                  <Button variant="text" onClick={handleSendMessage}>
                     Contatta la galleria
                   </Button>
                 </Box>
               </Box>
               <Divider sx={{ mt: 3 }} />
-              <div className={`px-[${px.toString()}] mt-6`} >
+              <div className={`px-[${px}] mt-6`}>
                 <div className={'flex flex-col justify-center gap-6'}>
                   {artwork && <ArtworkDetails artwork={artwork} artist={artistDetails} />}
                   <Divider />
@@ -415,100 +381,17 @@ const Artwork: React.FC<ArtworkProps> = ({}) => {
         </Box>
       )}
 
-      <Box>
+      <Box className={'py-24'}>
         <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 4, sm: 0}}} marginTop={6} variant="h2">
-          Opere dello stesso artista
+          Opere che ti potrebbero piacere
         </Typography>
         {!artistArtworks ? (
           <CardGridSkeleton count={4} />
           ) : (
-          <ArtworksList disablePadding  items={artistArtworks || []} />
+          <ArtworksList disablePadding items={artistArtworks} />
         )}
-        <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 4, sm: 0}}} marginTop={6} variant="h2">
-          Opere della galleria
-        </Typography>
-        {!galleryArtworks ? (
-          <CardGridSkeleton />
-          ) : (
-          <ArtworksList
-            disablePadding
-            items={galleryArtworks || []}
-            onSelect={handleGalleryArtworkSelect}
-          />
-        )}
+
         <ArtworksList disablePadding title="Simili per prezzo" items={[]} />
-      </Box>
-      <Box id="prenota-opera" sx={{ top: "-20px", position: "relative" }}></Box>
-      <Grid className={'pt-24 px-8 md:px-0'} spacing={3} display="flex" container>
-        <Grid xs={12} item>
-          <Typography variant="h2">
-            Non vuoi farti sfuggire un’opera? <span style={{ color: theme.palette.primary.main }}>Prenotala!</span>
-          </Typography>
-          <Typography variant="subtitle1" sx={{ maxWidth: "400px", mt: 2 }}>
-            Se sei intenzionato ad acquistare un’opera, non devi fare altro che prenotarla e non fartela scappare!
-          </Typography>
-        </Grid>
-        <Grid xs={12} md={4} px={1} item>
-          <PromoCardSmall
-            footer={
-              <Button
-                variant={"contained"}
-                color={"contrast"}
-                disabled={isOutOfStock || isReserved}
-                onClick={handleLoanPurchase}>
-                Prenota l'opera
-              </Button>
-            }
-            imgSrc={prenotaOpera}
-            title={
-              <>
-                Prenota <br />
-                l’opera
-              </>
-            }
-            text="Con una piccola quota bloccata sulla tua carta di credito, proporzionale al prezzo d’acquisto, prenoti l’opera che ti interessa e ti garantisci i diritti esclusivi d’acquisto. Dal momento della prenotazione, l’opera sarà riservata a tuo nome per 7 giorni. In caso di mancato acquisto, la somma sarà sbloccata entro 5 giorni lavorativi. "
-          />
-        </Grid>
-        <Grid xs={12} md={4} px={1} item>
-          <PromoCardSmall
-            variant="secondary"
-            imgSrc={richiediPrestito}
-            title={
-              <>
-                Richiedi <br />
-                un prestito
-              </>
-            }
-            link="Scopri i nostri partner"
-            linkHref="https://www.santanderconsumer.it/prestito/partner/artpay"
-            text="Con artpay puoi finalmente accedere a prestiti personalizzati. Per i tuoi acquisti d'arte scegli la migliore proposta di prestito tra quelle degli istituti bancari nostri partner. Di norma l’approvazione avviene in poche ore. "
-          />
-        </Grid>
-        <Grid xs={12} md={4} px={1} item>
-          <PromoCardSmall
-            footer={
-              <Button
-                variant="outlined"
-                disabled={isOutOfStock || isReserved}
-                onClick={() => handlePurchase(artwork?.id)}>
-                Compra opera
-              </Button>
-            }
-            variant="white"
-            imgSrc={completaAcquisto}
-            title={
-              <>
-                Completa l’acquisto <br />
-                dell’opera
-              </>
-            }
-            text="Ad acquisto avvenuto, l’opera è tua e avrai massima libertà di personalizzare le modalità di consegna, confrontandoti direttamente col personale della galleria d’arte responsabile della vendita."
-          />
-        </Grid>
-      </Grid>
-      <div style={{ top: "-80px", position: "relative", visibility: "hidden" }} id="scopri-di-piu" />
-      <Box sx={{mt: 3, mb: 12 }}>
-        <LoanCard artwork={artwork} />
       </Box>
     </DefaultLayout>
   );
