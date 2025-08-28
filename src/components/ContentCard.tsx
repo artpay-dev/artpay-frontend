@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Box, Paper, PaperProps, Typography } from "@mui/material";
+import { Box, PaperProps, Typography } from "@mui/material";
 
 export interface ContentCardProps {
   icon?: ReactNode;
@@ -10,6 +10,7 @@ export interface ContentCardProps {
   contentPaddingMobile?: number;
   hideHeader?: boolean;
   sx?: PaperProps["sx"];
+  variant?: "default" | "shadow";
 }
 
 const ContentCard: React.FC<ContentCardProps> = ({
@@ -19,23 +20,27 @@ const ContentCard: React.FC<ContentCardProps> = ({
                                                    children,
                                                    contentPadding = 5,
                                                    contentPaddingMobile = 3,
-                                                   sx,
-                                                   hideHeader = false
+                                                   hideHeader = false,
+                                                   variant= "default"
                                                  }) => {
-  // const theme = useTheme();
+  const style = {
+    default: 'md:border-t border-[#CDCFD3] pt-6 px-2 md:px-0',
+    shadow: 'shadow-custom-variant pt-6 rounded-3xl px-10'
+  }
+
   return (
-    <Paper elevation={0} sx={{ border: "1px solid #d8ddfa", ...sx }}>
-      <Box display="flex" pb={2} flexDirection="column">
+    <div className={`${style[variant]} pb-6 w-full `}>
+      <Box display="flex" flexDirection="column">
         {!hideHeader && <Box gap={2} mb={1} p={2} alignItems="center" display="flex">
           {icon}
-          <Typography sx={{ flexGrow: 1 }} variant="subtitle1">
+          <Typography className={`flex-1 ${variant == "default" ? 'text-secondary' : 'text-[#010F22]'}`}>
             {title}
           </Typography>
           <Box>{headerButtons}</Box>
         </Box>}
         <Box sx={{ px: { xs: contentPaddingMobile, md: contentPadding } }}>{children}</Box>
       </Box>
-    </Paper>
+    </div>
   );
 };
 

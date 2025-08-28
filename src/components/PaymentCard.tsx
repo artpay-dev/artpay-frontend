@@ -1,13 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { PiCreditCardThin } from "react-icons/pi";
-import { Tabs, Tab, Box, Typography } from "@mui/material";
+import {   Box } from "@mui/material";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "./CheckoutForm.tsx";
 import ContentCard from "./ContentCard.tsx";
 import { usePayments } from "../hoc/PaymentProvider.tsx";
 import { useTheme } from "@mui/material";
 import { PaymentIntent, StripePaymentElement } from "@stripe/stripe-js";
-import LoanCardTab from "./LoanCardTab.tsx";
 
 export interface PaymentCardProps {
   tabTitles: string[]; // Nuova proprietà per i titoli delle tab
@@ -22,7 +21,6 @@ export interface PaymentCardProps {
 }
 
 const PaymentCard: React.FC<PaymentCardProps> = ({
-  tabTitles, // Ricezione dei titoli come prop
   paymentIntent,
   onReady,
   onCheckout,
@@ -33,38 +31,18 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
   const payments = usePayments();
   const theme = useTheme();
 
-  const [selectedTab, setSelectedTab] = useState(0);
-
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setSelectedTab(newValue);
-    if (onChange) {
-      onChange("Santander");
-    }
-  };
 
   return (
     <ContentCard
-      title="Metodi di pagamento"
+      title="Scegli la soluzione di pagamento che preferisci"
       icon={<PiCreditCardThin size="28px" />}
       contentPadding={0}
       contentPaddingMobile={0}>
       {/* Tabs for switching payment methods */}
-      <Tabs
-        value={selectedTab}
-        onChange={handleTabChange}
-        indicatorColor="primary"
-        textColor="primary"
-        variant="fullWidth">
-        {tabTitles.map((title, index) => (
-          <Tab key={index} label={title} />
-        ))}
-      </Tabs>
 
-      <Box sx={{ mt: 3 }}>
-        {selectedTab === 0 && (
-          <>
-            {paymentIntent && (
-              <Elements
+
+      <Box> {paymentIntent && (
+              /*<Elements
                 stripe={payments.stripe}
                 options={{
                   clientSecret: paymentIntent.client_secret || undefined,
@@ -90,6 +68,37 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
                       },
                     },
                   },
+                }}>*/
+              <Elements
+                stripe={payments.stripe}
+                options={{
+                  clientSecret: paymentIntent.client_secret || undefined,
+                  loader: "always",
+                  appearance: {
+                    theme: "flat",
+                    variables: {
+                      gridColumnSpacing: "24px",
+                      colorBackground: "#fff",
+                      colorText: "#808791",
+                    },
+                    rules:{
+                      ".AccordionItem": {
+                        border: "none",
+                        backgroundColor: "#FAFAFB",
+                      },
+                      ".Input": {
+                        border: "1px solid #CDCFD3"
+                      },
+                      ".Input:focus": {
+                        boxShadow: "none",
+                        borderColor: theme.palette.primary.main,
+                        borderWidth: "2px",
+                      },
+                      ".Input:hover": {
+                        borderColor: theme.palette.primary.main,
+                      },
+                    },
+                  },
                 }}>
                 <CheckoutForm
                   ref={checkoutButtonRef}
@@ -100,16 +109,6 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
                 />
               </Elements>
             )}
-          </>
-        )}
-
-        {selectedTab === 1 && (
-          <Box>
-            <Typography variant="body1">
-              <LoanCardTab paymentIntent={paymentIntent} />
-            </Typography>
-          </Box>
-        )}
       </Box>
     </ContentCard>
   );

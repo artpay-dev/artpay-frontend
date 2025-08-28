@@ -60,7 +60,7 @@ const FavouriteGalleriesList : React.FC = () => {
 
       {ready ? (
           <>
-            <div className={"flex justify-between pe-8 md:pe-0"}>
+            <div className={"flex justify-between pe-8 md:pe-0 mb-12"}>
               <h3 className={"ps-8 md:px-0 text-3xl leading-[105%] font-normal max-w-lg text-balance"}>Shop seguiti</h3>
               <NavLink
                 to={"/profile/gallerie"}

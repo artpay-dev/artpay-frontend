@@ -18,6 +18,9 @@
 
     --shadow-custom: rgba(62, 78, 236, 0.15) 0px 4px 16px 0px;
 
+    --shadow-custom-variant: rgba(1, 15, 34, 0.08) 0px 4px 64px 0px;
+
+
     --shadow-custom-top: #3E4EEC26 0px -5px 16px 0px;
 
     --animate-fade-in-scale: fade-in-scale 2500ms ease-out forwards;
@@ -106,6 +109,10 @@ html {
 
 .SwiperCard-fit, .swiper-slide.SwiperCard-fit {
     width: 100%;
+}
+
+iframe {
+    outline: none;
 }
 
 /*

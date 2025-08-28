@@ -73,7 +73,7 @@ interface PostCardProps {
 
 function PostCard({ post }: PostCardProps) {
   return (
-    <li className="w-90  flex flex-col h-full">
+    <li className="w-80 md:w-90  flex flex-col h-full">
       <div className="mb-4 h-72  flex-shrink-0">
         {post.cover && (
           <Link to={`/guide/${post.slug}`}>
