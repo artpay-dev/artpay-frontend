@@ -456,7 +456,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     return () => {
       axios.interceptors.request.eject(interceptorId);
     };
-  }, [authValues.wcToken, baseUrl, userInfoUrl]);
+  }, [baseUrl, userInfoUrl]);
 
   useEffect(() => {
     if (authValues.user && authValues.wcToken) {

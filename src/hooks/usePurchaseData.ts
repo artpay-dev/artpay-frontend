@@ -160,7 +160,7 @@ export const usePurchaseData = (orderMode: string) => {
 
   useEffect(() => {
     loadInitialData();
-  }, [auth.isAuthenticated, orderMode, data, urlParams.order_id]);
+  }, [auth.isAuthenticated, orderMode, urlParams.order_id]);
 
   // Calculate subtotal when order changes
   useEffect(() => {

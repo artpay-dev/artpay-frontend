@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Gallery } from "../types/gallery.ts";
 import axios, { AxiosResponse, isAxiosError } from "axios";
 import { SignInFormData } from "../components/SignInForm.tsx";
@@ -490,64 +490,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     },
   };
 
-  const dataContext: {
-    info(): Promise<string>;
-    getHomeContent(): Promise<HomeContent>;
-    getPageBySlug(slug: string): Promise<Post>;
-    getArtwork(id: string): Promise<Artwork>;
-    getArtworks(ids: number[]): Promise<Artwork[]>;
-    getArtworkBySlug(slug: string): Promise<Artwork>;
-    getGallery(id: string): Promise<Gallery | null>;
-    getGalleries(ids?: number[]): Promise<Gallery[]>;
-    getGalleryBySlug(slug: string): Promise<Gallery>;
-    listGalleries(): Promise<Gallery[]>;
-    listArtworks(): Promise<Artwork[]>;
-    listFeaturedArtworks(): Promise<Artwork[]>;
-    listArtworksForGallery(galleryId: string): Promise<Artwork[]>;
-    listArtworksForArtist(): Promise<Artwork[]>;
-    listFeaturedArtists(): Promise<Artist[]>;
-    listArtistsForGallery(galleryId: string): Promise<Artist[]>;
-    getArtist(artistId: string): Promise<Artist>;
-    getArtistBySlug(artistSlug: string): Promise<Artist>;
-    getArtists(artistIds: number[]): Promise<Artist[]>;
-    getAvailableShippingMethods(): Promise<ShippingMethodOption[]>;
-    listOrders({ status, ...params }?: OrderFilters): Promise<Order[]>;
-    getPendingOrder(): Promise<Order | null>;
-    getOnHoldOrder(): Promise<Order | null>;
-    getProcessingOrder(): Promise<Order | null>;
-    getExternalOrder(): Promise<void>;
-    getOrder(id: number): Promise<Order | null>;
-    createOrder(body: OrderCreateRequest): Promise<Order>;
-    updateOrder(orderId: number, body: OrderUpdateRequest): Promise<Order>;
-    setOrderStatus(orderId: number, status: OrderStatus, params?: any): Promise<Order>;
-    purchaseArtwork(artworkId: number, loan?: boolean): Promise<Order>;
-    createPaymentIntent(body: PaymentIntentRequest): Promise<PaymentIntent>;
-    createPaymentIntentCds(body: PaymentIntentRequest): Promise<PaymentIntent>;
-    updatePaymentIntent(data: UpdatePaymentIntentRequest): Promise<PaymentIntent>;
-    createRedeemIntent(body: PaymentIntentRequest): Promise<PaymentIntent>;
-    createBlockIntent(body: PaymentIntentRequest): Promise<PaymentIntent>;
-    clearCachedPaymentIntent(body: PaymentIntentRequest): Promise<void>;
-    getUserInfo(): Promise<User>;
-    getUserProfile(): Promise<UserProfile>;
-    deleteUser(): Promise<void>;
-    updateUserProfile(body: Partial<UpdateUserProfile>): Promise<UserProfile>;
-    sendQuestionToVendor(data: CustomerQuestion): Promise<CustomerQuestionResponse>;
-    getChatHistory(): Promise<GroupedMessage[]>;
-    getProductChatHistory(productId: number): Promise<Message[]>;
-    subscribeNewsletter(email: string, optIn: string, formUrl: string): Promise<void>;
-    getCategoryMapValues(artwork: Artwork, key: string): string[];
-    getArtistCategories(artist: Artist): string[];
-    downpaymentPercentage: () => number;
-    getFavouriteArtists(): Promise<Artist[]>;
-    addFavouriteArtist(id: string): Promise<Artist[]>;
-    removeFavouriteArtist(id: string): Promise<Artist[]>;
-    getFavouriteArtworks(): Promise<number[]>;
-    addFavouriteArtwork(id: string): Promise<number[]>;
-    removeFavouriteArtwork(id: string): Promise<number[]>;
-    getFavouriteGalleries(): Promise<number[]>;
-    addFavouriteGallery(id: string): Promise<number[]>;
-    removeFavouriteGallery(id: string): Promise<number[]>;
-  } = {
+  const dataContext = useMemo(() => ({
     info(): Promise<string> {
       return Promise.resolve("");
     },
@@ -1265,7 +1208,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
     },
     downpaymentPercentage: () => 5,
     ...favourites,
-  };
+  }), [auth, baseUrl]);
 
   useEffect(() => {
     const handleUserLoggedIn = async () => {

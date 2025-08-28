@@ -61,7 +61,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
     if (payments.isReady) {
       updateState({ paymentsReady: payments.isReady });
     }
-  }, [payments.isReady, updateState]);
+  }, [payments.isReady]);
 
   // Handle no pending order navigation
   useEffect(() => {
