@@ -31,7 +31,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
   return (
     <div className={`${style[variant]} pb-6 w-full `}>
       <Box display="flex" flexDirection="column">
-        {!hideHeader && <Box gap={2} mb={1} p={2} alignItems="center" display="flex">
+        {!hideHeader && <Box gap={2} mb={4} alignItems="center" display="flex">
           {icon}
           <Typography className={`flex-1 ${variant == "default" ? 'text-secondary' : 'text-[#010F22]'}`}>
             {title}

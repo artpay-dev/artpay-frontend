@@ -170,8 +170,8 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
 
   return (
     <DefaultLayout pageLoading={!state.isReady || !state.paymentsReady} pb={6} authRequired>
-      <div className={'flex flex-col md:grid md:grid-cols-2 gap-8 md:gap-32 pb-24 pt-35 md:pt-0'}>
-        <div className={'order-last md:order-first'}>
+      <div className={'flex flex-col md:grid lg:grid-cols-2 gap-8 md:gap-32 pb-24 pt-35 md:pt-0'}>
+        <div className={'order-last lg:order-first'}>
           {orderMode === "loan" && (
             <Box sx={{ borderTop: `1px solid #d8ddfa`, borderBottom: `1px solid #d8ddfa` }} py={3} mb={8}>
               <Typography variant="h1">
@@ -186,30 +186,17 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
           )}
           <PaymentCard
             orderMode={orderMode}
+            paymentMethod={state.paymentMethod || ''}
             checkoutButtonRef={checkoutButtonRef}
             onCheckout={() => handlers.handleSubmitCheckout()}
             onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
             onReady={() => updateState({ checkoutReady: true })}
             paymentIntent={pageData.paymentIntent}
             thankYouPage={thankYouPage}
-            tabTitles={[
-              pageData.paymentIntent != undefined
-                ? pageData.paymentIntent.payment_method_types
-                    .map((method: string) => {
-                      if (method.toUpperCase() === "CUSTOMER_BALANCE") {
-                        return "Bonifico Bancario";
-                      } else {
-                        return method.charAt(0).toUpperCase() + method.slice(1);
-                      }
-                    })
-                    .join(", ")
-                : "Metodi classici",
-              "Santander",
-            ]}
           />
           {orderMode !== "loan" && auth.isAuthenticated && (
-            <ContentCard title="Metodo di spedizione" icon={<PiTruckThin size="28px" />}>
-              <RadioGroup defaultValue="selected" name="radio-buttons-group">
+            <ContentCard contentPadding={0} title="Metodo di spedizione" icon={<PiTruckThin size="28px" />}>
+              <RadioGroup defaultValue="selected" name="radio-buttons-group" className={'p-0!'}>
                 {pageData.availableShippingMethods.map((s) => {
                   return (
                     <RadioButton
@@ -221,6 +208,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                       checked={currentShippingMethod === s.method_id}
                       label={s.method_title}
                       description={s.method_description(estimatedShippingCost)}
+                      className={`${currentShippingMethod === s.method_id ? 'bg-[#F0F1FD] ' : 'bg-[#FAFAFB] '} mb-6 p-6 rounded-lg` }
                     />
                   );
                 })}
@@ -277,7 +265,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
             )}
           </ContentCard>
         </div>
-        <div className={'order-first md:order-last px-2'}>
+        <div className={'order-first lg:order-last px-2'}>
           <ContentCard title={cardContentTitle} icon={<ShoppingBagIcon />} contentPadding={0} contentPaddingMobile={0} variant={'shadow'}>
             {pageData.galleries && pageData.galleries.length == 0 ? (
               <div className={"flex justify-center items-center w-full"}>
@@ -418,7 +406,7 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
                 />
               </div>
               {state.paymentMethod === "Santander" ? (
-                <div className={"w-full flex justify-center my-12"}>
+                <div className={"w-full flex justify-center "}>
                   <SantanderButton order={pageData.pendingOrder as Order} disabled={!state.privacyChecked} />
                 </div>
               ) : (
