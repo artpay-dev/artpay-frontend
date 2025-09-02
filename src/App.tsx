@@ -15,7 +15,6 @@ import DialogProvider from "./hoc/DialogProvider.tsx";
 import SnackbarProvider from "./hoc/SnackbarProvider.tsx";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import ProfileSettings from "./pages/ProfileSettings.tsx";
 import PaymentProvider from "./hoc/PaymentProvider.tsx";
 import PurchaseComplete from "./pages/PurchaseComplete.tsx";
 import About from "./pages/About.tsx";
@@ -44,6 +43,8 @@ import { useScrollToTop } from "./utils.ts";
 import Tutorials from "./pages/Tutorials.tsx";
 import SinglePostPage from "./pages/SinglePostPage.tsx";
 import DashboardPage from "./pages/DashboardPage.tsx";
+import PersonalSettingsPage from "./pages/PersonalSettingsPage.tsx";
+import ShippingSettingsPage from "./pages/ShippingSettingsPage.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -96,8 +97,8 @@ function AppContent() {
                     <Route path="/acconto-blocca-opera" element={<Purchase orderMode="loan" />} />
                     <Route path="/opera-bloccata/:slug_opera" element={<ArtworkReserved />} />
                     <Route path="/profile" element={<Profile />} />
-                    <Route path="/profile/settings" element={<ProfileSettings />} />
-                    <Route path="/profile/:slug" element={<Profile />} />
+                    <Route path="/profile/personal-settings" element={<PersonalSettingsPage />} />
+                    <Route path="/profile/shipping-invoice-settings" element={<ShippingSettingsPage />} />
                     <Route path="/thank-you-page" element={<PurchaseComplete />} />
                     <Route path="/thank-you-page/:order_id" element={<PurchaseComplete />} />
                     <Route path="/chi-siamo" element={<About />} />

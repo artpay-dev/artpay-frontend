@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useData } from "../hoc/DataProvider.tsx";
 import { Grid, Typography } from "@mui/material";
-import { getDefaultPaddingX, ordersToOrderHistoryCardProps, useNavigate } from "../utils.ts";
+import { ordersToOrderHistoryCardProps, useNavigate } from "../utils.ts";
 import { OrderStatus } from "../types/order.ts";
 import OrderHistoryCard, { OrderHistoryCardProps } from "./OrderHistoryCard.tsx";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
@@ -9,14 +9,11 @@ import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 export interface OrdersHistoryProps {
   title?: string;
   subtitle?: string;
-  mode: "completed" | "on-hold";
+  mode?: "completed" | "on-hold" | "all";
 }
 
 const OrdersHistory: React.FC<OrdersHistoryProps> = ({
-                                                       mode,
-                                                       title = "Opere acquistate",
-                                                       subtitle = "In questa sezione trovi tutte le tue opere in via di acquisizione, potrai controllarne lo stato di avanzamento\n" +
-                                                       "e verificare se le tue richieste di finanziamento sono state approvate"
+                                                       title = "Opere acquistate"
                                                      }) => {
   const data = useData();
   const navigate = useNavigate();
@@ -36,29 +33,20 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({
   };
 
   useEffect(() => {
-    if (mode === "completed") {
-      data.listOrders({ status: ["completed", "on-hold"], per_page: 10 }).then((orders) => {
-        setOrders(ordersToOrderHistoryCardProps(orders).filter(o => o.status === "completed" || o.purchaseMode === "Stripe SEPA"));
+
+      data.listOrders({ status: ["processing", "completed", ], per_page: 10 }).then((orders) => {
+        setOrders(ordersToOrderHistoryCardProps(orders));
       }).catch(e => snackbar.error(e));
-    } else {
-      data.listOrders({ status: ["processing", "on-hold"], per_page: 10 }).then((orders) => {
-        setOrders(ordersToOrderHistoryCardProps(orders.filter((order) => order.created_via != "gallery_auction")).filter(o => o.purchaseMode !== "Stripe SEPA" ));
-      }).catch(e => snackbar.error(e));
-    }
 
   }, []);
 
-  console.log(orders)
-
-  const px = getDefaultPaddingX();
 
   return (
-    <Grid sx={{ px: px, width: "100%" }} justifyContent="stretch" container>
+    <Grid justifyContent="stretch" container>
       <Grid xs={12} md={6} mb={3} pr={{ xs: 0, md: 1.5 }} item>
         <Typography sx={{ mb: 2 }} variant="h3">
           {title}
         </Typography>
-        <Typography variant="body1">{subtitle}</Typography>
       </Grid>
       <Grid xs={12} item />
       {orders?.map((order, i) => (

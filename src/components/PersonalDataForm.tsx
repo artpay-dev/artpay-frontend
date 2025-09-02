@@ -10,9 +10,10 @@ export interface PersonalDataFormProps {
   defaultValues?: PersonalDataFormData;
   onSubmit?: (formData: PersonalDataFormData) => Promise<void>;
   disabled?: boolean;
+  className?: string;
 }
 
-const PersonalDataForm: React.FC<PersonalDataFormProps> = ({ onSubmit, defaultValues, disabled = false }) => {
+const PersonalDataForm: React.FC<PersonalDataFormProps> = ({ onSubmit, defaultValues, disabled = false, className = "" }) => {
   const {
     control,
     handleSubmit,
@@ -34,7 +35,7 @@ const PersonalDataForm: React.FC<PersonalDataFormProps> = ({ onSubmit, defaultVa
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)}>
+    <form onSubmit={handleSubmit(handleFormSubmit)} className={className}>
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6}>
           <Controller

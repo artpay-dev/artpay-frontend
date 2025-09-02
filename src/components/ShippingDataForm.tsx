@@ -22,9 +22,10 @@ export interface UserDataFormProps {
   onSubmit?: (formData: ShippingData) => Promise<void>;
   showEmail?: boolean;
   disabled?: boolean;
+  className?: string;
 }
 
-const ShippingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, showEmail, disabled = false }) => {
+const ShippingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, showEmail, disabled = false, className = "" }) => {
   const {
     control,
     handleSubmit,
@@ -47,7 +48,7 @@ const ShippingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)}>
+    <form onSubmit={handleSubmit(handleFormSubmit)} className={className}>
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6}>
           <Controller

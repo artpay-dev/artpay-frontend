@@ -26,6 +26,7 @@ export interface UserDataFormProps {
   isOnlyCDS?: boolean;
   onSubmit?: (formData: BillingData) => Promise<void>;
   disabled?: boolean;
+  className?: string;
 }
 
 const BillingDataForm: React.FC<UserDataFormProps> = ({
@@ -34,6 +35,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
   isOnlyCDS = false,
   onSubmit,
   disabled = false,
+  className = ''
 }) => {
   const {
     control,
@@ -81,7 +83,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
     <form onSubmit={handleSubmit(handleFormSubmit)}>
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <FormControl fullWidth error={!!errors.private_customer}>
+          <FormControl fullWidth error={!!errors.private_customer} className={className}>
             <Controller
               name="private_customer"
               control={control}

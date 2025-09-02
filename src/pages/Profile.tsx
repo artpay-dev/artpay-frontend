@@ -1,42 +1,29 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
-import { Box, Button, Tab } from "@mui/material";
 import { useData } from "../hoc/DataProvider.tsx";
 import { UserProfile } from "../types/user.ts";
-import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
-import TabPanel from "../components/TabPanel.tsx";
-import FavouriteArtworks from "../components/FavouriteArtworks.tsx";
-import FavouriteArtists from "../components/FavouriteArtists.tsx";
-import FavouriteGalleriesGrid from "../components/FavouriteGalleriesGrid.tsx";
 import ProfileHeader from "../components/ProfileHeader.tsx";
-import { useNavigate } from "../utils.ts";
 import { useAuth } from "../hoc/AuthProvider.tsx";
+import ProfileSettings from "../components/ProfileSettings.tsx";
 import OrdersHistory from "../components/OrdersHistory.tsx";
-import { useParams } from "react-router-dom";
+import ProfileSettingsSkeleton from "../components/ProfileSettingsSkeleton.tsx";
 
 export interface ProfileProps {
 }
 
-const subPageSlugs = ["opere-acquistate", "opere-bloccate", "gallerie", "artisti", "opere-preferite", "messaggi"];
 const Profile: React.FC<ProfileProps> = ({}) => {
   const data = useData();
   const auth = useAuth();
-  const navigate = useNavigate();
-  const urlParams = useParams();
 
-  const selectedTab = subPageSlugs.indexOf(urlParams?.slug || "") !== -1 ? subPageSlugs.indexOf(urlParams?.slug || "") : 0;
-  const [selectedTabPanel, setSelectedTabPanel] = useState(selectedTab);
   const [isReady, setIsReady] = useState(false);
   const [profile, setProfile] = useState<UserProfile>();
 
-  const handleProfileSettings = () => {
-    navigate("/profile/settings");
-  };
 
-  const handleLogout = async () => {
-    await auth.logout();
-    navigate("/");
-  };
+  if (!auth.isAuthenticated) {
+    auth.login()
+  }
+
+  console.log(profile)
 
 
   useEffect(() => {
@@ -46,44 +33,37 @@ const Profile: React.FC<ProfileProps> = ({}) => {
     });
   }, [data]);
   return (
-    <DefaultLayout pageLoading={!isReady} authRequired>
+    <DefaultLayout authRequired>
+      <section className={'pt-35 md:pt-0 space-y-6 mb-24'}>
       <ProfileHeader
         profile={profile}
-        controls={[
-          <Button key="settings-btn" onClick={() => handleProfileSettings()} variant="outlined">
-            Impostazioni profilo
-          </Button>,
-          <Button key="logout-btn" color="error" onClick={() => handleLogout()}>
-            Logout
-          </Button>
-        ]}
       />
-      <Box px={{ xs: 0, sm: 0 }}>
-        <Box
-          sx={{
-            borderBottom: 1,
-            borderColor: "#CDCFD3",
-            mt: { xs: 3, md: 6 }
-          }}>
-          <ResponsiveTabs
-            value={selectedTabPanel}
-            onChange={(_, newValue) => {
-              window.history.replaceState(null, "", `/profile/${subPageSlugs[newValue]}`);
-              setSelectedTabPanel(newValue);
-            }}>
-            {/*gallerie-artisti-oepre-bloccate-acquistate*/}
-            <Tab label="Opere acquistate" />
-            <Tab label="Opere bloccate" />
-            <Tab label="Gallerie seguite" />
-            <Tab label="Artisti seguiti" />
-            <Tab label="Opere preferite" />
-            <Tab label="Messaggi" onClick={() => navigate("/messaggi")} />
-          </ResponsiveTabs>
-        </Box>
-      </Box>
-      <Box>
+        <div className={'bg-[#fafafb] p-6 rounded-lg flex space-x-6 '}>
+          <div className={'relative w-18 h-18 rotate-45'}>
+            <div className={'h-18 w-18 aspect-square border-7 rounded-full border-[#C2C9FF] absolute top-0 left-0'}></div>
+            <div className={'h-18 w-18 aspect-square border-7 rounded-full border-transparent border-t-primary absolute top-0 left-0'}></div>
+          </div>
+          <div className={'space-y-2'}>
+            <h4 className={'text-secondary'}>Completamento del profilo</h4>
+            <span>Step 1/4</span>
+          </div>
+        </div>
+
+      </section>
+      <section className={'mb-24'}>
+        {!isReady && !profile ? (<ProfileSettingsSkeleton />) : (
+          <ProfileSettings />
+        )}
+        <OrdersHistory mode={"all"} title={'La tua collezione di opere acquistate'} />
+      </section>
+    </DefaultLayout>
+  );
+};
+
+export default Profile;
+
+{/* <Box>
         <TabPanel value={selectedTabPanel} index={0}>
-          <OrdersHistory mode="completed" subtitle="In questa sezione trovi tutte le tue opere già acquistate" />
         </TabPanel>
         <TabPanel value={selectedTabPanel} index={1}>
           <OrdersHistory mode="on-hold" title="Opere bloccate" />
@@ -97,9 +77,4 @@ const Profile: React.FC<ProfileProps> = ({}) => {
         <TabPanel value={selectedTabPanel} index={4}>
           <FavouriteArtworks />
         </TabPanel>
-      </Box>
-    </DefaultLayout>
-  );
-};
-
-export default Profile;
+      </Box>*/}
