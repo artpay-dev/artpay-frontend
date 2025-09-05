@@ -169,7 +169,7 @@ const GalleryNavbar: React.FC<GalleryNavbarProps> = ({ onMenuToggle }) => {
       {/* Desktop Navbar */}
       <header className="fixed w-full z-20 top-6 px-6 md:px-12 hidden md:block">
         <div className="flex items-center gap-8 justify-between max-w-8xl mx-auto">
-          <BackButton isVisible={!isGalleryPage} onNavigateBack={() => navigate("back")} />
+          <BackButton isVisible={!isGalleryPage} />
 
           <div className="flex items-center justify-center gap-8">
             <MainNavigation
@@ -186,7 +186,7 @@ const GalleryNavbar: React.FC<GalleryNavbarProps> = ({ onMenuToggle }) => {
       {/* Mobile Navbar */}
       <header className="fixed w-full z-50 top-6 px-6 md:hidden">
         <div className="flex items-center gap-4 justify-between max-w-8xl mx-auto">
-          <BackButton isVisible={!isGalleryPage} onNavigateBack={() => navigate("back")} />
+          <BackButton isVisible={!isGalleryPage} />
 
           <div className="flex items-center justify-center gap-4">
             <MobileNavigation
@@ -212,12 +212,18 @@ const GalleryNavbar: React.FC<GalleryNavbarProps> = ({ onMenuToggle }) => {
   );
 };
 
-const BackButton: React.FC<{ isVisible: boolean; onNavigateBack: () => void }> = ({ isVisible, onNavigateBack }) => {
+const BackButton: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
+  const navigate = useNavigate();
+
   if (!isVisible) return <div />;
+
+  const handleGoBack = () => {
+    navigate(-1);
+  };
 
   return (
     <div className="custom-navbar flex py-4 px-2 bg-white">
-      <button className="underline flex items-center gap-2 mx-2 cursor-pointer" onClick={onNavigateBack} type="button">
+      <button className="underline flex items-center gap-2 mx-2 cursor-pointer" onClick={handleGoBack} type="button">
         <ArrowLeftIcon color="primary" />
         <span className="hidden md:block">Torna indietro</span>
       </button>
