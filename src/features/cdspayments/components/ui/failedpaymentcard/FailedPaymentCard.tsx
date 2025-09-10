@@ -28,6 +28,7 @@ const FailedPaymentCard = () => {
       console.log("Order restored to on-hold");
 
       setPaymentData({
+        order: restoreToOnHold,
         paymentStatus: "on-hold",
         paymentMethod: "bnpl",
         orderNote: "",

@@ -42,6 +42,7 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
 
 
         setPaymentData({
+          order: updateOrder,
           paymentMethod: "klarna",
           paymentIntent: updatePayment
         });

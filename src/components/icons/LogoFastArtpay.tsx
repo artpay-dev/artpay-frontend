@@ -9,7 +9,7 @@ const sizes : Record<string, string> = {
 }
 
 
-const LogoFastArtpay = ({className = "", size = 'medium', showCheckOut = false} : {className?: string, size?: string, showCheckOut: boolean}) => {
+const LogoFastArtpay = ({className = "", size = 'medium', showCheckOut = false} : {className?: string, size?: string, showCheckOut?: boolean}) => {
   const sizeStyle = sizes[size];  
   const { order, setPaymentData, openDraw } = usePaymentStore();
   const pathname = useLocation().pathname;

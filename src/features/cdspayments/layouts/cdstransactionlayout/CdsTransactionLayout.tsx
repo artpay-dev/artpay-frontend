@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import Navbar from "../../components/ui/navbar/Navbar.tsx";
 import { NavLink } from "react-router-dom";
 import usePaymentStore from "../../stores/paymentStore.ts";
@@ -9,110 +9,138 @@ import CdsTransactionsProvider from "../../hoc/cdstransactionsprovider/CdsTransa
 import Tooltip from "../../components/ui/tooltip/ToolTip.tsx";
 import BillingDataForm from "../../../../components/BillingDataForm.tsx";
 import BillingDataPreview from "../../../../components/BillingDataPreview.tsx";
-import { BillingData, UserProfile } from "../../../../types/user.ts";
+import type { BillingData, UserProfile } from "../../../../types/user.ts";
 import { useData } from "../../../../hoc/DataProvider.tsx";
 import PaymentProviderCard from "../../components/ui/paymentprovidercard/PaymentProviderCard.tsx";
 import { useNavigate } from "../../../../utils.ts";
 import { clearLocalStorage } from "../../utils.ts";
 
+// Constants
+const INVOICE_TYPE = {
+  RECEIPT: "receipt",
+  NONE: ""
+} as const;
+
+const ORDER_STATUS = {
+  PROCESSING: "processing",
+  ON_HOLD: "on-hold",
+  CANCELLED: "cancelled"
+} as const;
+
+const PAYMENT_METHOD = {
+  BNPL: "bnpl"
+} as const;
+
+
 const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
   const { order, vendor, user, setPaymentData, paymentMethod, loading } = usePaymentStore();
   const [shippingDataEditing, setShippingDataEditing] = useState(false);
-  const data = useData();
   const [saving, setSaving] = useState(false);
-  const [requireInvoice, setRequireInvoice] = useState<boolean>(user?.billing.invoice_type == "receipt");
   const [profile, setProfile] = useState<UserProfile>();
-
+  const data = useData();
   const navigate = useNavigate();
 
-  const getUserProfile = async () => {
+  // Derived state
+  const requireInvoice = useMemo(() => 
+    user?.billing?.invoice_type === INVOICE_TYPE.RECEIPT, 
+    [user?.billing?.invoice_type]
+  );
+
+  const showBillingSection = useMemo(() => 
+    paymentMethod !== PAYMENT_METHOD.BNPL && 
+    paymentMethod !== "" &&
+    paymentMethod !== null &&
+    (order?.status === ORDER_STATUS.ON_HOLD),
+    [paymentMethod, order?.status]
+  );
+
+  const isOrderLoading = !order;
+
+  const getUserProfile = useCallback(async () => {
     try {
-      const resp = await data.getUserProfile()
+      const resp = await data.getUserProfile();
       if (!resp) throw new Error("Error getting user profile");
       setProfile(resp);
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error("Failed to get user profile:", error);
     }
-  }
+  }, [data]);
 
-  const handleCancelPayment = async () => {
-    setPaymentData({
-      loading: true,
-    });
+  const handleCancelPayment = useCallback(async () => {
+    if (!order) return;
+    
+    setPaymentData({ loading: true });
+    
     try {
-      if (!order) return;
-
-      const cancelOrder = await data.updateOrder(order?.id, {
-        status: "cancelled",
+      const cancelOrder = await data.updateOrder(order.id, {
+        status: ORDER_STATUS.CANCELLED,
       });
-      if (!cancelOrder) throw Error("Error deleting order!");
-      console.log("Order deleted");
-
+      
+      if (!cancelOrder) throw new Error("Failed to cancel order");
+      
+      console.log("Order cancelled successfully:", cancelOrder.id);
+      
       setPaymentData({
-        paymentStatus: "cancelled",
-        paymentMethod: "",
-        orderNote: "",
+        order: cancelOrder,
+        paymentStatus: ORDER_STATUS.CANCELLED,
+        paymentMethod: INVOICE_TYPE.NONE,
+        orderNote: INVOICE_TYPE.NONE,
+        loading: false
       });
-
-      clearLocalStorage(order)
-
-
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setPaymentData({
-        loading: false,
-      })
-      navigate(`/`);
+      
+      clearLocalStorage(order);
+      navigate("/");
+      
+    } catch (error) {
+      console.error("Failed to cancel payment:", error);
+      setPaymentData({ loading: false });
     }
-  };
+  }, [order, data, setPaymentData, navigate]);
 
 
-  const handleProfileDataSubmit = async (formData: BillingData) => {
-    if (!user?.id) {
-      return;
-    }
+  const handleProfileDataSubmit = useCallback(async (formData: BillingData) => {
+    if (!user?.id) return;
+    
     setSaving(true);
-
+    
     try {
-      const updatedProfile = await data.updateUserProfile({ billing: formData as BillingData });
-      if (!updatedProfile) throw new Error("Update user profile failed");
-
-      setPaymentData({
-        user: updatedProfile,
-      });
-
+      const updatedProfile = await data.updateUserProfile({ billing: formData });
+      if (!updatedProfile) throw new Error("Failed to update user profile");
+      
+      setPaymentData({ user: updatedProfile });
       setShippingDataEditing(false);
-    } catch (e) {
-      console.error(e);
+      
+    } catch (error) {
+      console.error("Failed to update profile data:", error);
     } finally {
       setSaving(false);
     }
-  };
+  }, [user?.id, data, setPaymentData]);
 
-  const handleInvoice = async () => {
-    setRequireInvoice(!requireInvoice);
+  const handleInvoiceToggle = useCallback(async () => {
     setSaving(true);
+    
     try {
-      const updateUserProfile = await  data.updateUserProfile({ billing: { invoice_type: requireInvoice ? "" : "receipt"}})
-      setPaymentData({
-        user: updateUserProfile,
+      const newInvoiceType = requireInvoice ? INVOICE_TYPE.NONE : INVOICE_TYPE.RECEIPT;
+      
+      const updatedProfile = await data.updateUserProfile({ 
+        billing: { invoice_type: newInvoiceType } 
       });
-
-    } catch (e) {
-      console.error(e);
+      
+      if (!updatedProfile) throw new Error("Failed to update invoice preference");
+      
+      setPaymentData({ user: updatedProfile });
+      
+    } catch (error) {
+      console.error("Failed to update invoice setting:", error);
     } finally {
       setSaving(false);
     }
-  }
+  }, [requireInvoice, data, setPaymentData]);
 
   useEffect(() => {
-    if (user) {
-      setRequireInvoice(user?.billing.invoice_type == "receipt");
-    }
-    getUserProfile();
-
-  }, [user]);
+    void getUserProfile();
+  }, [getUserProfile]);
 
 
   return (
@@ -133,22 +161,24 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
             </h2>
           </section>
           <main className="flex-1 bg-white rounded-t-3xl p-8 pb-24">
-            {!order ? <SkeletonOrderDetails /> : <OrderSummary vendor={vendor} order={order} />}
+            {isOrderLoading ? <SkeletonOrderDetails /> : <OrderSummary vendor={vendor} order={order} />}
             {children}
 
-            {paymentMethod != "bnpl" && (order?.status == "processing" || order?.status == "on-hold") && (
+            {showBillingSection && (
               <>
-                <PaymentProviderCard className={"mt-6 "} backgroundColor={"bg-[#FAFAFB]"}>
+                <PaymentProviderCard className={"mt-6"} backgroundColor={"bg-[#FAFAFB]"}>
                   <p className={"flex gap-2"}>
                     <button
                       className={`${
                         requireInvoice ? "bg-primary" : "bg-gray-300"
                       } rounded-full border border-gray-300 px-3 cursor-pointer relative`}
-                      onClick={handleInvoice}>
+                      onClick={handleInvoiceToggle}
+                      disabled={saving}>
                       <span
                         className={`block absolute rounded-full size-3 bg-white top-1/2 -translate-y-1/2 transition-all ${
                           requireInvoice ? "right-0 -translate-x-full" : "left-0 translate-x-full"
-                        }`}></span>
+                        }`}
+                      />
                     </button>
                     Hai bisogno di una fattura?
                   </p>
@@ -181,13 +211,12 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
               </>
             )}
             <div className={"flex flex-col items-center space-y-6 mt-12"}>
-              <p className={"leading-[125%]"}>
-                Se interrompi la procedura con artpay il tuo lotto verrà rimosso dal carrello. Potrai aggiungerlo di nuovo in un secondo momento.
+              <p className={"leading-[125%] text-center"}>
+                Se interrompi la procedura con artpay il tuo lotto verrà rimosso dal carrello. 
+                Potrai aggiungerlo di nuovo in un secondo momento.
               </p>
               <button
-                className={
-                  "text-[#EC6F7B] artpay-button-style bg-[#FAFAFB] disabled:cursor-not-allowed disabled:opacity-65"
-                }
+                className={"text-[#EC6F7B] artpay-button-style bg-[#FAFAFB] disabled:cursor-not-allowed disabled:opacity-65"}
                 onClick={handleCancelPayment}
                 disabled={loading}>
                 Elimina Transazione
@@ -202,20 +231,19 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
             <div className={"flex items-center gap-4 border-b border-gray-300 py-8 flex-wrap"}>
               <a
                 href="https://www.iubenda.com/privacy-policy/71113702"
-                className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe "
-                title="Privacy Policy ">
+                className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe"
+                title="Privacy Policy">
                 Privacy Policy
               </a>
               <a
                 href="https://www.iubenda.com/privacy-policy/71113702/cookie-policy"
-                className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe "
-                title="Cookie Policy ">
+                className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe"
+                title="Cookie Policy">
                 Cookie Policy
               </a>
               <NavLink to="/termini-e-condizioni" className={"underline-none text-primary"}>
                 Termini e condizioni
               </NavLink>
-
               <NavLink to="/condizioni-generali-di-acquisto" className={"underline-none text-primary"}>
                 Condizioni generali di acquisto
               </NavLink>
