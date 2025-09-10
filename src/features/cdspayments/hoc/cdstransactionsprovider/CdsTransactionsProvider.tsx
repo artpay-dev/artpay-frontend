@@ -97,7 +97,7 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
           if (!productId) throw new Error("Invalid product ID");
 
           const artworkResp: Artwork = await data.getArtwork(productId);
-          if (!artworkResp) throw new Error("Artwork not found");
+          if (!artworkResp) throw new Error("ArtworkPage not found");
 
           const vendorResp: Gallery = await data.getGallery(artworkResp.vendor);
           if (!vendorResp) throw new Error("Vendor not found");

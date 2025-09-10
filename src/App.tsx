@@ -5,7 +5,7 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import AuthProvider from "./hoc/AuthProvider";
 import DataProvider from "./hoc/DataProvider";
 import Showcase from "./pages/Showcase.tsx";
-import Artwork from "./pages/Artwork";
+import ArtworkPage from "./pages/ArtworkPage.tsx";
 import Gallery from "./pages/Gallery";
 import Artworks from "./pages/Artworks";
 import Profile from "./pages/Profile";
@@ -85,8 +85,8 @@ function AppContent() {
                     <Route path="/gallerie/:slug/tutte-le-opere" element={<Artworks />} />
                     <Route path="/gallerie/:slug/tutti-gli-artisti" element={<Gallery selectedTab={1} />} />
                     <Route path="/gallerie/:slug/galleria" element={<Gallery selectedTab={2} />} />
-                    <Route path="/gallerie/:slug_galleria/opere/:slug_opera" element={<Artwork />} />
-                    <Route path="/opere/:slug_opera" element={<Artwork />} />
+                    <Route path="/gallerie/:slug_galleria/opere/:slug_opera" element={<ArtworkPage />} />
+                    <Route path="/opere/:slug_opera" element={<ArtworkPage />} />
                     <Route path="/artisti/:slug" element={<Artist />} />
                     <Route path="/artisti" element={<Artists />} />
                     <Route path="/tutte-le-opere" element={<Artworks />} />
