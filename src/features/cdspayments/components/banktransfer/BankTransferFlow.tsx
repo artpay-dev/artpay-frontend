@@ -37,7 +37,7 @@ const BankTransferFlow = ({
   const { showToolTip } = useToolTipStore();
   const data = useData();
   
-  const { currentStep, nextStep } = useStepFlow(PaymentFlowStep.INSTRUCTIONS, orderNote);
+  const { currentStep, nextStep, goToStep } = useStepFlow(PaymentFlowStep.INSTRUCTIONS, orderNote);
   const { 
     selectedFile, 
     isUploading, 
@@ -45,24 +45,6 @@ const BankTransferFlow = ({
     uploadSelectedFile 
   } = useFileUpload(config.fileUpload);
 
-  // Step configuration
-  const stepConfig = useMemo(() => [
-    {
-      step: PaymentFlowStep.INSTRUCTIONS,
-      title: "Step 1",
-      description: "Compila il bonifico inserendo i seguenti dati:"
-    },
-    {
-      step: PaymentFlowStep.DOCUMENT_UPLOAD,
-      title: "Step 2", 
-      description: "Carica la ricevuta del bonifico effettuato"
-    },
-    {
-      step: PaymentFlowStep.CONFIRMATION,
-      title: "Step 3",
-      description: "Completamento"
-    }
-  ], []);
 
   // Bank transfer fields configuration
   const copyableFields: CopyableFieldType[] = useMemo(() => [
@@ -199,36 +181,6 @@ const BankTransferFlow = ({
     }
   };
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case PaymentFlowStep.INSTRUCTIONS:
-        return (
-          <div>
-            <p className="text-secondary">Compila il bonifico inserendo i seguenti dati:</p>
-            <ul className="space-y-6 mt-6">
-              {copyableFields.map((field, index) => (
-                <CopyableField key={index} field={field} />
-              ))}
-            </ul>
-          </div>
-        );
-
-      case PaymentFlowStep.DOCUMENT_UPLOAD:
-        return (
-          <div>
-            <p>Carica la ricevuta del bonifico effettuato</p>
-            <FileUploadZone
-              selectedFile={selectedFile}
-              onFileSelect={handleFileUpload}
-              acceptedTypes={config.fileUpload.acceptedTypes}
-            />
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
 
   return (
     <section>
@@ -242,14 +194,30 @@ const BankTransferFlow = ({
             <span>Bonifico Bancario</span>
           </div>
           
-          <StepIndicator 
-            currentStep={currentStep}
-            stepConfig={stepConfig}
-          />
-          
-          {/* Step Content */}
-          <div className="mt-6">
-            {renderStepContent()}
+          <div>
+            <StepIndicator 
+              currentStep={currentStep}
+              onStepClick={goToStep}
+            />
+            
+            {/* Step Content */}
+            {currentStep === PaymentFlowStep.INSTRUCTIONS && (
+              <ul className="space-y-6 mt-6">
+                {copyableFields.map((field, index) => (
+                  <CopyableField key={index} field={field} />
+                ))}
+              </ul>
+            )}
+            
+            {currentStep === PaymentFlowStep.DOCUMENT_UPLOAD && (
+              <div className="mt-6">
+                <FileUploadZone
+                  selectedFile={selectedFile}
+                  onFileSelect={handleFileUpload}
+                  acceptedTypes={config.fileUpload.acceptedTypes}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
