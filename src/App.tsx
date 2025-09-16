@@ -48,6 +48,7 @@ import ShippingSettingsPage from "./pages/ShippingSettingsPage.tsx";
 import FollowedGalleriesPage from "./pages/FollowedGalleriesPage.tsx";
 import FavoritesArtworksPage from "./pages/FavoritesArtworksPage.tsx";
 import HistoryOrdersPage from "./pages/HistoryOrdersPage.tsx";
+import NewDirectPurchase from "./pages/NewDirectPurchase.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -90,11 +91,13 @@ function AppContent() {
                     <Route path="/artisti/:slug" element={<Artist />} />
                     <Route path="/artisti" element={<Artists />} />
                     <Route path="/tutte-le-opere" element={<Artworks />} />
-                    <Route path="/acquisto" element={<Purchase />} />
+                    {/*<Route path="/acquisto" element={<Purchase />} />*/}
+                    <Route path="/acquisto" element={<NewDirectPurchase />} />
                     <Route path="/acquisto-esterno" >
                       <Route element={<CdsPaymentsPage />} index />
                     </Route>
-                    <Route path="/completa-acquisto/:order_id" element={<Purchase orderMode="redeem" />} />
+                    {/*<Route path="/completa-acquisto/:order_id" element={<Purchase orderMode="redeem" />} />*/}
+                    <Route path="/completa-acquisto/:order_id" element={<NewDirectPurchase orderMode="redeem" />} />
                     <Route path={"/guide"} element={<Tutorials />} />
                     <Route path="/guide/:slug" element={<SinglePostPage />} />
                     <Route path="/acconto-blocca-opera" element={<Purchase orderMode="loan" />} />

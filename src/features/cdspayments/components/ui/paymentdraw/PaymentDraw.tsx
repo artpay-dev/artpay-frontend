@@ -29,7 +29,8 @@ const PaymentDraw = () => {
         });
 
         if (!listOrders) throw new Error("Order list not found");
-        setOrders(listOrders);
+
+        setOrders(listOrders.filter(order => order.created_via !== "mvx_vendor_order"));
       } catch (e) {
         console.error(e);
       } finally {
@@ -64,7 +65,7 @@ const PaymentDraw = () => {
         {!loading && orders && orders.length > 0 ? (
           <ul className={"flex flex-col gap-6 mt-4 px-8"}>
             {orders
-              .slice(0, 5)
+              .slice(0, 10)
               .map((order) => {
                 const orderDesc: string[] = order?.meta_data
                   .filter((data) => data.key == "original_order_desc")
