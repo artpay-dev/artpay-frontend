@@ -12,7 +12,7 @@ import FaqComponent from "../components/FaqComponent.tsx";
 import Tooltip from "../../cdspayments/components/ui/tooltip/ToolTip.tsx";
 
 const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
-  const { pendingOrder, loading, subtotal, artworks, requireInvoice, handleRequireInvoice, isSaving, userProfile } =
+  const { pendingOrder, loading, subtotal, artworks, requireInvoice, handleRequireInvoice, isSaving, userProfile, orderMode } = useDirectPurchase();
     useDirectPurchase();
 
   return (
@@ -21,16 +21,22 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
       <div className="mx-auto container max-w-2xl">
         <Navbar />
         <section className="px-8 mb-6 container lg:px-2">
-          <h2 className="text-4xl font-normal flex flex-col mb-13">
-            {pendingOrder ? (
-              <>
-                <span className={" leading-[125%] text-primary font-light"}>Acquista</span>
-                <span className={"leading-[125%]  text-2xl"}>Ordine N.{pendingOrder.id}</span>
-              </>
+          {orderMode === "loan" ? (
+            <h2 className="text-4xl font-normal flex flex-col mb-13">
+                <span className={" leading-[125%] text-primary font-light"}>Prenota</span>
+            </h2>
             ) : (
-              <span className="size-12 my-5 block border-2 border-white border-b-transparent rounded-full animate-spin"></span>
-            )}
-          </h2>
+            <h2 className="text-4xl font-normal flex flex-col mb-13">
+              {pendingOrder ? (
+                <>
+                  <span className={" leading-[125%] text-primary font-light"}>Acquista</span>
+                  <span className={"leading-[125%]  text-2xl"}>Ordine N.{pendingOrder.id}</span>
+                </>
+              ) : (
+                <span className="size-12 my-5 block border-2 border-white border-b-transparent rounded-full animate-spin"></span>
+              )}
+            </h2>
+          )}
         </section>
         <main className="flex-1 bg-white rounded-t-3xl pb-24 shadow-custom-variant p-8 md:p-8">
           {loading ? (
@@ -87,6 +93,27 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
                       € {subtotal.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </Typography>
                   </div>
+                  {orderMode === "loan" && (
+                    <div>
+                      <Typography variant="body1" color="textSecondary" className={"block"} mb={0.5}>
+                        Caparra
+                      </Typography>
+                      <Typography variant="body1">
+                        € {(subtotal * 0.05).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </Typography>
+                      <p className={"mt-2 text-[#D49B38]"}>
+                        Prenota l’opera per 7 giorni. La caparra ti verrà rimborsata al completamento del pagamento.
+                      </p>
+                      <div className={" text-secondary space-y-2 mt-6"}>
+                      <p>Come funziona?</p>
+                      <ol className={"list-decimal ps-5 space-y-2"}>
+                        <li>Prenota l’opera per 7 giorni versando solo il 5%. (Se non concludi l’acquisto, ti rimborsiamo tutto.</li>
+                        <li>Richiedi il prestito. Soggetto ad approvazione dell'istituto di credito.</li>
+                        <li>Concludi l’acquisto e transazione su artpay.</li>
+                      </ol>
+                    </div>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className={"flex flex-col space-y-8 mb-6"}>
@@ -106,7 +133,7 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
                     <Typography variant="body1" color="textSecondary">
                       {userProfile?.shipping?.phone || "Telefono"}
                     </Typography>
-                    <Link to={"/profile/settings-profile"} className={"text-primary underline block font-light mt-4"}>
+                    <Link to={"/profile/personal-settings"} className={"text-primary underline block font-light mt-4"}>
                       Modifica
                     </Link>
                   </div>

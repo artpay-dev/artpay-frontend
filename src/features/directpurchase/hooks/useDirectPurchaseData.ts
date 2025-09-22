@@ -61,20 +61,50 @@ export const useDirectPurchaseData = () => {
             artworks: artworksToGalleryItems(artworks, undefined, data)
           });
 
-          // Imposta il paymentMethod solo se è supportato
-          const supportedMethods = ["card", "klarna"];
-          if (resp.payment_method && supportedMethods.includes(resp.payment_method)) {
-            updateState({ paymentMethod: resp.payment_method });
+          // Se orderMode è "loan", controlla se c'è già un metodo impostato o usa "card" di default
+          if (orderMode === "loan") {
+            const currentPaymentMethod = useDirectPurchaseStore.getState().paymentMethod;
+            const supportedMethods = ["card", "klarna"];
+            const methodToUse = currentPaymentMethod && supportedMethods.includes(currentPaymentMethod)
+              ? currentPaymentMethod
+              : (resp.payment_method && supportedMethods.includes(resp.payment_method)
+                ? resp.payment_method
+                : "card");
 
-            // Crea il payment intent per il metodo esistente
+            updateState({ paymentMethod: methodToUse });
+
             try {
-              const paymentIntent = await createPaymentIntent(resp, orderMode);
+              const paymentIntent = await createPaymentIntent(resp, orderMode, methodToUse);
               updatePageData({ paymentIntent });
             } catch (e) {
-              console.error("Error creating payment intent for existing method:", e);
+              console.error("Error creating payment intent for loan:", e);
             }
           } else {
-            updateState({ paymentMethod: null });
+            // Per gli orderMode non-loan, controlla se l'utente ha già selezionato un metodo
+            const currentPaymentMethod = useDirectPurchaseStore.getState().paymentMethod;
+            const currentPaymentIntent = useDirectPurchaseStore.getState().paymentIntent;
+            const supportedMethods = ["card", "klarna"];
+
+            // NON sovrascrivere se l'utente ha già selezionato un metodo e c'è un payment intent
+            if (currentPaymentMethod && currentPaymentIntent && supportedMethods.includes(currentPaymentMethod)) {
+              console.log("Keeping existing payment method and intent (non-auth):", currentPaymentMethod);
+              return; // Non fare nulla, mantieni lo stato corrente
+            }
+
+            // Imposta il paymentMethod solo se è supportato per gli altri orderMode
+            if (resp.payment_method && supportedMethods.includes(resp.payment_method)) {
+              updateState({ paymentMethod: resp.payment_method });
+
+              // Crea il payment intent per il metodo esistente
+              try {
+                const paymentIntent = await createPaymentIntent(resp, orderMode);
+                updatePageData({ paymentIntent });
+              } catch (e) {
+                console.error("Error creating payment intent for existing method:", e);
+              }
+            } else {
+              updateState({ paymentMethod: null });
+            }
           }
         }
         updateState({ isReady: true });
@@ -116,20 +146,50 @@ export const useDirectPurchaseData = () => {
           artworks: artworkItems
         });
 
-        // Imposta il paymentMethod solo se è supportato
-        const supportedMethods = ["card", "klarna"];
-        if (order.payment_method && supportedMethods.includes(order.payment_method)) {
-          updateState({ paymentMethod: order.payment_method });
+        // Se orderMode è "loan", controlla se c'è già un metodo impostato o usa "card" di default
+        if (orderMode === "loan") {
+          const currentPaymentMethod = useDirectPurchaseStore.getState().paymentMethod;
+          const supportedMethods = ["card", "klarna"];
+          const methodToUse = currentPaymentMethod && supportedMethods.includes(currentPaymentMethod)
+            ? currentPaymentMethod
+            : (order.payment_method && supportedMethods.includes(order.payment_method)
+              ? order.payment_method
+              : "card");
 
-          // Crea il payment intent per il metodo esistente
+          updateState({ paymentMethod: methodToUse });
+
           try {
-            const paymentIntent = await createPaymentIntent(order, orderMode);
+            const paymentIntent = await createPaymentIntent(order, orderMode, methodToUse);
             updatePageData({ paymentIntent });
           } catch (e) {
-            console.error("Error creating payment intent for existing method:", e);
+            console.error("Error creating payment intent for loan:", e);
           }
         } else {
-          updateState({ paymentMethod: null });
+          // Per gli orderMode non-loan, controlla se l'utente ha già selezionato un metodo
+          const currentPaymentMethod = useDirectPurchaseStore.getState().paymentMethod;
+          const currentPaymentIntent = useDirectPurchaseStore.getState().paymentIntent;
+          const supportedMethods = ["card", "klarna"];
+
+          // NON sovrascrivere se l'utente ha già selezionato un metodo e c'è un payment intent
+          if (currentPaymentMethod && currentPaymentIntent && supportedMethods.includes(currentPaymentMethod)) {
+            console.log("Keeping existing payment method and intent:", currentPaymentMethod);
+            return; // Non fare nulla, mantieni lo stato corrente
+          }
+
+          // Imposta il paymentMethod solo se è supportato per gli altri orderMode
+          if (order.payment_method && supportedMethods.includes(order.payment_method)) {
+            updateState({ paymentMethod: order.payment_method });
+
+            // Crea il payment intent per il metodo esistente
+            try {
+              const paymentIntent = await createPaymentIntent(order, orderMode);
+              updatePageData({ paymentIntent });
+            } catch (e) {
+              console.error("Error creating payment intent for existing method:", e);
+            }
+          } else {
+            updateState({ paymentMethod: null });
+          }
         }
 
         updateState({

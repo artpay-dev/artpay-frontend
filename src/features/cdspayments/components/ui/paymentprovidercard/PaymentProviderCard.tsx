@@ -19,10 +19,12 @@ const PaymentProviderCard = ({
         backgroundColor ? backgroundColor : "bg-[#E2E6FC]"
       } p-4 rounded-lg w-full ${className}`}>
       <div className={`space-y-4 `}>
-        {icon && <div>{icon}</div>}
         {cardTitle && (
-          <div className={"space-y-1"}>
-            <h3 className={"font-bold leading-[125%] text-tertiary"}>{cardTitle}</h3>
+          <div className={"space-y-1 mb-6"}>
+            <div className={`flex items-center justify-between`}>
+              <h3 className={"font-bold leading-[125%] text-tertiary"}>{cardTitle}</h3>
+              {icon && <div>{icon}</div>}
+            </div>
             <p className={"text-sm"}>{subtitle}</p>
           </div>
         )}

@@ -54,12 +54,20 @@ export const useDirectPurchaseUtils = () => {
 
         // 2. Crea il payment intent con il metodo di pagamento specificato
         const newPaymentIntent = await createPaymentIntent(pendingOrder, orderMode, payment);
+        console.log("New payment intent created:", newPaymentIntent);
         updatePageData({ paymentIntent: newPaymentIntent });
 
         // 3. Aggiorna lo stato locale (usa il valore raw per il renderer)
         updateState({ paymentMethod: payment });
+        console.log("Payment method updated to:", payment);
 
-        // 4. Recupera l'ordine aggiornato da WooCommerce
+        // Force update after a short delay to override any async overwrites
+        setTimeout(() => {
+          updateState({ paymentMethod: payment });
+          console.log("Force updated payment method to:", payment);
+        }, 100);
+
+        // 4. Recupera l'ordine aggiornato da WooCommerce ma NON richiamare loadInitialData
         let order;
         if (orderMode === "redeem" && window.location.pathname.includes('order_id')) {
           const orderId = +window.location.pathname.split('/').pop()!;
@@ -70,8 +78,12 @@ export const useDirectPurchaseUtils = () => {
           order = await data.getPendingOrder();
         }
         if (order) {
+          // Aggiorna solo l'ordine, ma mantieni il paymentMethod e paymentIntent che abbiamo appena impostato
           updatePageData({ pendingOrder: order });
           console.log("Order updated both locally and on WooCommerce:", order);
+
+          // Riconferma il payment method per evitare che venga sovrascritto
+          updateState({ paymentMethod: payment });
         }
 
         updateState({ showCommissioni: true, isSaving: false });
@@ -122,11 +134,28 @@ export const useDirectPurchaseUtils = () => {
   }, []);
 
   const onCancelPaymentMethod = useCallback(async (): Promise<void> => {
+    console.log("Cancelling payment method...");
     updateState({ isSaving: true });
 
     try {
-      // Reset payment method to null in store
+      // Reset payment method and payment intent in store
+      console.log("Resetting payment method to null and payment intent to undefined");
       updateState({ paymentMethod: null });
+      updatePageData({ paymentIntent: undefined });
+
+      // Clear payment intent from localStorage
+      if (pendingOrder?.order_key) {
+        const paymentIntentKeys = [
+          `payment-intents-${pendingOrder.order_key}`,
+          `payment-intents-cds-${pendingOrder.order_key}`,
+          `payment-intents-redeem-${pendingOrder.order_key}`,
+          `payment-intents-block-${pendingOrder.order_key}`
+        ];
+        paymentIntentKeys.forEach(key => {
+          localStorage.removeItem(key);
+          console.log("Removed from localStorage:", key);
+        });
+      }
 
       // Update order to remove payment method
       if (pendingOrder?.id) {

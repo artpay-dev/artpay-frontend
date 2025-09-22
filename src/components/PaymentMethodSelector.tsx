@@ -86,7 +86,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
                 paymentIntent={paymentIntents['stripe']}
                 orderMode="purchase"
                 paymentMethod={selectedMethod}
-                onReady={(element) => {
+                onReady={() => {
                   console.log('Payment Element ready for stripe');
                 }}
                 onChange={(method) => {

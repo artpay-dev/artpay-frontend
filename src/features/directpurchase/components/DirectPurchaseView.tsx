@@ -2,7 +2,7 @@ import { ReactNode, useRef } from "react";
 import { useAuth } from "../../../hoc/AuthProvider.tsx";
 // import { useData } from "../../../hoc/DataProvider.tsx";
 import { areBillingFieldsFilled } from "../../../utils.ts";
-import { Box, Button, Grid, RadioGroup, Typography } from "@mui/material";
+import { Button, Grid, RadioGroup, Typography } from "@mui/material";
 import { Cancel, Edit } from "@mui/icons-material";
 import DefaultLayout from "../../../components/DefaultLayout.tsx";
 import ErrorIcon from "../../../components/icons/ErrorIcon.tsx";
@@ -11,16 +11,6 @@ import PaymentCard from "../../../components/PaymentCard.tsx";
 import ContentCard from "../../../components/ContentCard.tsx";
 import { PiCreditCardThin, PiTruckThin } from "react-icons/pi";
 import RadioButton from "../../../components/RadioButton.tsx";
-/*import UserIcon from "../../../components/icons/custom/UserIcon.tsx";
-import ShippingDataForm from "../../../components/ShippingDataForm.tsx";
-import ShippingDataPreview from "../../../components/BillingDataPreview.tsx";
-import BillingDataForm from "../../../components/BillingDataForm.tsx";
-import BillingDataPreview from "../../../components/BillingDataPreview.tsx";*/
-// import ShoppingBagIcon from "../../../components/icons/ShoppingBagIcon.tsx";
-// import DisplayImage from "../../../components/DisplayImage.tsx";
-// import Checkbox from "../../../components/Checkbox.tsx";
-// import SantanderButton from "../../../components/SantanderButton.tsx";
-// import { Order } from "../../../types/order.ts";
 import { useDirectPurchase } from "../contexts/DirectPurchaseContext.tsx";
 import DirectPurchaseLayout from "../layouts/DirectPurchaseLayout.tsx";
 import PaymentsSelection from "./PaymentsSelection.tsx";
@@ -28,11 +18,9 @@ import PaymentProviderCard from "../../cdspayments/components/ui/paymentprovider
 import BillingDataPreview from "../../../components/BillingDataPreview.tsx";
 import { Link } from "react-router-dom";
 import { BankTransfer } from "../../cdspayments/components/banktransfer";
-//import CheckoutForm from "../../../components/CheckoutForm.tsx";
 
 const DirectPurchaseView = () => {
   const auth = useAuth();
-  // const data = useData();
   const checkoutButtonRef = useRef<HTMLButtonElement>(null);
 
   const {
@@ -50,7 +38,6 @@ const DirectPurchaseView = () => {
     availableShippingMethods,
     pendingOrder,
     paymentIntent,
-    artworks,
     orderMode,
 
     // Actions
@@ -100,9 +87,6 @@ const DirectPurchaseView = () => {
   const thankYouPage = getThankYouPage();
 
   const showBillingSection = userProfile && (requireInvoice || orderMode === "loan")
-  // const checkoutEnabled = getCheckoutEnabled();
-  // const shippingPrice = getShippingPrice();
-  // const cardContentTitle = getCardContentTitle();
 
   if (noPendingOrder) {
     return (
@@ -125,6 +109,23 @@ const DirectPurchaseView = () => {
   console.log(pendingOrder);
 
   const renderer = () => {
+    // Se orderMode è "loan", mostra sempre PaymentCard con il metodo dallo stato
+    if (orderMode === "loan") {
+      return (
+        <PaymentCard
+          orderMode={orderMode}
+          paymentMethod={paymentMethod || "card"}
+          checkoutButtonRef={checkoutButtonRef}
+          onCheckout={() => handleSubmitCheckout()}
+          onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
+          onReady={() => updateState({ checkoutReady: true })}
+          paymentIntent={paymentIntent}
+          thankYouPage={thankYouPage}
+        />
+      );
+    }
+
+    // Per gli altri orderMode, usa la logica esistente
     switch (pendingOrder?.payment_method) {
       case "":
         return (
@@ -179,18 +180,6 @@ const DirectPurchaseView = () => {
     <DirectPurchaseLayout>
       <div className={"flex flex-col mb-6"}>
         <div className={"order-last lg:order-first"}>
-          {orderMode === "loan" && (
-            <Box sx={{ borderTop: `1px solid #d8ddfa`, borderBottom: `1px solid #d8ddfa` }} py={3} mb={8}>
-              <Typography variant="h1">
-                Prenota {artworks?.length ? artworks[0].title : "l'opera"}
-                {artworks?.length && artworks[0].year ? `, ${artworks[0].year}` : ""}
-              </Typography>
-              <Typography variant="body1" sx={{ mt: 3, fontWeight: 500 }}>
-                Per 7 giorni avrai diritto esclusivo di acquisto di quest'opera. Nessun altro potrà prenotarla o
-                acquistarla. Durante questo periodo, potrai completare l'acquisto con le modalità a te preferite.
-              </Typography>
-            </Box>
-          )}
           {renderer()}
           {orderMode !== "loan" && auth.isAuthenticated && (paymentMethod == 'card' || paymentMethod == 'klarna') && (
             <ContentCard contentPadding={0} title="Metodo di spedizione" icon={<PiTruckThin size="28px" />}>
@@ -220,7 +209,7 @@ const DirectPurchaseView = () => {
                   className={"mt-6"}
                   cardTitle={"Dati fatturazione"}
                   disabled={!requireInvoice}
-                  button={<Link to={"/profile/settings-profile"} className={'text-primary underline block font-light mt-4'}>Modifica</Link>}>
+                  button={<Link to={"/profile/shipping-invoice-settings"} className={'text-primary underline block font-light mt-4'}>Modifica</Link>}>
                     <BillingDataPreview value={userProfile?.billing} />
                 </PaymentProviderCard>
               </>
@@ -231,7 +220,7 @@ const DirectPurchaseView = () => {
                   className={"mt-6"}
                   cardTitle={"Dati spedizione"}
                   disabled={!requireInvoice}
-                  button={<Link to={"/profile/settings-profile"} className={'text-primary underline block font-light mt-4'}>Modifica</Link>}>
+                  button={<Link to={"/profile/shipping-invoice-settings"} className={'text-primary underline block font-light mt-4'}>Modifica</Link>}>
                   <BillingDataPreview value={userProfile?.billing} />
                 </PaymentProviderCard>
               )}

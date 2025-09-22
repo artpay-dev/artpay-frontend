@@ -9,7 +9,6 @@ import ArtworkPage from "./pages/ArtworkPage.tsx";
 import Gallery from "./pages/Gallery";
 import Artworks from "./pages/Artworks";
 import Profile from "./pages/Profile";
-import Purchase from "./pages/Purchase";
 import Home from "./pages/Home.tsx";
 import DialogProvider from "./hoc/DialogProvider.tsx";
 import SnackbarProvider from "./hoc/SnackbarProvider.tsx";
