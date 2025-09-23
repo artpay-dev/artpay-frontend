@@ -131,7 +131,7 @@ function AppContent() {
                     <Route path="/profile/messaggi" element={<Messages />} />
                     <Route path="/errore/:code" element={<Error />} />
                     <Route path="/errore" element={<Error />} />
-                    <Route path={"/landing-campaign"} element={<LandingForCampaignPage />} />
+                    <Route path={"/gallerie-the-others"} element={<LandingForCampaignPage />} />
                   </Routes>
                 </PaymentProvider>
               </DataProvider>
