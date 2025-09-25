@@ -1,9 +1,9 @@
-import { ReactNode, useRef, useEffect, useState } from "react";
+import React, { ReactNode, useRef, useEffect, useState } from "react";
 import { useAuth } from "../../../hoc/AuthProvider.tsx";
 import { useData } from "../../../hoc/DataProvider.tsx";
 import { areBillingFieldsFilled } from "../../../utils.ts";
 import { useStripe } from "@stripe/react-stripe-js";
-import { Button, RadioGroup } from "@mui/material";
+import { Button, RadioGroup, Typography } from "@mui/material";
 import { Cancel, Edit } from "@mui/icons-material";
 import PaymentCard from "../../../components/PaymentCard.tsx";
 import ContentCard from "../../../components/ContentCard.tsx";
@@ -14,9 +14,14 @@ import DirectPurchaseLayout from "../layouts/DirectPurchaseLayout.tsx";
 import PaymentsSelection from "./PaymentsSelection.tsx";
 import PaymentProviderCard from "../../cdspayments/components/ui/paymentprovidercard/PaymentProviderCard.tsx";
 import BillingDataPreview from "../../../components/BillingDataPreview.tsx";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { BankTransfer } from "../../cdspayments/components/banktransfer";
 import PaymentStatusPlaceholder from "./PaymentStatusPlaceholder.tsx";
+import SantanderCard from "../../cdspayments/components/ui/santandercard/SantanderCard.tsx";
+import SantanderIcon from "../../../components/icons/SantanderIcon.tsx";
+import AgreementCheckBox from "../../cdspayments/components/ui/agreementcheckbox/AgreementCheckBox.tsx";
+import ArtpayButton from "../../cdspayments/components/ui/artpaybutton/ArtpayButton.tsx";
+import Checkbox from "../../../components/Checkbox.tsx";
 
 const DirectPurchaseView = () => {
   const auth = useAuth();
@@ -31,7 +36,6 @@ const DirectPurchaseView = () => {
     orderTotal?: string;
   }>({ status: null });
 
-
   const {
     // State
     isReady,
@@ -39,6 +43,7 @@ const DirectPurchaseView = () => {
     isSaving,
     shippingDataEditing,
     requireInvoice,
+    privacyChecked,
 
     // Data
     userProfile,
@@ -52,12 +57,13 @@ const DirectPurchaseView = () => {
     handleSelectShippingMethod,
     handleSubmitCheckout,
     onChangePaymentMethod,
+    updatePageData,
 
     // Utils
     getCurrentShippingMethod,
     getEstimatedShippingCost,
     getThankYouPage,
-    onCancelPaymentMethod
+    onCancelPaymentMethod,
   } = useDirectPurchase();
 
   const contactHeaderButtons: ReactNode[] = [];
@@ -93,8 +99,48 @@ const DirectPurchaseView = () => {
   const estimatedShippingCost = getEstimatedShippingCost();
   const thankYouPage = getThankYouPage();
 
-  const showBillingSection = userProfile && (requireInvoice || orderMode === "loan")
+  const showBillingSection = userProfile && (requireInvoice || orderMode === "loan");
 
+  const isReedemPurchase = pendingOrder?.status === "on-hold" && pendingOrder.created_via == "rest-api";
+
+  const handleUpdateCustomerNote = async (note: string, openSantander = false) => {
+    if (!pendingOrder) return;
+
+    updateState({ isSaving: true });
+
+    try {
+      // Aggiorna le customer note su WooCommerce
+      await data.updateOrder(pendingOrder.id, {
+        customer_note: note,
+      });
+
+      // Aggiorna anche lo stato locale
+      updatePageData({
+        pendingOrder: {
+          ...pendingOrder,
+          customer_note: note,
+        },
+      });
+
+      // Apri Santander in una nuova finestra se richiesto
+      if (openSantander) {
+        window.open("https://www.santanderconsumer.it/prestito/partner/artpay", "_blank");
+      }
+
+      updateState({ isSaving: false });
+    } catch (error) {
+      console.error("Error updating order:", error);
+      updateState({ isSaving: false });
+    }
+  };
+
+  const handleSantanderLoanRequest = () => {
+    handleUpdateCustomerNote("Richiesta prestito in corso", true);
+  };
+
+  const handleLoanCompleted = () => {
+    handleUpdateCustomerNote("Ottenuto", false);
+  };
 
   /*if (noPendingOrder && !pendingOrder && ) {
     return (
@@ -135,7 +181,6 @@ const DirectPurchaseView = () => {
         />
       );
     }
-
 
     // Se orderMode è "loan", controlla prima lo stato dell'ordine
     if (orderMode === "loan") {
@@ -178,12 +223,102 @@ const DirectPurchaseView = () => {
         );
       }
 
+      if (isReedemPurchase) {
+        return (
+          <ContentCard
+            title="Pagamento"
+            icon={<PiCreditCardThin size="28px" />}
+            contentPadding={0}
+            contentPaddingMobile={0}>
+            {(() => {
+              // Caso 1: Prestito da richiedere (stato iniziale)
+              if (
+                !pendingOrder.customer_note.includes("Richiesta prestito in corso") &&
+                !pendingOrder.customer_note.includes("Ottenuto")
+              ) {
+                return (
+                  <PaymentProviderCard
+                    icon={<SantanderIcon />}
+                    cardTitle={"Santander"}
+                    subtitle={"A partire da € 1.500,00 fino a € 30.000,00"}>
+                    <ol className={"list-decimal ps-4 space-y-1 border-b border-zinc-300 pb-6"}>
+                      <li>Richiedi finanziamento</li>
+                      <li>Calcola rata e conferma richiesta</li>
+                      <li>Paga su artpay con il finanziamento ricevuto</li>
+                    </ol>
+                    <div className={"w-full flex justify-between py-4"}>
+                      <div>
+                        <strong>Prezzo opera:</strong>
+                        <p className={"text-secondary text-xs"}>Incluse commissioni artpay</p>
+                      </div>
+                      <strong>
+                        €&nbsp;
+                        {Number(pendingOrder.total)?.toLocaleString("it-IT", {
+                          maximumFractionDigits: 2,
+                          minimumFractionDigits: 2,
+                        })}
+                      </strong>
+                    </div>
+                    <p className={"mt-6 text-secondary text-xs"}>
+                      Il costo del finanziamento varia in base al piano scelto
+                    </p>
+                    <button
+                      disabled={!privacyChecked || isSaving}
+                      onClick={handleSantanderLoanRequest}
+                      className={
+                        "artpay-button-style w-full bg-primary hover:bg-primary-hover text-white disabled:opacity-60"
+                      }>
+                      {isSaving ? "Avvio in corso..." : "Avvia richiesta prestito"}
+                    </button>
+                    <Checkbox
+                      disabled={isSaving}
+                      checked={privacyChecked}
+                      onChange={(e) => updateState({ privacyChecked: e.target.checked })}
+                      label={
+                        <Typography variant="body1">
+                          Accetto le{" "}
+                          <Link to="/condizioni-generali-di-acquisto" target="_blank">
+                            condizioni generali d'acquisto
+                          </Link>
+                        </Typography>
+                      }
+                    />
+                  </PaymentProviderCard>
+                );
+              }
+
+              // Caso 2: Prestito ottenuto - mostra BankTransfer
+              if (pendingOrder.customer_note.includes("Ottenuto")) {
+                return (
+                  <PaymentProviderCard>
+                    <BankTransfer order={pendingOrder} handleRestoreOrder={onCancelPaymentMethod} />
+                  </PaymentProviderCard>
+                );
+              }
+
+              // Caso 3: Richiesta prestito in corso - chiedi se è stato ottenuto
+              return (
+                <div className={"w-full p-6 rounded-sm bg-[#FAFAFB]"}>
+                  <span>Hai ottenuto il prestito?</span>
+                  <button
+                    disabled={isSaving}
+                    onClick={handleLoanCompleted}
+                    className={
+                      "artpay-button-style mt-6 w-full bg-primary hover:bg-primary-hover text-white disabled:opacity-60"
+                    }>
+                    {"Completa l'acquisto"}
+                  </button>
+                </div>
+              );
+            })()}
+          </ContentCard>
+        );
+      }
+
       // Per ordini non completati, controlla se è stato selezionato un metodo di pagamento
       switch (pendingOrder?.payment_method) {
         case "":
-          return (
-            <PaymentsSelection paymentMethod={paymentMethod} onChange={onChangePaymentMethod} />
-          );
+          return <PaymentsSelection paymentMethod={paymentMethod} onChange={onChangePaymentMethod} />;
         case "card":
           return (
             <PaymentCard
@@ -211,20 +346,14 @@ const DirectPurchaseView = () => {
             />
           );
         default:
-          return (
-            <PaymentsSelection paymentMethod={paymentMethod} onChange={onChangePaymentMethod} />
-          );
+          return <PaymentsSelection paymentMethod={paymentMethod} onChange={onChangePaymentMethod} />;
       }
     }
-
-
 
     // Per gli altri orderMode, usa la logica esistente
     switch (pendingOrder?.payment_method) {
       case "":
-        return (
-          <PaymentsSelection paymentMethod={paymentMethod} onChange={onChangePaymentMethod} />
-        )
+        return <PaymentsSelection paymentMethod={paymentMethod} onChange={onChangePaymentMethod} />;
       case "card":
         return (
           <PaymentCard
@@ -237,7 +366,7 @@ const DirectPurchaseView = () => {
             paymentIntent={paymentIntent}
             thankYouPage={thankYouPage}
           />
-        )
+        );
       case "klarna":
         return (
           <PaymentCard
@@ -250,23 +379,21 @@ const DirectPurchaseView = () => {
             paymentIntent={paymentIntent}
             thankYouPage={thankYouPage}
           />
-        )
+        );
       case "bank_transfer":
         return (
           <ContentCard
             title="Pagamento"
             icon={<PiCreditCardThin size="28px" />}
             contentPadding={0}
-            contentPaddingMobile={0}
-          >
+            contentPaddingMobile={0}>
             <PaymentProviderCard>
               <BankTransfer order={pendingOrder} handleRestoreOrder={onCancelPaymentMethod} />
             </PaymentProviderCard>
           </ContentCard>
-        )
-
+        );
     }
-  }
+  };
 
   // Effetto per gestire il redirect di Stripe
   useEffect(() => {
@@ -291,12 +418,17 @@ const DirectPurchaseView = () => {
             await data.setOrderStatus(+completedOrderId, "completed", {
               payment_method: paymentMethod === "klarna" ? "Klarna" : "Credit card",
               payment_method_title: paymentMethod === "klarna" ? "Klarna" : "Carta di credito",
-              customer_note: orderMode === "loan" ? "Blocco opera" : orderMode === "redeem" ? "Saldo completato" : "Transazione conclusa",
+              customer_note:
+                orderMode === "loan"
+                  ? "Blocco opera"
+                  : orderMode === "redeem"
+                    ? "Saldo completato"
+                    : "Transazione conclusa",
             });
             setPaymentCompleted({
               status: "completed",
               orderNumber: +completedOrderId,
-              orderTotal: pendingOrder?.total || "0"
+              orderTotal: pendingOrder?.total || "0",
             });
             localStorage.removeItem("completed-order");
             localStorage.removeItem("showCheckout");
@@ -308,12 +440,12 @@ const DirectPurchaseView = () => {
               await data.setOrderStatus(+completedOrderId, "on-hold", {
                 payment_method: "Acconto blocco opera",
                 payment_method_title: "Blocco opera",
-                customer_note: `Versato acconto ${data.downpaymentPercentage()}%`
+                customer_note: `Versato acconto ${data.downpaymentPercentage()}%`,
               });
               setPaymentCompleted({
                 status: "on-hold",
                 orderNumber: +completedOrderId,
-                orderTotal: pendingOrder?.total || "0"
+                orderTotal: pendingOrder?.total || "0",
               });
               localStorage.removeItem("completed-order");
               localStorage.removeItem("showCheckout");
@@ -326,7 +458,7 @@ const DirectPurchaseView = () => {
             setPaymentCompleted({
               status: "failed",
               orderNumber: +completedOrderId,
-              orderTotal: pendingOrder?.total || "0"
+              orderTotal: pendingOrder?.total || "0",
             });
             break;
         }
@@ -336,15 +468,14 @@ const DirectPurchaseView = () => {
     };
 
     processPaymentResult();
-  }, [stripe, isReady, data, paymentMethod, orderMode, auth.user?.username, pendingOrder?.payment_method]);
-
+  }, [stripe, isReady, data, paymentMethod, orderMode, pendingOrder?.payment_method]);
 
   return (
     <DirectPurchaseLayout>
       <div className={"flex flex-col mb-6"}>
         <div className={"order-last lg:order-first"}>
           {renderer()}
-          {orderMode !== "loan" && auth.isAuthenticated && (paymentMethod == 'card' || paymentMethod == 'klarna') && (
+          {orderMode !== "loan" && auth.isAuthenticated && (paymentMethod == "card" || paymentMethod == "klarna") && (
             <ContentCard contentPadding={0} title="Metodo di spedizione" icon={<PiTruckThin size="28px" />}>
               <RadioGroup defaultValue="selected" name="radio-buttons-group" className={"p-0!"}>
                 {availableShippingMethods.map((s) => {
@@ -365,25 +496,37 @@ const DirectPurchaseView = () => {
                   );
                 })}
               </RadioGroup>
-            {showBillingSection && (
-              <>
-                <PaymentProviderCard
-                  backgroundColor={"bg-[#FAFAFB]"}
-                  className={"mt-6"}
-                  cardTitle={"Dati fatturazione"}
-                  disabled={!requireInvoice}
-                  button={<Link to={"/profile/shipping-invoice-settings"} className={'text-primary underline block font-light mt-4'}>Modifica</Link>}>
+              {showBillingSection && (
+                <>
+                  <PaymentProviderCard
+                    backgroundColor={"bg-[#FAFAFB]"}
+                    className={"mt-6"}
+                    cardTitle={"Dati fatturazione"}
+                    disabled={!requireInvoice}
+                    button={
+                      <Link
+                        to={"/profile/shipping-invoice-settings"}
+                        className={"text-primary underline block font-light mt-4"}>
+                        Modifica
+                      </Link>
+                    }>
                     <BillingDataPreview value={userProfile?.billing} />
-                </PaymentProviderCard>
-              </>
-            )}
+                  </PaymentProviderCard>
+                </>
+              )}
               {currentShippingMethod !== "local_pickup" && (
                 <PaymentProviderCard
                   backgroundColor={"bg-[#FAFAFB]"}
                   className={"mt-6"}
                   cardTitle={"Dati spedizione"}
                   disabled={!requireInvoice}
-                  button={<Link to={"/profile/shipping-invoice-settings"} className={'text-primary underline block font-light mt-4'}>Modifica</Link>}>
+                  button={
+                    <Link
+                      to={"/profile/shipping-invoice-settings"}
+                      className={"text-primary underline block font-light mt-4"}>
+                      Modifica
+                    </Link>
+                  }>
                   <BillingDataPreview value={userProfile?.billing} />
                 </PaymentProviderCard>
               )}

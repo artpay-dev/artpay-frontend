@@ -10,10 +10,28 @@ import ShoppingBagIcon from "../../../components/icons/ShoppingBagIcon.tsx";
 import UserIcon from "../../../components/icons/UserIcon.tsx";
 import FaqComponent from "../components/FaqComponent.tsx";
 import Tooltip from "../../cdspayments/components/ui/tooltip/ToolTip.tsx";
+import CountdownTimer from "../../../components/CountdownTimer.tsx";
 
 const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
   const { pendingOrder, loading, subtotal, artworks, requireInvoice, handleRequireInvoice, isSaving, userProfile, orderMode } = useDirectPurchase();
     useDirectPurchase();
+
+  const getExpiryDate = (): Date => {
+    if (pendingOrder?.date_created) {
+      const createdDate = new Date(pendingOrder.date_created);
+      const expiryDate = new Date(createdDate);
+      expiryDate.setDate(createdDate.getDate() + 7);
+      return expiryDate;
+    }
+    // Fallback: 7 giorni da ora se non abbiamo la data di creazione
+    const now = new Date();
+    const fallbackExpiry = new Date(now);
+    fallbackExpiry.setDate(now.getDate() + 7);
+    return fallbackExpiry;
+  };
+
+
+  const isReedemPurchase = pendingOrder?.status === "on-hold" && pendingOrder?.created_via === "rest-api";
 
   return (
     <div className="min-h-screen flex flex-col pt-35">
@@ -78,6 +96,33 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
                     </div>
                   </Box>
                 ))}
+                {isReedemPurchase ? (
+                  <div className={"space-y-4"}>
+                    <div className={"space-y-1"}>
+                      <p className={'text-secondary'}>Scadenza della prenotazione</p>
+                      <CountdownTimer expiryDate={getExpiryDate()} />
+                    </div>
+                    <div className={"w-full rounded-sm bg-[#FED1824D] p-4 space-y-2 flex flex-col"}>
+                      <span className={'px-2 py-1 rounded-full text-xs font-medium bg-[#6576EE] text-white w-fit'}>Opera prenotata</span>
+                       <div className={"flex flex-col gap-1"}>
+                         <span className={'text-secondary'}>Prestito</span>
+                         <span>{pendingOrder?.customer_note}</span>
+                       </div>
+                      <div className={"flex flex-col gap-1"}>
+                         <span className={'text-secondary'}>Stato</span>
+                         <span>Pagamento da completare</span>
+                       </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={"w-full rounded-sm bg-[#FED1824D] p-4 space-y-2 flex flex-col"}>
+                    <span className={'px-2 py-1 rounded-full text-xs font-medium bg-[#6576EE] text-white w-fit'}>{pendingOrder?.status}</span>
+                    <div className={"flex flex-col gap-1"}>
+                      <span className={'text-secondary'}>Stato</span>
+                      <span>{pendingOrder?.customer_note}</span>
+                    </div>
+                  </div>
+                )}
                 <div className={"flex flex-col space-y-4"}>
                   <div>
                     <Typography variant="body1" color="textSecondary" className={"block"} mb={0.5}>
@@ -93,7 +138,7 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
                       € {subtotal.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </Typography>
                   </div>
-                  {orderMode === "loan" && (
+                  {orderMode === "loan" || isReedemPurchase && (
                     <div>
                       <Typography variant="body1" color="textSecondary" className={"block"} mb={0.5}>
                         Caparra

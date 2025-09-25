@@ -95,7 +95,7 @@ const PaymentDraw = () => {
                         {order.status === "completed"
                           ? "Completato"
                           : order.status === "on-hold"
-                          ? "In attesa"
+                          ? "Opera prenotata"
                           : order.status === "pending"
                           ? "In sospeso"
                           : order.status === "processing"
