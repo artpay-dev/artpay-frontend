@@ -3,11 +3,8 @@ import { useAuth } from "../../../hoc/AuthProvider.tsx";
 import { useData } from "../../../hoc/DataProvider.tsx";
 import { areBillingFieldsFilled } from "../../../utils.ts";
 import { useStripe } from "@stripe/react-stripe-js";
-import { Button, Grid, RadioGroup, Typography } from "@mui/material";
+import { Button, RadioGroup } from "@mui/material";
 import { Cancel, Edit } from "@mui/icons-material";
-import DefaultLayout from "../../../components/DefaultLayout.tsx";
-import ErrorIcon from "../../../components/icons/ErrorIcon.tsx";
-// import PurchaseSectionSkeleton from "../../../components/PurchaseSectionSkeleton.tsx";
 import PaymentCard from "../../../components/PaymentCard.tsx";
 import ContentCard from "../../../components/ContentCard.tsx";
 import { PiCreditCardThin, PiTruckThin } from "react-icons/pi";
@@ -28,18 +25,18 @@ const DirectPurchaseView = () => {
   const checkoutButtonRef = useRef<HTMLButtonElement>(null);
 
   // State per gestire il risultato del pagamento
-  const [paymentResult, setPaymentResult] = useState<{
-    status: "success" | "failed" | "processing" | "pending" | null;
-    message: string;
-  }>({ status: null, message: "" });
+  const [paymentCompleted, setPaymentCompleted] = useState<{
+    status: "completed" | "failed" | "on-hold" | null;
+    orderNumber?: number;
+    orderTotal?: string;
+  }>({ status: null });
+
 
   const {
     // State
     isReady,
-    paymentsReady,
     paymentMethod,
     isSaving,
-    noPendingOrder,
     shippingDataEditing,
     requireInvoice,
 
@@ -98,74 +95,8 @@ const DirectPurchaseView = () => {
 
   const showBillingSection = userProfile && (requireInvoice || orderMode === "loan")
 
-  // Effetto per gestire il redirect di Stripe
-  useEffect(() => {
-    if (!stripe || !isReady) return;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const clientSecret = urlParams.get("payment_intent_client_secret");
-    const paymentIntentId = urlParams.get("payment_intent");
-    const redirectStatus = urlParams.get("redirect_status");
-
-    if (!clientSecret || !paymentIntentId || !redirectStatus) return;
-
-    const processPaymentResult = async () => {
-      try {
-        const { paymentIntent } = await stripe.retrievePaymentIntent(clientSecret);
-        const completedOrderId = localStorage.getItem("completed-order");
-
-        switch (paymentIntent?.status) {
-          case "succeeded":
-            if (completedOrderId) {
-              try {
-                await data.setOrderStatus(+completedOrderId, "completed", {
-                  payment_method: paymentMethod === "klarna" ? "Klarna" : "Credit card",
-                  payment_method_title: paymentMethod === "klarna" ? "Klarna" : "Carta di credito",
-                  customer_note: orderMode === "loan" ? "Blocco opera" : "Transazione consclusa",
-                });
-                localStorage.removeItem("completed-order");
-                localStorage.removeItem("showCheckout");
-                localStorage.removeItem("checkoutUrl");
-              } catch (e) {
-                console.error("Error updating order status:", e);
-              }
-            }
-            setPaymentResult({
-              status: "success",
-              message: `Ciao ${auth.user?.username || ""},\ngrazie per aver scelto Artpay!\n\nL'acquisto è andato a buon fine. A breve sarai contattato per definire le modalità di acquisizione/spedizione dell'opera`
-            });
-            // Pulisce i parametri dall'URL
-            window.history.replaceState({}, document.title, window.location.pathname);
-            break;
-
-          case "processing":
-            setPaymentResult({
-              status: "processing",
-              message: "Pagamento in elaborazione\n\nStiamo verificando il tuo pagamento, attendi qualche minuto"
-            });
-            break;
-
-          case "requires_payment_method":
-          default:
-            setPaymentResult({
-              status: "failed",
-              message: "Si è verificato un errore\n\nIl tuo pagamento non è andato a buon fine, riprova"
-            });
-            break;
-        }
-      } catch (error) {
-        console.error("Error processing payment result:", error);
-        setPaymentResult({
-          status: "failed",
-          message: "Si è verificato un errore\n\nImpossibile caricare le informazioni sul pagamento"
-        });
-      }
-    };
-
-    processPaymentResult();
-  }, [stripe, isReady, data, paymentMethod, auth.user?.username]);
-
-  if (noPendingOrder) {
+  /*if (noPendingOrder && !pendingOrder && ) {
     return (
       <DefaultLayout pageLoading={!isReady || !paymentsReady} pb={6} authRequired>
         <Grid mt={16} spacing={3} px={3} container>
@@ -180,14 +111,46 @@ const DirectPurchaseView = () => {
         </Grid>
       </DefaultLayout>
     );
-  }
-
-  console.log(paymentMethod);
-  console.log(pendingOrder);
+  }*/
 
   const renderer = () => {
-    // Se orderMode è "loan", mostra sempre PaymentCard con il metodo dallo stato
+    // Se abbiamo appena completato un pagamento, mostra il placeholder
+    if (paymentCompleted.status) {
+      return (
+        <PaymentStatusPlaceholder
+          status={paymentCompleted.status === "on-hold" ? "completed" : paymentCompleted.status}
+          orderNumber={paymentCompleted.orderNumber}
+          orderTotal={paymentCompleted.orderTotal}
+        />
+      );
+    }
+
+    // Se l'ordine è già completato (caricato da database), mostra il messaggio
+    if (pendingOrder?.status === "completed" || pendingOrder?.status === "failed") {
+      return (
+        <PaymentStatusPlaceholder
+          status={pendingOrder.status}
+          orderNumber={pendingOrder?.id}
+          orderTotal={pendingOrder?.total}
+        />
+      );
+    }
+
+
+    // Se orderMode è "loan", controlla prima lo stato dell'ordine
     if (orderMode === "loan") {
+      // Se l'ordine è completato, mostra il risultato
+      if (pendingOrder?.status === "completed" || pendingOrder?.status === "failed") {
+        return (
+          <PaymentStatusPlaceholder
+            status={pendingOrder.status}
+            orderNumber={pendingOrder?.id}
+            orderTotal={pendingOrder?.total}
+          />
+        );
+      }
+
+      // Altrimenti mostra il form di pagamento
       return (
         <PaymentCard
           orderMode={orderMode}
@@ -201,6 +164,60 @@ const DirectPurchaseView = () => {
         />
       );
     }
+
+    if (orderMode === "redeem") {
+      // Se l'ordine è già completato, mostra il messaggio di successo
+      // @ts-expect-error "si si ok"
+      if (pendingOrder?.status === "completed" || pendingOrder?.status === "failed") {
+        return (
+          <PaymentStatusPlaceholder
+            status={pendingOrder.status}
+            orderNumber={pendingOrder?.id}
+            orderTotal={pendingOrder?.total}
+          />
+        );
+      }
+
+      // Per ordini non completati, controlla se è stato selezionato un metodo di pagamento
+      switch (pendingOrder?.payment_method) {
+        case "":
+          return (
+            <PaymentsSelection paymentMethod={paymentMethod} onChange={onChangePaymentMethod} />
+          );
+        case "card":
+          return (
+            <PaymentCard
+              orderMode={orderMode}
+              paymentMethod={paymentMethod || ""}
+              checkoutButtonRef={checkoutButtonRef}
+              onCheckout={() => handleSubmitCheckout()}
+              onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
+              onReady={() => updateState({ checkoutReady: true })}
+              paymentIntent={paymentIntent}
+              thankYouPage={thankYouPage}
+            />
+          );
+        case "klarna":
+          return (
+            <PaymentCard
+              orderMode={orderMode}
+              paymentMethod={paymentMethod || ""}
+              checkoutButtonRef={checkoutButtonRef}
+              onCheckout={() => handleSubmitCheckout()}
+              onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
+              onReady={() => updateState({ checkoutReady: true })}
+              paymentIntent={paymentIntent}
+              thankYouPage={thankYouPage}
+            />
+          );
+        default:
+          return (
+            <PaymentsSelection paymentMethod={paymentMethod} onChange={onChangePaymentMethod} />
+          );
+      }
+    }
+
+
 
     // Per gli altri orderMode, usa la logica esistente
     switch (pendingOrder?.payment_method) {
@@ -251,22 +268,76 @@ const DirectPurchaseView = () => {
     }
   }
 
-  console.log(paymentIntent);
+  // Effetto per gestire il redirect di Stripe
+  useEffect(() => {
+    if (!stripe || !isReady) return;
 
-  // Se abbiamo un risultato del pagamento, mostra solo quello
-  if (paymentResult.status) {
-    return (
-      <DirectPurchaseLayout>
-        <div className={"flex flex-col mb-6"}>
-          <PaymentStatusPlaceholder
-            status={paymentResult.status === "success" ? "completed" : "failed"}
-            orderNumber={pendingOrder?.id}
-            orderTotal={pendingOrder?.total}
-          />
-        </div>
-      </DirectPurchaseLayout>
-    );
-  }
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientSecret = urlParams.get("payment_intent_client_secret");
+    const paymentIntentId = urlParams.get("payment_intent");
+    const redirectStatus = urlParams.get("redirect_status");
+
+    if (!clientSecret || !paymentIntentId || !redirectStatus) return;
+
+    const processPaymentResult = async () => {
+      try {
+        const { paymentIntent } = await stripe.retrievePaymentIntent(clientSecret);
+        const completedOrderId = localStorage.getItem("completed-order");
+
+        if (!completedOrderId) return;
+
+        switch (paymentIntent?.status) {
+          case "succeeded":
+            await data.setOrderStatus(+completedOrderId, "completed", {
+              payment_method: paymentMethod === "klarna" ? "Klarna" : "Credit card",
+              payment_method_title: paymentMethod === "klarna" ? "Klarna" : "Carta di credito",
+              customer_note: orderMode === "loan" ? "Blocco opera" : orderMode === "redeem" ? "Saldo completato" : "Transazione conclusa",
+            });
+            setPaymentCompleted({
+              status: "completed",
+              orderNumber: +completedOrderId,
+              orderTotal: pendingOrder?.total || "0"
+            });
+            localStorage.removeItem("completed-order");
+            localStorage.removeItem("showCheckout");
+            localStorage.removeItem("checkoutUrl");
+            break;
+
+          case "requires_capture":
+            if (orderMode === "loan") {
+              await data.setOrderStatus(+completedOrderId, "on-hold", {
+                payment_method: "Acconto blocco opera",
+                payment_method_title: "Blocco opera",
+                customer_note: `Versato acconto ${data.downpaymentPercentage()}%`
+              });
+              setPaymentCompleted({
+                status: "on-hold",
+                orderNumber: +completedOrderId,
+                orderTotal: pendingOrder?.total || "0"
+              });
+              localStorage.removeItem("completed-order");
+              localStorage.removeItem("showCheckout");
+              localStorage.removeItem("checkoutUrl");
+            }
+            break;
+
+          default:
+            console.log("Payment not completed:", paymentIntent?.status);
+            setPaymentCompleted({
+              status: "failed",
+              orderNumber: +completedOrderId,
+              orderTotal: pendingOrder?.total || "0"
+            });
+            break;
+        }
+      } catch (error) {
+        console.error("Error processing payment result:", error);
+      }
+    };
+
+    processPaymentResult();
+  }, [stripe, isReady, data, paymentMethod, orderMode, auth.user?.username, pendingOrder?.payment_method]);
+
 
   return (
     <DirectPurchaseLayout>

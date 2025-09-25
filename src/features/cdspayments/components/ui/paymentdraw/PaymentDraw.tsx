@@ -2,7 +2,7 @@ import usePaymentStore from "../../../stores/paymentStore.ts";
 import { useEffect, useState } from "react";
 import { useData } from "../../../../../hoc/DataProvider.tsx";
 import { Order } from "../../../../../types/order.ts";
-import { CheckCircle, Close } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 import { useNavigate } from "../../../../../utils.ts";
 import { useAuth } from "../../../../../hoc/AuthProvider.tsx";
 import { User } from "../../../../../types/user.ts";
@@ -75,8 +75,37 @@ const PaymentDraw = () => {
 
                 return (
                   <li key={order.id} className={"border border-[#E2E6FC] p-4 rounded-lg space-y-4 max-w-sm"}>
-                    <div className={"flex items-center"}>
+                    <div className={"flex items-center justify-between"}>
                       <p className={"text-secondary"}>{orderDesc.length > 0 ? orderDesc : order?.line_items[0].name}</p>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        order.status === "completed"
+                          ? "bg-green-100 text-green-800"
+                          : order.status === "on-hold"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : order.status === "pending"
+                          ? "bg-blue-100 text-blue-800"
+                          : order.status === "processing"
+                          ? "bg-purple-100 text-purple-800"
+                          : order.status === "cancelled"
+                          ? "bg-red-100 text-red-800"
+                          : order.status === "failed"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}>
+                        {order.status === "completed"
+                          ? "Completato"
+                          : order.status === "on-hold"
+                          ? "In attesa"
+                          : order.status === "pending"
+                          ? "In sospeso"
+                          : order.status === "processing"
+                          ? "Elaborazione"
+                          : order.status === "cancelled"
+                          ? "Annullato"
+                          : order.status === "failed"
+                          ? "Fallito"
+                          : order.status}
+                      </span>
                     </div>
                     <div className={"flex flex-col gap-1"}>
                       <span className={"text-secondary"}>Tipo</span>
@@ -86,14 +115,13 @@ const PaymentDraw = () => {
                       <span className={"text-secondary"}>Prezzo</span>
                       <span className={"text-tertiary"}>€&nbsp;{subtotal.toFixed(2)}</span>
                     </div>
-                    {order.status != "completed" ? (
                       <div className={"mt-6 border-t border-[#E2E6FC] pt-4"}>
                         <button
                           onClick={() => {
                             setPaymentData({
                               openDraw: !openDraw,
                             });
-                            order.created_via == "gallery_auction" ? navigate(`/acquisto-esterno?order=${order.id}`) : navigate(`/acquisto?order=${order.id}`);
+                            order.created_via == "gallery_auction" ? navigate(`/acquisto-esterno?order=${order.id}`) : navigate(`/completa-acquisto/${order.id}`);
                           }}
                           className={
                             "cursor-pointer rounded-full bg-white border border-primary  text-primary py-2 px-6 w-full hover:text-primary-hover hover:border-primary-hover transition-all"
@@ -101,13 +129,6 @@ const PaymentDraw = () => {
                           Gestisci transazione
                         </button>
                       </div>
-                    ) : (
-                      <div className={"mt-6 border-t border-[#E2E6FC] pt-4"}>
-                        <p className={"bg-[#42B39640] py-2 px-6 rounded-lg flex items-center justify-center gap-2"}>
-                          <CheckCircle color={"success"} /> Transazione conclusa
-                        </p>
-                      </div>
-                    )}
                   </li>
                 );
               })}

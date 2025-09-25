@@ -32,6 +32,7 @@ export const useDirectPurchaseUtils = () => {
     updateState({ showCommissioni: false, isSaving: true });
 
     if (pendingOrder) {
+      console.log("pendingOrder", pendingOrder);
       //const wc_order_key = pendingOrder.order_key;
 
       const paymentMethodMap: Record<string, string> = {
@@ -69,7 +70,7 @@ export const useDirectPurchaseUtils = () => {
 
         // 4. Recupera l'ordine aggiornato da WooCommerce ma NON richiamare loadInitialData
         let order;
-        if (orderMode === "redeem" && window.location.pathname.includes('order_id')) {
+        if (orderMode === "redeem" ) {
           const orderId = +window.location.pathname.split('/').pop()!;
           order = await data.getOrder(orderId);
         } else if (orderMode === "onHold") {

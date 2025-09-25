@@ -1,6 +1,7 @@
 import { PiCreditCardThin } from "react-icons/pi";
 import ContentCard from "../../../components/ContentCard.tsx";
 import PaymentRadioSelector from "../../../components/PaymentRadioSelector.tsx";
+import { useDirectPurchase } from "../contexts/DirectPurchaseContext.tsx";
 
 interface PaymentsSelectionProps {
   paymentMethod: string | null;
@@ -8,6 +9,10 @@ interface PaymentsSelectionProps {
 }
 
 const PaymentsSelection = ({ paymentMethod, onChange }: PaymentsSelectionProps) => {
+
+  const {orderMode} = useDirectPurchase()
+
+
   const paymentMethods = {
     Santander: {
       value: "Santander",
@@ -125,18 +130,24 @@ const PaymentsSelection = ({ paymentMethod, onChange }: PaymentsSelectionProps) 
       contentPadding={0}
       contentPaddingMobile={0}>
       <div className="space-y-8">
+        {orderMode !== "redeem" && (
+          <div className="space-y-4">
+            <h3>Pagamento dilazionato</h3>
+            <PaymentRadioSelector
+              method={paymentMethods.klarna}
+              selectedMethod={paymentMethod}
+              onMethodChange={onChange}
+            />
+          </div>
+        )}
         <div className="space-y-4">
-          <h3>Pagamento dilazionato</h3>
+          {orderMode != "redeem" && <h3>Unica soluzione</h3>}
+          <PaymentRadioSelector method={paymentMethods.card} selectedMethod={paymentMethod} onMethodChange={onChange} />
           <PaymentRadioSelector
-            method={paymentMethods.klarna}
+            method={paymentMethods.bank_transfer}
             selectedMethod={paymentMethod}
             onMethodChange={onChange}
           />
-        </div>
-        <div className="space-y-4">
-          <h3>Unica soluzione</h3>
-          <PaymentRadioSelector method={paymentMethods.card} selectedMethod={paymentMethod} onMethodChange={onChange} />
-          <PaymentRadioSelector method={paymentMethods.bank_transfer} selectedMethod={paymentMethod} onMethodChange={onChange} />
         </div>
       </div>
     </ContentCard>

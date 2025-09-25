@@ -97,16 +97,16 @@ export const useDirectPurchaseHandlers = (
 
   const handlePurchase = useCallback(async (checkoutButtonRef: React.RefObject<HTMLButtonElement>) => {
     if (!checkoutButtonRef?.current || !pendingOrder || !userProfile?.shipping) return;
-
+    console.log(pendingOrder);
     updateState({ isSaving: true, checkoutReady: false });
     try {
       await data.updateOrder(pendingOrder.id, {
         shipping: { ...userProfile.shipping },
-        billing: requireInvoice && userProfile.billing 
-          ? { ...userProfile.billing } 
+        billing: requireInvoice && userProfile.billing
+          ? { ...userProfile.billing }
           : { ...userProfile.shipping }
       });
-      
+
       localStorage.setItem("completed-order", pendingOrder.id.toString());
       checkoutButtonRef.current.click();
       updateState({ checkoutReady: true });

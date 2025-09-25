@@ -50,13 +50,16 @@ const ArtworkReserved: React.FC<ArtworkReservedProps> = ({}) => {
                 localStorage.removeItem("completed-order");
                 localStorage.removeItem("showCheckout");
                 localStorage.removeItem("checkoutUrl");
+                console.log("Order status updated successfully");
               } catch (e) {
                 console.error("Error updating order status:", e);
               }
+            } else {
+              console.warn("No completed order ID found in localStorage");
             }
             setPaymentResult({
               status: "success",
-              message: `Ciao ${auth.user?.username || ""},\ngrazie Bloccato l'opera!\n\nA breve sarai contattato per definire le modalità di acquisizione/spedizione dell'opera`
+              message: `Ciao ${auth.user?.username || ""},\ngrazie per aver bloccato l'opera!\n\nA breve sarai contattato per definire le modalità di acquisizione/spedizione dell'opera`
             });
             // Pulisce i parametri dall'URL
             window.history.replaceState({}, document.title, window.location.pathname);

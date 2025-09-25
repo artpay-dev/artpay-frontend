@@ -7,6 +7,8 @@ import {
 import { Alert, AlertTitle, Box, Button, Grid } from "@mui/material";
 import { useDirectPurchase } from "../features/directpurchase";
 import { useEnvDetector } from "../utils.ts";
+import { useData } from "../hoc/DataProvider.tsx";
+import { usePurchaseHandlers } from "../hooks/usePurchaseHandlers.ts";
 
 type CheckoutFormProps = {
   thankYouPage?: string;
@@ -36,7 +38,7 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
     const stripe = useStripe();
     const elements = useElements();
 
-    const {privacyChecked, pendingOrder, orderMode} = useDirectPurchase()
+    const {privacyChecked, pendingOrder, orderMode, handlePurchase} = useDirectPurchase()
 
     const environment = useEnvDetector();
 
@@ -64,6 +66,12 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
 
       setIsLoading(true);
 
+      // Salva l'order ID nel localStorage PRIMA del redirect di Stripe
+      if (pendingOrder) {
+        console.log("Setting completed-order in localStorage", pendingOrder.id.toString());
+        localStorage.setItem("completed-order", pendingOrder.id.toString());
+      }
+
       // data.clearCachedPaymentIntent({wc_order_key: ''})
       const { error } = await stripe.confirmPayment({
         elements,
@@ -72,6 +80,8 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
           return_url: environment ? returnUrl[environment] : returnUrl.local,
         }
       });
+
+
 
 
       // This point will only be reached if there is an immediate error when

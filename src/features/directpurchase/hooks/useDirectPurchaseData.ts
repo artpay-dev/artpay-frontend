@@ -49,6 +49,122 @@ export const useDirectPurchaseData = () => {
   }, []);
 
   const loadInitialData = useCallback(async () => {
+    // Prima cosa: controlla se c'è un order_id nei parametri URL
+    if (urlParams.order_id) {
+      console.log("Order ID found in URL params:", urlParams.order_id);
+
+      try {
+        // Carica l'ordine specificato
+        const order = await data.getOrder(+urlParams.order_id);
+
+        if (order) {
+          console.log("Order loaded:", order);
+
+          // Carica anche il profilo utente se autenticato
+          let userProfile = null;
+          let availableShippingMethods = null;
+
+          if (auth.isAuthenticated) {
+            [userProfile, availableShippingMethods] = await Promise.all([
+              data.getUserProfile().then((resp) => {
+                const profile = { ...resp };
+                profile.shipping.email = profile.shipping.email || profile.email || "";
+                profile.billing.email = profile.billing.email || profile.email || "";
+                return profile;
+              }),
+              data.getAvailableShippingMethods()
+            ]);
+          }
+
+          // Carica le opere dell'ordine
+          const artworks = await Promise.all(
+            order.line_items.map((item) => data.getArtwork(item.product_id.toString())),
+          );
+          const artworkItems = artworksToGalleryItems(artworks, undefined, data);
+
+          // Aggiorna lo stato con i dati dell'ordine
+          const pageData: any = {
+            pendingOrder: order,
+            artworks: artworkItems
+          };
+
+          if (userProfile) pageData.userProfile = userProfile;
+          if (availableShippingMethods) pageData.availableShippingMethods = availableShippingMethods;
+
+          updatePageData(pageData);
+
+          // Gestione basata sullo stato dell'ordine
+          if (order.status === "completed") {
+            console.log("Order is completed - no payment method setup needed");
+            updateState({
+              paymentMethod: null,
+              checkoutReady: false
+            });
+          } else if (order.status === "pending" || order.status === "on-hold") {
+            console.log("Order is pending/on-hold - setting up payment method");
+
+            // Gestione del payment method basata sull'orderMode
+            if (orderMode === "loan") {
+              const supportedMethods = ["card"];
+              const methodToUse = order.payment_method && supportedMethods.includes(order.payment_method)
+                ? order.payment_method
+                : "card";
+
+              updateState({ paymentMethod: methodToUse });
+
+              try {
+                const paymentIntent = await createPaymentIntent(order, orderMode, methodToUse);
+                updatePageData({ paymentIntent });
+              } catch (e) {
+                console.error("Error creating payment intent for loan:", e);
+              }
+            } else {
+              const supportedMethods = ["card", "klarna"];
+
+              if (order.payment_method && supportedMethods.includes(order.payment_method)) {
+                updateState({ paymentMethod: order.payment_method });
+
+                try {
+                  const paymentIntent = await createPaymentIntent(order, orderMode);
+                  updatePageData({ paymentIntent });
+                } catch (e) {
+                  console.error("Error creating payment intent:", e);
+                }
+              } else {
+                updateState({ paymentMethod: null });
+              }
+            }
+          }
+
+          // Configurazioni aggiuntive se autenticato
+          if (userProfile) {
+            updateState({
+              shippingDataEditing: !areBillingFieldsFilled(userProfile.shipping) ||
+                (!areBillingFieldsFilled(userProfile.billing) && orderMode === "loan"),
+              requireInvoice: userProfile?.billing?.invoice_type !== ""
+            });
+
+            // Load galleries
+            data.getGalleries(artworks.map((a) => +a.vendor))
+              .then((galleries) => updatePageData({ galleries }));
+          }
+
+          updateState({ isReady: true });
+          return; // Exit early since we handled the order
+        } else {
+          console.log("Order not found");
+          updateState({ noPendingOrder: true, isReady: true });
+          return;
+        }
+      } catch (e) {
+        console.error("Error loading order from URL params:", e);
+        logError(e);
+        updateState({ noPendingOrder: true, isReady: true });
+        return;
+      }
+    }
+
+    // Flusso originale se non c'è order_id nei parametri
     if (!auth.isAuthenticated) {
       try {
         const resp = await data.getPendingOrder();
@@ -87,7 +203,6 @@ export const useDirectPurchaseData = () => {
 
             // NON sovrascrivere se l'utente ha già selezionato un metodo e c'è un payment intent
             if (currentPaymentMethod && currentPaymentIntent && supportedMethods.includes(currentPaymentMethod)) {
-              console.log("Keeping existing payment method and intent (non-auth):", currentPaymentMethod);
               return; // Non fare nulla, mantieni lo stato corrente
             }
 
@@ -114,8 +229,8 @@ export const useDirectPurchaseData = () => {
       return;
     }
 
-    const getOrderFunction = 
-      orderMode === "redeem" && urlParams.order_id
+    const getOrderFunction =
+      orderMode === "redeem" || urlParams.order_id
         ? data.getOrder(+urlParams.order_id)
         : orderMode === "onHold"
           ? data.getOnHoldOrder()
@@ -133,7 +248,10 @@ export const useDirectPurchaseData = () => {
         getOrderFunction
       ]);
 
+
       if (order) {
+
+        console.log(order)
         const artworks = await Promise.all(
           order.line_items.map((item) => data.getArtwork(item.product_id.toString())),
         );
@@ -172,7 +290,6 @@ export const useDirectPurchaseData = () => {
 
           // NON sovrascrivere se l'utente ha già selezionato un metodo e c'è un payment intent
           if (currentPaymentMethod && currentPaymentIntent && supportedMethods.includes(currentPaymentMethod)) {
-            console.log("Keeping existing payment method and intent:", currentPaymentMethod);
             return; // Non fare nulla, mantieni lo stato corrente
           }
 

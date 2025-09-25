@@ -1,5 +1,4 @@
 import { ReactNode, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { usePayments } from "../../hoc/PaymentProvider.tsx";
 import { DirectPurchaseContext } from "./contexts/DirectPurchaseContext.tsx";
 import { useDirectPurchaseData } from "./hooks/useDirectPurchaseData.ts";
@@ -14,7 +13,6 @@ export interface PurchaseProps {
 }
 
 const DirectPurchaseProvider: React.FC<PurchaseProps> = ({ orderMode = "standard", children }) => {
-  const navigate = useNavigate();
   const payments = usePayments();
   
   // Initialize hooks
@@ -25,8 +23,7 @@ const DirectPurchaseProvider: React.FC<PurchaseProps> = ({ orderMode = "standard
   const handlers = useDirectPurchaseHandlers(showError);
 
   // Get store state
-  const {
-    noPendingOrder, pendingOrder, orderMode: currentOrderMode,
+  const { pendingOrder, orderMode: currentOrderMode,
     updateState, setDirectPurchaseData
   } = useDirectPurchaseStore();
 
@@ -37,8 +34,7 @@ const DirectPurchaseProvider: React.FC<PurchaseProps> = ({ orderMode = "standard
 
   // Load initial data when ready
   useEffect(() => {
-    if (currentOrderMode) {
-      void loadInitialData();
+    if (currentOrderMode) {void loadInitialData();
     }
   }, [loadInitialData, currentOrderMode]);
 
@@ -49,12 +45,12 @@ const DirectPurchaseProvider: React.FC<PurchaseProps> = ({ orderMode = "standard
     }
   }, [payments.isReady, updateState]);
 
-  // Handle no pending order navigation
+  /*// Handle no pending order navigation
   useEffect(() => {
     if (noPendingOrder) {
       navigate("/errore/404");
     }
-  }, [noPendingOrder, navigate]);
+  }, [noPendingOrder, navigate]);*/
 
   // Calculate subtotal when order changes
   useEffect(() => {
