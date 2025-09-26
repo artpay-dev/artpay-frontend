@@ -78,6 +78,11 @@ html {
 }
 
 
+.fast-pay {
+    background-color: #010F22;
+}
+
+
 .custom-navbar {
     box-shadow: rgba(62, 78, 236, 0.15) 0px 4px 16px 0px;
     border-radius: 36px;

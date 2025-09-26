@@ -49,6 +49,10 @@ import FollowedGalleriesPage from "./pages/FollowedGalleriesPage.tsx";
 import FavoritesArtworksPage from "./pages/FavoritesArtworksPage.tsx";
 import HistoryOrdersPage from "./pages/HistoryOrdersPage.tsx";
 
+import FatsPayLayout from "./features/fastpay/layout/FatsPayLayout.tsx";
+import FastPay from "./pages/fast-pay/FastPay.tsx";
+import FastPayCreate from "./pages/fast-pay/FastPayCreate.tsx";
+
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
@@ -132,6 +136,10 @@ function AppContent() {
                     <Route path="/errore/:code" element={<Error />} />
                     <Route path="/errore" element={<Error />} />
                     <Route path={"/gallerie-the-others"} element={<LandingForCampaignPage />} />
+                    <Route path={"/vendor/fastpay"}  element={<FatsPayLayout />}>
+                      <Route element={<FastPay />} index/>
+                      <Route path={"crea-offerta"} element={<FastPayCreate />} />
+                    </Route>
                   </Routes>
                 </PaymentProvider>
               </DataProvider>
