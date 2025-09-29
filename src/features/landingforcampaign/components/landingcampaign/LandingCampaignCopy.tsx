@@ -16,7 +16,7 @@ const LandingCampaignCopy = () => {
       </section>
       <Anchor />
       <section className={'lg:mb-12'}>
-        <h3 className={"text-[#808791] text-2xl font-medium mb-12"}>Perchè scegliere artpay?</h3>
+        <h3 className={"text-[#808791] text-2xl font-medium mb-12"}>Perché scegliere artpay?</h3>
         <ul className={"ps-4 text-lg space-y-4"}>
           <li
             className={
