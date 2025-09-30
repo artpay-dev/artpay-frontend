@@ -1,7 +1,4 @@
-import React from "react";
-
-export interface LogoProps {}
-const Logo: React.FC<LogoProps> = ({}) => {
+const Logo = ({className = ""}: {className?: string}) => {
   return (
     <svg
       width="83"
@@ -9,6 +6,7 @@ const Logo: React.FC<LogoProps> = ({}) => {
       viewBox="0 0 83 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={className}
     >
       <g>
         <path
