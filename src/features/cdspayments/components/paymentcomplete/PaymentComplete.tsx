@@ -7,7 +7,7 @@ import { ReactElement } from "react";
 import CompletePaymentCard from "../ui/completepaymentcard/CompletePaymentCard.tsx";
 
 const PaymentFailed1 = ({order, isLoading}: {order: Order, isLoading: boolean}) => {
-  const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.06 : Number(order?.total) / 1.124658;
+  const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.04 : Number(order?.total) / 1.104658;
 
   const icons: Record<Order["payment_method"], ReactElement> = {
     "klarna": <KlarnaIcon />,

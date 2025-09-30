@@ -9,7 +9,7 @@ type PaymentMethodProps = {
 };
 
 const PaymentMethodsList = ({ order, isLoading }: PaymentMethodProps) => {
-  const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.06 : Number(order?.total) / 1.124658;
+  const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.04 : Number(order?.total) / 1.104658;
 
 
   return (
