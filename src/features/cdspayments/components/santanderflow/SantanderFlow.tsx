@@ -16,7 +16,7 @@ type SantanderFlowProps = {
 const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
   const { setPaymentData, orderNote } = usePaymentStore();
   const data = useData();
-  const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.04 : Number(order?.total) / 1.104658;
+  const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.04 : Number(order?.total) / 1.04 / 1.061;
   const { user } = useAuth();
 
   const event_name = "santander_click";

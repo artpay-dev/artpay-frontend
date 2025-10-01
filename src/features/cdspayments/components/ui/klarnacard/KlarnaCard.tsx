@@ -15,7 +15,7 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
   const { order, setPaymentData, paymentIntent } = usePaymentStore();
   const [fee, setFee] = useState<number>(0);
   const data = useData();
-  const quote = subtotal ? (Number(subtotal) * 1.104658) / 3 : 0;
+  const quote = subtotal ? (Number(subtotal) * 1.04 * 1.061) / 3 : 0;
 
   const handlingKlarnaSelection = async (): Promise<void> => {
     if(!order) {
