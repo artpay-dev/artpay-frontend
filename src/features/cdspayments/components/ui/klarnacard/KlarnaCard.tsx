@@ -4,7 +4,6 @@ import { useData } from "../../../../../hoc/DataProvider.tsx";
 import usePaymentStore from "../../../stores/paymentStore.ts";
 import PaymentProviderCard from "../paymentprovidercard/PaymentProviderCard.tsx";
 import KlarnaIcon from "../paymentprovidercard/KlarnaIcon.tsx";
-import { calculateTotalFee } from "../../../utils.ts";
 import { useEffect, useState } from "react";
 import PaymentForm from "../paymentform/PaymentForm.tsx";
 import { Elements } from "@stripe/react-stripe-js";
@@ -15,7 +14,11 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
   const { order, setPaymentData, paymentIntent } = usePaymentStore();
   const [fee, setFee] = useState<number>(0);
   const data = useData();
-  const quote = subtotal ? (Number(subtotal) * 1.124658) / 3 : 0;
+  // Calcola la rata: se fee_lines è vuoto usa il totale presunto, altrimenti usa order.total
+  const totalWithFees = order && subtotal
+    ? (!order?.fee_lines?.length ? subtotal * 1.04 * 1.061 : Number(order.total))
+    : 0;
+  const quote = totalWithFees / 3;
 
   const handlingKlarnaSelection = async (): Promise<void> => {
     if(!order) {
@@ -77,13 +80,17 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
 
   useEffect(() => {
     if (!paymentIntent) createPaymentIntent();
-    if (order) {
-      const totalFee = calculateTotalFee(order);
+    if (order && subtotal) {
+      // Se fee_lines è vuoto, calcola la fee presunta (Artpay 4% + Klarna 6.1%)
+      // Altrimenti usa la differenza tra order.total e subtotal
+      const totalFee = !order?.fee_lines?.length
+        ? subtotal * 1.04 * 1.061 - subtotal
+        : Number(order?.total) - subtotal;
       setFee(totalFee);
     }
 
 
-  }, [order]);
+  }, [order, subtotal]);
 
 
   return (
@@ -147,7 +154,7 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
             )
           )}
           <NavLink
-            to={"/guide/klarna"}
+            to={"/guide/artpay-e-klarna"}
             className={`text-tertiary underline underline-offset-2 mt-8 block ${disabled ? 'cursor-not-allowed': 'cursor-pointer'} `}
             aria-disabled={disabled}>
             Scopri di più

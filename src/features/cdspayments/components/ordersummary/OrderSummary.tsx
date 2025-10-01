@@ -13,7 +13,7 @@ type OrderDetailsProps = {
 const OrderSummary = ({vendor, order} : OrderDetailsProps ) => {
   const {orderNote} = usePaymentStore();
   const orderDesc = order?.meta_data.filter((data) => data.key == "original_order_desc").map((data) => data.value);
-  const subtotal= !order?.fee_lines.length ? (Number(order?.total) / 1.06) : (Number(order?.total) / 1.124658)
+  const subtotal= !order?.fee_lines.length ? (Number(order?.total) / 1.04) : (Number(order?.total) / 1.04 / 1.061)
 
 
   return (
