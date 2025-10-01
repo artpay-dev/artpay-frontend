@@ -55,6 +55,11 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
       .getGalleryBySlug(urlParams.slug)
       .then(async (gallery) => {
         //const description = gallery.shop.description.split("\n")[0];
+
+        const user = await auth.user
+
+        if (gallery.id == 220 && user?.id != 125) navigate('/')
+
         setGalleryContent(galleryToGalleryContent(gallery));
         const galleryAddress = [gallery.address.address_1, gallery.address.address_2].join(" ");
 
@@ -160,10 +165,6 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
 
   //const px = getDefaultPaddingX();
 
-  console.log(galleryInfo);
-
-  console.log(galleryContent);
-
   return (
     <DefaultLayout>
       {!isReady || !galleryContent ? (
@@ -197,7 +198,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
               <img
                 className="borderRadius md:hidden"
                 src={galleryContent?.logoImage}
-                style={{ width: "100%", maxHeight: "100px" }}
+                style={{ width: "100%", height: "auto", maxHeight: "100px" }}
               />
             </Box>
           </div>

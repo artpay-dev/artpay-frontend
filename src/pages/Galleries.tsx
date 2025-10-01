@@ -45,8 +45,9 @@ const Galleries: React.FC<GalleriesProps> = ({}) => {
 
   useEffect(() => {
     data.getGalleries().then(resp => {
+      console.log(resp);
+      setGalleries(resp.filter(gallery => gallery.id != 220));
       setIsReady(true);
-      setGalleries(resp);
     });
   }, []);
 

@@ -9,7 +9,10 @@ type PaymentMethodProps = {
 };
 
 const PaymentMethodsList = ({ order, isLoading }: PaymentMethodProps) => {
-  const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.04 : Number(order?.total) / 1.04 / 1.061;
+  // Subtotal = (line_items + tasse) / 1.04 per ottenere il valore base prima della fee Artpay
+  const lineItemsTotal = order?.line_items.reduce((acc, item) => acc + Number(item.total), 0) || 0;
+  const taxTotal = order?.line_items.reduce((acc, item) => acc + Number(item.total_tax), 0) || 0;
+  const subtotal = (lineItemsTotal + taxTotal) / 1.04;
 
 
   return (

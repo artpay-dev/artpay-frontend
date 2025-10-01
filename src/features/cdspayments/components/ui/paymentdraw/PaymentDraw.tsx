@@ -49,7 +49,10 @@ const PaymentDraw = () => {
       className={`${
         openDraw ? "" : "translate-y-full md:translate-y-0 md:translate-x-full"
       } py-6 payment-draw fixed w-full z-50 rounded-t-3xl bottom-0 h-4/5 bg-white transition-all  md:rounded-s-3xl md:rounded-tr-none md:overflow-y-hidden md:top-0 md:right-0 md:h-screen  md:max-w-sm`}>
-      <div className={"flex items-center justify-between md:flex-col-reverse md:items-start fixed bg-white px-8 w-full max-w-sm"}>
+      <div
+        className={
+          "flex items-center justify-between md:flex-col-reverse md:items-start fixed bg-white px-8 w-full max-w-sm"
+        }>
         <h3 className={"pt-10 text-2xl leading-6 mb-6 "}>Le tue transazioni</h3>
         <button
           className={
@@ -64,11 +67,12 @@ const PaymentDraw = () => {
         {!loading && orders && orders.length > 0 ? (
           <ul className={"flex flex-col gap-6 mt-4 px-8"}>
             {orders
-              .slice(0, 5)
+              .slice(0, 10)
+              .filter((order) => order.created_via != "mvx_vendor_order")
               .map((order) => {
                 const orderDesc: string[] = order?.meta_data
                   .filter((data) => data.key == "original_order_desc")
-                  .map((data) => data.value)
+                  .map((data) => data.value);
 
                 const subtotal = Number(order.total);
 
@@ -79,7 +83,9 @@ const PaymentDraw = () => {
                     </div>
                     <div className={"flex flex-col gap-1"}>
                       <span className={"text-secondary"}>Tipo</span>
-                      <span className={"text-tertiary"}>{order.created_via == "gallery_auction" ? "Casa D'Asta" : "Galleria"}</span>
+                      <span className={"text-tertiary"}>
+                        {order.created_via == "gallery_auction" ? "Casa D'Asta" : "Galleria"}
+                      </span>
                     </div>
                     <div className={"flex flex-col gap-1"}>
                       <span className={"text-secondary"}>Prezzo</span>
@@ -92,7 +98,9 @@ const PaymentDraw = () => {
                             setPaymentData({
                               openDraw: !openDraw,
                             });
-                            order.created_via == "gallery_auction" ? navigate(`/acquisto-esterno?order=${order.id}`) : navigate(`/acquisto?order=${order.id}`);
+                            order.created_via == "gallery_auction"
+                              ? navigate(`/acquisto-esterno?order=${order.id}`)
+                              : navigate(`/acquisto?order=${order.id}`);
                           }}
                           className={
                             "cursor-pointer rounded-full bg-white border border-primary  text-primary py-2 px-6 w-full hover:text-primary-hover hover:border-primary-hover transition-all"
