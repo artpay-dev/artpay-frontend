@@ -11,7 +11,7 @@ const LandingForCampaign = () => {
       <aside>
         <div className="max-w-xl mb-12">
           <div className={"flex gap-2 items-center mb-6 justify-center md:-translate-x-1/12"}>
-            <Logo className={"w-24"}/> {"x"}
+            <Logo className={"h-20"}/> {"x"}
 
             <div
               className={"w-20 h-10 top-2 relative bg-no-repeat bg-contain bg-center"}
