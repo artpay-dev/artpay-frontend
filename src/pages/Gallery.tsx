@@ -276,10 +276,9 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
             />
         </TabPanel>
           )}
-          {galleryArtists ? (
             <TabPanel value={selectedTabPanel} index={1}>
+          {galleryArtists ? (
               <GalleryArtistsList artists={galleryArtists || []} />
-            </TabPanel>
           ) : (
             <>
               <Typography sx={{ mb: { xs: 3, md: 6 } }} variant="h3" className={'pt-12 md:pt-24'}>
@@ -288,6 +287,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
               <CardGridSkeleton className={'pb-6 md:pb-12'} />
             </>
           )}
+            </TabPanel>
         <TabPanel value={selectedTabPanel} index={2}>
           {galleryInfo && <GalleryInfo {...galleryInfo} contacts={galleryContacts} />}
         </TabPanel>

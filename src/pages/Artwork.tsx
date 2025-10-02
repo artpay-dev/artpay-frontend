@@ -239,11 +239,11 @@ const Artwork: React.FC = () => {
       ):(
         <Box sx={{mt: { xs: 0, sm: 12, md: 18 } }} display="flex" justifyContent="center" overflow={'visible'}>
           <div className={'flex flex-col w-full lg:flex-row '}>
-            <div className={'w-full max-w-2xl lg:min-w-sm lg:min-h-screen rounded-b-2xl md:rounded-2xl overflow-hidden'}>
+            <div className={'w-full max-w-2xl lg:min-w-sm rounded-b-2xl md:rounded-2xl overflow-hidden lg:sticky lg:top-6 lg:self-start'}>
               <img
                 src={artwork?.images?.length ? artwork.images[0].woocommerce_single : ""}
                 alt={artwork?.images[0]?.name}
-                className={` object-contain sticky top-0 w-full rounded-b-2xl md:rounded-2xl `}
+                className={` object-contain w-full rounded-b-2xl md:rounded-2xl `}
               />
             </div>
             <div className={'flex flex-col pt-6 lg:0 max-w-2xl px-8 md:px-8'}>
