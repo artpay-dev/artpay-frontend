@@ -2,28 +2,28 @@ import axios from "axios";
 import { Order } from "../../types/order.ts";
 
 export const reverseFee = (order: Order): number => {
-  return !order?.fee_lines.length ? Number(order?.total) / 1.06 : Number(order?.total) / 1.124658;
+  return Number(order?.total) / 1.04;
 };
 
 export const calculateKlarnaFee = (order: Order): number => {
-  const initialValue = reverseFee(order);
-  const klarnaFee = initialValue * 1.064658;
+  const baseValue = reverseFee(order);
+  const withKlarnaFee = baseValue * 1.061;
 
-  return klarnaFee - initialValue;
+  return withKlarnaFee - baseValue;
 };
 
 export const calculateArtPayFee = (order: Order): number => {
-  const initialValue = reverseFee(order);
-  const artpayFee = initialValue * 1.06;
+  const baseValue = reverseFee(order);
+  const artpayFee = Number(order?.total) - baseValue;
 
-  return artpayFee - initialValue;
+  return artpayFee;
 };
 
 export const calculateTotalFee = (order: Order): number => {
-  const artpayFee = calculateArtPayFee(order);
-  const klarnaFee = calculateKlarnaFee(order);
+  const orderTotal = Number(order?.total);
+  const totalWithKlarnaFee = orderTotal * 1.061;
 
-  return artpayFee + klarnaFee;
+  return totalWithKlarnaFee - orderTotal;
 };
 
 export const clearLocalStorage = (order: Order) => {

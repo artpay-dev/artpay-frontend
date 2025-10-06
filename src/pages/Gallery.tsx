@@ -55,6 +55,11 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
       .getGalleryBySlug(urlParams.slug)
       .then(async (gallery) => {
         //const description = gallery.shop.description.split("\n")[0];
+
+        const user = await auth.user
+
+        if (gallery.id == 220 && user?.id != 125) navigate('/')
+
         setGalleryContent(galleryToGalleryContent(gallery));
         const galleryAddress = [gallery.address.address_1, gallery.address.address_2].join(" ");
 
@@ -160,17 +165,13 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
 
   //const px = getDefaultPaddingX();
 
-  console.log(galleryInfo);
-
-  console.log(galleryContent);
-
   return (
     <DefaultLayout>
       {!isReady || !galleryContent ? (
         <GallerySkeleton />
       ) : (
         <div className={"flex gap-6 flex-col md:flex-row "}>
-          <div className={"relative pb-12"}>
+          <div className={"relative pb-12 md:sticky md:top-6 md:self-start"}>
             <Box
               sx={{
                 width: { xs: "100%", md: "420px", lg: "612px", xl: "612px" },
@@ -215,11 +216,13 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
               {galleryContent?.subtitle}
               {galleryContent?.foundationYear ? `, ${galleryContent.foundationYear}` : ""}
             </Typography>
-            <img
-              src={galleryContent?.logoImage}
-              className="hidden md:block size-16 object-cover md:size-25 mt-6"
-              alt={galleryContent?.description}
-            />
+            <div className={"hidden md:block size-16 md:size-25 mt-6 overflow-hidden rounded"}>
+              <img
+                src={galleryContent?.logoImage}
+                className="object-cover w-full h-full"
+                alt={galleryContent?.description}
+              />
+            </div>
             <Typography variant="subtitle1" sx={{ mt: 6, maxWidth: { md: "400px" } }}>
               {galleryContent?.description ? galleryContent.description : (
                 galleryInfo?.description
@@ -234,7 +237,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
         </div>
       )}
 
-      <div className={"mb-24 pt-12 md:pt-36 "}>
+      <div className={"mb-24 pt-12 md:mt-36 "}>
         <Box
           sx={{
             borderBottom: 1,
@@ -273,10 +276,9 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
             />
         </TabPanel>
           )}
-          {galleryArtists ? (
             <TabPanel value={selectedTabPanel} index={1}>
+          {galleryArtists ? (
               <GalleryArtistsList artists={galleryArtists || []} />
-            </TabPanel>
           ) : (
             <>
               <Typography sx={{ mb: { xs: 3, md: 6 } }} variant="h3" className={'pt-12 md:pt-24'}>
@@ -285,6 +287,7 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
               <CardGridSkeleton className={'pb-6 md:pb-12'} />
             </>
           )}
+            </TabPanel>
         <TabPanel value={selectedTabPanel} index={2}>
           {galleryInfo && <GalleryInfo {...galleryInfo} contacts={galleryContacts} />}
         </TabPanel>
