@@ -3,6 +3,7 @@ import BrevoForm from "./components/brevoform/BrevoForm.tsx";
 import LandingCampaignCopy from "./components/landingcampaign/LandingCampaignCopy.tsx";
 import HotjarTracking from "../../components/HotjarTracking.tsx";
 import Logo from "../../components/icons/Logo.tsx";
+import theOthersLogo from "../../assets/images/logo-TheOthers_W-300x134.png";
 
 const LandingForCampaign = () => {
   return (
@@ -14,8 +15,8 @@ const LandingForCampaign = () => {
             <Logo className={"h-20"}/> {"x"}
 
             <div
-              className={"w-20 h-10 top-2 relative bg-no-repeat bg-contain bg-center"}
-              style={{ backgroundImage: "url('/images/TheOthers_BLACK.png')" }}
+              className={"w-20 h-10 top-2 relative invert bg-no-repeat bg-contain bg-center"}
+              style={{ backgroundImage: `url(${theOthersLogo})` }}
               role="img"
               aria-label="Logo the others logo"
             />
