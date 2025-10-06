@@ -75,7 +75,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
         <Navbar  />
       )}
       {topBar || ""}
-      <main className="w-full max-w-8xl mx-auto md:mt-36 md:px-24">
+      <main className="w-full max-w-8xl mx-auto md:mt-36 md:px-24 flex flex-col">
         {children}
       </main>
       {menuOpen && isMobile ? <></> : <Footer />}

@@ -18,8 +18,10 @@ interface PaymentState {
   orderNote: string;
   user: UserProfile | null;
   openDraw?: boolean;
+  refreshTimestamp?: number;
 
   setPaymentData: (data: Partial<PaymentState>) => void;
+  refreshOrders: () => void;
 }
 
 const usePaymentStore = create<PaymentState>((set) => ({
@@ -36,8 +38,10 @@ const usePaymentStore = create<PaymentState>((set) => ({
   orderNote: "",
   user: null,
   openDraw: false,
+  refreshTimestamp: 0,
 
   setPaymentData: (data) => set((state) => ({ ...state, ...data })),
+  refreshOrders: () => set({ refreshTimestamp: Date.now() }),
 }));
 
 export default usePaymentStore;

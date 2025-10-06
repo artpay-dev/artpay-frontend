@@ -6,11 +6,12 @@ import { OrderStatus } from "../types/order.ts";
 import OrderHistoryCard, { OrderHistoryCardProps } from "./OrderHistoryCard.tsx";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 
+
 export interface OrdersHistoryProps {
   title?: string;
   subtitle?: string;
   noTitle?: boolean;
-  mode?: "completed" | "on-hold" | "all";
+  mode?: OrderStatus[];
 }
 
 
@@ -38,7 +39,7 @@ const Skeleton = () => {
   );
 };
 
-const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate", noTitle }) => {
+const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate", noTitle, mode = ["completed"] }) => {
   const data = useData();
   const navigate = useNavigate();
   const snackbar = useSnackbars();
@@ -58,7 +59,7 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate
 
   useEffect(() => {
     data
-      .listOrders({ status: ["processing", "completed"], per_page: 10 })
+      .listOrders({ status: mode, per_page: 10 })
       .then((orders) => {
         setOrders(ordersToOrderHistoryCardProps(orders));
       })

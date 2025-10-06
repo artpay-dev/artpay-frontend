@@ -17,9 +17,12 @@ const HistoryOrdersPage = () => {
         {isReady ? (
         <>
           <h1 className={'text-5xl leading-[105%] font-normal'}>I miei ordini</h1>
-          <p className={'mt-6 text-secondary'}>In questa sezione trovi tutte le tue opere acquistate.</p>
+          <p className={'mt-6 text-secondary'}>In questa sezione trovi tutte le tue transazioni: in corso, concluse e non andate a buon fine. </p>
           <div className={' border-t border-[#CDCFD3] pt-12'}>
-            <OrdersHistory mode={"all"} noTitle />
+            <OrdersHistory mode={["on-hold"]} title={'Transazioni in corso'} />
+          </div>
+          <div className={' border-t border-[#CDCFD3] pt-12'}>
+            <OrdersHistory mode={["completed"]} title={'Transazioni concluse'} />
           </div>
         </>
         ) : (

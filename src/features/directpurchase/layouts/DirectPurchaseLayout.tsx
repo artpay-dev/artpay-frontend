@@ -13,7 +13,7 @@ import Tooltip from "../../cdspayments/components/ui/tooltip/ToolTip.tsx";
 import CountdownTimer from "../../../components/CountdownTimer.tsx";
 
 const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
-  const { pendingOrder, loading, subtotal, artworks, requireInvoice, handleRequireInvoice, isSaving, userProfile, orderMode } = useDirectPurchase();
+  const { pendingOrder, loading, subtotal, artworks, requireInvoice, handleRequireInvoice, isSaving, userProfile, orderMode, paymentsReady } = useDirectPurchase();
     useDirectPurchase();
 
   const getExpiryDate = (): Date => {
@@ -47,7 +47,7 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
             <h2 className="text-4xl font-normal flex flex-col mb-13">
               {pendingOrder ? (
                 <>
-                  <span className={" leading-[125%] text-primary font-light"}>Acquista</span>
+                  <span className={" leading-[125%] text-primary font-light"}>Transazione</span>
                   <span className={"leading-[125%]  text-2xl"}>Ordine N.{pendingOrder.id}</span>
                 </>
               ) : (
@@ -57,7 +57,7 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
           )}
         </section>
         <main className="flex-1 bg-white rounded-t-3xl pb-24 shadow-custom-variant p-8 md:p-8">
-          {loading ? (
+          {loading  ? (
             <SkeletonOrderDetails />
           ) : (
             <>
@@ -116,10 +116,12 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
                   </div>
                 ) : (
                   <div className={"w-full rounded-sm bg-[#FED1824D] p-4 space-y-2 flex flex-col"}>
-                    <span className={'px-2 py-1 rounded-full text-xs font-medium bg-[#6576EE] text-white w-fit'}>{pendingOrder?.status}</span>
+                    {pendingOrder?.status != "pending" && (
+                      <span className={'px-2 py-1 rounded-full text-xs font-medium bg-[#6576EE] text-white w-fit'}>{pendingOrder?.status}</span>
+                    )}
                     <div className={"flex flex-col gap-1"}>
                       <span className={'text-secondary'}>Stato</span>
-                      <span>{pendingOrder?.customer_note}</span>
+                      <span>{pendingOrder?.customer_note || "Pagamento da completare"}</span>
                     </div>
                   </div>
                 )}
@@ -138,7 +140,7 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
                       € {subtotal.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </Typography>
                   </div>
-                  {orderMode === "loan" || isReedemPurchase && (
+                  {(orderMode === "loan" || isReedemPurchase) && (
                     <div>
                       <Typography variant="body1" color="textSecondary" className={"block"} mb={0.5}>
                         Caparra
@@ -147,14 +149,14 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
                         € {(subtotal * 0.05).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </Typography>
                       <p className={"mt-2 text-[#D49B38]"}>
-                        Prenota l’opera per 7 giorni. La caparra ti verrà rimborsata al completamento del pagamento.
+                        Prenota l'opera per 7 giorni. La caparra ti verrà rimborsata al completamento del pagamento.
                       </p>
                       <div className={" text-secondary space-y-2 mt-6"}>
                       <p>Come funziona?</p>
                       <ol className={"list-decimal ps-5 space-y-2"}>
-                        <li>Prenota l’opera per 7 giorni versando solo il 5%. (Se non concludi l’acquisto, ti rimborsiamo tutto.</li>
+                        <li>Prenota l'opera per 7 giorni versando solo il 5%. (Se non concludi l'acquisto, ti rimborsiamo tutto.</li>
                         <li>Richiedi il prestito. Soggetto ad approvazione dell'istituto di credito.</li>
-                        <li>Concludi l’acquisto e transazione su artpay.</li>
+                        <li>Concludi l'acquisto e transazione su artpay.</li>
                       </ol>
                     </div>
                     </div>
@@ -186,23 +188,25 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
               </div>
             </>
           )}
-          <PaymentProviderCard className={"w-full mb-6"} backgroundColor={"bg-[#FAFAFB]"}>
-            <p className={"flex gap-2"}>
-              <button
-                className={`${
-                  requireInvoice ? "bg-primary" : "bg-gray-300"
-                } rounded-full border border-gray-300 px-3 cursor-pointer relative`}
-                onClick={() => handleRequireInvoice(!requireInvoice)}
-                disabled={isSaving}>
+          {pendingOrder?.status != "pending" && (
+            <PaymentProviderCard className={"w-full mb-6"} backgroundColor={"bg-[#FAFAFB]"}>
+              <p className={"flex gap-2"}>
+                <button
+                  className={`${
+                    requireInvoice ? "bg-primary" : "bg-gray-300"
+                  } rounded-full border border-gray-300 px-3 cursor-pointer relative`}
+                  onClick={() => handleRequireInvoice(!requireInvoice)}
+                  disabled={isSaving}>
                 <span
                   className={`block absolute rounded-full size-3 bg-white top-1/2 -translate-y-1/2 transition-all ${
                     requireInvoice ? "right-0 -translate-x-full" : "left-0 translate-x-full"
                   }`}
                 />
-              </button>
-              Hai bisogno di una fattura?
-            </p>
-          </PaymentProviderCard>
+                </button>
+                Hai bisogno di una fattura?
+              </p>
+            </PaymentProviderCard>
+          )}
 
           {children}
 

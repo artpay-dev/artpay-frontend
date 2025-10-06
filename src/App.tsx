@@ -48,6 +48,7 @@ import FollowedGalleriesPage from "./pages/FollowedGalleriesPage.tsx";
 import FavoritesArtworksPage from "./pages/FavoritesArtworksPage.tsx";
 import HistoryOrdersPage from "./pages/HistoryOrdersPage.tsx";
 import NewDirectPurchase from "./pages/NewDirectPurchase.tsx";
+import OrderCompleted from "./pages/OrderCompleted.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -99,6 +100,7 @@ function AppContent() {
                     <Route path="/completa-acquisto/:order_id" element={<NewDirectPurchase orderMode="redeem" />} />
                     <Route path={"/guide"} element={<Tutorials />} />
                     <Route path="/guide/:slug" element={<SinglePostPage />} />
+                    <Route path="/complete-order/:order_id" element={<OrderCompleted />} />
                     <Route path="/acconto-blocca-opera" element={<NewDirectPurchase orderMode="loan" />} />
                     <Route path="/opera-bloccata" element={<ArtworkReserved />} />
                     <Route path="/profile" element={<Profile />} />

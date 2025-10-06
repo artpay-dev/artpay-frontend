@@ -49,6 +49,9 @@ export const useDirectPurchaseData = () => {
   }, []);
 
   const loadInitialData = useCallback(async () => {
+    // Imposta loading a true all'inizio
+    updateState({ loading: true });
+
     // Prima cosa: controlla se c'è un order_id nei parametri URL
     if (urlParams.order_id) {
       console.log("Order ID found in URL params:", urlParams.order_id);
@@ -149,17 +152,17 @@ export const useDirectPurchaseData = () => {
               .then((galleries) => updatePageData({ galleries }));
           }
 
-          updateState({ isReady: true });
+          updateState({ isReady: true, loading: false });
           return; // Exit early since we handled the order
         } else {
           console.log("Order not found");
-          updateState({ noPendingOrder: true, isReady: true });
+          updateState({ noPendingOrder: true, isReady: true, loading: false });
           return;
         }
       } catch (e) {
         console.error("Error loading order from URL params:", e);
         logError(e);
-        updateState({ noPendingOrder: true, isReady: true });
+        updateState({ noPendingOrder: true, isReady: true, loading: false });
         return;
       }
     }
@@ -222,9 +225,10 @@ export const useDirectPurchaseData = () => {
             }
           }
         }
-        updateState({ isReady: true });
+        updateState({ isReady: true, loading: false });
       } catch (e) {
         logError(e);
+        updateState({ loading: false });
       }
       return;
     }
@@ -290,6 +294,7 @@ export const useDirectPurchaseData = () => {
 
           // NON sovrascrivere se l'utente ha già selezionato un metodo e c'è un payment intent
           if (currentPaymentMethod && currentPaymentIntent && supportedMethods.includes(currentPaymentMethod)) {
+            updateState({ loading: false });
             return; // Non fare nulla, mantieni lo stato corrente
           }
 
@@ -322,10 +327,10 @@ export const useDirectPurchaseData = () => {
         updateState({ noPendingOrder: true });
       }
 
-      updateState({ isReady: true });
+      updateState({ isReady: true, loading: false });
     } catch (e) {
       logError(e);
-      updateState({ isReady: true });
+      updateState({ isReady: true, loading: false });
     }
   }, [auth.isAuthenticated, orderMode, urlParams.order_id, data, updatePageData, updateState, logError]);
 

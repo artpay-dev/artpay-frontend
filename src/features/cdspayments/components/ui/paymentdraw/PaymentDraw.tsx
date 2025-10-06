@@ -10,7 +10,7 @@ import { User } from "../../../../../types/user.ts";
 const PaymentDraw = () => {
   const data = useData();
   const auth = useAuth();
-  const { openDraw, setPaymentData } = usePaymentStore();
+  const { openDraw, setPaymentData, refreshTimestamp } = usePaymentStore();
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -38,12 +38,10 @@ const PaymentDraw = () => {
       }
     };
 
-    if (!orders) {
-      if (auth.isAuthenticated) {
-        getOrders();
-      }
+    if (auth.isAuthenticated) {
+      getOrders();
     }
-  }, []);
+  }, [refreshTimestamp, auth.isAuthenticated]);
 
   return (
     <aside
@@ -121,7 +119,15 @@ const PaymentDraw = () => {
                             setPaymentData({
                               openDraw: !openDraw,
                             });
-                            order.created_via == "gallery_auction" ? navigate(`/acquisto-esterno?order=${order.id}`) : navigate(`/completa-acquisto/${order.id}`);
+
+                            // Se l'ordine è completato, vai alla pagina di riepilogo
+                            if (order.status === "completed") {
+                              navigate(`/complete-order/${order.id}`);
+                            } else if (order.created_via == "gallery_auction") {
+                              navigate(`/acquisto-esterno?order=${order.id}`);
+                            } else {
+                              navigate(`/completa-acquisto/${order.id}`);
+                            }
                           }}
                           className={
                             "cursor-pointer rounded-full bg-white border border-primary  text-primary py-2 px-6 w-full hover:text-primary-hover hover:border-primary-hover transition-all"
