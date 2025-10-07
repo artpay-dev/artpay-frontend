@@ -105,14 +105,30 @@ const ArtworkReserved: React.FC<ArtworkReservedProps> = ({}) => {
     };
   }, [shouldBlock]);
 
-  // Calcola la data di scadenza: 7 giorni dalla creazione dell'ordine
+  // Calcola la data di scadenza: prima prova dai meta_data, poi 7 giorni dalla creazione
   const getExpiryDate = (): Date => {
+    // Prima prova a usare la data di scadenza dai meta_data
+    if (pendingOrder?.meta_data) {
+      const expiryDateMeta = pendingOrder.meta_data.find((m) =>
+        m.key.toLowerCase() === "_expiry_date" ||
+        m.key.toLowerCase() === "expiry_date" ||
+        m.key.toLowerCase() === "_reservation_expiry" ||
+        m.key.toLowerCase() === "reservation_expiry"
+      )?.value;
+
+      if (expiryDateMeta) {
+        return new Date(expiryDateMeta);
+      }
+    }
+
+    // Altrimenti calcola 7 giorni dalla data di creazione
     if (pendingOrder?.date_created) {
       const createdDate = new Date(pendingOrder.date_created);
       const expiryDate = new Date(createdDate);
       expiryDate.setDate(createdDate.getDate() + 7);
       return expiryDate;
     }
+
     // Fallback: 7 giorni da ora se non abbiamo la data di creazione
     const now = new Date();
     const fallbackExpiry = new Date(now);

@@ -5,9 +5,11 @@ export interface OrderCardProps {
   children?: ReactNode | ReactNode[];
   imgSrc?: string;
   leftCta?: ReactNode | ReactNode[];
+  orderId?: number;
 }
 
-const OrderCard: React.FC<OrderCardProps> = ({ children, imgSrc, leftCta }) => {
+const OrderCard: React.FC<OrderCardProps> = ({ children, imgSrc, leftCta, orderId }) => {
+
 
   return (
     <Box
@@ -23,13 +25,15 @@ const OrderCard: React.FC<OrderCardProps> = ({ children, imgSrc, leftCta }) => {
       gap={3}
       display="grid">
         {imgSrc === "" ? (<></>) : (
-          <Box sx={{ width: { xs: "auto" } }} display="flex" flexDirection="column">
+          <Box sx={{ width: { xs: "auto" } }} display="flex" flexDirection="column" gap={4}>
+            <span>N. Ordine {orderId}</span>
             <img
               style={{
                 width: "100%",//useMediaQuery(theme.breakpoints.down("sm")) ? "100%" : "100%",
                 borderRadius: "8px",
                 aspectRatio: 1,
-                objectFit: "cover"
+                objectFit: "cover",
+                height: "100%"
               }}
               alt={'Order image'}
               src={imgSrc}
@@ -37,7 +41,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ children, imgSrc, leftCta }) => {
             {leftCta}
           </Box>
         )}
-      <Box display="flex" flexDirection="column">
+      <Box display="flex" flexDirection="column" mt={6}>
         {children}
       </Box>
     </Box>

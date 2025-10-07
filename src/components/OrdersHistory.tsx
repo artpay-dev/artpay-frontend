@@ -46,12 +46,15 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate
 
   const [orders, setOrders] = useState<OrderHistoryCardProps[]>();
 
+  // Determina se usare 3 colonne (per pending/on-hold) o 2 colonne
+  const useThreeColumns = mode.includes("pending") || mode.includes("on-hold") || mode.includes("failed");
+
   const handleClick = async (orderId: number) => {
     navigate(`/completa-acquisto/${orderId}`);
   };
 
   const showCta = (purchaseMode: string, status: OrderStatus): boolean => {
-    if (status === "on-hold" && purchaseMode !== "Stripe SEPA") {
+    if ((status === "on-hold" && purchaseMode !== "Stripe SEPA") || (status === "pending" && purchaseMode !== "Stripe SEPA")) {
       return true;
     }
     return false;
@@ -61,12 +64,30 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate
     data
       .listOrders({ status: mode, per_page: 10 })
       .then((orders) => {
-        setOrders(ordersToOrderHistoryCardProps(orders));
+        setOrders(ordersToOrderHistoryCardProps(orders.filter(o => !o.created_via.includes("mvx"))));
       })
       .catch((e) => snackbar.error(e));
 
 
   }, []);
+
+  // Calcola il padding in base al numero di colonne
+  const getPadding = (index: number) => {
+    if (useThreeColumns) {
+      // 3 colonne: prima colonna pr, seconda pl+pr, terza pl
+      const col = index % 3;
+      return {
+        pr: { xs: 0, md: col === 0 || col === 1 ? 1 : 0 },
+        pl: { xs: 0, md: col === 1 || col === 2 ? 1 : 0 }
+      };
+    } else {
+      // 2 colonne: prima colonna pr, seconda pl
+      return {
+        pr: { xs: 0, md: index % 2 === 0 ? 1.5 : 0 },
+        pl: { xs: 0, md: index % 2 === 1 ? 1.5 : 0 }
+      };
+    }
+  };
 
   return (
     <Grid justifyContent="stretch" container>
@@ -77,25 +98,29 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate
           </Typography>
         </Grid>
       )}
-      <Grid xs={12} item />
+      <Grid xs={12}
+            md={6} item />
       {orders && orders?.length > 0 ? (
-        orders?.map((order, i) => (
-          <Grid
-            key={`order-${i}`}
-            xs={12}
-            md={6}
-            pr={{ xs: 0, md: i % 2 === 0 ? 1.5 : 0 }}
-            pl={{ xs: 0, md: i % 2 === 1 ? 1.5 : 0 }}
-            pb={3}
-            item>
-            <OrderHistoryCard {...order} onClick={showCta(order.purchaseMode, order.status) ? handleClick : undefined} />
-          </Grid>
-        ))
+        orders?.map((order, i) => {
+          const padding = getPadding(i);
+          return (
+            <Grid
+              key={`order-${i}`}
+              xs={12}
+              md={useThreeColumns ? 4 : 6}
+              pr={padding.pr}
+              pl={padding.pl}
+              pb={3}
+              item>
+              <OrderHistoryCard {...order} onClick={showCta(order.purchaseMode, order.status) ? handleClick : undefined} />
+            </Grid>
+          );
+        })
       ) : (
         <div>
           {orders?.length === 0 ? (
             <div className={'text-lg text-secondary'}>
-              Non ci sono transazioni in corso
+              Non ci sono transazioni
             </div>
           ) : (
             <div className={"flex gap-8 my-12 overflow-x-hidden"}>

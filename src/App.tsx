@@ -49,6 +49,7 @@ import FavoritesArtworksPage from "./pages/FavoritesArtworksPage.tsx";
 import HistoryOrdersPage from "./pages/HistoryOrdersPage.tsx";
 import NewDirectPurchase from "./pages/NewDirectPurchase.tsx";
 import OrderCompleted from "./pages/OrderCompleted.tsx";
+import HistoryFailedOrdersPage from "./pages/HistoryFailedOrdersPage.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -108,6 +109,7 @@ function AppContent() {
                     <Route path="/profile/opere-preferite" element={<FavoritesArtworksPage />} />
                     <Route path="/profile/personal-settings" element={<PersonalSettingsPage />} />
                     <Route path="/profile/history-orders" element={<HistoryOrdersPage />} />
+                    <Route path="/profile/history-failed-orders" element={<HistoryFailedOrdersPage />} />
                     <Route path="/profile/shipping-invoice-settings" element={<ShippingSettingsPage />} />
                     <Route path="/thank-you-page" element={<PurchaseComplete />} />
                     <Route path="/thank-you-page/:order_id" element={<PurchaseComplete />} />

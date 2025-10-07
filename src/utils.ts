@@ -147,6 +147,15 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
   const orderDesc = order.meta_data.find((m) => m.key.toLowerCase() === "original_order_desc")?.value
   const lineItem = order.line_items.length ? order.line_items[0] : undefined;
   const galleryName = lineItem?.meta_data.find((m) => m.key?.toLowerCase() === "sold by" || m.key?.toLowerCase() === "venduto da")?.display_value;
+
+  // Cerca la data di scadenza nei meta_data
+  const expiryDateMeta = order.meta_data.find((m) =>
+    m.key.toLowerCase() === "_expiry_date" ||
+    m.key.toLowerCase() === "expiry_date" ||
+    m.key.toLowerCase() === "_reservation_expiry" ||
+    m.key.toLowerCase() === "reservation_expiry"
+  )?.value;
+
   let datePaid = "";
   if (order.date_paid) {
     try {
@@ -160,14 +169,18 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
   return {
     id: order.id,
     formattePrice: `€ ${order.total}`,
+    orderType: order.created_via == "rest-api" ? "Galleria" : "Casa D'asta",
     galleryName: galleryName || "",
     purchaseDate: datePaid,
+    dateCreated: order.date_created,
     purchaseMode: order.payment_method_title || "",
     waitingPayment: order.status === "on-hold" && order.payment_method === "Stripe SEPA",
     subtitle: "",
     title: orderDesc || lineItem?.name || "Opera senza titolo",
     status: order.status,
-    imgSrc: lineItem?.image?.src || ""
+    imgSrc: lineItem?.image?.src || "",
+    expiryDate: expiryDateMeta,
+    customer_note: order.customer_note
   };
 };
 
