@@ -1,7 +1,7 @@
 import Navbar from "../../cdspayments/components/ui/navbar/Navbar.tsx";
 import SkeletonOrderDetails from "../../cdspayments/components/paymentmethodslist/SkeletonOrderDetails.tsx";
 import PaymentProviderCard from "../../cdspayments/components/ui/paymentprovidercard/PaymentProviderCard.tsx";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { ReactNode, useState } from "react";
 import { useDirectPurchase } from "../contexts/DirectPurchaseContext.tsx";
 import { Box, Typography } from "@mui/material";
@@ -14,6 +14,7 @@ import CountdownTimer from "../../../components/CountdownTimer.tsx";
 import useDirectPurchaseStore from "../stores/directPurchaseStore.ts";
 import { useData } from "../../../hoc/DataProvider.tsx";
 import { useDialogs } from "../../../hoc/DialogProvider.tsx";
+import usePaymentStore from "../../cdspayments/stores/paymentStore.ts";
 
 const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
   const {
@@ -28,11 +29,11 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
     orderMode,
   } = useDirectPurchase();
 
-  const navigate = useNavigate();
   const data = useData();
   const dialogs = useDialogs();
-  const { reset } = useDirectPurchaseStore();
+  const { updatePageData } = useDirectPurchaseStore();
   const [isCancelling, setIsCancelling] = useState(false);
+  const { refreshOrders } = usePaymentStore()
 
   const getExpiryDate = (): Date => {
     // Prima prova a usare la data di scadenza dai meta_data
@@ -92,6 +93,16 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
           question: `RICHIESTA DI CANCELLAZIONE E RIMBORSO\n\nOrdine #${pendingOrder.id}\nOpera: ${artworkName}\n\nIl cliente richiede la cancellazione della transazione e il rimborso dell'acconto versato. Si prega di procedere con l'annullamento dell'ordine e il rilascio della prenotazione dell'opera.`,
         });
       }
+
+      // Aggiorna le customer_note dell'ordine
+      const updatedOrder = await data.updateOrder(pendingOrder.id, {
+        customer_note: "Richiesta di cancellazione in corso"
+      });
+
+      refreshOrders()
+
+      // Aggiorna lo stato locale
+      updatePageData({ pendingOrder: updatedOrder });
 
       // Mostra messaggio di conferma
       await dialogs.okOnly(
