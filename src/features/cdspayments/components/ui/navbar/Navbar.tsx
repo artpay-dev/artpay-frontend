@@ -18,7 +18,7 @@ const Navbar = () => {
 
   const handleClick = async () => {
 
-    if (pendingOrder?.status === "pending") {
+    if (pendingOrder?.status === "pending" && !pendingOrder.customer_note.includes("Documentazione")) {
       const confirmed = await dialogs.yesNo(
         "Annulla transazione",
         "Vuoi davvero uscire? L'opera non rimarrà nel tuo carrello e la transazione verrà annullata.",

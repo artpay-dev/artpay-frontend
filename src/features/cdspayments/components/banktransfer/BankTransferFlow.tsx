@@ -8,6 +8,8 @@ import CopyableField from "./components/CopyableField.tsx";
 import FileUploadZone from "./components/FileUploadZone.tsx";
 import StepIndicator from "./components/StepIndicator.tsx";
 import { PaymentFlowStep, type PaymentFlowProps, type BankTransferConfig, type CopyableField as CopyableFieldType } from "./types.ts";
+import { useDirectPurchaseStore } from "../../../directpurchase";
+import usePaymentStore from "../../stores/paymentStore.ts";
 
 // Default configuration - can be overridden
 const DEFAULT_BANK_CONFIG: BankTransferConfig = {
@@ -35,7 +37,9 @@ const BankTransferFlow = ({
 }: PaymentFlowProps) => {
   const { showToolTip } = useToolTipStore();
   const data = useData();
-  
+  const { updatePageData } = useDirectPurchaseStore();
+  const { refreshOrders } = usePaymentStore();
+
   // Determine initial step based on order status
   const getInitialStep = useCallback(() => {
     if (order.customer_note?.includes("Documentazione caricata")) {
@@ -45,11 +49,11 @@ const BankTransferFlow = ({
   }, [order.customer_note]);
 
   const { currentStep, nextStep, goToStep } = useStepFlow(getInitialStep(), "");
-  const { 
-    selectedFile, 
-    isUploading, 
-    selectFile, 
-    uploadSelectedFile 
+  const {
+    selectedFile,
+    isUploading,
+    selectFile,
+    uploadSelectedFile
   } = useFileUpload(config.fileUpload);
 
 
@@ -97,17 +101,24 @@ const BankTransferFlow = ({
     if (!uploadedFile) return;
 
     try {
-      // Update order with note and billing info
-      const updateOrder = await data.updateOrder(order.id, {
+      // Update order with note, status, and billing info
+      const updatedOrder = await data.updateOrder(order.id, {
+        status: "processing",
         customer_note: "Documentazione caricata, in attesa di conferma da artpay",
-        billing: user?.billing?.invoice_type 
+        billing: user?.billing?.invoice_type
           ? user?.billing || user?.shipping
           : undefined,
       });
 
-      if (!updateOrder) {
+      if (!updatedOrder) {
         throw new Error("Error updating order note");
       }
+
+      // Update local state
+      updatePageData({ pendingOrder: updatedOrder });
+
+      // Refresh orders in PaymentDraw
+      refreshOrders();
 
       // Send email notification
       await sendBrevoEmail({
@@ -123,7 +134,7 @@ const BankTransferFlow = ({
       });
 
       // Notify parent about order update
-      onOrderUpdate?.(updateOrder);
+      onOrderUpdate?.(updatedOrder);
 
       nextStep();
       onComplete?.(uploadedFile);
@@ -136,7 +147,7 @@ const BankTransferFlow = ({
         message: "Errore durante l'invio."
       });
     }
-  }, [selectedFile, uploadSelectedFile, data, order, user, config, onOrderUpdate, nextStep, onComplete, showToolTip]);
+  }, [selectedFile, uploadSelectedFile, data, order, user, config, onOrderUpdate, nextStep, onComplete, showToolTip, updatePageData, refreshOrders]);
 
 
 

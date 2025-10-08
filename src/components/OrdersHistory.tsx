@@ -54,7 +54,7 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate
   };
 
   const showCta = (purchaseMode: string, status: OrderStatus): boolean => {
-    if ((status === "on-hold" && purchaseMode !== "Stripe SEPA") || (status === "pending" && purchaseMode !== "Stripe SEPA")) {
+    if ((status === "on-hold" && purchaseMode !== "Stripe SEPA") || (status === "pending" && purchaseMode !== "Stripe SEPA") || (status === "processing" && purchaseMode !== "Stripe SEPA")) {
       return true;
     }
     return false;

@@ -93,7 +93,7 @@ const OrderCompleted = () => {
 
   return (
     <DefaultLayout authRequired>
-      <div className={"flex-1 flex flex-col min-h-[600px] justify-between mb-24 pt-35 md:pt-0 px-8"}>
+      <div className={"flex-1 flex flex-col min-h-[600px] justify-between mb-24 pt-35 md:pt-0 px-8 md:flex-row"}>
         <div className={"order-details"}>
           <div className={"flex flex-col  "}>
             <div className={"flex space-x-2 items-center mb-12"}>

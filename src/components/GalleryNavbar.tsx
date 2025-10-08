@@ -25,6 +25,7 @@ const ROUTES = {
   ACQUISTO: "/acquisto",
   ACQUISTO_ESTERNO: "/acquisto-esterno",
   GALLERIE: "/gallerie",
+  COMPLETE: "/complete-order/",
 } as const;
 
 export interface GalleryNavbarProps {
@@ -163,13 +164,15 @@ const GalleryNavbar: React.FC<GalleryNavbarProps> = ({ onMenuToggle }) => {
   };
 
   const isGalleryPage = location.pathname.startsWith(ROUTES.GALLERIE);
+  const isCompletedOrderPage = location.pathname.startsWith(ROUTES.COMPLETE);
+
 
   return (
     <>
       {/* Desktop Navbar */}
       <header className="fixed w-full z-20 top-6 px-6 md:px-12 hidden md:block">
         <div className="flex items-center gap-8 justify-between max-w-8xl mx-auto">
-          <BackButton isVisible={!isGalleryPage} />
+          <BackButton isVisible={!isGalleryPage && !isCompletedOrderPage} />
 
           <div className="flex items-center justify-center gap-8">
             <MainNavigation

@@ -60,7 +60,7 @@ export const useFileUpload = (config: FileUploadConfig) => {
         setUploadResult(result);
         showToolTip({
           visible: true,
-          type: "info",
+          type: "success",
           message: "Documenti inviati con successo."
         });
         return result;
