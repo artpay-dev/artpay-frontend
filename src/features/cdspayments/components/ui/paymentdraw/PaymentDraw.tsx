@@ -63,7 +63,7 @@ const PaymentDraw = () => {
     <aside
       className={`${
         openDraw ? "" : "translate-y-full md:translate-y-0 md:translate-x-full"
-      } py-6 payment-draw fixed w-full z-50 rounded-t-3xl bottom-0 h-4/5 bg-white transition-all  md:rounded-s-3xl md:rounded-tr-none md:overflow-y-hidden md:top-0 md:right-0 md:h-screen  md:max-w-sm`}>
+      } py-6 payment-draw fixed w-full z-50 rounded-t-3xl bottom-0 h-4/5 bg-white transition-all  md:rounded-s-3xl md:rounded-tr-none md:overflow-y-hidden md:top-0 md:right-0 md:h-screen  md:max-w-md`}>
       <div className={"flex items-center justify-between md:flex-col-reverse md:items-start fixed bg-white px-8 w-full max-w-sm"}>
         <h3 className={"pt-10 text-2xl leading-6 mb-6 "}>Le tue transazioni</h3>
         <button

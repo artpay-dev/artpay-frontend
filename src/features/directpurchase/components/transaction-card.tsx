@@ -87,7 +87,12 @@ const TransactionCard = ({
               <span>{customer_note}</span>
             </div>
           </div>
-        ) : null}
+        ) : (
+          <div className={"flex flex-col gap-1 bg-[#FED1824D] p-4 space-y-2 rounded-sm"}>
+            <span className={"text-secondary"}>{customer_note?.includes("Ottenuto") ? "Prestito" : "Stato"}</span>
+            <span>{customer_note || "Pagamento da completare"}</span>
+          </div>
+        )}
       </div>
 
       <div className={"card-footer border-t border-[#E2E6FC] p-4"}>
