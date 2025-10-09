@@ -3,6 +3,7 @@ import BrevoForm from "./components/brevoform/BrevoForm.tsx";
 import LandingCampaignCopy from "./components/landingcampaign/LandingCampaignCopy.tsx";
 import HotjarTracking from "../../components/HotjarTracking.tsx";
 import Logo from "../../components/icons/Logo.tsx";
+import theOthersLogo from "../../assets/images/logo-TheOthers_W-300x134.png";
 
 const LandingForCampaign = () => {
   return (
@@ -10,17 +11,17 @@ const LandingForCampaign = () => {
       <HotjarTracking />
       <aside>
         <div className="max-w-xl mb-12">
-          <div className={"flex gap-2 items-center mb-6"}>
-            <Logo className={"w-20"}/> {"x"}
+          <div className={"flex gap-2 items-center mb-6 justify-center md:-translate-x-1/12"}>
+            <Logo className={"h-20"}/> {"x"}
 
             <div
               className={"w-20 h-10 top-2 relative invert bg-no-repeat bg-contain bg-center"}
-              style={{ backgroundImage: "url('/images/logo-TheOthers_W-300x134.png')" }}
+              style={{ backgroundImage: `url(${theOthersLogo})` }}
               role="img"
               aria-label="Logo the others logo"
             />
           </div>
-          <p className={"text-lg leading-[125%] text-balance"}>
+          <p className={"text-2xl leading-[125%] text-balance"}>
             The Others 2025 - XIV edizione sceglie artpay per promuovere l’utilizzo di soluzioni di pagamento digitali, flessibili e innovative al servizio di gallerie, artisti e collezionisti
           </p>
         </div>
