@@ -26,11 +26,45 @@ const BackButton: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
 
 
 const Footer :  React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkAuth = () => {
+      const vendorUser = localStorage.getItem("vendor-user");
+      setIsLoggedIn(!!vendorUser);
+    };
+
+    checkAuth();
+    window.addEventListener("vendor-login-success", checkAuth);
+    window.addEventListener("vendor-logout", checkAuth);
+
+    return () => {
+      window.removeEventListener("vendor-login-success", checkAuth);
+      window.removeEventListener("vendor-logout", checkAuth);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("vendor-user");
+    window.dispatchEvent(new Event("vendor-logout"));
+  };
 
   if (!isVisible) return <div />;
 
   return (
     <footer className={"mt-6 space-y-6 pb-6 max-w-lg mx-auto px-6"}>
+      {isLoggedIn && (
+        <div className="mb-4">
+          <Typography variant="body2" color="primary">
+            <Link
+              component="button"
+              sx={{ textDecoration: "none", cursor: "pointer" }}
+              onClick={handleLogout}>
+              Logout
+            </Link>
+          </Typography>
+        </div>
+      )}
       <div>
         <Typography variant="body2" color="textSecondary">
           © artpay srl 2024 - Tutti i diritti riservati
