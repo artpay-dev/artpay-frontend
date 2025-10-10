@@ -53,6 +53,9 @@ import FatsPayLayout from "./features/fastpay/layout/FatsPayLayout.tsx";
 import FastPay from "./pages/fast-pay/FastPay.tsx";
 import FastPayCreate from "./pages/fast-pay/FastPayCreate.tsx";
 
+import QuotesLayout from "./features/quotes/layout/QuotesLayout.tsx";
+import QuotePage from "./pages/quotes/QuotePage.tsx";
+
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
@@ -139,6 +142,9 @@ function AppContent() {
                     <Route path={"/vendor/fastpay"}  element={<FatsPayLayout />}>
                       <Route element={<FastPay />} index/>
                       <Route path={"crea-offerta"} element={<FastPayCreate />} />
+                    </Route>
+                    <Route path={"/quotes"} element={<QuotesLayout />}>
+                      <Route element={<QuotePage />} index />
                     </Route>
                   </Routes>
                 </PaymentProvider>

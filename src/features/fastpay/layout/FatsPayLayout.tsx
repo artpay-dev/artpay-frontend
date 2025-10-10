@@ -55,8 +55,9 @@ const Footer :  React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
     <footer className={"mt-6 space-y-6 pb-6 max-w-lg mx-auto px-6"}>
       {isLoggedIn && (
         <div className="mb-4">
-          <Typography variant="body2" color="primary">
+          <Typography variant="body2">
             <Link
+              className="!text-red-700"
               component="button"
               sx={{ textDecoration: "none", cursor: "pointer" }}
               onClick={handleLogout}>
