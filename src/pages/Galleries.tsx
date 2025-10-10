@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
+import { useAuth } from "../hoc/AuthProvider.tsx";
+import { useNavigate } from "react-router-dom";
 import { galleriesToGalleryItems, getDefaultPaddingX } from "../utils.ts";
 import { Grid, Typography } from "@mui/material";
 import GalleriesGrid from "../components/GalleriesGrid.tsx";
@@ -12,36 +14,21 @@ export interface GalleriesProps {
 
 const Galleries: React.FC<GalleriesProps> = ({}) => {
   const data = useData();
+  const auth = useAuth();
+  const navigate = useNavigate();
 
   const [isReady, setIsReady] = useState(false);
   const [galleries, setGalleries] = useState<Gallery[]>([]);
-  /*const [searchFilterValue, setSearchFilterValue] = useState("");*/
-  /*const [searchFilter, setSearchFilter] = useState("");
-  const [sortingModeDesc, setSortingModeDesc] = useState<boolean>(false);
-  const [sortingField, setSortingField] = useState<keyof Gallery>("registered");*/
 
-  /*const sortingKeys: { [key in keyof Gallery]: string } = {
-    "display_name": "Nome",
-    "registered": "Ultimi aggiunti"
-  };*/
 
-  /*const filterGalleries = (galleries: Gallery[]): Gallery[] => {
-    return galleries.filter(gallery => {
-      if (searchFilter) {
-        return gallery.display_name?.toLowerCase().includes(searchFilter.toLowerCase());
-      }
-      return true;
-    });
-  };*/
-
-  /*const sortGalleries = (galleries: Gallery[]): Gallery[] => {
-    return galleries.sort((a, b) => {
-      if (sortingField === "registered") {
-        return new Date(a.registered).getTime() - new Date(b.registered).getTime() * (sortingModeDesc ? -1 : 1);
-      }
-      return a.display_name.localeCompare(b.display_name) * (sortingModeDesc ? -1 : 1);
-    });
-  };*/
+  // Controlla se l'utente ha l'ID 132
+  useEffect(() => {
+    if (!auth.user) {
+      navigate("/");
+    } else if (auth.user.id !== 132) {
+      navigate("/dashboard");
+    }
+  }, [auth.user, navigate]);
 
   useEffect(() => {
     data.getGalleries().then(resp => {

@@ -48,8 +48,14 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
         (orderMode == "loan"
           ? "http://localhost:5173/opera-bloccata"
           : "http://localhost:5173/acquisto?order=" + pendingOrder?.id) ,
-      staging: "https://staging2.artpay.art/acquisto?order=" + pendingOrder?.id,
-      production: "https://artpay.art/acquisto?order=" + pendingOrder?.id,
+      staging:
+        (orderMode == "loan"
+          ? "https://staging2.artpay.art/opera-bloccata"
+          : "https://staging2.artpay.art/acquisto?order=" + pendingOrder?.id),
+      production:
+        (orderMode == "loan"
+          ? "https://artpay.art/opera-bloccata"
+          : "https://artpay.art/acquisto?order=" + pendingOrder?.id),
     };
 
     const handleSubmit = async (e: { preventDefault: () => void }) => {

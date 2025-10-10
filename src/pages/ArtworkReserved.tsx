@@ -10,6 +10,7 @@ import FaqComponent from "../features/directpurchase/components/FaqComponent.tsx
 import CountdownTimer from "../components/CountdownTimer.tsx";
 import { useDialogs } from "../hoc/DialogProvider.tsx";
 import { Button } from "@mui/material";
+import usePaymentStore from "../features/cdspayments/stores/paymentStore";
 
 export interface ArtworkReservedProps {}
 
@@ -20,6 +21,7 @@ const ArtworkReserved: React.FC<ArtworkReservedProps> = ({}) => {
   const dialogs = useDialogs();
 
   const { pendingOrder } = useDirectPurchaseStore();
+  const { refreshOrders } = usePaymentStore();
 
   const [paymentResult, setPaymentResult] = useState<{
     status: "success" | "failed" | "processing" | "pending" | "on-hold" | null;
@@ -163,6 +165,10 @@ const ArtworkReserved: React.FC<ArtworkReservedProps> = ({}) => {
                   payment_method_title: "Blocco opera",
                   customer_note: `Versato acconto ${data.downpaymentPercentage()}%`,
                 });
+
+                // Refresh ordini in PaymentDraw
+                refreshOrders();
+
                 localStorage.removeItem("completed-order");
                 localStorage.removeItem("showCheckout");
                 localStorage.removeItem("checkoutUrl");
@@ -200,7 +206,7 @@ const ArtworkReserved: React.FC<ArtworkReservedProps> = ({}) => {
     };
 
     processPaymentResult();
-  }, [stripe, data, auth.user?.username]);
+  }, [stripe, data, auth.user?.username, refreshOrders]);
 
   return (
     <div className="min-h-screen flex flex-col pt-35">
