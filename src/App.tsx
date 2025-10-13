@@ -55,6 +55,7 @@ import FastPayCreate from "./pages/fast-pay/FastPayCreate.tsx";
 
 import QuotesLayout from "./features/quotes/layout/QuotesLayout.tsx";
 import QuotePage from "./pages/quotes/QuotePage.tsx";
+import CheckoutPayment from "./pages/CheckoutPayment.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -146,6 +147,7 @@ function AppContent() {
                     <Route path={"/quotes"} element={<QuotesLayout />}>
                       <Route element={<QuotePage />} index />
                     </Route>
+                    <Route path="/checkout/payment" element={<CheckoutPayment />} />
                   </Routes>
                 </PaymentProvider>
               </DataProvider>

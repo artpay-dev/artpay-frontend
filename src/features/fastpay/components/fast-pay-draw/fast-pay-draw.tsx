@@ -3,15 +3,56 @@ import useListDrawStore from "../../stores/listDrawStore.tsx";
 import PlusIcon from "../../../../components/icons/PlusIcon.tsx";
 import { useNavigate } from "react-router-dom";
 import OfferCard from "../offer-card/offer-card.tsx";
-//import useProposalStore from "../../stores/proposalStore.tsx";
+import { useEffect, useState } from "react";
+import { Order } from "../../../../types/order.ts";
+import { quoteService } from "../../../../services/quoteService.ts";
+import { CircularProgress, Typography, Alert } from "@mui/material";
 
 const FastPayDraw = () => {
   const navigate = useNavigate();
-
-
-
   const { openListDraw, setOpenListDraw } = useListDrawStore();
-  //const {order, loading, setPaymentData} = useProposalStore()
+
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    const loadVendorQuotes = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        // Recupera il vendor-user dal localStorage
+        const vendorUserStr = localStorage.getItem("vendor-user");
+        if (!vendorUserStr) {
+          setError("Vendor non autenticato");
+          return;
+        }
+
+        const vendorUser = JSON.parse(vendorUserStr);
+        const vendorId = vendorUser.id || vendorUser.vendor_id;
+
+        if (!vendorId) {
+          setError("ID vendor non trovato");
+          return;
+        }
+
+        // Carica gli ordini del vendor con status "quote"
+        const vendorOrders = await quoteService.getVendorQuotes(vendorId);
+        setOrders(vendorOrders);
+      } catch (err: any) {
+        console.error("Errore nel caricamento degli ordini:", err);
+        setError(err?.response?.data?.message || "Errore nel caricamento delle offerte");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Carica gli ordini solo quando il drawer è aperto
+    if (openListDraw) {
+      loadVendorQuotes();
+    }
+  }, [openListDraw]);
 
   return (
     <aside
@@ -35,16 +76,37 @@ const FastPayDraw = () => {
             className={"bg-primary rounded-full p-3"}
             onClick={() => {
               setOpenListDraw({ openListDraw: false });
-              navigate('/vendor/fastpay/crea-offerta')
+              navigate("/vendor/fastpay/crea-offerta");
             }}>
             <PlusIcon color="inherit" style={{ fontSize: "1.5rem", cursor: "pointer", fill: "white" }} />
           </button>
         </div>
       </div>
       <section className={"mt-40 overflow-y-scroll pb-60 h-full"}>
-        <ul className={"flex flex-col gap-6 mt-4 px-8"}>
-          <OfferCard />
-        </ul>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <CircularProgress size={40} />
+            <Typography variant="body2" className="mt-4 text-secondary">
+              Caricamento offerte...
+            </Typography>
+          </div>
+        ) : error ? (
+          <div className="px-8 py-4">
+            <Alert severity="error">{error}</Alert>
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="px-8 py-12">
+            <Typography variant="body1" className="text-center text-secondary">
+              Nessuna offerta disponibile. Crea la tua prima offerta!
+            </Typography>
+          </div>
+        ) : (
+          <ul className={"flex flex-col gap-6 mt-4 px-8"}>
+            {orders.map((order) => (
+              <OfferCard key={order.id} order={order} />
+            ))}
+          </ul>
+        )}
       </section>
     </aside>
   );

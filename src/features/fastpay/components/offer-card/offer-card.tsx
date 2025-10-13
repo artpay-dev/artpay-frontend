@@ -1,62 +1,117 @@
 import CountdownTimer from "../../../../components/CountdownTimer.tsx";
-import { Button } from "@mui/material";
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress, Alert } from "@mui/material";
+import { Order } from "../../../../types/order.ts";
+import { useState } from "react";
+import { quoteService } from "../../../../services/quoteService.ts";
 
 interface OfferCardProps {
+  order: Order | Partial<Order>;
   sharingButton?: boolean;
 }
 
-const OfferCard = ({sharingButton = false}:OfferCardProps) => {
+const OfferCard = ({ order, sharingButton = false }: OfferCardProps) => {
+  const [openEmailDialog, setOpenEmailDialog] = useState(false);
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [emailSuccess, setEmailSuccess] = useState(false);
+  // Cerca la data di scadenza nei meta_data
+  const expiryDateMeta = order.meta_data?.find((meta) => meta.key === "quote_expiry_date");
+  const hasExpiryDate = !!expiryDateMeta;
+  const expiryDate = hasExpiryDate ? new Date(expiryDateMeta.value) : null;
 
-  const getExpiryDate = (date: string): Date => {
-    if (date) {
-      const createdDate = new Date(date);
-      const expiryDate = new Date(createdDate);
-      expiryDate.setDate(createdDate.getDate() + 7);
-      return expiryDate;
+  // Prendi la percentuale di sconto direttamente dal coupon_data se disponibile
+  const couponLine = order.coupon_lines?.[0];
+  const couponData = couponLine?.meta_data?.find((meta: any) => meta.key === "coupon_data")?.value;
+  const discountPercentage = couponData?.amount || "0";
+
+  // Prendi il primo line_item per mostrare i dettagli principali
+  const mainItem = order.line_items?.[0];
+
+  const handleShareClick = () => {
+    setOpenEmailDialog(true);
+    setEmailError("");
+    setEmailSuccess(false);
+  };
+
+  const handleSendEmail = async () => {
+    if (!customerEmail || !customerEmail.includes("@")) {
+      setEmailError("Inserisci un'email valida");
+      return;
     }
-    // Fallback: 7 giorni da ora se non abbiamo la data di creazione
-    const now = new Date();
-    const fallbackExpiry = new Date(now);
-    fallbackExpiry.setDate(now.getDate() + 7);
-    return fallbackExpiry;
+
+    if (!order.id) {
+      setEmailError("ID ordine non disponibile");
+      return;
+    }
+
+    try {
+      setSendingEmail(true);
+      setEmailError("");
+
+      await quoteService.updateOrderEmail(order.id, customerEmail);
+
+      setEmailSuccess(true);
+      setTimeout(() => {
+        setOpenEmailDialog(false);
+        setCustomerEmail("");
+        setEmailSuccess(false);
+      }, 2000);
+    } catch (error: any) {
+      console.error("Errore nell'invio dell'email:", error);
+      setEmailError(error?.response?.data?.message || error?.message || "Errore nell'invio dell'email");
+    } finally {
+      setSendingEmail(false);
+    }
   };
 
   return (
+    <>
     <li className={"border border-[#E2E6FC] rounded-lg space-y-4 max-w-sm"}>
       <div className={"card-header pt-4 px-4"}>
-        <span>Offerta N.0000</span>
+        <span>Offerta N.{order.number || "---"}</span>
         <div className="flex items-center gap-3 my-4">
           <img
-            src="/images/immagine--galleria.png"
-            alt=""
+            src={mainItem?.image?.src || "/images/immagine--galleria.png"}
+            alt={mainItem?.name || "Artwork"}
             width={400}
             height={400}
             className="rounded-sm object-cover h-8 w-8 aspect-square"
           />
           <div className={"flex flex-col"}>
-            <span>Divinity, 2020</span>
-            <span className={"text-secondary text-xs"}>Trudy Benson</span>
+            <span>{mainItem?.name || "Opera d'arte"}</span>
+            <span className={"text-secondary text-xs"}>
+              {order.billing?.first_name} {order.billing?.last_name}
+            </span>
           </div>
         </div>
       </div>
       <div className={"card-body px-4"}>
-        <span className={"text-secondary block mb-1"}>L'offerta scade tra:</span>
-        <CountdownTimer expiryDate={getExpiryDate("2025-09-25T17:37:14")} />
-        <ul className={"flex flex-col gap-4 mt-4"}>
+        {hasExpiryDate && expiryDate && (
+          <>
+            <span className={"text-secondary block mb-1"}>L'offerta scade tra:</span>
+            <CountdownTimer expiryDate={expiryDate} />
+          </>
+        )}
+        <ul className={`flex flex-col gap-4 ${hasExpiryDate ? "mt-4" : ""}`}>
           <li className={"flex flex-col gap-1"}>
             <span className={"text-secondary"}>Prezzo</span>
-            <span>€ 2.000,00</span>
+            <span>
+              {order.currency_symbol || "€"} {parseFloat(order.total || "0").toFixed(2)}
+            </span>
           </li>
-          <li className={"flex flex-col gap-1"}>
-            <span className={"text-secondary"}>Sconto</span>
-            <span>20&nbsp;%</span>
-          </li>
+          {parseFloat(order.discount_total || "0") > 0 && (
+            <li className={"flex flex-col gap-1"}>
+              <span className={"text-secondary"}>Sconto</span>
+              <span>{discountPercentage}&nbsp;%</span>
+            </li>
+          )}
         </ul>
       </div>
       <div className={"card-footer border-t border-[#E2E6FC] text-secondary p-4 flex flex-col gap-4"}>
         {sharingButton ? (
-            <Button variant={"contained"}>Condividi</Button>
-          ) : (
+          <Button variant={"contained"} onClick={handleShareClick}>Condividi</Button>
+        ) : (
           <>
             <Button variant={"outlined"}>Vedi dettaglio</Button>
             <Button variant={"text"} color={"inherit"}>
@@ -66,6 +121,64 @@ const OfferCard = ({sharingButton = false}:OfferCardProps) => {
         )}
       </div>
     </li>
+
+    {/* Dialog per inserire l'email del cliente */}
+    <Dialog
+      open={openEmailDialog}
+      onClose={() => !sendingEmail && setOpenEmailDialog(false)}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+        },
+      }}
+    >
+      <DialogTitle>Invia offerta al cliente</DialogTitle>
+      <DialogContent>
+        {emailSuccess ? (
+          <Alert severity="success" sx={{ mt: 2 }}>
+            Email inviata con successo!
+          </Alert>
+        ) : (
+          <>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Email cliente"
+              type="email"
+              fullWidth
+              variant="outlined"
+              value={customerEmail}
+              onChange={(e) => setCustomerEmail(e.target.value)}
+              error={!!emailError}
+              helperText={emailError}
+              disabled={sendingEmail}
+              sx={{
+                mt: 2,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                },
+              }}
+            />
+          </>
+        )}
+      </DialogContent>
+      <DialogActions sx={{ p: 3, pt: 0 }}>
+        <Button onClick={() => setOpenEmailDialog(false)} disabled={sendingEmail}>
+          Annulla
+        </Button>
+        <Button
+          onClick={handleSendEmail}
+          variant="contained"
+          disabled={sendingEmail || emailSuccess}
+          startIcon={sendingEmail ? <CircularProgress size={20} color="inherit" /> : null}
+        >
+          {sendingEmail ? "Invio..." : "Invia"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+    </>
   );
 };
 

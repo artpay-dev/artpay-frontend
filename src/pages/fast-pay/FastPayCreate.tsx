@@ -8,17 +8,43 @@ import {
   InputAdornment,
   Card,
   CardContent,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
+  CircularProgress,
+  Alert,
+  IconButton,
 } from "@mui/material";
+import { Close } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
 import { useState } from "react";
 import OfferCard from "../../features/fastpay/components/offer-card/offer-card.tsx";
+import { Order } from "../../types/order.ts";
+import { Artwork } from "../../types/artwork.ts";
+import { quoteService } from "../../services/quoteService.ts";
+import { setInterval } from "node:timers";
 //import useProposalStore from "../../stores/proposalStore.tsx";
 
 const FastPayCreate = () => {
   const [isComplete, setComplete] = useState<boolean>(false);
+  const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
+  const [openArtworkDialog, setOpenArtworkDialog] = useState<boolean>(false);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [loadingArtworks, setLoadingArtworks] = useState<boolean>(false);
+  const [artworksError, setArtworksError] = useState<string>("");
+  const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
+  const [creatingOrder, setCreatingOrder] = useState<boolean>(false);
+  const [createOrderError, setCreateOrderError] = useState<string>("");
+  const [couponCode, setCouponCode] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     titolo: "",
@@ -27,6 +53,7 @@ const FastPayCreate = () => {
     prezzo: "",
     sconto: "",
     immagine: null as File | null,
+    imageUrl: "", // URL dell'immagine dell'opera selezionata
     hasScadenza: false,
     dataScadenza: null as Dayjs | null,
   });
@@ -61,10 +88,118 @@ const FastPayCreate = () => {
     }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleOpenArtworkDialog = async () => {
+    setOpenArtworkDialog(true);
+    setLoadingArtworks(true);
+    setArtworksError("");
+
+    try {
+      const vendorUserStr = localStorage.getItem("vendor-user");
+      if (!vendorUserStr) {
+        throw new Error("Vendor non autenticato");
+      }
+
+      const vendorUser = JSON.parse(vendorUserStr);
+      const vendorId = vendorUser.id || vendorUser.vendor_id;
+
+      if (!vendorId) {
+        throw new Error("ID vendor non trovato");
+      }
+
+      const products = await quoteService.getVendorProducts(vendorId);
+      setArtworks(products);
+    } catch (error: any) {
+      console.error("Errore nel caricamento delle opere:", error);
+      setArtworksError(error?.message || "Errore nel caricamento delle opere");
+    } finally {
+      setLoadingArtworks(false);
+    }
+  };
+
+  const handleSelectArtwork = (artwork: Artwork) => {
+    setSelectedArtwork(artwork);
+
+    // Popola i campi del form con i dati dell'opera
+    const artistName =
+      artwork.acf?.artist && artwork.acf.artist.length > 0 ? artwork.acf.artist[0].post_title : artwork.store_name;
+
+    setFormData((prev) => ({
+      ...prev,
+      titolo: artwork.name,
+      artista: artistName,
+      descrizione: artwork.description.replace(/<[^>]*>/g, ""), // Rimuove HTML tags
+      prezzo: artwork.regular_price || artwork.price,
+      imageUrl: artwork.images[0]?.src || "", // Salva l'URL dell'immagine
+      immagine: null, // Resetta il file caricato manualmente
+    }));
+
+    setOpenArtworkDialog(false);
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setComplete(true);
-    console.log(isComplete);
+
+    try {
+      setCreatingOrder(true);
+      setCreateOrderError("");
+
+      // Calcola il prezzo con sconto
+      const prezzo = parseFloat(formData.prezzo) || 0;
+      const scontoPerc = parseFloat(formData.sconto) || 0;
+      const scontoAmount = (prezzo * scontoPerc) / 100;
+
+      // Se c'è uno sconto, crea prima il coupon
+      let couponCode = "";
+      if (scontoPerc > 0) {
+        const timestamp = Date.now();
+        couponCode = `FASTPAY_${scontoPerc}_${timestamp}`;
+
+        const couponData = {
+          code: couponCode,
+          discount_type: "percent",
+          amount: formData.sconto, // Usa direttamente il valore stringa dal form
+        };
+
+        const couponCreated = await quoteService.createCoupon(couponData);
+        if (couponCreated) {
+          setCouponCode(couponCreated.code);
+        }
+      }
+
+      // Prepara i dati dell'ordine per la chiamata API
+      const orderData: any = {
+        status: "quote",
+        customer_id: 0,
+        line_items: [
+          {
+            product_id: selectedArtwork?.id || 0,
+            quantity: 1,
+          },
+        ],
+        // Aggiungi il coupon direttamente alla creazione dell'ordine
+        coupon_lines: couponCode ? [{ code: couponCode }] : [],
+        meta_data:
+          formData.hasScadenza && formData.dataScadenza
+            ? [
+                {
+                  key: "quote_expiry_date",
+                  value: formData.dataScadenza.toISOString(),
+                },
+              ]
+            : [],
+      };
+
+      // Chiama l'API per creare l'ordine con il coupon già applicato
+      const createdOrderResponse = await quoteService.createQuoteOrder(orderData);
+      setCreatedOrder(createdOrderResponse);
+      setComplete(true);
+
+    } catch (error: any) {
+      console.error("Errore nella creazione dell'ordine:", error);
+      setCreateOrderError(error?.response?.data?.message || error?.message || "Errore nella creazione dell'offerta");
+    } finally {
+      setCreatingOrder(false);
+    }
   };
 
   return (
@@ -90,9 +225,11 @@ const FastPayCreate = () => {
                 </svg>
                 <p className={'text-2xl text-center'}>La tua offerta è stata creata con successo.</p>
               </div>
-              <ul className={'flex flex-col gap-6 mt-4 px-8'}>
-                <OfferCard sharingButton/>
-              </ul>
+              {createdOrder && (
+                <ul className={'flex flex-col gap-6 mt-4 px-8'}>
+                  <OfferCard order={createdOrder} sharingButton />
+                </ul>
+              )}
 
             </section>
           </>
@@ -100,14 +237,24 @@ const FastPayCreate = () => {
           <section className={"px-8 py-12"}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
-                <TextField
-                  fullWidth
-                  label="Titolo Opera"
-                  value={formData.titolo}
-                  onChange={handleInputChange("titolo")}
-                  variant="outlined"
-                  sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, height: 48 } }}
-                />
+                <div className={'flex flex-col gap-2 items-start'}>
+                  <TextField
+                    fullWidth
+                    label="Titolo Opera"
+                    value={formData.titolo}
+                    onChange={handleInputChange("titolo")}
+                    variant="outlined"
+                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, height: 48 } }}
+                  />
+                  <Button
+                    className={'transition-all !text-primary hover:!text-primary-hover hover:!underline '}
+                    variant={'link'}
+                    onClick={handleOpenArtworkDialog}
+                    type="button"
+                  >
+                    Seleziona opera
+                  </Button>
+                </div>
 
                 <TextField
                   fullWidth
@@ -137,24 +284,66 @@ const FastPayCreate = () => {
                     flexDirection: "column",
                     alignItems: "center",
                     borderRadius: 2,
-                    height: 137,
-                  }}>
-                  <CardContent sx={{ textAlign: "center", flexGrow: 1 }}>
-                    <span className={"block leading-6 text-secondary"}>
-                      {formData.immagine ? formData.immagine.name : "Foto(JPG, PNG, PDF)"}
-                    </span>
-                    <input
-                      accept="image/*"
-                      style={{ display: "none" }}
-                      id="image-upload"
-                      type="file"
-                      onChange={handleImageChange}
-                    />
-                    <label htmlFor="image-upload">
-                      <Typography component="span" sx={{ ml: 1 }} className={"text-primary"}>
-                        {formData.immagine ? "Aggiorna" : "Carica immagine"}
-                      </Typography>
-                    </label>
+                    minHeight: 137,
+                  }}
+                >
+                  <CardContent sx={{ textAlign: "center", flexGrow: 1, width: "100%" }}>
+                    {formData.imageUrl || formData.immagine ? (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: 2,
+                        }}
+                      >
+                        <Box
+                          component="img"
+                          src={formData.immagine ? URL.createObjectURL(formData.immagine) : formData.imageUrl}
+                          alt="Opera selezionata"
+                          sx={{
+                            width: "100%",
+                            maxWidth: 200,
+                            height: "auto",
+                            maxHeight: 150,
+                            objectFit: "contain",
+                            borderRadius: 1,
+                          }}
+                        />
+                        <input
+                          accept="image/*"
+                          style={{ display: "none" }}
+                          id="image-upload"
+                          type="file"
+                          onChange={handleImageChange}
+                        />
+                        <label htmlFor="image-upload">
+                          <Typography
+                            component="span"
+                            sx={{ cursor: "pointer" }}
+                            className={"text-primary hover:underline"}
+                          >
+                            Cambia immagine
+                          </Typography>
+                        </label>
+                      </Box>
+                    ) : (
+                      <>
+                        <span className={"block leading-6 text-secondary"}>Foto(JPG, PNG, PDF)</span>
+                        <input
+                          accept="image/*"
+                          style={{ display: "none" }}
+                          id="image-upload"
+                          type="file"
+                          onChange={handleImageChange}
+                        />
+                        <label htmlFor="image-upload">
+                          <Typography component="span" sx={{ ml: 1 }} className={"text-primary"}>
+                            Carica immagine
+                          </Typography>
+                        </label>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -206,14 +395,104 @@ const FastPayCreate = () => {
                   />
                 )}
 
-                <Button variant="contained" color="primary" fullWidth sx={{ mt: 3 }} type="submit">
-                  Salva offerta
+                {createOrderError && (
+                  <Alert severity="error">{createOrderError}</Alert>
+                )}
+
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  sx={{ mt: 3 }}
+                  type="submit"
+                  disabled={creatingOrder}
+                >
+                  {creatingOrder ? (
+                    <>
+                      <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                      Creazione in corso...
+                    </>
+                  ) : (
+                    "Salva offerta"
+                  )}
                 </Button>
               </Box>
             </LocalizationProvider>
           </section>
         )}
       </main>
+
+      {/* Dialog per selezionare l'opera */}
+      <Dialog
+        open={openArtworkDialog}
+        onClose={() => setOpenArtworkDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            maxHeight: "80vh",
+          },
+        }}
+      >
+        <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", pb: 1 }}>
+          <Typography variant="h6">Seleziona un'opera</Typography>
+          <IconButton onClick={() => setOpenArtworkDialog(false)} size="small">
+            <Close />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          {loadingArtworks ? (
+            <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" py={6}>
+              <CircularProgress size={40} />
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                Caricamento opere...
+              </Typography>
+            </Box>
+          ) : artworksError ? (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {artworksError}
+            </Alert>
+          ) : artworks.length === 0 ? (
+            <Box py={6} textAlign="center">
+              <Typography variant="body1" color="text.secondary">
+                Nessuna opera disponibile
+              </Typography>
+            </Box>
+          ) : (
+            <List sx={{ pt: 0 }}>
+              {artworks.map((artwork) => (
+                <ListItem key={artwork.id} disablePadding>
+                  <ListItemButton onClick={() => handleSelectArtwork(artwork)} sx={{ borderRadius: 2, mb: 1 }}>
+                    <ListItemAvatar>
+                      <Avatar
+                        src={artwork.images[0]?.src || "/images/immagine--galleria.png"}
+                        alt={artwork.name}
+                        variant="rounded"
+                        sx={{ width: 60, height: 60 }}
+                      />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={artwork.name}
+                      secondary={
+                        <>
+                          <Typography component="span" variant="body2" color="text.primary">
+                            {artwork.acf?.artist && artwork.acf.artist.length > 0
+                              ? artwork.acf.artist[0].post_title
+                              : artwork.store_name}
+                          </Typography>
+                          {" — "}€{artwork.price}
+                        </>
+                      }
+                      sx={{ ml: 2 }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

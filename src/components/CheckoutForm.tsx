@@ -12,9 +12,10 @@ type CheckoutFormProps = {
   onCheckout?: () => void;
   onChange?: (payment_method: string) => void;
   ref?: MutableRefObject<HTMLButtonElement | null>;
+  showButton?: boolean;
 };
 const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
-  ({ onReady, thankYouPage = "/thank-you-page", onCheckout, onChange}, ref) => {
+  ({ onReady, thankYouPage = "/thank-you-page", onCheckout, onChange, showButton = false}, ref) => {
     const stripe = useStripe();
     const elements = useElements();
 
@@ -94,7 +95,7 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
           flexDirection="column"
           alignItems="center"
           justifyContent="center"
-          sx={{ height: 0, overflow: "hidden" }}
+          sx={{ height: showButton ? "auto" : 0, overflow: showButton ? "visible" : "hidden" }}
           my={2}>
           <Button
             color="primary"
@@ -102,8 +103,10 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
             type="submit"
             ref={ref}
             disabled={isLoading || !stripe || !elements}
-            id="submit">
-            <span id="button-text">{isLoading ? <div className="spinner" id="spinner"></div> : "Pay now"}</span>
+            id="submit"
+            fullWidth
+            size="large">
+            <span id="button-text">{isLoading ? <div className="spinner" id="spinner"></div> : "Paga ora"}</span>
           </Button>
         </Box>
       </form>
