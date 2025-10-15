@@ -1,22 +1,22 @@
-import { useState } from "react";
+//import { useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { Typography,
 //  IconButton
 } from "@mui/material";
 //import { ArrowBack, ArrowForward } from "@mui/icons-material";
-import guide_artpay_img from "../assets/images/Guide.svg";
+//import guide_artpay_img from "../assets/images/Guide.svg";
 import { PostGrid } from "../components/postGrid.tsx";
 import NewsletterBig from "../components/NewsletterBig.tsx";
 
-interface TutorialSlide {
+/*interface TutorialSlide {
   id: string;
   title: string;
   description: string;
   image: string;
   imageAlt: string;
-}
+}*/
 
-const tutorialSlides: TutorialSlide[] = [
+/*const tutorialSlides: TutorialSlide[] = [
   {
     id: "come-funziona",
     title: "Come funziona",
@@ -48,10 +48,10 @@ const tutorialSlides: TutorialSlide[] = [
     image: guide_artpay_img,
     imageAlt: "Guide Artpay - Acquista sicuro",
   },
-];
+];*/
 
 const Tutorials = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  /*const [currentSlide, setCurrentSlide] = useState(0);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % tutorialSlides.length);
@@ -63,7 +63,7 @@ const Tutorials = () => {
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
-  };
+  };*/
 
   return (
     <DefaultLayout hasNavBar={true}>
