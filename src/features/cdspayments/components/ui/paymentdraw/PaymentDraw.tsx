@@ -100,7 +100,7 @@ const PaymentDraw = () => {
                             });
                             order.created_via == "gallery_auction"
                               ? navigate(`/acquisto-esterno?order=${order.id}`)
-                              : navigate(`/acquisto?order=${order.id}`);
+                              : navigate(`/completa-acquisto/${order.id}`);
                           }}
                           className={
                             "cursor-pointer rounded-full bg-white border border-primary  text-primary py-2 px-6 w-full hover:text-primary-hover hover:border-primary-hover transition-all"
