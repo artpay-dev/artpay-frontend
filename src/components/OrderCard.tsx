@@ -6,13 +6,15 @@ export interface OrderCardProps {
   imgSrc?: string;
   leftCta?: ReactNode | ReactNode[];
   orderId?: number;
+  onClick?: () => void;
 }
 
-const OrderCard: React.FC<OrderCardProps> = ({ children, imgSrc, leftCta, orderId }) => {
+const OrderCard: React.FC<OrderCardProps> = ({ children, imgSrc, leftCta, orderId, onClick }) => {
 
 
   return (
     <Box
+      onClick={onClick}
       sx={{
         borderRadius: "8px",
         backgroundColor: "#FAFAFB",
@@ -20,7 +22,12 @@ const OrderCard: React.FC<OrderCardProps> = ({ children, imgSrc, leftCta, orderI
         flex: "2 1",
         gridTemplateColumns: { xs: undefined, sm: "250px 1fr", md: "150px 1fr", lg: "200px 1fr" },
         height: "100%",
-        flexDirection: { xs: "column", sm: "row" }
+        flexDirection: { xs: "column", sm: "row" },
+        cursor: onClick ? "pointer" : "default",
+        transition: "background-color 0.2s",
+        "&:hover": onClick ? {
+          backgroundColor: "#f0f0f5"
+        } : {}
       }}
       gap={3}
       display="grid">

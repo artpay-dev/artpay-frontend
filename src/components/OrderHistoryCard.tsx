@@ -1,6 +1,5 @@
 import React from "react";
 import OrderCard from "./OrderCard.tsx";
-import { Button } from "@mui/material";
 import { OrderStatus } from "../types/order.ts";
 import TransactionCard from "../features/directpurchase/components/transaction-card.tsx";
 
@@ -60,13 +59,7 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
     <OrderCard
       imgSrc={imgSrc}
       orderId={id}
-      leftCta={
-        onClick && (
-          <Button sx={{ mt: 2, width: "100%" }} onClick={() => onClick(id)} variant="outlined">
-            Gestisci la transazione
-          </Button>
-        )
-      }>
+      onClick={onClick ? () => onClick(id) : undefined}>
       <div>
         <ul className={"space-y-2"}>
           <li className={"flex flex-col leading-[125%]"}>

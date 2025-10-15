@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { PiCreditCardThin } from "react-icons/pi";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "./CheckoutForm.tsx";
 import ContentCard from "./ContentCard.tsx";
@@ -13,6 +13,7 @@ import Checkbox from "./Checkbox.tsx";
 import { Link } from "react-router-dom";
 import { useDirectPurchase } from "../features/directpurchase";
 import { useDirectPurchaseUtils } from "../features/directpurchase/hooks/useDirectPurchaseUtils";
+import { useData } from "../hoc/DataProvider.tsx";
 
 export interface PaymentCardProps {
   tabTitles?: string[]; // Nuova proprietà per i titoli delle tab
@@ -49,9 +50,90 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
 }) => {
   const payments = usePayments();
   const theme = useTheme();
+  const data = useData();
 
-  const { privacyChecked, updateState, isSaving, pendingOrder, orderMode } = useDirectPurchase();
+  const { privacyChecked, updateState, isSaving, pendingOrder, orderMode, updatePageData } = useDirectPurchase();
   const { onCancelPaymentMethod } = useDirectPurchaseUtils();
+
+  const [couponCode, setCouponCode] = useState("");
+  const [isCouponApplying, setIsCouponApplying] = useState(false);
+  const [couponError, setCouponError] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("Inserisci un codice coupon");
+      return;
+    }
+
+    if (!pendingOrder?.id) {
+      setCouponError("Ordine non trovato");
+      return;
+    }
+
+    setIsCouponApplying(true);
+    setCouponError("");
+
+    try {
+      // Applica il coupon all'ordine
+      const updatedOrder = await data.updateOrder(pendingOrder.id, {
+        coupon_lines: [{ code: couponCode.trim() }],
+      });
+
+      // Aggiorna il payment intent con il nuovo totale se esiste già un payment method
+      if (pendingOrder.order_key && paymentMethod) {
+        const updatedPaymentIntent = await data.updatePaymentIntent({
+          wc_order_key: pendingOrder.order_key,
+          payment_method: paymentMethod,
+        });
+        updatePageData({ paymentIntent: updatedPaymentIntent });
+      }
+
+      // Aggiorna lo stato locale
+      updatePageData({ pendingOrder: updatedOrder });
+      setAppliedCoupon(couponCode);
+      setCouponCode("");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error.message || "Coupon non valido";
+      setCouponError(errorMessage);
+      setAppliedCoupon(null);
+    } finally {
+      setIsCouponApplying(false);
+    }
+  };
+
+  const handleRemoveCoupon = async () => {
+    if (!pendingOrder?.id) {
+      return;
+    }
+
+    setIsCouponApplying(true);
+    try {
+      // Rimuovi il coupon dall'ordine
+      const updatedOrder = await data.updateOrder(pendingOrder.id, {
+        coupon_lines: [],
+      });
+
+      // Aggiorna il payment intent con il totale originale se esiste già un payment method
+      if (pendingOrder.order_key && paymentMethod) {
+        const updatedPaymentIntent = await data.updatePaymentIntent({
+          wc_order_key: pendingOrder.order_key,
+          payment_method: paymentMethod,
+        });
+        updatePageData({ paymentIntent: updatedPaymentIntent });
+      }
+
+      // Aggiorna lo stato locale
+      updatePageData({ pendingOrder: updatedOrder });
+      setAppliedCoupon(null);
+      setCouponError("");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error.message || "Errore nella rimozione del coupon";
+      setCouponError(errorMessage);
+    } finally {
+      setIsCouponApplying(false);
+    }
+  };
 
   if (!paymentIntent) return <StripePaymentSkeleton />;
 
@@ -182,6 +264,71 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
             </>
           )}
         </div>
+
+        {/* Coupon Section */}
+        <div className="py-4 px-6 border-b border-gray-950/20">
+          {!appliedCoupon ? (
+            <div className="space-y-2">
+              <Typography variant="body2" color="textSecondary">
+                Hai un coupon?
+              </Typography>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    placeholder="Inserisci codice"
+                    value={couponCode}
+                    onChange={(e) => {
+                      setCouponCode(e.target.value.toUpperCase());
+                      setCouponError("");
+                    }}
+                    disabled={isCouponApplying || isSaving}
+                    className={`w-full px-3 py-2.5 border ${
+                      couponError
+                        ? "border-red-500"
+                        : "border-[#CDCFD3] hover:border-primary focus:border-primary focus:border-2"
+                    } bg-white text-[#808791] placeholder:text-[#808791] disabled:opacity-50 disabled:cursor-not-allowed outline-none transition-colors`}
+                    style={{
+                      fontSize: "14px",
+                      lineHeight: "1.5",
+                      borderRadius: "12px",
+                    }}
+                  />
+                  {couponError && <p className="text-xs text-red-500 mt-1 ml-1">{couponError}</p>}
+                </div>
+                <Button
+                  variant="contained"
+                  onClick={handleApplyCoupon}
+                  disabled={!couponCode.trim() || isCouponApplying || isSaving}
+                  sx={{
+                    minWidth: "100px",
+                    textTransform: "none",
+                    height: "42px",
+                  }}>
+                  {isCouponApplying ? "Applica..." : "Applica"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Typography variant="body2" className="font-semibold">
+                  Coupon applicato:
+                </Typography>
+                <Typography variant="body2" className="text-green-600 font-mono">
+                  {appliedCoupon}
+                </Typography>
+              </div>
+              <button
+                onClick={handleRemoveCoupon}
+                disabled={isCouponApplying || isSaving}
+                className="text-sm text-red-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed">
+                Rimuovi
+              </button>
+            </div>
+          )}
+        </div>
+
         <Box>
           <Elements
             stripe={payments.stripe}
@@ -243,7 +390,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
             label={
               <Typography variant="body1">
                 Accetto le{" "}
-                <Link to="/condizioni-generali-di-acquisto" target="_blank">
+                <Link to="/condizioni-generali-di-acquisto" target="_blank" className={'underline'}>
                   condizioni generali d'acquisto
                 </Link>
               </Typography>

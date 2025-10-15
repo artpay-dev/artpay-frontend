@@ -53,7 +53,7 @@ const OrderCompleted = () => {
   }, [order_id, data]);
 
   // Calcola i valori finanziari
-  const lineItemsTotal = order?.line_items.reduce((sum, item) => sum + Number(item.total), 0) || 0;
+  const lineItemsTotal = order?.line_items.reduce((sum, item) => sum + Number(item.total) + Number(item.total_tax), 0) || 0;
   const shippingCost = Number(order?.shipping_total || 0);
   const shippingTax = Number(order?.shipping_tax || 0);
 
@@ -66,6 +66,7 @@ const OrderCompleted = () => {
       return sum;
     }, 0) || 0;
 
+  const discountTotal = Number(order?.discount_total || 0);
   const totalAmount = Number(order?.total || 0);
   const totalTax = Number(order?.total_tax || 0);
 
@@ -91,11 +92,13 @@ const OrderCompleted = () => {
     );
   }
 
+  console.log(order);
+
   return (
     <DefaultLayout authRequired>
-      <div className={"flex-1 flex flex-col min-h-[600px] justify-between mb-24 pt-35 md:pt-0 px-8 md:flex-row"}>
+      <div className={"flex-1 flex flex-col min-h-[600px] justify-between mb-24 pt-35 md:pt-0 px-8 md:flex-row "}>
         <div className={"order-details"}>
-          <div className={"flex flex-col  "}>
+          <div className={"flex flex-col md:min-w-[312px]"}>
             <div className={"flex space-x-2 items-center mb-12"}>
               <h1 className={"text-2xl"}>Repilogo dell'ordine</h1>
             </div>
@@ -163,6 +166,16 @@ const OrderCompleted = () => {
                   </Typography>
                   <Typography variant="body1">
                     € {artpayFees.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </Typography>
+                </div>
+              )}
+              {discountTotal > 0 && (
+                <div className={"flex items-center justify-between w-full"}>
+                  <Typography variant="body1" className={"block"} mb={0.5}>
+                    Sconto
+                  </Typography>
+                  <Typography variant="body1" color="success.main">
+                    -€ {discountTotal.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </Typography>
                 </div>
               )}
@@ -237,7 +250,7 @@ const OrderCompleted = () => {
             </div>
           </div>
         </div>
-        <div className="flex flex-col w-full items-center justify-center max-w-[612px] shadow-custom-variant h-fit py-20 rounded-3xl px-4">
+        <div className="flex flex-col w-full items-center justify-center md:max-w-[612px] shadow-custom-variant h-fit py-20 rounded-3xl px-4">
           <span className={"mb-7"}>
             <svg width="73" height="72" viewBox="0 0 73 72" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path

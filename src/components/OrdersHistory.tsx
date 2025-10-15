@@ -53,11 +53,25 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate
     navigate(`/completa-acquisto/${orderId}`);
   };
 
+  const handleCompletedClick = async (orderId: number) => {
+    navigate(`/complete-order/${orderId}`);
+  };
+
   const showCta = (purchaseMode: string, status: OrderStatus): boolean => {
     if ((status === "on-hold" && purchaseMode !== "Stripe SEPA") || (status === "pending" && purchaseMode !== "Stripe SEPA") || (status === "processing" && purchaseMode !== "Stripe SEPA")) {
       return true;
     }
     return false;
+  };
+
+  const getClickHandler = (purchaseMode: string, status: OrderStatus): ((orderId: number) => Promise<void>) | undefined => {
+    if (status === "completed") {
+      return handleCompletedClick;
+    }
+    if (showCta(purchaseMode, status)) {
+      return handleClick;
+    }
+    return undefined;
   };
 
   useEffect(() => {
@@ -112,7 +126,7 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate
               pl={padding.pl}
               pb={3}
               item>
-              <OrderHistoryCard {...order} onClick={showCta(order.purchaseMode, order.status) ? handleClick : undefined} />
+              <OrderHistoryCard {...order} onClick={getClickHandler(order.purchaseMode, order.status)} />
             </Grid>
           );
         })

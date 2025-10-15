@@ -33,6 +33,7 @@ export type OrderUpdateRequest = {
   shipping?: ShippingData;
   shipping_lines?: ShippingLineUpdateRequest[];
   line_items?: LineItemRequest[];
+  coupon_lines?: { code: string }[];
 };
 
 export type LineItemRequest = {
