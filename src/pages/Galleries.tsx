@@ -4,7 +4,7 @@ import { useData } from "../hoc/DataProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import { useNavigate } from "react-router-dom";
 import { galleriesToGalleryItems, getDefaultPaddingX } from "../utils.ts";
-import { Grid, Typography } from "@mui/material";
+import { Grid, Typography, Skeleton, Box } from "@mui/material";
 import GalleriesGrid from "../components/GalleriesGrid.tsx";
 import { Gallery } from "../types/gallery.ts";
 
@@ -39,6 +39,20 @@ const Galleries: React.FC<GalleriesProps> = ({}) => {
   }, []);
 
   const px = getDefaultPaddingX();
+
+  const GalleriesSkeleton = () => (
+    <Grid container spacing={3}>
+      {Array.from({ length: 8 }).map((_, index) => (
+        <Grid key={index} item xs={12} sm={6} md={4} lg={3}>
+          <Box>
+            <Skeleton variant="rectangular" width="100%" height={200} sx={{ borderRadius: 2, mb: 1.5 }} />
+            <Skeleton variant="text" width="70%" height={28} sx={{ mb: 0.5 }} />
+            <Skeleton variant="text" width="50%" height={20} />
+          </Box>
+        </Grid>
+      ))}
+    </Grid>
+  );
 
   return (<DefaultLayout pageLoading={!isReady} authRequired>
     <Grid sx={{ px: px }} container>
@@ -89,8 +103,12 @@ const Galleries: React.FC<GalleriesProps> = ({}) => {
         </Box>
       </Grid>*/}
       <Grid xs={12} pb={3} sx={{ mt: { xs: 2, sm: 3 } }} item>
-        <GalleriesGrid items={galleriesToGalleryItems(galleries)} disablePadding
-                       cardSize="medium" />
+        {!isReady ? (
+          <GalleriesSkeleton />
+        ) : (
+          <GalleriesGrid items={galleriesToGalleryItems(galleries)} disablePadding
+                         cardSize="medium" />
+        )}
       </Grid>
     </Grid>
 
