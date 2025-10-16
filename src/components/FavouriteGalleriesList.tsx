@@ -55,6 +55,8 @@ const FavouriteGalleriesList : React.FC = () => {
     });
   }, [data]);
 
+  if (favouriteGalleries.length === 0) return <></>;
+
   return (
     <Box sx={{ width: "100%" }}>
 

@@ -40,7 +40,6 @@ const DashboardPage = () => {
   const [artworks, setArtworks] = useState<ArtworkCardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastFavouriteGallery, setLastFavouriteGallery] = useState<Gallery | null>(null);
-  const [hasFavouriteGalleries, setHasFavouriteGalleries] = useState(false);
   const data = useData();
   const snackbar = useSnackbars();
 
@@ -52,15 +51,14 @@ const DashboardPage = () => {
       const favArtworks = await data.getArtworks(responseIds);
       if (!favArtworks) throw new Error("Failed to fetch artworks");
       const filteredArtworks = artworksToGalleryItems(favArtworks.filter((artwork) => artwork.status != "trash"));
-      setArtworks(filteredArtworks);
+      setArtworks(filteredArtworks)
 
       if (filteredArtworks.length === 0) {
-        const favouriteGalleriesIds = await data.getFavouriteGalleries();
+        const favouriteGalleriesIds = await data.getFavouriteGalleries()
         if (favouriteGalleriesIds && favouriteGalleriesIds.length > 0) {
           const lastGalleryId = favouriteGalleriesIds[favouriteGalleriesIds.length - 1];
           const gallery = await data.getGallery(String(lastGalleryId));
           setLastFavouriteGallery(gallery);
-          setHasFavouriteGalleries(true)
         }
       }
     } catch (error) {
@@ -140,11 +138,9 @@ const DashboardPage = () => {
             </>
           )}
         </div>
-        {hasFavouriteGalleries && (
-          <div className={"my-12 pl-8 md:pl-0"}>
-            <FavouriteGalleriesList />
-          </div>
-        )}
+        <div className={"my-12 pl-8 md:pl-0"}>
+          <FavouriteGalleriesList />
+        </div>
         <div className={"tutorials-wrapper pl-8 md:pl-0"}>
           <div className={"flex justify-between pe-8 md:pe-0 items-center"}>
             <div className={"space-y-2"}>
