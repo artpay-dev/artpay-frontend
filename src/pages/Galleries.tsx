@@ -41,15 +41,14 @@ const Galleries: React.FC<GalleriesProps> = ({}) => {
   const px = getDefaultPaddingX();
 
   return (<DefaultLayout pageLoading={!isReady} authRequired>
-    <Grid sx={{ px: px, mt: { xs: 14, md: 16, lg: 18 } }} container>
+    <Grid sx={{ px: px }} container>
       <Grid xs={12} pb={3} item>
         <Typography variant="display3">Gallerie</Typography>
       </Grid>
-      <Grid xs={12} sm={7} md={6} pr={2} item>
+      {/*<Grid xs={12} sm={7} md={6} pr={2} item>
         <Typography variant="h4" color="textSecondary">
-          {/*Gallerie... Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.*/}
         </Typography>
-      </Grid>
+      </Grid>*/}
       {/*<Grid xs={12} sm={5} md={6} sx={{ alignItems: "flex-end", justifyContent: "flex-end", mt: { xs: 4, sm: 0 } }}
             display="flex" item>
         <TextField variant="filled" color="secondary"
