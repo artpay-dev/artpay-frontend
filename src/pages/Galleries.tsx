@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
 import { galleriesToGalleryItems, getDefaultPaddingX } from "../utils.ts";
-import { Grid, Typography } from "@mui/material";
+import { Grid, Typography, Skeleton, Box } from "@mui/material";
 import GalleriesGrid from "../components/GalleriesGrid.tsx";
 import { Gallery } from "../types/gallery.ts";
 
@@ -53,7 +53,21 @@ const Galleries: React.FC<GalleriesProps> = ({}) => {
 
   const px = getDefaultPaddingX();
 
-  return (<DefaultLayout pageLoading={!isReady} authRequired>
+  const GalleriesSkeleton = () => (
+    <Grid container spacing={3}>
+      {Array.from({ length: 8 }).map((_, index) => (
+        <Grid key={index} item xs={12} sm={6} md={4} lg={3}>
+          <Box>
+            <Skeleton variant="rectangular" width="100%" height={200} sx={{ borderRadius: 2, mb: 1.5 }} />
+            <Skeleton variant="text" width="70%" height={28} sx={{ mb: 0.5 }} />
+            <Skeleton variant="text" width="50%" height={20} />
+          </Box>
+        </Grid>
+      ))}
+    </Grid>
+  );
+
+  return (<DefaultLayout authRequired>
     <Grid sx={{ px: px, mt: { xs: 14, md: 16, lg: 18 } }} container>
       <Grid xs={12} pb={3} item>
         <Typography variant="display3">Gallerie</Typography>
@@ -103,8 +117,12 @@ const Galleries: React.FC<GalleriesProps> = ({}) => {
         </Box>
       </Grid>*/}
       <Grid xs={12} pb={3} sx={{ mt: { xs: 2, sm: 3 } }} item>
-        <GalleriesGrid items={galleriesToGalleryItems(galleries)} disablePadding
-                       cardSize="medium" />
+        {!isReady ? (
+          <GalleriesSkeleton />
+        ) : (
+          <GalleriesGrid items={galleriesToGalleryItems(galleries)} disablePadding
+                         cardSize="medium" />
+        )}
       </Grid>
     </Grid>
 
