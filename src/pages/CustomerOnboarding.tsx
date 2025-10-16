@@ -94,7 +94,7 @@ const CustomerOnboarding: React.FC<CustomerOnboardingProps> = ({}) => {
               direttamente l’istituto bancario erogante.
             </Typography>
           </PromoCard>
-          <ProfixmoCard
+          <PromoCard
             title={
               <>
                 Consegna <br />
@@ -110,7 +110,7 @@ const CustomerOnboarding: React.FC<CustomerOnboardingProps> = ({}) => {
               direttamente, attraverso il sistema di messaggistica integrato all’interno della piattaforma, con il
               personale dedicato della galleria stessa.
             </Typography>
-          </ProfixmoCard>
+          </PromoCard>
 
           <PromoCard titleVariant="h2" title="Cosa aspetti? Entra subito a far parte di artpay!" variant="contrast" titleWidth={'500px'}>
             {!auth.isAuthenticated && (
