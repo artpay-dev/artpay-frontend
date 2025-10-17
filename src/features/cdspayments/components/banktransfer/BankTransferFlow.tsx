@@ -40,7 +40,7 @@ const BankTransferFlow = ({
 }: PaymentFlowProps) => {
   const { showToolTip } = useToolTipStore();
   const data = useData();
-  const { updatePageData } = useDirectPurchaseStore();
+  const { updatePageData, orderMode } = useDirectPurchaseStore();
   const { refreshOrders } = usePaymentStore();
 
   // Determine initial step based on order status
@@ -385,7 +385,7 @@ const BankTransferFlow = ({
                       type="button"
                       className="artpay-button-style max-w-none! py-3! disabled:opacity-65 disabled:cursor-not-allowed text-secondary"
                       onClick={onCancel}>
-                      Annulla
+                      {orderMode !== "redeem" ? "Scegli un'altro metodo" : "Annulla transazione"}
                     </button>
                   </div>
                 </div>

@@ -77,7 +77,7 @@ const ArtworkReserved: React.FC<ArtworkReservedProps> = ({}) => {
             navigationRef.current = href;
             // Naviga dopo aver annullato l'ordine
             setTimeout(() => {
-              navigate(href);
+              navigate("/dashboard");
             }, 100);
           }
         }

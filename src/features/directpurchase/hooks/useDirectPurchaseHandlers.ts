@@ -81,12 +81,9 @@ export const useDirectPurchaseHandlers = (
         shipping_lines: [updatedShippingLine]
       });
 
-      const paymentMethodMap: Record<string, string> = {
-        "Carta": "card",
-        "Klarna": "klarna"
-      };
-      
-      const paymentMethodForUpdate = paymentMethodMap[paymentMethod || ""] || "card";
+      // Il paymentMethod è già nel formato corretto (lowercase: "card", "klarna")
+      // quindi lo usiamo direttamente o usiamo "card" come fallback
+      const paymentMethodForUpdate = paymentMethod || "card";
       await onChangePaymentMethod(paymentMethodForUpdate);
     } catch (e) {
       await showError(e);

@@ -2,6 +2,7 @@ import { PiCreditCardThin } from "react-icons/pi";
 import ContentCard from "../../../components/ContentCard.tsx";
 import PaymentRadioSelector from "../../../components/PaymentRadioSelector.tsx";
 import { useDirectPurchase } from "../contexts/DirectPurchaseContext.tsx";
+import { KLARNA_FEE, KLARNA_MAX_LIMIT } from "../../../constants.ts";
 
 interface PaymentsSelectionProps {
   paymentMethod: string | null;
@@ -19,7 +20,9 @@ const PaymentsSelection = ({ paymentMethod, onChange }: PaymentsSelectionProps) 
   const isPaymentMethodAvailable = (method: string): boolean => {
     switch (method) {
       case "klarna":
-        return orderTotal <= 2500;
+        // Calcola il totale con la fee di Klarna (6.1%) e verifica che non superi il limite
+        const totalWithKlarnaFee = orderTotal * KLARNA_FEE;
+        return totalWithKlarnaFee <= KLARNA_MAX_LIMIT;
       default:
         return true;
     }

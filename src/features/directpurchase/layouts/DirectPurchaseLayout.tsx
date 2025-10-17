@@ -40,13 +40,20 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
   const [isCancelling, setIsCancelling] = useState(false);
   const { refreshOrders } = usePaymentStore()
 
-  useBeforeUnload(pendingOrder?.status == "pending" && !pendingOrder.customer_note.includes("Documentazione"))
+  // Blocca la navigazione in modalità loan o standard quando lo status è pending
+  const shouldBlock = (orderMode === "loan" || orderMode === "standard") &&
+                      pendingOrder?.status === "pending";
+
+  useBeforeUnload(shouldBlock)
 
 
 
   const handleBlockNavigation = async (path?: string, extrernal?: boolean) => {
-
-    if (pendingOrder?.status === "pending" && !pendingOrder.customer_note.includes("Documentazione")) {
+    // Blocca solo in modalità loan o standard quando lo status è pending
+    if (
+      (orderMode === "loan" || orderMode === "standard") &&
+      pendingOrder?.status === "pending"
+    ) {
       const confirmed = await dialogs.yesNo(
         "Annulla transazione",
         "Vuoi davvero uscire? L'opera non rimarrà nel tuo carrello e la transazione verrà annullata.",
@@ -91,7 +98,9 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
         navigate(path ? path : "/dashboard");
       }
     } else {
-      navigate("/dashboard");
+      // Se non è in modalità loan/standard o non è pending, naviga direttamente
+      if (extrernal) window.open(path, "_blank");
+      navigate(path ? path : "/dashboard");
     }
   }
 
@@ -150,7 +159,7 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
 
         await data.sendQuestionToVendor({
           product_id: productId,
-          question: `RICHIESTA DI CANCELLAZIONE E RIMBORSO\n\nOrdine #${pendingOrder.id}\nOpera: ${artworkName}\n\nIl cliente richiede la cancellazione della transazione e il rimborso dell'acconto versato. Si prega di procedere con l'annullamento dell'ordine e il rilascio della prenotazione dell'opera.`,
+          question: `RICHIESTA DI CANCELLAZIONE E RIMBORSO\n\nOrdine #${pendingOrder.id}\nOpera: ${artworkName}\n\nIl cliente richiede la cancellazione della transazione e l'eventuale rimborso dell'acconto versato. Si prega di procedere con l'annullamento dell'ordine e il rilascio della prenotazione dell'opera.`,
         });
       }
 
@@ -158,6 +167,8 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
       const updatedOrder = await data.updateOrder(pendingOrder.id, {
         customer_note: "Richiesta di cancellazione in corso"
       });
+
+      navigate("/dashboard");
 
       refreshOrders()
 
@@ -176,6 +187,55 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
         "Errore",
         "Si è verificato un errore durante l'invio della richiesta. Riprova più tardi."
       );
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const handleDirectCancelTransaction = async () => {
+    if (!pendingOrder?.id) return;
+
+    const confirmed = await dialogs.yesNo(
+      "Elimina transazione",
+      "Vuoi davvero eliminare questa transazione? L'opera non rimarrà nel tuo carrello.",
+      {
+        txtYes: "Elimina",
+        txtNo: "Annulla"
+      }
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setIsCancelling(true);
+
+      // Cancella l'ordine direttamente
+      await data.setOrderStatus(pendingOrder.id, "cancelled");
+
+      // Pulisce il localStorage
+      if (pendingOrder?.order_key) {
+        const paymentIntentKeys = [
+          `payment-intents-${pendingOrder.order_key}`,
+          `payment-intents-cds-${pendingOrder.order_key}`,
+          `payment-intents-redeem-${pendingOrder.order_key}`,
+          `payment-intents-block-${pendingOrder.order_key}`,
+          "completed-order"
+        ];
+        paymentIntentKeys.forEach(key => localStorage.removeItem(key));
+      }
+
+      // Resetta lo store
+      reset();
+
+      // Refresh ordini
+      refreshOrders();
+
+      // Naviga alla dashboard
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      // Naviga comunque alla dashboard
+      navigate("/dashboard");
     } finally {
       setIsCancelling(false);
     }
@@ -235,7 +295,7 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
     <div className="min-h-screen flex flex-col pt-35">
       <Tooltip />
       <div className="mx-auto container max-w-2xl">
-        <Navbar handleClick={handleBlockNavigation} />
+        <Navbar handleClick={() => handleBlockNavigation()} />
         <section className="px-8 mb-6 container lg:px-2">
           {orderMode === "loan" ? (
             <h2 className="text-4xl font-normal flex flex-col mb-13">
@@ -418,17 +478,38 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
           )}
 
           {children}
-          {pendingOrder?.payment_method.includes("Acconto") && (
+          {(pendingOrder?.payment_method.includes("Acconto") || pendingOrder?.status == "processing") && !pendingOrder?.customer_note.includes("Richiesta di cancellazione") && (
             <div className={"flex flex-col items-center space-y-6 mt-12"}>
-              <p className={"leading-[125%] text-center"}>
-                Se interrompi la procedura con artpay l’opera non sarà più prenotata a tuo nome. Il costo dell’acconto
-                ti verrà rimborsato.
-              </p>
+              {pendingOrder?.status === "processing" ? (
+                <p className={"leading-[125%] text-center"}>
+                  Se interrompi la procedura con artpay costo dell’opera ti verrà rimborsato.
+                </p>
+              ) : (
+                <p className={"leading-[125%] text-center"}>
+                  Se interrompi la procedura con artpay l’opera non sarà più prenotata a tuo nome. Il costo dell’acconto
+                  ti verrà rimborsato.
+                </p>
+              )}
               <button
                 className={
                   "text-[#EC6F7B] artpay-button-style bg-[#FAFAFB] disabled:cursor-not-allowed disabled:opacity-65"
                 }
                 onClick={handleCancelTransaction}
+                disabled={loading || isCancelling}>
+                {isCancelling ? "Annullamento in corso..." : "Elimina Transazione"}
+              </button>
+            </div>
+          )}
+          {(pendingOrder && !pendingOrder?.payment_method.includes("Acconto") && pendingOrder.status !== "processing" ) && !pendingOrder?.customer_note.includes("Richiesta di cancellazione") && (
+            <div className={"flex flex-col items-center space-y-6 mt-12"}>
+              <p className={"leading-[125%] text-center text-balance"}>
+                Se interrompi la procedura con artpay l’opera non sarà più disponibile nel tuo carrello.
+              </p>
+              <button
+                className={
+                  "text-[#EC6F7B] artpay-button-style bg-[#FAFAFB] disabled:cursor-not-allowed disabled:opacity-65"
+                }
+                onClick={handleDirectCancelTransaction}
                 disabled={loading || isCancelling}>
                 {isCancelling ? "Annullamento in corso..." : "Elimina Transazione"}
               </button>

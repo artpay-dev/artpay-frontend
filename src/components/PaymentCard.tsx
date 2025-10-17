@@ -14,6 +14,10 @@ import { Link } from "react-router-dom";
 import { useDirectPurchase } from "../features/directpurchase";
 import { useDirectPurchaseUtils } from "../features/directpurchase/hooks/useDirectPurchaseUtils";
 import { useData } from "../hoc/DataProvider.tsx";
+import { useNavigate } from "react-router-dom";
+import useDirectPurchaseStore from "../features/directpurchase/stores/directPurchaseStore.ts";
+import usePaymentStore from "../features/cdspayments/stores/paymentStore.ts";
+import { useDialogs } from "../hoc/DialogProvider.tsx";
 
 export interface PaymentCardProps {
   tabTitles?: string[]; // Nuova proprietà per i titoli delle tab
@@ -54,6 +58,10 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
 
   const { privacyChecked, updateState, isSaving, pendingOrder, orderMode, updatePageData } = useDirectPurchase();
   const { onCancelPaymentMethod } = useDirectPurchaseUtils();
+  const navigate = useNavigate();
+  const dialogs = useDialogs();
+  const { reset } = useDirectPurchaseStore();
+  const { refreshOrders } = usePaymentStore();
 
   const [couponCode, setCouponCode] = useState("");
   const [isCouponApplying, setIsCouponApplying] = useState(false);
@@ -132,6 +140,55 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
       setCouponError(errorMessage);
     } finally {
       setIsCouponApplying(false);
+    }
+  };
+
+  const handleCancelTransaction = async () => {
+    if (!pendingOrder?.id) return;
+
+    const confirmed = await dialogs.yesNo(
+      "Annulla transazione",
+      "Vuoi davvero uscire? L'opera non rimarrà nel tuo carrello e la transazione verrà annullata.",
+      {
+        txtYes: "Annulla",
+        txtNo: "Resta"
+      }
+    );
+
+    if (!confirmed) return;
+
+    try {
+      updateState({ isSaving: true });
+
+      // Cancella l'ordine
+      await data.setOrderStatus(pendingOrder.id, "cancelled");
+
+      // Pulisce il localStorage
+      if (pendingOrder?.order_key) {
+        const paymentIntentKeys = [
+          `payment-intents-${pendingOrder.order_key}`,
+          `payment-intents-cds-${pendingOrder.order_key}`,
+          `payment-intents-redeem-${pendingOrder.order_key}`,
+          `payment-intents-block-${pendingOrder.order_key}`,
+          "completed-order"
+        ];
+        paymentIntentKeys.forEach(key => localStorage.removeItem(key));
+      }
+
+      // Resetta lo store
+      reset();
+
+      // Refresh ordini
+      refreshOrders();
+
+      // Naviga alla dashboard
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      // Naviga comunque
+      navigate("/dashboard");
+    } finally {
+      updateState({ isSaving: false });
     }
   };
 
@@ -381,9 +438,9 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
         <div className={"w-full flex flex-col items-center gap-"}>
           <button
             className={"cursor-pointer disabled:cursor-not-allowed disabled:opacity-45 mb-4"}
-            onClick={onCancelPaymentMethod}
+            onClick={orderMode === "loan" ? handleCancelTransaction : onCancelPaymentMethod}
             disabled={isSaving}>
-            Annulla
+            {orderMode === "loan" ? "Annulla transazione" : "Scegli un'altro metodo"}
           </button>
           <Checkbox
             disabled={isSaving}
