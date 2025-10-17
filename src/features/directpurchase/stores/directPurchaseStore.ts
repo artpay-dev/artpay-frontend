@@ -19,6 +19,7 @@ export interface DirectPurchaseState {
   showCommissioni: boolean;
   subtotal: number;
   loading: boolean;
+  isProcessingCheckout: boolean; // Flag per disabilitare il blocco durante il checkout
   // Data State
   userProfile?: UserProfile;
   availableShippingMethods: ShippingMethodOption[];
@@ -30,12 +31,12 @@ export interface DirectPurchaseState {
 
   // Actions
   setDirectPurchaseData: (data: Partial<DirectPurchaseState>) => void;
-  updateState: (updates: Partial<Pick<DirectPurchaseState, 
-    'isReady' | 'paymentsReady' | 'paymentMethod' | 'isSaving' | 'checkoutReady' | 
-    'noPendingOrder' | 'shippingDataEditing' | 'requireInvoice' | 'privacyChecked' | 
-    'showCommissioni' | 'subtotal' | 'loading'>>) => void;
-  updatePageData: (updates: Partial<Pick<DirectPurchaseState, 
-    'userProfile' | 'availableShippingMethods' | 'pendingOrder' | 'paymentIntent' | 
+  updateState: (updates: Partial<Pick<DirectPurchaseState,
+    'isReady' | 'paymentsReady' | 'paymentMethod' | 'isSaving' | 'checkoutReady' |
+    'noPendingOrder' | 'shippingDataEditing' | 'requireInvoice' | 'privacyChecked' |
+    'showCommissioni' | 'subtotal' | 'loading' | 'isProcessingCheckout'>>) => void;
+  updatePageData: (updates: Partial<Pick<DirectPurchaseState,
+    'userProfile' | 'availableShippingMethods' | 'pendingOrder' | 'paymentIntent' |
     'artworks' | 'galleries'>>) => void;
   reset: () => void;
 }
@@ -54,6 +55,7 @@ const initialState = {
   showCommissioni: true,
   subtotal: 0,
   loading: false,
+  isProcessingCheckout: false,
 
   // Data State
   availableShippingMethods: [],

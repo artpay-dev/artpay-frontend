@@ -56,7 +56,7 @@ const TransactionCard = ({
           <span className={"text-secondary"}>{orderType}</span>
         </div>
 
-        {purchaseMode.includes("Blocco opera") && status !== "cancelled" && status !== "failed" && (
+        {purchaseMode.includes("Blocco opera") && customer_note?.includes("Richiesta cancellazione") && status !== "cancelled" && status !== "failed" && (
           <div className={"space-y-1"}>
             <p className={"text-secondary"}>Scadenza della prenotazione</p>
             <CountdownTimer expiryDate={getExpiryDate()} />
@@ -74,6 +74,16 @@ const TransactionCard = ({
             <span className={"px-2 py-1 rounded-full text-xs font-medium bg-[#EC6F7B] text-white w-fit"}>
               Transazione annullata
             </span>
+          </div>
+        ) : customer_note?.includes("Richiesta di cancellazione") ? (
+          <div className={"w-full rounded-sm bg-[#EC6F7B40] p-4 space-y-2 flex flex-col"}>
+            <span className={"px-2 py-1 rounded-full text-xs font-medium bg-[#EC6F7B] text-white w-fit"}>
+              Richiesta di cancellazione in corso
+            </span>
+            <div className={"flex flex-col gap-1"}>
+              <span className={"text-secondary"}>Stato</span>
+              <span>La richiesta di cancellazione è stata inviata alla galleria.</span>
+            </div>
           </div>
         ) : customer_note ? (
           <div className={`w-full rounded-sm p-4 space-y-2 flex flex-col ${customer_note.includes("Ottenuto") ? "bg-[#42B3964D]" : "bg-[#FED1824D] "}`}>
@@ -95,13 +105,13 @@ const TransactionCard = ({
         )}
       </div>
 
+        {onClick && !customer_note?.includes("Richiesta di cancellazione") && (
       <div className={"card-footer border-t border-[#E2E6FC] p-4"}>
-        {onClick && (
           <Button sx={{ mt: 2, width: "100%" }} onClick={() => onClick(id)} variant="outlined">
             Gestisci transazione
           </Button>
-        )}
       </div>
+        )}
     </div>
   );
 };

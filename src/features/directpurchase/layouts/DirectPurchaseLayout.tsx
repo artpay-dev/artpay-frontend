@@ -36,13 +36,15 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
   const data = useData();
   const dialogs = useDialogs();
   const navigate = useNavigate();
-  const { updatePageData, reset } = useDirectPurchaseStore();
+  const { updatePageData, reset, isProcessingCheckout } = useDirectPurchaseStore();
   const [isCancelling, setIsCancelling] = useState(false);
   const { refreshOrders } = usePaymentStore()
 
   // Blocca la navigazione in modalità loan o standard quando lo status è pending
+  // ma NON bloccare quando si sta processando il checkout
   const shouldBlock = (orderMode === "loan" || orderMode === "standard") &&
-                      pendingOrder?.status === "pending";
+                      pendingOrder?.status === "pending" &&
+                      !isProcessingCheckout;
 
   useBeforeUnload(shouldBlock)
 
@@ -500,7 +502,7 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
               </button>
             </div>
           )}
-          {(pendingOrder && !pendingOrder?.payment_method.includes("Acconto") && pendingOrder.status !== "processing" ) && !pendingOrder?.customer_note.includes("Richiesta di cancellazione") && (
+          {(pendingOrder && !pendingOrder?.payment_method.includes("Acconto") && pendingOrder.status !== "processing" ) && !pendingOrder?.customer_note.includes("Richiesta di cancellazione") && orderMode !== "loan" && (
             <div className={"flex flex-col items-center space-y-6 mt-12"}>
               <p className={"leading-[125%] text-center text-balance"}>
                 Se interrompi la procedura con artpay l’opera non sarà più disponibile nel tuo carrello.

@@ -20,12 +20,14 @@ import PaymentStatusPlaceholder from "./PaymentStatusPlaceholder.tsx";
 import SantanderIcon from "../../../components/icons/SantanderIcon.tsx";
 import Checkbox from "../../../components/Checkbox.tsx";
 import usePaymentStore from "../../cdspayments/stores/paymentStore.ts";
+import { useDialogs } from "../../../hoc/DialogProvider.tsx";
 
 const DirectPurchaseView = () => {
   const auth = useAuth();
   const data = useData();
   const stripe = useStripe();
   const navigate = useNavigate();
+  const dialogs = useDialogs();
   const { refreshOrders } = usePaymentStore();
   const checkoutButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -35,6 +37,7 @@ const DirectPurchaseView = () => {
     orderNumber?: number;
     orderTotal?: string;
   }>({ status: null });
+
 
 
   const {
@@ -59,6 +62,7 @@ const DirectPurchaseView = () => {
     handleSubmitCheckout,
     onChangePaymentMethod,
     updatePageData,
+    reset,
 
     // Utils
     getCurrentShippingMethod,
@@ -103,6 +107,62 @@ const DirectPurchaseView = () => {
   const showBillingSection = userProfile && (requireInvoice || orderMode === "loan");
 
   const isReedemPurchase = pendingOrder?.status === "on-hold" && pendingOrder.created_via == "rest-api";
+
+  const handleBlockNavigation = async (path?: string, extrernal?: boolean) => {
+    // Blocca solo in modalità loan o standard quando lo status è pending
+    if (
+      (orderMode === "loan" || orderMode === "standard") &&
+      pendingOrder?.status === "pending"
+    ) {
+      const confirmed = await dialogs.yesNo(
+        "Annulla transazione",
+        "Vuoi davvero uscire? L'opera non rimarrà nel tuo carrello e la transazione verrà annullata.",
+        {
+          txtYes: "Annulla",
+          txtNo: "Resta"
+        }
+      );
+
+      if (!confirmed) return;
+
+      try {
+        // Cancella l'ordine
+        if (pendingOrder?.id) {
+          await data.setOrderStatus(pendingOrder.id, "cancelled");
+        }
+
+        // Pulisce il localStorage
+        if (pendingOrder?.order_key) {
+          const paymentIntentKeys = [
+            `payment-intents-${pendingOrder.order_key}`,
+            `payment-intents-cds-${pendingOrder.order_key}`,
+            `payment-intents-redeem-${pendingOrder.order_key}`,
+            `payment-intents-block-${pendingOrder.order_key}`,
+            "completed-order"
+          ];
+          paymentIntentKeys.forEach(key => localStorage.removeItem(key));
+        }
+
+        // Resetta lo store
+        reset();
+
+        // Refresh ordini
+        refreshOrders();
+
+        // Naviga alla dashboard
+        if (extrernal) window.open(path, "_blank");
+        navigate(path ? path : "/dashboard");
+      } catch (error) {
+        console.error("Error cancelling order:", error);
+        // Naviga comunque
+        navigate(path ? path : "/dashboard");
+      }
+    } else {
+      // Se non è in modalità loan/standard o non è pending, naviga direttamente
+      if (extrernal) window.open(path, "_blank");
+      navigate(path ? path : "/dashboard");
+    }
+  }
 
   const handleUpdateCustomerNote = async (note: string, openSantander = false) => {
     if (!pendingOrder) return;
@@ -468,6 +528,13 @@ const DirectPurchaseView = () => {
     }
   };
 
+  // Effetto per gestire il redirect quando l'ordine è cancellato in modalità standard
+  useEffect(() => {
+    if (pendingOrder?.status === "cancelled") {
+      navigate("/dashboard");
+    }
+  }, [orderMode, pendingOrder?.status, navigate]);
+
   // Effetto per gestire il redirect di Stripe
   useEffect(() => {
     if (!stripe || !isReady) return;
@@ -581,11 +648,9 @@ const DirectPurchaseView = () => {
                     cardTitle={"Dati fatturazione"}
                     disabled={!requireInvoice}
                     button={
-                      <Link
-                        to={"/profile/shipping-invoice-settings"}
-                        className={"text-primary underline block font-light mt-4"}>
+                      <Button onClick={() => handleBlockNavigation("/profile/personal-settings")} className={"text-primary !underline block mt-4 w-fit !px-0 !font-light"}>
                         Modifica
-                      </Link>
+                      </Button>
                     }>
                     <BillingDataPreview value={userProfile?.billing} />
                   </PaymentProviderCard>
@@ -598,11 +663,9 @@ const DirectPurchaseView = () => {
                   cardTitle={"Dati spedizione"}
                   disabled={!requireInvoice}
                   button={
-                    <Link
-                      to={"/profile/shipping-invoice-settings"}
-                      className={"text-primary underline block font-light mt-4"}>
+                    <Button onClick={() => handleBlockNavigation("/profile/personal-settings")} className={"text-primary !underline block mt-4 w-fit !px-0 !font-light"}>
                       Modifica
-                    </Link>
+                    </Button>
                   }>
                   <BillingDataPreview value={userProfile?.billing} />
                 </PaymentProviderCard>
