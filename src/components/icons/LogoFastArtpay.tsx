@@ -19,7 +19,7 @@ const LogoFastArtpay = ({className = "", size = 'medium', showCheckOut = false} 
   const cdsOrder: Order = hasCdsOrder || order;
 
   const handleNavigate = () => {
-    if (pathname === "/acquisto-esterno") return;
+    if (pathname.includes("acquisto")) return;
 
     setPaymentData({
       openDraw: !openDraw,

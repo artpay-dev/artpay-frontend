@@ -1,10 +1,13 @@
 import Navbar from "../../cdspayments/components/ui/navbar/Navbar.tsx";
 import SkeletonOrderDetails from "../../cdspayments/components/paymentmethodslist/SkeletonOrderDetails.tsx";
 import PaymentProviderCard from "../../cdspayments/components/ui/paymentprovidercard/PaymentProviderCard.tsx";
-import { Link, NavLink } from "react-router-dom";
-import { ReactNode, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ReactNode,
+  //useEffect,
+  useState
+} from "react";
 import { useDirectPurchase } from "../contexts/DirectPurchaseContext.tsx";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import DisplayImage from "../../../components/DisplayImage.tsx";
 import ShoppingBagIcon from "../../../components/icons/ShoppingBagIcon.tsx";
 import UserIcon from "../../../components/icons/UserIcon.tsx";
@@ -15,6 +18,7 @@ import useDirectPurchaseStore from "../stores/directPurchaseStore.ts";
 import { useData } from "../../../hoc/DataProvider.tsx";
 import { useDialogs } from "../../../hoc/DialogProvider.tsx";
 import usePaymentStore from "../../cdspayments/stores/paymentStore.ts";
+import useBeforeUnload from "../hooks/useBeforeUnload.ts";
 
 const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
   const {
@@ -31,9 +35,65 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
 
   const data = useData();
   const dialogs = useDialogs();
-  const { updatePageData } = useDirectPurchaseStore();
+  const navigate = useNavigate();
+  const { updatePageData, reset } = useDirectPurchaseStore();
   const [isCancelling, setIsCancelling] = useState(false);
   const { refreshOrders } = usePaymentStore()
+
+  useBeforeUnload(pendingOrder?.status == "pending" && !pendingOrder.customer_note.includes("Documentazione"))
+
+
+
+  const handleBlockNavigation = async (path?: string, extrernal?: boolean) => {
+
+    if (pendingOrder?.status === "pending" && !pendingOrder.customer_note.includes("Documentazione")) {
+      const confirmed = await dialogs.yesNo(
+        "Annulla transazione",
+        "Vuoi davvero uscire? L'opera non rimarrà nel tuo carrello e la transazione verrà annullata.",
+        {
+          txtYes: "Annulla",
+          txtNo: "Resta"
+        }
+      );
+
+      if (!confirmed) return;
+
+      try {
+        // Cancella l'ordine
+        if (pendingOrder?.id) {
+          await data.setOrderStatus(pendingOrder.id, "cancelled");
+        }
+
+        // Pulisce il localStorage
+        if (pendingOrder?.order_key) {
+          const paymentIntentKeys = [
+            `payment-intents-${pendingOrder.order_key}`,
+            `payment-intents-cds-${pendingOrder.order_key}`,
+            `payment-intents-redeem-${pendingOrder.order_key}`,
+            `payment-intents-block-${pendingOrder.order_key}`,
+            "completed-order"
+          ];
+          paymentIntentKeys.forEach(key => localStorage.removeItem(key));
+        }
+
+        // Resetta lo store
+        reset();
+
+        // Refresh ordini
+        refreshOrders();
+
+        // Naviga alla dashboard
+        if (extrernal) window.open(path, "_blank");
+        navigate(path ? path : "/dashboard");
+      } catch (error) {
+        console.error("Error cancelling order:", error);
+        // Naviga comunque
+        navigate(path ? path : "/dashboard");
+      }
+    } else {
+      navigate("/dashboard");
+    }
+  }
 
   const getExpiryDate = (): Date => {
     // Prima prova a usare la data di scadenza dai meta_data
@@ -123,11 +183,59 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
 
   const isReedemPurchase = pendingOrder?.status === "on-hold" && pendingOrder?.created_via === "rest-api";
 
+
+
+  /*useEffect(() => {
+    const cancelOrder = () => {
+      if (
+        pendingOrder?.status === "pending" &&
+        !pendingOrder.customer_note.includes("Documentazione")
+      ) {
+        try {
+          todo: Creare endpoint safe per eliminare l'ordine
+          if (pendingOrder?.id) {
+            const url = `${process.env.VITE_SERVER_URL}/wp-json/wc/v3/orders/${pendingOrder.id}`;
+            const payload = JSON.stringify({ status: "cancelled" });
+            const blob = new Blob([payload], { type: "application/json", });
+            navigator.sendBeacon(url, blob);
+          }
+
+
+          if (pendingOrder?.order_key) {
+            const paymentIntentKeys = [
+              `payment-intents-${pendingOrder.order_key}`,
+              `payment-intents-cds-${pendingOrder.order_key}`,
+              `payment-intents-redeem-${pendingOrder.order_key}`,
+              `payment-intents-block-${pendingOrder.order_key}`,
+              "completed-order",
+            ];
+            paymentIntentKeys.forEach((key) => localStorage.removeItem(key));
+          }
+
+          reset?.();
+          refreshOrders?.();
+        } catch (error) {
+          console.error("Error cancelling order:", error);
+        }
+      }
+    };
+
+    // intercetta chiusura o refresh
+    const handleBeforeUnload = () => cancelOrder();
+
+    // intercetta navigazione interna (unmount del componente)
+    return () => {
+      cancelOrder();
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);*/
+
+
   return (
     <div className="min-h-screen flex flex-col pt-35">
       <Tooltip />
       <div className="mx-auto container max-w-2xl">
-        <Navbar />
+        <Navbar handleClick={handleBlockNavigation} />
         <section className="px-8 mb-6 container lg:px-2">
           {orderMode === "loan" ? (
             <h2 className="text-4xl font-normal flex flex-col mb-13">
@@ -281,9 +389,9 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
                     <Typography variant="body1" color="textSecondary">
                       {userProfile?.shipping?.phone || "Telefono"}
                     </Typography>
-                    <Link to={"/profile/personal-settings"} className={"text-primary underline block font-light mt-4"}>
+                    <Button onClick={() => handleBlockNavigation("/profile/personal-settings")} className={"text-primary !underline block mt-4 w-fit !px-0 !font-light"}>
                       Modifica
-                    </Link>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -351,9 +459,9 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
               </span>
               Hai bisogno di aiuto?
             </p>
-            <Link to="/contatti" className={"text-[#808791] underline block mt-6"}>
+            <Button variant={'link'} className={'underline block mt-6 text-sm'} onClick={() => handleBlockNavigation('/contatti')}>
               Scrivici
-            </Link>
+            </Button>
           </div>
 
           <FaqComponent />
@@ -365,22 +473,24 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
           <div className={"flex items-center gap-4 border-b border-gray-300 py-8 flex-wrap"}>
             <a
               href="https://www.iubenda.com/privacy-policy/71113702"
+              target="_blank"
               className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe"
               title="Privacy Policy">
               Privacy Policy
             </a>
             <a
               href="https://www.iubenda.com/privacy-policy/71113702/cookie-policy"
+              target="_blank"
               className="iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe"
               title="Cookie Policy">
               Cookie Policy
             </a>
-            <NavLink to="/termini-e-condizioni" className={"underline-none text-primary"}>
+            <Button onClick={() => handleBlockNavigation("/termini-e-condizioni")} className={"underline-none text-primary !text-xs"}>
               Termini e condizioni
-            </NavLink>
-            <NavLink to="/condizioni-generali-di-acquisto" className={"underline-none text-primary"}>
+            </Button>
+            <Button onClick={() => handleBlockNavigation("/condizioni-generali-di-acquisto")} className={"underline-none text-primary !text-xs"}>
               Condizioni generali di acquisto
-            </NavLink>
+            </Button>
           </div>
           <div className={"pt-8"}>
             <p>Artpay S.R.L. Via Carloforte, 60, 09123, Cagliari Partita IVA 04065160923</p>
