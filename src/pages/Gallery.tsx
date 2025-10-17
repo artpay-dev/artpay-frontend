@@ -18,7 +18,6 @@ import { useDialogs } from "../hoc/DialogProvider.tsx";
 import FollowButton from "../components/FollowButton.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import ShareIcon from "../components/icons/ShareIcon.tsx";
-import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import GallerySkeleton from "../components/GallerySkeleton.tsx";
 import CardGridSkeleton from "../components/CardGridSkeleton.tsx";
 import useToolTipStore from "../features/cdspayments/stores/tooltipStore.ts";
@@ -27,14 +26,12 @@ export interface GalleryProps {
   selectedTab?: number;
 }
 
-const subPageSlugs = ["", "tutti-gli-artisti", "galleria"];
 const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
   const data = useData();
   const auth = useAuth();
   const urlParams = useParams();
   const navigate = useNavigate();
   const dialogs = useDialogs();
-  const snackbars = useSnackbars();
   const { showToolTip } = useToolTipStore();
 
   const [isReady, setIsReady] = useState(false);
@@ -49,6 +46,8 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
   const [showFollowTooltip, setShowFollowTooltip] = useState(false);
 
   const [galleryInfo, setGalleryInfo] = useState<GalleryInfoProps>();
+
+  console.log(galleryContacts)
 
   useEffect(() => {
     if (!urlParams.slug) {
@@ -98,13 +97,11 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
             );
 
             const artists = await data.listArtistsForGallery(gallery.id.toString());
+            console.log(artists)
             if (!artists) throw new Error("Error fetching artists");
             setGalleryArtists(artistsToGalleryItems(artists));
           } catch (e) {
             console.error(e);
-            if (auth.isAuthenticated) {
-              snackbars.error(e);
-            }
           }
         };
 
@@ -204,6 +201,8 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
       };*/
 
   //const px = getDefaultPaddingX();
+
+  console.log(galleryArtists)
 
   return (
     <DefaultLayout>
@@ -308,12 +307,11 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
           <ResponsiveTabs
             value={selectedTabPanel}
             onChange={(_, newValue) => {
-              window.history.replaceState(null, "", `/gallerie/${urlParams.slug}/${subPageSlugs[newValue]}`);
               setSelectedTabPanel(newValue);
             }}>
             <Tab label="Opere d'arte" />
-            <Tab label="Artisti" />
-            <Tab label="Galleria" />
+            {galleryArtists && galleryArtists.length > 0 && (<Tab label="Artisti" />)}
+            {galleryContent && <Tab label="Galleria" />}
           </ResponsiveTabs>
         </Box>
           {!galleryArtworks ? (
@@ -339,18 +337,14 @@ const Gallery: React.FC<GalleryProps> = ({ selectedTab = 0 }) => {
         </TabPanel>
           )}
             <TabPanel value={selectedTabPanel} index={1}>
-          {galleryArtists ? (
+          {galleryArtists && galleryArtists?.length > 0 ? (
               <GalleryArtistsList artists={galleryArtists || []} />
           ) : (
             <>
-              <Typography sx={{ mb: { xs: 3, md: 6 } }} variant="h3" className={'pt-12 md:pt-24'}>
-                {"I nostri artisti"}
-              </Typography>
-              <CardGridSkeleton className={'pb-6 md:pb-12'} />
             </>
           )}
             </TabPanel>
-        <TabPanel value={selectedTabPanel} index={2}>
+        <TabPanel value={selectedTabPanel} index={galleryArtists && galleryArtists.length > 0 ? 2 : 1}>
           {galleryInfo && <GalleryInfo {...galleryInfo} contacts={galleryContacts} />}
         </TabPanel>
       </div>

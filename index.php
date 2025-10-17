@@ -19,6 +19,10 @@
 
     <title>Artpay</title>
 
+
+    <?php wp_head(); ?>
+
+
     <!-- Meta Pixel Code -->
     <script>
     !function(f,b,e,v,n,t,s)
@@ -29,12 +33,10 @@
     t.src=v;s=b.getElementsByTagName(e)[0];
     s.parentNode.insertBefore(t,s)}(window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1566751554483698');
+    fbq('init', '1378360170560575');
     fbq('track', 'PageView');
     </script>
     <!-- End Meta Pixel Code -->
-
-    <?php wp_head(); ?>
 
     </head>
     <body>

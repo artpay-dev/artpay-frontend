@@ -96,22 +96,17 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
               {galleryName || "-"}
             </p>
             {price && (
-              <div className="relative mt-4">
+              <div className=" mt-4">
                 {!auth.isAuthenticated ? (
-                  <h4 className={`text-2xl blur-md`}>
-                    {formattedPrice}
-                  </h4>
+                    <div className="rounded inset-0 flex items-center h-8 backdrop-blur-2xl ">
+                      <span className="text-xs text-primary rounded">
+                          Accedi per vedere il prezzo
+                      </span>
+                    </div>
                 ) : (
                   <h4 className={`text-2xl `}>
                     {formattedPrice}
                   </h4>
-                )}
-                {!auth.isAuthenticated && (
-                  <div className="absolute rounded inset-0 flex items-center justify-center">
-                    <span className="text-xs text-primary px-2 py-1 rounded">
-                      Accedi per vedere il prezzo
-                    </span>
-                  </div>
                 )}
               </div>
             )}
