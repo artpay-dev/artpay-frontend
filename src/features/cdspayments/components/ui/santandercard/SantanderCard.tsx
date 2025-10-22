@@ -101,6 +101,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
       if (!updateOrder) throw new Error("Error during updating payment intent");
 
       setPaymentData({
+        order: updateOrder,
         paymentMethod: "bnpl",
         paymentIntent: null,
       });

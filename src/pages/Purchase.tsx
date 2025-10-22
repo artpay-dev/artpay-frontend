@@ -172,7 +172,6 @@ const Purchase: React.FC<PurchaseProps> = ({ orderMode = "standard" }) => {
     );
   }
 
-  console.log(state.paymentMethod);
 
   return (
     <DefaultLayout pageLoading={false} pb={6} authRequired>

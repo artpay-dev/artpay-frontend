@@ -5,6 +5,7 @@ import Accordion from "../components/Accordion.tsx";
 import illustrationWorld from "../assets/images/illustration-world.svg";
 import EmailContactBox from "../components/EmailContactBox.tsx";
 import { getEntriesByType } from "../services/contentful.ts";
+import { useAuth } from "../hoc/AuthProvider.tsx";
 
 export interface FaqProps {}
 
@@ -16,6 +17,7 @@ type AccordionFaq = {
 const Faq: React.FC<FaqProps> = ({}) => {
   const [faqs, setFaqs] = useState<AccordionFaq[]>([]);
   const [loading, setLoading] = useState(true);
+  const auth = useAuth();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -39,7 +41,7 @@ const Faq: React.FC<FaqProps> = ({}) => {
 
 
   return (
-    <DefaultLayout hasNavBar={false}>
+    <DefaultLayout hasNavBar={auth.isAuthenticated}>
       <Box mb={6} className={"px-4 md:px-8 pt-35 md:pt-0"}>
         <Typography variant="h1">Faq</Typography>
         <Typography sx={{ mt: 3 }} variant="subtitle1">

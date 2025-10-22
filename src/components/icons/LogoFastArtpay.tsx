@@ -9,7 +9,7 @@ const sizes : Record<string, string> = {
 }
 
 
-const LogoFastArtpay = ({className = "", size = 'medium', showCheckOut = false} : {className?: string, size?: string, showCheckOut: boolean}) => {
+const LogoFastArtpay = ({className = "", size = 'medium', showCheckOut = false} : {className?: string, size?: string, showCheckOut?: boolean}) => {
   const sizeStyle = sizes[size];  
   const { order, setPaymentData, openDraw } = usePaymentStore();
   const pathname = useLocation().pathname;
@@ -19,7 +19,7 @@ const LogoFastArtpay = ({className = "", size = 'medium', showCheckOut = false} 
   const cdsOrder: Order = hasCdsOrder || order;
 
   const handleNavigate = () => {
-    if (pathname === "/acquisto-esterno") return;
+    if (pathname.includes("acquisto")) return;
 
     setPaymentData({
       openDraw: !openDraw,

@@ -1,9 +1,9 @@
-import { Box, Button, Divider, IconButton, Link, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Alert, Box, Button, Divider, IconButton, Link, Typography, useMediaQuery, useTheme } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout";
 import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
 import { useParams } from "react-router-dom";
-import type { Artwork } from "../types/artwork.ts";
+import { Artwork } from "../types/artwork.ts";
 import ArtworksList from "../components/ArtworksList.tsx";
 import ArtworkDetails from "../components/ArtworkDetails.tsx";
 import {
@@ -27,6 +27,7 @@ import FavouriteFilledIcon from "../components/icons/FavouriteFilledIcon.tsx";
 import { FavouritesMap } from "../types/post.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
+import useToolTipStore from "../features/cdspayments/stores/tooltipStore.ts";
 import LockIcon from "../components/icons/LockIcon.tsx";
 import HourglassIcon from "../components/icons/HourglassIcon.tsx";
 import ShareIcon from "../components/icons/ShareIcon.tsx";
@@ -40,9 +41,9 @@ import CardGridSkeleton from "../components/CardGridSkeleton.tsx";
 import klarna_card from "../assets/images/klarnacard.svg";
 import santander_card from "../assets/images/santandercard.svg";
 import cards_group from "../assets/images/cardsgroup.svg";
-import MiniLockerIcon from "../components/icons/MiniLockerIcon.tsx";
+import { KLARNA_FEE, KLARNA_MAX_LIMIT } from "../constants.ts";
 
-const Artwork: React.FC = () => {
+const ArtworkPage: React.FC = () => {
   const data = useData();
   const auth = useAuth();
   const urlParams = useParams();
@@ -50,6 +51,7 @@ const Artwork: React.FC = () => {
   const dialogs = useDialogs();
   const theme = useTheme();
   const snackbar = useSnackbars();
+  const { showToolTip } = useToolTipStore();
 
   const [isReady, setIsReady] = useState(false);
   const [artwork, setArtwork] = useState<Artwork>();
@@ -57,6 +59,8 @@ const Artwork: React.FC = () => {
   const [galleryDetails, setGalleryDetails] = useState<Gallery | undefined>();
   const [artistDetails, setArtistDetails] = useState<Artist | undefined>();
   const [favouriteArtworks, setFavouriteArtworks] = useState<number[]>([]);
+  const [favouriteGalleries, setFavouriteGalleries] = useState<number[]>();
+  const [hasCheckedFollow, setHasCheckedFollow] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile>();
 
   const belowSm = useMediaQuery(theme.breakpoints.down("sm"));
@@ -179,9 +183,10 @@ const Artwork: React.FC = () => {
         const artwork = await data.getArtworkBySlug(urlParams.slug_opera);
         setArtwork(artwork);
 
-        const [galleryArtworks, favouriteArtworks, galleryDetails, artistDetails, userProfile] = await Promise.all([
+        const [galleryArtworks, favouriteArtworks, favouriteGalleries, galleryDetails, artistDetails, userProfile] = await Promise.all([
           data.listArtworksForGallery(artwork.vendor),
           data.getFavouriteArtworks().catch(() => []),
+          data.getFavouriteGalleries().catch(() => []),
           artwork.vendor ? data.getGallery(artwork.vendor) : Promise.resolve(undefined),
           getPropertyFromMetadata(artwork.meta_data, "artist")?.ID
             ? data.getArtist(getPropertyFromMetadata(artwork.meta_data, "artist")!.ID)
@@ -190,6 +195,7 @@ const Artwork: React.FC = () => {
         ]);
 
         setFavouriteArtworks(favouriteArtworks);
+        setFavouriteGalleries(favouriteGalleries);
         setGalleryDetails(galleryDetails);
         setArtistDetails(artistDetails);
         setUserProfile(userProfile);
@@ -225,6 +231,36 @@ const Artwork: React.FC = () => {
     };
   }, [artwork?.id]);
 
+  // Controlla se l'utente segue la galleria e gestisce il follow automatico
+  useEffect(() => {
+    if (!auth.isAuthenticated || !galleryDetails?.id || !favouriteGalleries || hasCheckedFollow) {
+      return;
+    }
+
+    const isFollowing = favouriteGalleries.indexOf(galleryDetails.id) !== -1;
+
+    // Se l'utente non segue la galleria
+    if (!isFollowing) {
+      // Se non ha nessuna galleria seguita, seguila automaticamente
+      if (favouriteGalleries.length === 0) {
+        data.addFavouriteGallery(galleryDetails.id.toString()).then(() => {
+          showToolTip({
+            message: "Hai iniziato a seguire questa galleria!",
+            visible: true,
+            type: "success"
+          });
+        }).catch((e) => {
+          console.error("Error auto-following gallery:", e);
+        });
+      } else {
+        // Altrimenti mostra un tooltip/snackbar che invita a seguire
+        snackbar.snackbar(<Alert severity="info">Segui questa galleria per vederla nel tuo feed!</Alert>);
+      }
+    }
+
+    setHasCheckedFollow(true);
+  }, [favouriteGalleries, galleryDetails?.id, auth.isAuthenticated, hasCheckedFollow]);
+
   const px = useMemo(() => getDefaultPaddingX(), []);
 
   return (
@@ -232,16 +268,13 @@ const Artwork: React.FC = () => {
       {!isReady ? (
         <ArtworkPageSkeleton />
       ) : (
-        <Box sx={{ mt: { xs: 0, sm: 12, md: 18 } }} display="flex" justifyContent="center" overflow={"visible"}>
+        <Box className={'md:mt-18'} display="flex" justifyContent="center" overflow={"visible"}>
           <div className={"flex flex-col w-full lg:flex-row "}>
-            <div
-              className={
-                "w-full max-w-2xl lg:min-w-sm rounded-b-2xl md:rounded-2xl overflow-hidden lg:sticky lg:top-6 lg:self-start"
-              }>
+            <div className={"w-full max-w-2xl lg:min-w-sm lg:min-h-screen rounded-b-2xl md:rounded-2xl"}>
               <img
                 src={artwork?.images?.length ? artwork.images[0].woocommerce_single : ""}
                 alt={artwork?.images[0]?.name}
-                className={` object-contain w-full rounded-b-2xl md:rounded-2xl `}
+                className={` object-contain sticky top-35 w-full rounded-b-2xl md:rounded-2xl max-h-[600px]`}
               />
             </div>
             <div className={"flex flex-col pt-6 lg:0 max-w-2xl px-8 md:px-8"}>
@@ -271,7 +304,9 @@ const Artwork: React.FC = () => {
                   <QrCodeIcon />
                 </IconButton>
               </div>
-              <Typography variant="h1">{artwork?.name}</Typography>
+              <Typography variant="h1">
+                {artwork?.name}
+              </Typography>
               <Typography variant="h1" color="textSecondary">
                 {getPropertyFromMetadata(artwork?.meta_data || [], "artist")?.artist_name}
               </Typography>
@@ -305,15 +340,8 @@ const Artwork: React.FC = () => {
                   </>
                 )}
               </Box>
-              <Box
-                display="flex"
-                flexDirection={"column"}
-                mt={12}
-                bgcolor={"#EFF1FF"}
-                borderRadius={2}
-                padding={2}
-                position="relative">
-                <div className={"flex w-full justify-between items-center mb-6 border-b border-[#010F22]/20  pb-6"}>
+              <Box display="flex" flexDirection={"column"} mt={12} bgcolor={"#EFF1FF"} borderRadius={2} padding={2} position="relative">
+                <div className={"flex w-full justify-between items-center mb-6 border-b border-[#010F22]/20  pb-6 relative"}>
                   <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
                     € {formatCurrency(+(artwork?.price || 0))}
                   </Typography>
@@ -325,15 +353,15 @@ const Artwork: React.FC = () => {
                   </Button>
                 </div>
                 <div className={"flex flex-col w-full md:flex-row justify-between space-y-4 md:space-y-0"}>
-                  <p className={"text-secondary leading-6"}>Metodi di pagamento</p>
-                  <ul className={"flex gap-2"}>
-                    <li>
-                      <img src={klarna_card} alt={"Klarna payment Card "} />
-                    </li>
-                    <li>
-                      <img src={santander_card} alt={"Santander payment Card "} />
-                    </li>
-                    <li>
+                  <ul className={"flex flex-col gap-2 text-secondary leading-6 w-full "}>
+                    {Number(artwork?.price) * KLARNA_FEE <= KLARNA_MAX_LIMIT && (
+                      <li className={"flex justify-between items-center"}>
+                        <span>Pagamento dilazionato</span>
+                        <img src={klarna_card} alt={"Klarna payment Card "} />
+                      </li>
+                    )}
+                    <li className={"flex justify-between items-center"}>
+                      <span>Unica soluzione</span>
                       <img src={cards_group} alt={"Other payment cards "} />
                     </li>
                   </ul>
@@ -369,7 +397,7 @@ const Artwork: React.FC = () => {
                 )}
               </Box>
 
-              {auth.isAuthenticated && (
+              {Number(artwork?.price) >= 2500 && auth.isAuthenticated && (
                 <>
                   <Box
                     mt={3}
@@ -379,22 +407,37 @@ const Artwork: React.FC = () => {
                     gap={1}
                     bgcolor={"#FAFAFB"}
                     borderRadius={2}
-                    padding={2}
-                    position="relative">
-                    <div className={"flex w-full justify-between items-center mb-6 border-b border-[#010F22]/20  pb-6"}>
+                    padding={2}>
+                    <div className={"flex w-full justify-between items-center pb-6"}>
                       <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
                         € {formatCurrency((+(artwork?.price || 0) * data.downpaymentPercentage()) / 100)}
                       </Typography>
                       <Button variant="outlined" disabled={isOutOfStock || isReserved} onClick={handleLoanPurchase}>
-                        Prenota ora
+                        Prenota l'opera
                       </Button>
                     </div>
-                    <div className={"flex justify-between items-center gap-4"}>
-                      <p className={"text-sm text-secondary text-balance "}>
-                        Blocchi l'opera per 7 giorni versando solo il 5%. Se non concludi l'acquisto, ti rimborsiamo
-                        tutto
+                    <div className={"mb-6 border-b border-[#010F22]/20 pb-6 flex justify-between"}>
+                      <p className={" text-secondary"}>Prenota l’opera e paga a rate</p>
+                      <img src={santander_card} alt={"Santender payment Card "} />
+                    </div>
+                    <div className={" text-secondary space-y-2"}>
+                      <p>Come funziona?</p>
+                      <ol className={"list-decimal ps-5 space-y-2"}>
+                        <li>
+                          Prenota l’opera per 7 giorni versando solo il 5%. <br />
+                          <span className={"text-sm"}>(Se non concludi l’acquisto, ti rimborsiamo tutto.)</span>
+                        </li>
+                        <li>
+                          Richiedi il prestito. <br />
+                          <span className={"text-sm"}>(Soggetto ad approvazione dell'istituto di credito.)</span>
+                        </li>
+                        <li>Concludi l’acquisto e transazione su artpay.</li>
+                      </ol>
+                      <p className={"mt-6 text-xs"}>
+                        <a href="#" className={" text-primary underline"}>
+                          Vuoi saperne di più? Leggi qui
+                        </a>
                       </p>
-                      <MiniLockerIcon className={"size-16 md:size-8"} />
                     </div>
                   </Box>
                   <Divider sx={{ mb: 3 }} />
@@ -450,4 +493,4 @@ const Artwork: React.FC = () => {
   );
 };
 
-export default Artwork;
+export default ArtworkPage;

@@ -71,7 +71,7 @@ const About: React.FC<AboutProps> = ({}) => {
   return (
     <DefaultLayout
       pb={3}
-      hasNavBar={false}
+      hasNavBar={auth.isAuthenticated}
       pageLoading={!ready}
       topBar={<HeroAbout {...heroContent} buttonAction={auth.isAuthenticated ? undefined : () => auth.login()} />}
       >

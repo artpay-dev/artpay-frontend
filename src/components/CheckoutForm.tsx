@@ -5,6 +5,8 @@ import {
   StripePaymentElementChangeEvent
 } from "@stripe/stripe-js";
 import { Alert, AlertTitle, Box, Button, Grid } from "@mui/material";
+import { useDirectPurchase } from "../features/directpurchase";
+import { useEnvDetector } from "../utils.ts";
 
 type CheckoutFormProps = {
   thankYouPage?: string;
@@ -12,14 +14,66 @@ type CheckoutFormProps = {
   onCheckout?: () => void;
   onChange?: (payment_method: string) => void;
   ref?: MutableRefObject<HTMLButtonElement | null>;
+  paymentMethod?: string | null;
 };
+
+
+const buttonStyles = {
+  card:{
+    text: "Completa acquisto",
+    style: "!bg-[#181F5D] !text-[#FFF] disabled:opacity-40"
+  },
+  klarna : {
+    text: "Paga la prima rata",
+    style: "!bg-[#FEB4C7] !text-[#010F22] disabled:opacity-40"
+  }
+}
+
+
+
 const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
-  ({ onReady, thankYouPage = "/thank-you-page", onCheckout, onChange}, ref) => {
+  ({ onReady, onCheckout, onChange, paymentMethod = "card"}, ref) => {
     const stripe = useStripe();
     const elements = useElements();
 
+    const {privacyChecked, pendingOrder, orderMode} = useDirectPurchase()
+
+    const environment = useEnvDetector();
+
     const [error, setError] = useState<string>();
     const [isLoading, setIsLoading] = useState(false);
+
+    // Costruisce il return URL dinamicamente per Vercel o usa URL fissi per altri ambienti
+    const getReturnUrl = () => {
+      const isVercel = window.location.hostname.includes('vercel.app');
+
+      if (isVercel) {
+        // Per Vercel, costruisci dinamicamente l'URL basandosi sull'host corrente
+        const baseUrl = `${window.location.protocol}//${window.location.host}`;
+        return orderMode == "loan"
+          ? `${baseUrl}/opera-bloccata`
+          : `${baseUrl}/acquisto?order=${pendingOrder?.id}`;
+      }
+
+      // Per altri ambienti usa gli URL fissi
+      const returnUrl: Record<any, any> = {
+        local:
+          (orderMode == "loan"
+            ? "http://localhost:5173/opera-bloccata"
+            : "http://localhost:5173/acquisto?order=" + pendingOrder?.id),
+        staging:
+          (orderMode == "loan"
+            ? "https://staging2.artpay.art/opera-bloccata"
+            : "https://staging2.artpay.art/acquisto?order=" + pendingOrder?.id),
+        production:
+          (orderMode == "loan"
+            ? "https://artpay.art/opera-bloccata"
+            : "https://artpay.art/acquisto?order=" + pendingOrder?.id),
+      };
+
+      return environment ? returnUrl[environment] : returnUrl.local;
+    };
+
     const handleSubmit = async (e: { preventDefault: () => void }) => {
       setError(undefined);
       e.preventDefault();
@@ -32,14 +86,23 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
 
       setIsLoading(true);
 
+      // Salva l'order ID nel localStorage PRIMA del redirect di Stripe
+      if (pendingOrder) {
+        console.log("Setting completed-order in localStorage", pendingOrder.id.toString());
+        localStorage.setItem("completed-order", pendingOrder.id.toString());
+      }
+
       // data.clearCachedPaymentIntent({wc_order_key: ''})
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
           // Make sure to change this to your payment completion page
-          return_url: window.location.origin + thankYouPage
+          return_url: getReturnUrl(),
         }
       });
+
+
+
 
       // This point will only be reached if there is an immediate error when
       // confirming the payment. Otherwise, your customer will be redirected to
@@ -94,16 +157,15 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
           flexDirection="column"
           alignItems="center"
           justifyContent="center"
-          sx={{ height: 0, overflow: "hidden" }}
           my={2}>
           <Button
-            color="primary"
+            className={`${buttonStyles[paymentMethod as keyof typeof buttonStyles]?.style || buttonStyles.card.style} w-full`}
             variant="contained"
             type="submit"
             ref={ref}
-            disabled={isLoading || !stripe || !elements}
+            disabled={isLoading || !stripe || !elements || !privacyChecked}
             id="submit">
-            <span id="button-text">{isLoading ? <div className="spinner" id="spinner"></div> : "Pay now"}</span>
+            <span id="button-text">{isLoading ? <div className="spinner" id="spinner"></div> : (buttonStyles[paymentMethod as keyof typeof buttonStyles]?.text || buttonStyles.card.text)}</span>
           </Button>
         </Box>
       </form>

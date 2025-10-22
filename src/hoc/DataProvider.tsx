@@ -1084,7 +1084,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
             const propValue: string | boolean | undefined = body.billing[prop];
             if (typeof propValue !== "undefined") {
               body.meta_data = body.meta_data || [];
-              body.meta_data.push({ key: `billing_${prop}`, value: propValue.toString() });
+              body.meta_data.push({ key: `billing_${prop}`, value: String(propValue) });
             }
           });
           if (typeof body.billing?.same_as_shipping !== "undefined") {

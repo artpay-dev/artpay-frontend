@@ -6,20 +6,18 @@ import { Gallery } from "../../../../types/gallery.ts";
 import { ArticleDraw } from "../../components/ui/articledraw/ArticleDraw.tsx";
 import useArticleStore from "../../stores/articleDrawStore.ts";
 import LogoSa from "../../../../components/LogoSa.tsx";
-import { useEnvDetector } from "../../../../utils.ts";
 
 const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
   const { setOpenArticleDraw, openArticleDraw } = useArticleStore();
   const navigate = useNavigate();
   const [vendor, setVendor] = useState<Gallery | null>(null);
   const data = useData();
-  const environment = useEnvDetector()
 
   const getVendor = async () => {
     try {
       //const galleryId = environment == 'production' ? '76' : '21'
 
-      const vendorResp: Gallery = await data.getGallery("76");
+      const vendorResp: Gallery = await data.getGallery("21");
       if (!vendorResp) throw new Error("Vendor not found");
       setVendor(vendorResp);
     } catch (e) {

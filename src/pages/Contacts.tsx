@@ -5,6 +5,7 @@ import { Box, Button, Grid, GridProps, Typography } from "@mui/material";
 import { useNavigate } from "../utils.ts";
 
 import imgContacts from "../assets/images/image-contacts.svg";
+import { useAuth } from "../hoc/AuthProvider.tsx";
 
 
 export interface ContactsProps {
@@ -13,6 +14,7 @@ export interface ContactsProps {
 
 const Contacts: React.FC<ContactsProps> = ({}) => {
   const navigate = useNavigate();
+  const auth = useAuth();
   const px = getDefaultPaddingX();
 
   const centeredGridSx: GridProps["sx"] = {
@@ -24,7 +26,7 @@ const Contacts: React.FC<ContactsProps> = ({}) => {
   };
 
 
-  return (<DefaultLayout sx={{ minHeight: "30vh" }} hasNavBar={false}>
+  return (<DefaultLayout sx={{ minHeight: "30vh" }} hasNavBar={auth.isAuthenticated}>
     <Grid sx={{ mt: 18, px: px, ...centeredGridSx }} container>
       <Grid item xs={12} mb={3}>
         <Typography variant="h1">Contatti</Typography>

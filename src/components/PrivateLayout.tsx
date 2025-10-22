@@ -1,10 +1,6 @@
 import React, { useEffect } from "react";
-import Footer from "./Footer.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import usePaymentStore from "../features/cdspayments/stores/paymentStore.ts";
-import DashboardNavbar from "./DashboardNavbar.tsx";
-import Logo from "./icons/Logo.tsx";
-import { NavLink, useLocation } from "react-router-dom";
 import DefaultLayout from "./DefaultLayout.tsx";
 
 interface PrivateLayoutProps {

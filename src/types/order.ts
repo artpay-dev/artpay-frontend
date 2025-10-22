@@ -33,6 +33,7 @@ export type OrderUpdateRequest = {
   shipping?: ShippingData;
   shipping_lines?: ShippingLineUpdateRequest[];
   line_items?: LineItemRequest[];
+  coupon_lines?: { code: string }[];
 };
 
 export type LineItemRequest = {
@@ -190,6 +191,7 @@ export type LineItem = {
 
 export type PaymentIntentRequest = {
   wc_order_key: string;
+  payment_method: string;
 };
 
 export type UpdatePaymentIntentRequest = {
@@ -281,4 +283,15 @@ export type BankTransferAction = {
     type: string;
   };
   type: "display_bank_transfer_instructions";
+};
+
+export type PaymentMethod = {
+  id: string;
+  title: string;
+  description: string;
+  enabled: boolean;
+};
+
+export type PaymentMethodsResponse = {
+  available_methods: PaymentMethod[];
 };
