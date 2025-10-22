@@ -18,7 +18,7 @@ import useDirectPurchaseStore from "../stores/directPurchaseStore.ts";
 import { useData } from "../../../hoc/DataProvider.tsx";
 import { useDialogs } from "../../../hoc/DialogProvider.tsx";
 import usePaymentStore from "../../cdspayments/stores/paymentStore.ts";
-import useBeforeUnload from "../hooks/useBeforeUnload.ts";
+//import useBeforeUnload from "../hooks/useBeforeUnload.ts";
 
 const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
   const {
@@ -36,17 +36,17 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
   const data = useData();
   const dialogs = useDialogs();
   const navigate = useNavigate();
-  const { updatePageData, reset, isProcessingCheckout } = useDirectPurchaseStore();
+  const { updatePageData, reset, /*isProcessingCheckout*/ } = useDirectPurchaseStore();
   const [isCancelling, setIsCancelling] = useState(false);
   const { refreshOrders } = usePaymentStore()
 
-  // Blocca la navigazione in modalità loan o standard quando lo status è pending
+  /*// Blocca la navigazione in modalità loan o standard quando lo status è pending
   // ma NON bloccare quando si sta processando il checkout
   const shouldBlock = (orderMode === "loan" || orderMode === "standard") &&
                       pendingOrder?.status === "pending" &&
                       !isProcessingCheckout;
 
-  useBeforeUnload(shouldBlock)
+  useBeforeUnload(shouldBlock)*/
 
 
 
