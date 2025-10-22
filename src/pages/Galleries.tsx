@@ -1,114 +1,81 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
-import { galleriesToGalleryItems, getDefaultPaddingX } from "../utils.ts";
-import { Grid, Typography } from "@mui/material";
+import { galleriesToGalleryItems } from "../utils.ts";
+import { Grid, Skeleton, Box } from "@mui/material";
 import GalleriesGrid from "../components/GalleriesGrid.tsx";
 import { Gallery } from "../types/gallery.ts";
 
-export interface GalleriesProps {
+export interface GalleriesProps {}
 
-}
+
+//const THEOTHERS_GALLERIES = [229]
+
+const THEOTHERS_GALLERIES = [21]
 
 const Galleries: React.FC<GalleriesProps> = ({}) => {
   const data = useData();
 
   const [isReady, setIsReady] = useState(false);
   const [galleries, setGalleries] = useState<Gallery[]>([]);
-  /*const [searchFilterValue, setSearchFilterValue] = useState("");*/
-  /*const [searchFilter, setSearchFilter] = useState("");
-  const [sortingModeDesc, setSortingModeDesc] = useState<boolean>(false);
-  const [sortingField, setSortingField] = useState<keyof Gallery>("registered");*/
 
-  /*const sortingKeys: { [key in keyof Gallery]: string } = {
-    "display_name": "Nome",
-    "registered": "Ultimi aggiunti"
-  };*/
+  const filterGalleriesByIds = (galleries: Gallery[], hideIds: number[]) => {
+    return galleries.filter((gallery) => !hideIds.includes(gallery.id));
+  };
 
-  /*const filterGalleries = (galleries: Gallery[]): Gallery[] => {
-    return galleries.filter(gallery => {
-      if (searchFilter) {
-        return gallery.display_name?.toLowerCase().includes(searchFilter.toLowerCase());
-      }
-      return true;
-    });
-  };*/
-
-  /*const sortGalleries = (galleries: Gallery[]): Gallery[] => {
-    return galleries.sort((a, b) => {
-      if (sortingField === "registered") {
-        return new Date(a.registered).getTime() - new Date(b.registered).getTime() * (sortingModeDesc ? -1 : 1);
-      }
-      return a.display_name.localeCompare(b.display_name) * (sortingModeDesc ? -1 : 1);
-    });
-  };*/
 
   useEffect(() => {
-    data.getGalleries().then(resp => {
-      console.log(resp);
-      setGalleries(resp.filter(gallery => gallery.id != 220));
+    data.getGalleries().then((resp) => {
+      const hideIds = [220, 221, 144, 212, 76];
+      setGalleries(filterGalleriesByIds(resp, hideIds));
       setIsReady(true);
     });
   }, []);
 
-  const px = getDefaultPaddingX();
 
-  return (<DefaultLayout pageLoading={!isReady} authRequired>
-    <Grid sx={{ px: px, mt: { xs: 14, md: 16, lg: 18 } }} container>
-      <Grid xs={12} pb={3} item>
-        <Typography variant="display3">Gallerie</Typography>
-      </Grid>
-      <Grid xs={12} sm={7} md={6} pr={2} item>
-        <Typography variant="h4" color="textSecondary">
-          {/*Gallerie... Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.*/}
-        </Typography>
-      </Grid>
-      {/*<Grid xs={12} sm={5} md={6} sx={{ alignItems: "flex-end", justifyContent: "flex-end", mt: { xs: 4, sm: 0 } }}
-            display="flex" item>
-        <TextField variant="filled" color="secondary"
-                   onChange={(e) => {
-                     setSearchFilterValue(e.target.value);
-                     if (!e.target.value && searchFilter) {
-                       setSearchFilter("");
-                     }
-                   }}
-                   onKeyUp={(e) => {
-                     if (e.key === "Enter") {
-                       setSearchFilter(searchFilterValue);
-                     }
-                   }}
-                   InputProps={{
-                     endAdornment: <Button variant="contained"
-                                           onClick={() => setSearchFilter(searchFilterValue)}>Cerca</Button>,
-                     startAdornment: <SearchIcon fontSize="small" />
-                   }} />
-      </Grid>*/}
-      {/*<Grid xs={12} sx={{
-        pb: 3,
-        mb: { xs: 0, md: 5 },
-        mt: { xs: 3, sm: 8, md: 12 },
-        flexDirection: { xs: "column", sm: "row" },
-        alignItems: { xs: "flex-start", sm: "center" }
-      }} display="flex" gap={2}
-            alignItems="center" item>
-        <Box display="flex" gap={2}>
-          <Chip variant="outlined" label="Filtro" />
-          <Chip variant="outlined" label="Filtro" />
-          <Chip variant="outlined" label="Filtro" />
-        </Box>
-        <Box flexGrow={1} display={{ xs: "none", sm: "inherit" }}></Box>
-        <Box display="flex" gap={0.5}>
-          <SortIcon onClick={() => setSortingModeDesc(!sortingModeDesc)} fontSize="small" color="inherit" />
-          <Typography>Ordina per: Ultimi aggiunti</Typography>
-        </Box>
-      </Grid>*/}
-      <Grid xs={12} pb={3} sx={{ mt: { xs: 2, sm: 3 } }} item>
-        <GalleriesGrid items={galleriesToGalleryItems(galleries)} disablePadding
-                       cardSize="medium" />
-      </Grid>
+  const GalleriesSkeleton = () => (
+    <Grid container spacing={3}>
+      {Array.from({ length: 12 }).map((_, index) => (
+        <Grid key={index} item xs={12} sm={6} md={4} lg={3}>
+          <Box>
+            <Skeleton variant="rectangular" width="100%" height={200} sx={{ borderRadius: 2, mb: 1.5 }} />
+            <Skeleton variant="text" width="70%" height={28} sx={{ mb: 0.5 }} />
+            <Skeleton variant="text" width="50%" height={20} />
+          </Box>
+        </Grid>
+      ))}
     </Grid>
+  );
 
-  </DefaultLayout>);
+  return (
+    <DefaultLayout>
+      <section className={"pt-35 md:pt-0 space-y-12 mb-24 px-8 md:px-0"}>
+        <div className={" border-b border-[#CDCFD3] pb-12"}>
+          <h1 className={"text-5xl leading-[105%] font-normal"}>Le nostre gallerie partner a The Others 2025</h1>
+          <p className={"mt-6 text-secondary"}>
+            Marketplace per l’arte. Entra negli shop, scopri le opere, paga anche a rate.
+          </p>
+        </div>
+        <Grid xs={12} pb={3} sx={{ mt: { xs: 2, sm: 3 } }} item>
+          {!isReady ? (
+            <GalleriesSkeleton />
+          ) : (
+            <GalleriesGrid items={galleriesToGalleryItems(galleries.filter(gallery => THEOTHERS_GALLERIES.includes(gallery.id)))} disablePadding cardSize="medium" />
+          )}
+        </Grid>
+        <div className={" border-t border-[#CDCFD3] pt-12"}>
+          <h2 className={"text-3xl leading-[105%] font-normal"}>Altre gallerie partner di artpay</h2>
+        </div>
+        <Grid xs={12} pb={3} sx={{ mt: { xs: 2, sm: 3 } }} item>
+          {!isReady ? (
+            <GalleriesSkeleton />
+          ) : (
+            <GalleriesGrid items={galleriesToGalleryItems(galleries.filter(gallery => !THEOTHERS_GALLERIES.includes(gallery.id)))} disablePadding cardSize="medium" />
+          )}
+        </Grid>
+      </section>
+    </DefaultLayout>
+  );
 };
 
 export default Galleries;

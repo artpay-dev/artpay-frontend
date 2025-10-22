@@ -11,10 +11,10 @@ const Accordion: React.FC<AccordionProps> = ({ title, content }) => {
   return (
     <BaseAccordion>
       <AccordionSummary
-        expandIcon={<PlusIcon sx={{ height: "28px", width: "28px" }} />}
+        expandIcon={<PlusIcon sx={{ height: "24px", width: "24px" }} />}
         aria-controls="panel1-content"
         id="panel1-header">
-        <Typography variant="h5">{title}</Typography>
+        <Typography variant="h6">{title}</Typography>
       </AccordionSummary>
       <AccordionDetails>
         <Typography variant="subtitle1">{content}</Typography>

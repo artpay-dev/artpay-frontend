@@ -81,7 +81,7 @@ export const usePurchaseHandlers = (
         "Klarna": "klarna"
       };
       
-      const paymentMethodForUpdate = paymentMethodMap[state.paymentMethod || ""] || "Santander";
+      const paymentMethodForUpdate = paymentMethodMap[state.paymentMethod || ""] || "card";
       await onChangePaymentMethod(paymentMethodForUpdate);
     } catch (e) {
       await showError(e);

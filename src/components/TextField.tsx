@@ -11,8 +11,7 @@ export interface ExtendedTextFieldProp {
 
 }
 
-const TextField: React.FC<TextFieldProps & ExtendedTextFieldProp> =
-  React.forwardRef(({ ...props }, ref) => {
+const TextField = React.forwardRef<HTMLDivElement, TextFieldProps & ExtendedTextFieldProp>(({ ...props }, ref) => {
     const extraProps: Partial<TextFieldProps> = {};
     if (props.error) {
       extraProps.InputProps = {

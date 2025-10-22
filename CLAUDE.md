@@ -31,6 +31,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `cdspayments/` - External payment integration
   - `heylight/` - Heylight integration
   - `landingforcampaign/` - Campaign landing pages
+  - `directpurchase/` - Direct purchase flow with payment method selection
 
 - **Content Management**: Uses Contentful CMS with staging environment configuration
   - Client configured in `src/lib/contentful/contentful.ts`
@@ -59,6 +60,37 @@ The app requires several environment variables:
 - Alternative build config at `vite.config.wp.ts` for WordPress deployment
 - PHP integration files in `wp/` directory
 - Proxy configuration for `/wp-json` endpoints to backend server
+
+### Direct Purchase Feature (`src/features/directpurchase/`)
+
+**Payment Flow Architecture**: Modern payment system with method-specific handling
+
+- **Components**:
+  - `DirectPurchaseView.tsx` - Main purchase interface with conditional rendering
+  - `PaymentsSelection.tsx` - Payment method selection with radio buttons
+  - `PaymentRadioSelector.tsx` - Reusable radio button component for payment methods
+
+- **State Management**:
+  - `directPurchaseStore.ts` - Zustand store for purchase state
+  - Supports payment methods: `card`, `klarna` (others can be added)
+  - Conditional rendering based on `paymentMethod` state
+
+- **Hooks**:
+  - `useDirectPurchaseData.ts` - Data loading and payment intent creation
+  - `useDirectPurchaseUtils.ts` - Payment method change handling and utilities
+  - `createPaymentIntent()` function supports method-specific payment intents
+
+- **Payment Method Flow**:
+  1. User selects payment method from radio buttons
+  2. `onChangePaymentMethod()` updates WooCommerce order
+  3. `createPaymentIntent()` creates Stripe payment intent with specific method
+  4. Backend calculates method-specific fees (e.g., Klarna commissions)
+  5. Frontend renders appropriate Stripe Elements for selected method
+
+- **Supported Payment Methods**:
+  - `card` - Credit/debit cards via Stripe Elements
+  - `klarna` - Buy now, pay later with automatic fee calculation
+  - Extensible architecture for additional methods
 
 ### Code Standards
 

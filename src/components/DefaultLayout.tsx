@@ -6,6 +6,7 @@ import Footer from "./Footer.tsx";
 import { Breakpoint } from "@mui/system";
 import usePaymentStore from "../features/cdspayments/stores/paymentStore.ts";
 import GalleryNavbar from "./GalleryNavbar.tsx";
+import ToolTip from "../features/cdspayments/components/ui/tooltip/ToolTip.tsx";
 
 export interface DefaultLayoutProps {
   authRequired?: boolean;
@@ -69,13 +70,14 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
 
   return (
     <>
+      <ToolTip />
       {hasNavBar ? (
         <GalleryNavbar onMenuToggle={handleMenuToggle} />
       ) : (
         <Navbar  />
       )}
       {topBar || ""}
-      <main className="w-full max-w-8xl mx-auto md:mt-36 md:px-24">
+      <main className="w-full max-w-8xl mx-auto md:mt-36 md:px-24 flex flex-col">
         {children}
       </main>
       {menuOpen && isMobile ? <></> : <Footer />}

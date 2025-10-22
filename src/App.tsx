@@ -5,11 +5,10 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import AuthProvider from "./hoc/AuthProvider";
 import DataProvider from "./hoc/DataProvider";
 import Showcase from "./pages/Showcase.tsx";
-import Artwork from "./pages/Artwork";
+import ArtworkPage from "./pages/ArtworkPage.tsx";
 import Gallery from "./pages/Gallery";
 import Artworks from "./pages/Artworks";
 import Profile from "./pages/Profile";
-import Purchase from "./pages/Purchase";
 import Home from "./pages/Home.tsx";
 import DialogProvider from "./hoc/DialogProvider.tsx";
 import SnackbarProvider from "./hoc/SnackbarProvider.tsx";
@@ -29,7 +28,7 @@ import ReactGA from "react-ga4";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useEffect } from "react";
 import Error from "./pages/Error.tsx";
-import GalleryOnboarding from "./pages/GalleryOnboarding.tsx";
+//import GalleryOnboarding from "./pages/GalleryOnboarding.tsx";
 import CustomerOnboarding from "./pages/CustomerOnboarding.tsx";
 import ArtworkReserved from "./pages/ArtworkReserved.tsx";
 import Contacts from "./pages/Contacts.tsx";
@@ -48,6 +47,9 @@ import ShippingSettingsPage from "./pages/ShippingSettingsPage.tsx";
 import FollowedGalleriesPage from "./pages/FollowedGalleriesPage.tsx";
 import FavoritesArtworksPage from "./pages/FavoritesArtworksPage.tsx";
 import HistoryOrdersPage from "./pages/HistoryOrdersPage.tsx";
+import NewDirectPurchase from "./pages/NewDirectPurchase.tsx";
+import OrderCompleted from "./pages/OrderCompleted.tsx";
+import HistoryFailedOrdersPage from "./pages/HistoryFailedOrdersPage.tsx";
 
 import FatsPayLayout from "./features/fastpay/layout/FatsPayLayout.tsx";
 import FastPay from "./pages/fast-pay/FastPay.tsx";
@@ -93,25 +95,29 @@ function AppContent() {
                     <Route path="/gallerie/:slug/tutte-le-opere" element={<Artworks />} />
                     <Route path="/gallerie/:slug/tutti-gli-artisti" element={<Gallery selectedTab={1} />} />
                     <Route path="/gallerie/:slug/galleria" element={<Gallery selectedTab={2} />} />
-                    <Route path="/gallerie/:slug_galleria/opere/:slug_opera" element={<Artwork />} />
-                    <Route path="/opere/:slug_opera" element={<Artwork />} />
+                    <Route path="/gallerie/:slug_galleria/opere/:slug_opera" element={<ArtworkPage />} />
+                    <Route path="/opere/:slug_opera" element={<ArtworkPage />} />
                     <Route path="/artisti/:slug" element={<Artist />} />
                     <Route path="/artisti" element={<Artists />} />
                     <Route path="/tutte-le-opere" element={<Artworks />} />
-                    <Route path="/acquisto" element={<Purchase />} />
+                    {/*<Route path="/acquisto" element={<Purchase />} />*/}
+                    <Route path="/acquisto" element={<NewDirectPurchase />} />
                     <Route path="/acquisto-esterno" >
                       <Route element={<CdsPaymentsPage />} index />
                     </Route>
-                    <Route path="/completa-acquisto/:order_id" element={<Purchase orderMode="redeem" />} />
+                    {/*<Route path="/completa-acquisto/:order_id" element={<Purchase orderMode="redeem" />} />*/}
+                    <Route path="/completa-acquisto/:order_id" element={<NewDirectPurchase orderMode="redeem" />} />
                     <Route path={"/guide"} element={<Tutorials />} />
                     <Route path="/guide/:slug" element={<SinglePostPage />} />
-                    <Route path="/acconto-blocca-opera" element={<Purchase orderMode="loan" />} />
-                    <Route path="/opera-bloccata/:slug_opera" element={<ArtworkReserved />} />
+                    <Route path="/complete-order/:order_id" element={<OrderCompleted />} />
+                    <Route path="/acconto-blocca-opera" element={<NewDirectPurchase orderMode="loan" />} />
+                    <Route path="/opera-bloccata" element={<ArtworkReserved />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/profile/seguiti" element={<FollowedGalleriesPage />} />
                     <Route path="/profile/opere-preferite" element={<FavoritesArtworksPage />} />
                     <Route path="/profile/personal-settings" element={<PersonalSettingsPage />} />
                     <Route path="/profile/history-orders" element={<HistoryOrdersPage />} />
+                    <Route path="/profile/history-failed-orders" element={<HistoryFailedOrdersPage />} />
                     <Route path="/profile/shipping-invoice-settings" element={<ShippingSettingsPage />} />
                     <Route path="/thank-you-page" element={<PurchaseComplete />} />
                     <Route path="/thank-you-page/:order_id" element={<PurchaseComplete />} />
@@ -134,7 +140,7 @@ function AppContent() {
                       element={<ContentPage slug="condizioni-generali-di-acquisto" />}
                     />
                     <Route path="/artpay-per-collezionisti" element={<CustomerOnboarding />} />
-                    <Route path="/artpay-per-gallerie" element={<GalleryOnboarding />} />
+                    {/*<Route path="/artpay-per-gallerie" element={<GalleryOnboarding />} />*/}
                     <Route path="/contatti" element={<Contacts />} />
                     <Route path="/profile/messaggi" element={<Messages />} />
                     <Route path="/errore/:code" element={<Error />} />

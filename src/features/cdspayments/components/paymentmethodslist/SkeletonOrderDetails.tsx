@@ -1,6 +1,6 @@
 const SkeletonOrderDetails = () => {
   return (
-    <div className="space-y-4 animate-pulse">
+    <div className="space-y-4 animate-pulse mb-24">
       <div className="flex items-center gap-2.5">
         <div className="size-8 overflow-hidden border border-gray-200 rounded-sm p-1 bg-white">
           <div className="w-full h-full bg-gray-300"></div>

@@ -16,8 +16,7 @@ export interface ExtendedCheckboxProps {
   textColor?: TypographyProps["color"];
 }
 
-const Checkbox: React.FC<ExtendedCheckboxProps & CheckboxProps> =
-  React.forwardRef(
+const Checkbox = React.forwardRef<HTMLButtonElement, ExtendedCheckboxProps & CheckboxProps>(
     ({ label, checkboxSx = {}, alignTop = false, error, textColor = "inherit", ...props }, ref) => {
       const sx: { [key: string]: unknown } = {};
       if (alignTop) {

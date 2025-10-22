@@ -25,6 +25,7 @@ const ROUTES = {
   ACQUISTO: "/acquisto",
   ACQUISTO_ESTERNO: "/acquisto-esterno",
   GALLERIE: "/gallerie",
+  COMPLETE: "/complete-order/",
 } as const;
 
 export interface GalleryNavbarProps {
@@ -62,13 +63,13 @@ const GalleryNavbar: React.FC<GalleryNavbarProps> = ({ onMenuToggle }) => {
   };
 
   const handleOnHoldOrder = async (orders: any) => {
-    const redirectToAcquistoEsterno = localStorage.getItem(STORAGE_KEYS.REDIRECT_TO_ACQUISTO_ESTERNO);
-
-    if (!redirectToAcquistoEsterno && location.pathname !== ROUTES.ACQUISTO_ESTERNO) {
-      navigate(ROUTES.ACQUISTO_ESTERNO);
-    }
-
     if (orders.created_via === "gallery_auction") {
+      const redirectToAcquistoEsterno = localStorage.getItem(STORAGE_KEYS.REDIRECT_TO_ACQUISTO_ESTERNO);
+
+      if (!redirectToAcquistoEsterno && location.pathname !== ROUTES.ACQUISTO_ESTERNO) {
+        navigate(ROUTES.ACQUISTO_ESTERNO);
+      }
+
       localStorage.removeItem(STORAGE_KEYS.SHOW_CHECKOUT);
       setPaymentData({ order: orders });
     } else {
@@ -163,13 +164,16 @@ const GalleryNavbar: React.FC<GalleryNavbarProps> = ({ onMenuToggle }) => {
   };
 
   const isGalleryPage = location.pathname.startsWith(ROUTES.GALLERIE);
+  const isCompletedOrderPage = location.pathname.startsWith(ROUTES.COMPLETE);
+  const isDashboardPage = location.pathname === '/dashboard';
+
 
   return (
     <>
       {/* Desktop Navbar */}
       <header className="fixed w-full z-20 top-6 px-6 md:px-12 hidden md:block">
         <div className="flex items-center gap-8 justify-between max-w-8xl mx-auto">
-          <BackButton isVisible={!isGalleryPage} />
+          <BackButton isVisible={!isGalleryPage && !isCompletedOrderPage && !isDashboardPage} />
 
           <div className="flex items-center justify-center gap-8">
             <MainNavigation
@@ -186,7 +190,7 @@ const GalleryNavbar: React.FC<GalleryNavbarProps> = ({ onMenuToggle }) => {
       {/* Mobile Navbar */}
       <header className="fixed w-full z-50 top-6 px-6 md:hidden">
         <div className="flex items-center gap-4 justify-between max-w-8xl mx-auto">
-          <BackButton isVisible={!isGalleryPage} />
+          <BackButton isVisible={!isGalleryPage && !isDashboardPage} />
 
           <div className="flex items-center justify-center gap-4">
             <MobileNavigation
@@ -282,7 +286,7 @@ const ProfileDropdown: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   };
 
   return (
-    <div 
+    <div
       ref={anchorRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -296,9 +300,9 @@ const ProfileDropdown: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
       >
         <UserIcon />
       </IconButton>
-      
+
       {open && (
-        <div 
+        <div
           className="absolute right-0 top-full mt-2 w-64 bg-[#F5F5F5] rounded-lg  z-50"
           onMouseEnter={handleMenuMouseEnter}
           onMouseLeave={handleMenuMouseLeave}
@@ -321,6 +325,12 @@ const ProfileDropdown: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
               className="w-full text-left px-4 py-2 text-base hover:underline transition-all cursor-pointer "
             >
               Fatturazione e spedizione
+            </button>
+            <button
+              onClick={() => handleMenuItemClick("/gallerie")}
+              className="w-full text-left px-4 py-2 text-base hover:underline transition-all cursor-pointer "
+            >
+              Gallerie
             </button>
             <button
               onClick={() => handleMenuItemClick("/chi-siamo")}
@@ -480,6 +490,9 @@ const MobileMenu: React.FC<{
                   <NavLink to={"/profile/shipping-invoice-settings"}>Fatturazione e spedizione</NavLink>
                 </li>
                 <li>
+                  <NavLink to={"/gallerie"}>Gallerie</NavLink>
+                </li>
+                <li>
                   <NavLink to={"/chi-siamo"}>Chi siamo</NavLink>
                 </li>
                 <li>
@@ -511,10 +524,10 @@ const MobileMenu: React.FC<{
           <button onClick={() => onNavigate("/terms")} className="hover:text-secondary transition-colors">
             Termini
           </button>
-          <button onClick={() => onNavigate("/help")} className="hover:text-secondary transition-colors">
+          <button onClick={() => onNavigate("/contatti")} className="hover:text-secondary transition-colors">
             Aiuto
           </button>
-          <button onClick={() => onNavigate("/about")} className="hover:text-secondary transition-colors">
+          <button onClick={() => onNavigate("/chi-siamo")} className="hover:text-secondary transition-colors">
             Info
           </button>
         </div>

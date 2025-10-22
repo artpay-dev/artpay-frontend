@@ -1,4 +1,4 @@
-import { Box, Button, Divider, IconButton, Link, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Alert, Box, Button, Divider, IconButton, Link, Typography, useMediaQuery, useTheme } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout";
 import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
@@ -27,6 +27,7 @@ import FavouriteFilledIcon from "../components/icons/FavouriteFilledIcon.tsx";
 import { FavouritesMap } from "../types/post.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
+import useToolTipStore from "../features/cdspayments/stores/tooltipStore.ts";
 import LockIcon from "../components/icons/LockIcon.tsx";
 import HourglassIcon from "../components/icons/HourglassIcon.tsx";
 import ShareIcon from "../components/icons/ShareIcon.tsx";
@@ -37,14 +38,12 @@ import CertificateIcon from "../components/icons/CertificateIcon.tsx";
 import QrCodeIcon from "../components/icons/QrCodeIcon.tsx";
 import ArtworkPageSkeleton from "../components/ArtworkPageSkeleton.tsx";
 import CardGridSkeleton from "../components/CardGridSkeleton.tsx";
-import klarna_card from "../assets/images/klarnacard.svg"
-import santander_card from "../assets/images/santandercard.svg"
-import cards_group from "../assets/images/cardsgroup.svg"
-import MiniLockerIcon from "../components/icons/MiniLockerIcon.tsx";
+import klarna_card from "../assets/images/klarnacard.svg";
+import santander_card from "../assets/images/santandercard.svg";
+import cards_group from "../assets/images/cardsgroup.svg";
+import { KLARNA_FEE, KLARNA_MAX_LIMIT } from "../constants.ts";
 
-
-
-const Artwork: React.FC = () => {
+const ArtworkPage: React.FC = () => {
   const data = useData();
   const auth = useAuth();
   const urlParams = useParams();
@@ -52,6 +51,7 @@ const Artwork: React.FC = () => {
   const dialogs = useDialogs();
   const theme = useTheme();
   const snackbar = useSnackbars();
+  const { showToolTip } = useToolTipStore();
 
   const [isReady, setIsReady] = useState(false);
   const [artwork, setArtwork] = useState<Artwork>();
@@ -59,31 +59,32 @@ const Artwork: React.FC = () => {
   const [galleryDetails, setGalleryDetails] = useState<Gallery | undefined>();
   const [artistDetails, setArtistDetails] = useState<Artist | undefined>();
   const [favouriteArtworks, setFavouriteArtworks] = useState<number[]>([]);
+  const [favouriteGalleries, setFavouriteGalleries] = useState<number[]>();
+  const [hasCheckedFollow, setHasCheckedFollow] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile>();
 
   const belowSm = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const artworkTechnique = useMemo(() => 
-    artwork ? data.getCategoryMapValues(artwork, "tecnica").join(" ") : "",
-    [artwork, data]
+  const artworkTechnique = useMemo(
+    () => (artwork ? data.getCategoryMapValues(artwork, "tecnica").join(" ") : ""),
+    [artwork, data],
   );
-  const artworkCertificate = useMemo(() => 
-    artwork ? data.getCategoryMapValues(artwork, "certificato").join(" ") : "",
-    [artwork, data]
+  const artworkCertificate = useMemo(
+    () => (artwork ? data.getCategoryMapValues(artwork, "certificato").join(" ") : ""),
+    [artwork, data],
   );
-  const artworkUnique = useMemo(() => 
-    artwork ? data.getCategoryMapValues(artwork, "rarita").join(" ") : "",
-    [artwork, data]
+  const artworkUnique = useMemo(
+    () => (artwork ? data.getCategoryMapValues(artwork, "rarita").join(" ") : ""),
+    [artwork, data],
   );
 
-  const isArtworkFavourite = useMemo(() => 
-    artwork?.id ? favouriteArtworks.includes(artwork.id) : false,
-    [artwork?.id, favouriteArtworks]
+  const isArtworkFavourite = useMemo(
+    () => (artwork?.id ? favouriteArtworks.includes(artwork.id) : false),
+    [artwork?.id, favouriteArtworks],
   );
 
   const isOutOfStock = useMemo(() => artwork?.stock_status === "outofstock", [artwork?.stock_status]);
   const isReserved = useMemo(() => artwork?.acf.customer_buy_reserved || false, [artwork?.acf.customer_buy_reserved]);
-
 
   const handleShare = useCallback(async () => {
     await dialogs.share(window.location.href);
@@ -126,7 +127,7 @@ const Artwork: React.FC = () => {
     }
     if (artwork?.id) {
       try {
-        const resp = isArtworkFavourite 
+        const resp = isArtworkFavourite
           ? await data.removeFavouriteArtwork(artwork.id.toString())
           : await data.addFavouriteArtwork(artwork.id.toString());
         setFavouriteArtworks(resp);
@@ -137,22 +138,25 @@ const Artwork: React.FC = () => {
     }
   }, [auth, artwork?.id, isArtworkFavourite, data, snackbar]);
 
-  const handlePurchase = useCallback((artworkId?: number) => {
-    if (!artworkId) {
-      return;
-    }
-    setIsReady(false);
-    data
-      .purchaseArtwork(artworkId)
-      .then(() => {
-        navigate("/acquisto");
-      })
-      .catch((e) => {
-        console.error(e);
-        snackbar.error("Si è verificato un errore");
-        setIsReady(true);
-      });
-  }, [data, navigate, snackbar]);
+  const handlePurchase = useCallback(
+    (artworkId?: number) => {
+      if (!artworkId) {
+        return;
+      }
+      setIsReady(false);
+      data
+        .purchaseArtwork(artworkId)
+        .then(() => {
+          navigate("/acquisto");
+        })
+        .catch((e) => {
+          console.error(e);
+          snackbar.error("Si è verificato un errore");
+          setIsReady(true);
+        });
+    },
+    [data, navigate, snackbar],
+  );
 
   const handleLoanPurchase = useCallback(() => {
     if (!artwork?.id) {
@@ -179,28 +183,26 @@ const Artwork: React.FC = () => {
         const artwork = await data.getArtworkBySlug(urlParams.slug_opera);
         setArtwork(artwork);
 
-        const [galleryArtworks, favouriteArtworks, galleryDetails, artistDetails, userProfile] = await Promise.all([
+        const [galleryArtworks, favouriteArtworks, favouriteGalleries, galleryDetails, artistDetails, userProfile] = await Promise.all([
           data.listArtworksForGallery(artwork.vendor),
           data.getFavouriteArtworks().catch(() => []),
+          data.getFavouriteGalleries().catch(() => []),
           artwork.vendor ? data.getGallery(artwork.vendor) : Promise.resolve(undefined),
-          getPropertyFromMetadata(artwork.meta_data, "artist")?.ID 
+          getPropertyFromMetadata(artwork.meta_data, "artist")?.ID
             ? data.getArtist(getPropertyFromMetadata(artwork.meta_data, "artist")!.ID)
             : Promise.resolve(undefined),
-          auth.isAuthenticated ? data.getUserProfile().catch(() => undefined) : Promise.resolve(undefined)
+          auth.isAuthenticated ? data.getUserProfile().catch(() => undefined) : Promise.resolve(undefined),
         ]);
 
         setFavouriteArtworks(favouriteArtworks);
+        setFavouriteGalleries(favouriteGalleries);
         setGalleryDetails(galleryDetails);
         setArtistDetails(artistDetails);
         setUserProfile(userProfile);
 
         if (artistDetails) {
-          const artworkIds = new Set((artistDetails.artworks || []).map(a => a.ID.toString()));
-          setArtistArtworks(
-            artworksToGalleryItems(
-              galleryArtworks.filter(a => artworkIds.has(a.id.toString()))
-            )
-          );
+          const artworkIds = new Set((artistDetails.artworks || []).map((a) => a.ID.toString()));
+          setArtistArtworks(artworksToGalleryItems(galleryArtworks.filter((a) => artworkIds.has(a.id.toString()))));
         }
 
         setIsReady(true);
@@ -214,7 +216,7 @@ const Artwork: React.FC = () => {
     };
 
     void fetchArtworkData();
-  },[]);
+  }, []);
 
   useEffect(() => {
     const handleFavouritesUpdated = (e: CustomEvent<FavouritesMap>) => {
@@ -229,6 +231,35 @@ const Artwork: React.FC = () => {
     };
   }, [artwork?.id]);
 
+  // Controlla se l'utente segue la galleria e gestisce il follow automatico
+  useEffect(() => {
+    if (!auth.isAuthenticated || !galleryDetails?.id || !favouriteGalleries || hasCheckedFollow) {
+      return;
+    }
+
+    const isFollowing = favouriteGalleries.indexOf(galleryDetails.id) !== -1;
+
+    // Se l'utente non segue la galleria
+    if (!isFollowing) {
+      // Se non ha nessuna galleria seguita, seguila automaticamente
+      if (favouriteGalleries.length === 0) {
+        data.addFavouriteGallery(galleryDetails.id.toString()).then(() => {
+          showToolTip({
+            message: "Hai iniziato a seguire questa galleria!",
+            visible: true,
+            type: "success"
+          });
+        }).catch((e) => {
+          console.error("Error auto-following gallery:", e);
+        });
+      } else {
+        // Altrimenti mostra un tooltip/snackbar che invita a seguire
+        snackbar.snackbar(<Alert severity="info">Segui questa galleria per vederla nel tuo feed!</Alert>);
+      }
+    }
+
+    setHasCheckedFollow(true);
+  }, [favouriteGalleries, galleryDetails?.id, auth.isAuthenticated, hasCheckedFollow]);
 
   const px = useMemo(() => getDefaultPaddingX(), []);
 
@@ -236,18 +267,18 @@ const Artwork: React.FC = () => {
     <DefaultLayout pageLoading={!isReady}>
       {!isReady ? (
         <ArtworkPageSkeleton />
-      ):(
-        <Box sx={{mt: { xs: 0, sm: 12, md: 18 } }} display="flex" justifyContent="center" overflow={'visible'}>
-          <div className={'flex flex-col w-full lg:flex-row '}>
-            <div className={'w-full max-w-2xl lg:min-w-sm rounded-b-2xl md:rounded-2xl overflow-hidden lg:sticky lg:top-6 lg:self-start'}>
+      ) : (
+        <Box className={'md:mt-18'} display="flex" justifyContent="center" overflow={"visible"}>
+          <div className={"flex flex-col w-full lg:flex-row "}>
+            <div className={"w-full max-w-2xl lg:min-w-sm lg:min-h-screen rounded-b-2xl md:rounded-2xl"}>
               <img
                 src={artwork?.images?.length ? artwork.images[0].woocommerce_single : ""}
                 alt={artwork?.images[0]?.name}
-                className={` object-contain w-full rounded-b-2xl md:rounded-2xl `}
+                className={` object-contain sticky top-35 w-full rounded-b-2xl md:rounded-2xl max-h-[600px]`}
               />
             </div>
-            <div className={'flex flex-col pt-6 lg:0 max-w-2xl px-8 md:px-8'}>
-              <div className={'flex items-center mb-2'}>
+            <div className={"flex flex-col pt-6 lg:0 max-w-2xl px-8 md:px-8"}>
+              <div className={"flex items-center mb-2"}>
                 <Typography
                   sx={{ textTransform: "uppercase", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
                   color="primary"
@@ -309,8 +340,8 @@ const Artwork: React.FC = () => {
                   </>
                 )}
               </Box>
-              <Box display="flex" flexDirection={"column"}  mt={12} bgcolor={'#EFF1FF'} borderRadius={2} padding={2} >
-                <div className={'flex w-full justify-between items-center mb-6 border-b border-[#010F22]/20  pb-6'}>
+              <Box display="flex" flexDirection={"column"} mt={12} bgcolor={"#EFF1FF"} borderRadius={2} padding={2} position="relative">
+                <div className={"flex w-full justify-between items-center mb-6 border-b border-[#010F22]/20  pb-6 relative"}>
                   <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
                     € {formatCurrency(+(artwork?.price || 0))}
                   </Typography>
@@ -321,39 +352,108 @@ const Artwork: React.FC = () => {
                     Compra opera
                   </Button>
                 </div>
-                <div className={'flex flex-col w-full md:flex-row justify-between space-y-4 md:space-y-0'}>
-                  <p className={'text-secondary leading-6'}>Metodi di pagamento</p>
-                  <ul className={'flex gap-2'}>
-                    <li><img src={klarna_card} alt={'Klarna payment Card '}/></li>
-                    <li><img src={santander_card} alt={'Santander payment Card '}/></li>
-                    <li><img src={cards_group} alt={'Other payment cards '}/></li>
+                <div className={"flex flex-col w-full md:flex-row justify-between space-y-4 md:space-y-0"}>
+                  <ul className={"flex flex-col gap-2 text-secondary leading-6 w-full "}>
+                    {Number(artwork?.price) * KLARNA_FEE <= KLARNA_MAX_LIMIT && (
+                      <li className={"flex justify-between items-center"}>
+                        <span>Pagamento dilazionato</span>
+                        <img src={klarna_card} alt={"Klarna payment Card "} />
+                      </li>
+                    )}
+                    <li className={"flex justify-between items-center"}>
+                      <span>Unica soluzione</span>
+                      <img src={cards_group} alt={"Other payment cards "} />
+                    </li>
                   </ul>
                 </div>
+
+                {/* Blur overlay for non-authenticated users */}
+                {!auth.isAuthenticated && (
+                  <Box
+                    position="absolute"
+                    top={0}
+                    left={0}
+                    right={0}
+                    bottom={0}
+                    sx={{
+                      backdropFilter: "blur(8px)",
+                      backgroundColor: "rgba(239, 241, 255, 0.8)",
+                      borderRadius: 2,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 2,
+                      padding: 3,
+                      textAlign: "center",
+                    }}>
+                    <Typography variant="body1"  sx={{ maxWidth: "400px" }}>
+                      Registrati per vedere il prezzo e comprare
+                    </Typography>
+                    <Button variant="contained" onClick={() => auth.login(true)} sx={{ mt: 2 }}>
+                      Registrati ora
+                    </Button>
+                  </Box>
+                )}
               </Box>
 
-              <Box mt={3} sx={{ my: 3 }} display="flex" flexDirection={"column"} gap={1} bgcolor={'#FAFAFB'} borderRadius={2} padding={2}>
-                <div className={'flex w-full justify-between items-center mb-6 border-b border-[#010F22]/20  pb-6'}>
-                  <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
-                    € {formatCurrency((+(artwork?.price || 0) * data.downpaymentPercentage()) / 100)}
-                  </Typography>
-                  <Button variant="outlined" disabled={isOutOfStock || isReserved} onClick={handleLoanPurchase}>
-                    Prenota ora
-                  </Button>
-
-                </div>
-                  <div className={'flex justify-between items-center gap-4'}>
-                    <p className={'text-sm text-secondary text-balance '}>Blocchi l’opera per 7 giorni versando solo il 5%. Se non concludi l’acquisto, ti rimborsiamo tutto</p>
-                    <MiniLockerIcon className={'size-16 md:size-8'}/>
-                  </div>
-              </Box>
-              <Divider sx={{ mb: 3 }} />
+              {Number(artwork?.price) >= 2500 && auth.isAuthenticated && (
+                <>
+                  <Box
+                    mt={3}
+                    sx={{ my: 3 }}
+                    display="flex"
+                    flexDirection={"column"}
+                    gap={1}
+                    bgcolor={"#FAFAFB"}
+                    borderRadius={2}
+                    padding={2}>
+                    <div className={"flex w-full justify-between items-center pb-6"}>
+                      <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
+                        € {formatCurrency((+(artwork?.price || 0) * data.downpaymentPercentage()) / 100)}
+                      </Typography>
+                      <Button variant="outlined" disabled={isOutOfStock || isReserved} onClick={handleLoanPurchase}>
+                        Prenota l'opera
+                      </Button>
+                    </div>
+                    <div className={"mb-6 border-b border-[#010F22]/20 pb-6 flex justify-between"}>
+                      <p className={" text-secondary"}>Prenota l’opera e paga a rate</p>
+                      <img src={santander_card} alt={"Santender payment Card "} />
+                    </div>
+                    <div className={" text-secondary space-y-2"}>
+                      <p>Come funziona?</p>
+                      <ol className={"list-decimal ps-5 space-y-2"}>
+                        <li>
+                          Prenota l’opera per 7 giorni versando solo il 5%. <br />
+                          <span className={"text-sm"}>(Se non concludi l’acquisto, ti rimborsiamo tutto.)</span>
+                        </li>
+                        <li>
+                          Richiedi il prestito. <br />
+                          <span className={"text-sm"}>(Soggetto ad approvazione dell'istituto di credito.)</span>
+                        </li>
+                        <li>Concludi l’acquisto e transazione su artpay.</li>
+                      </ol>
+                      <p className={"mt-6 text-xs"}>
+                        <a href="#" className={" text-primary underline"}>
+                          Vuoi saperne di più? Leggi qui
+                        </a>
+                      </p>
+                    </div>
+                  </Box>
+                  <Divider sx={{ mb: 3 }} />
+                </>
+              )}
               <Box
                 display="flex"
                 flexDirection={{ xs: "column", sm: "row" }}
                 gap={{ xs: 3, sm: 0 }}
                 mt={{ xs: 3 }}
                 alignItems={{ xs: "center", md: "center" }}>
-                <Box flexGrow={1} display="flex" flexDirection={{xs: "row", sm: "column"}} sx={{ gap: { xs: 1, sm: 1 } }}>
+                <Box
+                  flexGrow={1}
+                  display="flex"
+                  flexDirection={{ xs: "row", sm: "column" }}
+                  sx={{ gap: { xs: 1, sm: 1 } }}>
                   <Typography variant="subtitle1">{galleryDetails?.display_name}</Typography>
                   <Typography variant="subtitle1" color="textSecondary">
                     {galleryDetails?.address?.city}
@@ -367,7 +467,7 @@ const Artwork: React.FC = () => {
               </Box>
               <Divider sx={{ mt: 3 }} />
               <div className={`px-[${px}] mt-6`}>
-                <div className={'flex flex-col justify-center gap-6'}>
+                <div className={"flex flex-col justify-center gap-6"}>
                   {artwork && <ArtworkDetails artwork={artwork} artist={artistDetails} />}
                   <Divider />
                   {artistDetails && <ArtistDetails artist={artistDetails} />}
@@ -381,15 +481,11 @@ const Artwork: React.FC = () => {
         </Box>
       )}
 
-      <Box className={'py-24'}>
-        <Typography sx={{ mb: { xs: 3, md: 6 }, px: {xs: 4, sm: 0}}} marginTop={6} variant="h2">
+      <Box className={"py-24"}>
+        <Typography sx={{ mb: { xs: 3, md: 6 }, px: { xs: 4, sm: 0 } }} marginTop={6} variant="h2">
           Opere che ti potrebbero piacere
         </Typography>
-        {!artistArtworks ? (
-          <CardGridSkeleton count={4} />
-          ) : (
-          <ArtworksList disablePadding items={artistArtworks} />
-        )}
+        {!artistArtworks ? <CardGridSkeleton count={4} /> : <ArtworksList disablePadding items={artistArtworks} />}
 
         <ArtworksList disablePadding title="Simili per prezzo" items={[]} />
       </Box>
@@ -397,4 +493,4 @@ const Artwork: React.FC = () => {
   );
 };
 
-export default Artwork;
+export default ArtworkPage;

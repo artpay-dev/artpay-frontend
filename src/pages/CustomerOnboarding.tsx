@@ -38,10 +38,10 @@ const CustomerOnboarding: React.FC<CustomerOnboardingProps> = ({}) => {
   const px = getDefaultPaddingX();
 
   return (
-    <DefaultLayout sx={{ overflowX: "hidden" }} hasNavBar={false}>
+    <DefaultLayout sx={{ overflowX: "hidden" }} hasNavBar={auth.isAuthenticated}>
       <Hero imgOffset={{ xs: 6, sm: 8 }}>
         <Typography variant="body1" color="primary" sx={{ textTransform: "uppercase" }}>
-          Artpay per collezionisti
+          artpay per collezionisti
         </Typography>
         <Typography variant="display1" color="primary" sx={{ mt: 1 }}>
           Scopri come acquistare online opere d’arte certificate in modo più accessibile e veloce, con artpay.
@@ -49,19 +49,22 @@ const CustomerOnboarding: React.FC<CustomerOnboardingProps> = ({}) => {
         <Typography variant="body1" sx={{ mt: 6, maxWidth: "400px" }}>
           Vivi la tua passione per l’arte in modo ancora più soddisfacente.
           <br />
-          Con Artpay puoi acquistare online opere d’arte dalle più rinomate gallerie d’arte italiane e pagarle
-          direttamente o tramite alla flessibilità dei servizi finanziari rateali delle nostre banche partner.
+          Vivi la tua passione per l'arte in modo davvero coinvolgente.
+          Con artpay puoi acquistare online opere d'arte dalle più
+          autorevoli e interessanti Gallerie italiane e pagarle come vuoi,
+          tutto subito o con comode rate su misura, grazie ai servizi
+          finanziari dei nostri istituti partner.
         </Typography>
       </Hero>
       <Box sx={{ py: 12, background: `url(${onboardingBackground})`, px: px }}>
         <Box display="flex" flexDirection="column" gap={3}>
           <PromoCard border title={<>Esplora le opere d’arte del nostro network di gallerie</>}>
             <Typography variant="body1">
-              Dopo l’iscrizione ad Artpay, esplora l’offerta di opere d’arte online delle gallerie del nostro network.
+              Dopo l’iscrizione ad artpay, esplora l’offerta di opere d’arte online delle gallerie del nostro network.
               Troverai tutte le informazioni su ciascuna opera e sulla galleria che le mette in vendita.
               <br />
               In alternativa, visita di persona una galleria del nostro network e, se un’opera ti interessa, richiedi di
-              acquistarla tramite Artpay.
+              acquistarla tramite artpay.
             </Typography>
           </PromoCard>
           <PromoCard title={<>Ti interessa un’opera d’arte? Prenotala!</>}>
@@ -99,7 +102,7 @@ const CustomerOnboarding: React.FC<CustomerOnboardingProps> = ({}) => {
               </>
             }>
             <Typography variant="body1">
-              Una volta completato l’acquisto con una delle tante opzioni messe a disposizione da Artpay, è il momento
+              Una volta completato l’acquisto con una delle tante opzioni messe a disposizione da artpay, è il momento
               della consegna dell’opera d’arte.
               <br />
               Anche in questo caso, avrai massima libertà di personalizzare la tua esperienza di consegna già a partire
@@ -109,16 +112,10 @@ const CustomerOnboarding: React.FC<CustomerOnboardingProps> = ({}) => {
             </Typography>
           </PromoCard>
 
-          <PromoCard titleVariant="h2" title="Cosa aspetti? Entra subito a far parte di artpay!" variant="contrast">
-            <Typography variant="body1" color="white" sx={{ mb: 2 }}>
-              Ad acquisto avvenuto, l’opera è tua e avrai massima libertà di personalizzare la tua esperienza di
-              consegna già a partire dal carrello di acquisto o prenotare il ritiro presso la galleria che vende l’opera
-              confrontandoti direttamente, attraverso il sistema di messaggistica integrato all’interno della
-              piattaforma, con il personale dedicato della galleria stessa.
-            </Typography>
+          <PromoCard titleVariant="h2" title="Cosa aspetti? Entra subito a far parte di artpay!" variant="contrast" titleWidth={'500px'}>
             {!auth.isAuthenticated && (
               <Button variant="outlined" color="contrast" onClick={handleRegistration}>
-                Registrati
+                Registrati su artpay
               </Button>
             )}
           </PromoCard>

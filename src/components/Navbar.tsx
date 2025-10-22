@@ -3,6 +3,7 @@ import Logo from "./icons/Logo";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 import { Link, NavLink } from "react-router-dom";
 import MenuIcon from "./icons/MenuIcon.tsx";
+import { Button } from "@mui/material";
 
 type MenuLinks = {
   label: string;
@@ -12,6 +13,7 @@ type MenuLinks = {
 
 const menuLinks: MenuLinks[] = [
   { label: "Chi siamo", href: "/chi-siamo", requireAuth: false },
+  { label: "Gallerie", href: "/gallerie", requireAuth: false },
   { label: "Guide", href: "/guide", requireAuth: false },
 ];
 
@@ -32,15 +34,15 @@ const Navbar: React.FC = () => {
 
 
   return (
-    <header className="fixed w-full z-20 top-6 px-6 md:px-12">
-      <nav className="px-6 py-3 md:py-4.5 custom-navbar bg-white w-full max-w-7xl mx-auto rounded-lg shadow-sm">
+    <header className="fixed w-full z-20 top-6 px-6 lg:px-12">
+      <nav className="px-6 py-3 lg:py-4.5 custom-navbar bg-white w-full max-w-7xl mx-auto rounded-lg shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 me-4">
               <Logo />
             </Link>
 
-            <div className="hidden md:flex items-center space-x-1">
+            <div className="hidden lg:flex items-center space-x-1">
               {filteredLinks.map((link, index) => (
                 <NavLink
                   key={index}
@@ -54,25 +56,28 @@ const Navbar: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-4">
+            <Link to="https://gallerie.artpay.art" className="hidden lg:block text-secondary underline underline-offset-2 whitespace-nowrap">
+              Sei una galleria?
+            </Link>
+            {!auth.isAuthenticated && (
+              <Button variant={'outlined'} className={'!hidden lg:!flex'} onClick={() => auth.login()}>Login/Registrati</Button>
+            )}
             <button
               type="button"
-              className="md:hidden p-2"
+              className="lg:hidden p-2"
               onClick={toggleMenu}
               aria-label="Toggle menu"
               aria-expanded={isMenuOpen}
             >
               <MenuIcon className="cursor-pointer" />
             </button>
-            <Link to="https://gallerie.artpay.art" className="hidden md:block text-secondary underline underline-offset-2 whitespace-nowrap">
-              Sei una galleria?
-            </Link>
           </div>
         </div>
 
         <div 
-          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
             isMenuOpen 
-              ? "max-h-48 opacity-100 mt-4" 
+              ? "max-h-68 opacity-100 mt-4" 
               : "max-h-0 opacity-0 mt-0"
           }`}
         >
@@ -81,15 +86,18 @@ const Navbar: React.FC = () => {
               <NavLink
                 key={index}
                 to={link.href}
-                className="md:px-4 py-3 rounded-lg text-tertiary hover:bg-gray-50 transition-colors"
+                className="lg:px-4 py-3 rounded-lg text-tertiary hover:bg-gray-50 transition-colors"
                 onClick={closeMenu}
               >
                 {link.label}
               </NavLink>
             ))}
-            <Link to="https://gallerie.artpay.art" className={'text-secondary mt-4 underline underline-offset-2'}>
+            <Link to="https://gallerie.artpay.art" className={'text-secondary mt-4 mb-6 underline underline-offset-2'}>
               Sei una galleria?
             </Link>
+            {!auth.isAuthenticated && (
+              <Button variant={'outlined'} className={'lg:!hidden'} onClick={() => auth.login()}>Login/Registrati</Button>
+            )}
           </div>
         </div>
       </nav>

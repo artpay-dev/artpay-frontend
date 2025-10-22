@@ -27,7 +27,7 @@ const StepProgress: React.FC<StepProgressProps> = ({
   const config = sizeConfig[size];
 
   return (
-    <div className={`bg-[#fafafb] p-6 rounded-lg flex space-x-6 ${className}`}>
+    <div className={` flex space-x-6 ${className}`}>
       {/* SVG Version */}
       <div className={`${config.circle} transform rotate-45`}>
         <svg 

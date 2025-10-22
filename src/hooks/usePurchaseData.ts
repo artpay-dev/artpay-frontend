@@ -68,15 +68,15 @@ export const usePurchaseData = (orderMode: string) => {
   const createPaymentIntent = async (resp: Order, orderMode: string) => {
     if (resp.payment_method === "bnpl" && orderMode === "redeem") {
       resp.payment_method = "";
-      return await data.createRedeemIntent({ wc_order_key: resp.order_key });
+      return await data.createRedeemIntent({ wc_order_key: resp.order_key, payment_method: resp.payment_method || 'card' });
     }
-    
+
     const intentMap: Record<string, () => Promise<PaymentIntent>> = {
-      loan: () => data.createBlockIntent({ wc_order_key: resp.order_key }),
-      redeem: () => data.createRedeemIntent({ wc_order_key: resp.order_key }),
-      default: () => data.createPaymentIntent({ wc_order_key: resp.order_key })
+      loan: () => data.createBlockIntent({ wc_order_key: resp.order_key, payment_method: resp.payment_method || 'card' }),
+      redeem: () => data.createRedeemIntent({ wc_order_key: resp.order_key, payment_method: resp.payment_method || 'card' }),
+      default: () => data.createPaymentIntent({ wc_order_key: resp.order_key, payment_method: resp.payment_method || 'card' })
     };
-    
+
     return await (intentMap[orderMode] || intentMap.default)();
   };
 

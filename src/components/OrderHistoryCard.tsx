@@ -1,58 +1,84 @@
 import React from "react";
 import OrderCard from "./OrderCard.tsx";
-import { Button } from "@mui/material";
 import { OrderStatus } from "../types/order.ts";
+import TransactionCard from "../features/directpurchase/components/transaction-card.tsx";
 
 export interface OrderHistoryCardProps {
   id: number;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   galleryName: string;
+  orderType?: string;
   formattePrice: string;
   purchaseDate: string;
+  dateCreated: string;
   purchaseMode: string;
-  waitingPayment: boolean;
+  waitingPayment?: boolean;
   imgSrc: string;
   status: OrderStatus;
   onClick?: (orderId: number) => Promise<void>;
+  expiryDate?: string;
+  customer_note?: string;
 }
 
 const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
-                                                             id,
-                                                             formattePrice,
-                                                             purchaseDate,
-                                                             purchaseMode,
-                                                             subtitle,
-                                                             title,
-                                                             imgSrc,
-                                                             onClick
-                                                           }) => {
-
+  id,
+  formattePrice,
+  purchaseDate,
+  dateCreated,
+  purchaseMode,
+  galleryName,
+  title,
+  imgSrc,
+  onClick,
+  orderType,
+  status,
+  customer_note,
+  expiryDate,
+}) => {
+  if (status != "completed")
+    return (
+      <TransactionCard
+        orderType={orderType}
+        customer_note={customer_note}
+        id={id}
+        title={title}
+        galleryName={galleryName}
+        formattePrice={formattePrice}
+        purchaseDate={purchaseDate}
+        dateCreated={dateCreated}
+        purchaseMode={purchaseMode}
+        imgSrc={imgSrc}
+        status={status}
+        expiryDate={expiryDate}
+        onClick={onClick}
+      />
+    );
 
   return (
-    <OrderCard imgSrc={imgSrc}
-               leftCta={onClick &&
-                 <Button sx={{ mt: 2, width: "100%" }} onClick={() => onClick(id)} variant="contained">
-                   Compra ora</Button>
-               }>
+    <OrderCard
+      imgSrc={imgSrc}
+      orderId={id}
+      onClick={onClick ? () => onClick(id) : undefined}>
       <div>
-        <ul className={'space-y-2'}>
-          <li>
-            <span className={'leading-[125%]'}>N. Ordine {id}</span>
+        <ul className={"space-y-2"}>
+          <li className={"flex flex-col leading-[125%]"}>
+            <span>Tipo</span>
+            <span className={" text-secondary"}>{orderType}</span>
           </li>
-          <li className={'flex flex-col leading-[125%]'}>
+          <li className={"flex flex-col leading-[125%]"}>
             <span>Data dell'ordine</span>
-            <span className={' text-secondary'}>{purchaseDate}</span>
+            <span className={" text-secondary"}>{purchaseDate}</span>
           </li>
-          <li className={'flex flex-col leading-[125%]'}>
+          <li className={"flex flex-col leading-[125%]"}>
             <span>Metodo di pagamento</span>
-            <span className={' text-secondary'}>{purchaseMode}</span>
+            <span className={" text-secondary"}>{purchaseMode}</span>
           </li>
-          <li className={'flex flex-col leading-[125%]'}>
+          <li className={"flex flex-col leading-[125%]"}>
             <span>{title}</span>
-            <span className={' text-secondary'}>{subtitle}</span>
+            <span className={" text-secondary"}>{galleryName}</span>
           </li>
-          <li className={'leading-[125%] text-2xl'}>
+          <li className={"leading-[125%] text-2xl"}>
             <span>{formattePrice}</span>
           </li>
         </ul>

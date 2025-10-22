@@ -95,13 +95,13 @@ const Footer: React.FC<FooterProps> = ({}) => {
           </Typography>
           <Box display="flex" flexDirection="column" my={1} gap={1}>
             <Typography variant="body1">
-              <a className="link" href="https://artpay.art/artpay-per-gallerie">ArtPay per gallerie</a>
+              <a className="link" href="https://gallerie.artpay.art/">artpay per gallerie</a>
             </Typography>
             <Typography variant="body1">
-              <a className="link" href="https://artpay.art/artpay-per-collezionisti/">ArtPay per collezionisti</a>
+              <Link className="link" href="/artpay-per-collezionisti/">artpay per collezionisti</Link>
             </Typography>
             <Typography variant="body1">
-              <a className="link" href="/faq">FAQ</a>
+              <Link className="link" href="/faq">FAQ</Link>
             </Typography>
           </Box>
         </Grid>
@@ -140,7 +140,7 @@ const Footer: React.FC<FooterProps> = ({}) => {
         </Grid>
         <Grid xs={12} item><Divider sx={{ width: "100%", borderColor: "#CDCFD3", my: 2 }} /> </Grid>
         <Grid xs={12} item>
-          <Typography variant="body2" color="textSecondary">Artpay S.R.L. Via Carloforte, 60, 09123, Cagliari Partita
+          <Typography variant="body2" color="textSecondary">artpay S.R.L. Via Carloforte, 60, 09123, Cagliari Partita
             IVA 04065160923</Typography>
         </Grid>
       </Grid>

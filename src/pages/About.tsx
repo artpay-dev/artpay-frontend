@@ -36,23 +36,23 @@ const About: React.FC<AboutProps> = ({}) => {
     mainTitle: "Con Artpay l’arte è per tutti",
     description: (
       <>
-        Artpay è una start-up innovativa, fondata da un team di appassionati di arte ed esperti di tecnologia nel 2023.
-        Il nostro obiettivo è far incontrare online la domanda e l’offerta d’arte, rendendo la vendita (e l’acquisto) di
-        opere più facile, veloce, sicuro e accessibile.
+        artpay è la prima start-up fintech dedicata alla compravendita di
+        arte contemporanea e oggetti da collezionismo, fondata in Italia
+        nel 2023 e premiata agli HTSI Luxury Start Up Award 2025 del Sole
+        24 Ore nella categoria Startup globale.
         <br />
         <br />
-        Artpay permette alle gallerie più autorevoli di offrire in vendita online le proprie opere a un pubblico vasto
-        di appassionati d’arte che possono acquistare le opere di loro interesse in modo diretto attraverso i principali
-        strumenti di pagamento messi a disposizione dalla piattaforma o attraverso strumenti finanziari che abilitano
-        l’acquisto a rate, erogati da partner selezionati da Artpay.
+        artpay soddisfa i bisogni del mercato contemporaneo del
+        collezionismo: offre un marketplace dove i collezionisti navigano
+        tra le opere delle Gallerie scegliendo le modalità di pagamento più
+        comode per loro e dove le Gallerie e le Case d'Asta allargano la
+        loro platea avvicinando i nuovi collezionisti di oggi e di domani.
         <br />
         <br />
-        La possibilità di poter acquistare opere attraverso strumenti finanziari rateali allarga in modo significativo
-        la base di utenti, portando l’arte ben oltre i consueti circuiti del collezionismo, verso un pubblico più ampio,
-        giovane e diversificato.
-        <br />
-        <br />
-        Rivoluziona il mercato dell’arte con noi!
+        artpay è l'ambiente digitale che integra tutti i protagonisti della
+        compravendita d'arte e oggetti da collezionismo in un'unica
+        piattaforma, facile da usare, coinvolgente e sicura al 100%.
+
       </>
     ),
     buttonText: "Entra nel mondo di artpay",
@@ -71,7 +71,7 @@ const About: React.FC<AboutProps> = ({}) => {
   return (
     <DefaultLayout
       pb={3}
-      hasNavBar={false}
+      hasNavBar={auth.isAuthenticated}
       pageLoading={!ready}
       topBar={<HeroAbout {...heroContent} buttonAction={auth.isAuthenticated ? undefined : () => auth.login()} />}
       >
@@ -81,21 +81,27 @@ const About: React.FC<AboutProps> = ({}) => {
         </Grid>
         <Grid xs={12} sm={8} lg={7} item>
           <Typography variant="h2">
-            La nostra missione è rendere l'arte accessibile a tutti, trasformando radicalmente il modo in cui le opere
-            d'arte vengono scoperte, acquisite e apprezzate.
+            La nostra missione è rendere l'arte accessibile a tutti, trasformando radicalmente il modo in cui le opere d'arte vengono scoperte, acquistate e apprezzate.
             <br />
             <br />
-            Con Artpay, vogliamo connettere gallerie di fama mondiale, artisti emergenti e collezionisti ed
-            appassionati, creando un ecosistema innovativo che celebra la diversità e l'unicità dell'arte contemporanea.
+            Con artpay connettiamo Gallerie affermate
+            ed emergenti, artisti, collezionisti e
+            appassionati, creando un ecosistema
+            innovativo che celebra l'inclusività e
+            l'unicità dell'arte contemporanea.
             <br />
             <br />
-            Siamo impegnati a fornire un'esperienza senza pari, dove la tecnologia incontra la creatività per ispirare e
-            contribuire a trasformare il mercato dell'arte.
-          </Typography>
-          <Typography sx={{ mt: 6 }} variant="h4">
-            Con il nostro approccio innovativo che offre anche sistemi di pagamento rateale integrati nella piattaforma,
-            vogliamo abbattere le barriere finanziarie e consentire a chiunque, sia che desideri godersi un'opera per il
-            puro piacere estetico che per investimento, di poter realizzare i propri sogni senza compromessi.
+            Forniamo un'esperienza d'acquisto facile
+            e coinvolgente, dove la tecnologia
+            incontra la creatività per ispirare e
+            contribuire a trasformare il mercato
+            dell'arte.
+            <br />
+            <br />
+            artpay è innovazione, inclusività,
+            ontemporaneità: avviciniamo i collezionisti
+            di domani alle Gallerie, rendendo più semplice
+            l'acquisto di opere d'arte e oggetti da collezione.
           </Typography>
         </Grid>
       </Grid>
@@ -122,36 +128,45 @@ const About: React.FC<AboutProps> = ({}) => {
       {/*<OnboardingCards sx={{ my: 8 }} />*/}
       <Grid sx={{ px: px , ...centeredGridSx, maxWidth: 'xl'}} my={12} container>
         <Grid xs={12} mb={{ xs: 4, md: 6 }} item>
-          <Typography variant="display3">Artpay in persona</Typography>
+          <Typography variant="display3">Noi siamo artpay</Typography>
         </Grid>
         <Grid xs={12} md={6} item sx={{maxWidth: 'xl'}}>
           <Typography
             sx={{ maxWidth: { xs: undefined, md: "506px" }, pr: { xs: undefined, md: 6, lg: 0 } }}
             variant="h4">
-            Artpay è partner di primari istituti bancari come Santander ed è un progetto innovativo,
-            cresciuto all’interno di The Net Value, primo incubatore certificato di startup innovative in Sardegna. La
-            start up è stata selezionata nel 2024 per la partecipazione a “SIOS Sardinia 2024”, l’open summit dedicato
-            alle start up italiane.
+            Nata nel 2023 e supportata dall'incubatore
+            certificato The Net Value di Cagliari, premiata
+            come Best Luxury Startup Global da HTSI / Il Sole
+            24 Ore nel 2024, inserita tra le 100 startup più
+            innovative da Startupltalia: artpay è partner di
+            primari istituti bancari e finanziari e collabora
+            con Gallerie e Case d'Asta di rilevanza nazionale.
           </Typography>
         </Grid>
         <Grid xs={12} md={6} item>
           <Typography sx={{ mt: { xs: 3, md: 0 }, maxWidth: { xs: undefined, md: "400px" } }} variant="subtitle1">
-            Artpay è fondata e diretta da Luca Pineider, appassionato di arte e design, imprenditore, da oltre 20 anni
-            nel campo della comunicazione e nel digital. Titolare dell’agenzia di comunicazione Saganaki, ha seguito nel
-            tempo importanti progetti legati al mondo dell’arte e del web (tra cui Artissima, Luci d’Artista, Giulio
-            Paolini, Fondazione Torino Musei, Reggia di Venaria) e guida un team con al suo attivo molteplici esperienze
-            e progetti in ambito marketing & comunicazione, media e sviluppo tecnologico per primari clienti nazionali e
-            multinazionali.
+            artpay è fondata e diretta da Luca Pineider,
+            appassionato di arte e design, imprenditore, da oltre
+            20 anni nel campo della comunicazione e nel digital.
           </Typography>
           <Typography sx={{ mt: { xs: 3, md: 6 }, maxWidth: { xs: undefined, md: "400px" } }} variant="subtitle1">
-            Il team di Artpay è composto da più di 10 professionisti, che curano gli aspetti tecnologici, contenutistici
-            e manageriali della piattaforma.
+            Luca ha seguito nel tempo importanti progetti legati
+            al mondo dell'arte e del web (tra cui Artissima, Luci
+            d'Artista, Giulio Paolini, Fondazione Torino Musei,
+            Reggia di Venaria) e ha al suo attivo molteplici
+            esperienze e progetti in ambito marketing e
+            comunicazione, media e sviluppo tecnologico.
+          </Typography>
+          <Typography sx={{ mt: { xs: 3, md: 6 }, maxWidth: { xs: undefined, md: "400px" } }} variant="subtitle1">
+            Il team di artpay è composto da più di 10
+            professionisti, che curano gli aspetti tecnologici,
+            contenutistici e manageriali della piattaforma.
           </Typography>
         </Grid>
       </Grid>
       <Box sx={{ px: px, ...centeredGridSx, maxWidth: 'xl' }}>
         <NewsletterBig />
-        <EmailContactBox />
+        <EmailContactBox title={'Entra in contatto con artpay!'}/>
       </Box>
     </DefaultLayout>
   );

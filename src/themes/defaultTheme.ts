@@ -496,8 +496,9 @@ const defaultTheme: Theme = createTheme({
       styleOverrides: {
         root: {
           boxShadow: "none",
+          borderColor: "#E2E6FC",
           "&::before": {
-            backgroundColor: "black"
+            backgroundColor: "#E2E6FC"
           },
           "&.Mui-expanded::before": {
             opacity: 1

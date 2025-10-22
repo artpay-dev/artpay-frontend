@@ -45,6 +45,7 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
 
 
         setPaymentData({
+          order: updateOrder,
           paymentMethod: "klarna",
           paymentIntent: updatePayment
         });
@@ -66,7 +67,7 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
     }
 
     try {
-      const createPayment = await data.createPaymentIntentCds({ wc_order_key: order?.order_key });
+      const createPayment = await data.createPaymentIntentCds({ wc_order_key: order?.order_key, payment_method: 'klarna' });
       if (!createPayment) throw new Error("Errore nella creazione del payment intent");
       console.log("Primo payment intent creato", createPayment);
 

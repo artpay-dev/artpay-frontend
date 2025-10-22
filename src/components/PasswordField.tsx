@@ -12,8 +12,7 @@ export interface PasswordFieldProps {
   defaultVisible?: boolean;
 }
 
-const PasswordField: React.FC<TextFieldProps & PasswordFieldProps> =
-  React.forwardRef(
+const PasswordField = React.forwardRef<HTMLDivElement, TextFieldProps & PasswordFieldProps>(
     ({ InputProps = {}, defaultVisible = false, ...props }, ref) => {
       const [visible, setVisible] = useState(defaultVisible);
       InputProps.endAdornment = (

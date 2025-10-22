@@ -25,6 +25,8 @@
 
     --animate-fade-in-scale: fade-in-scale 2500ms ease-out forwards;
 
+    --spacing-30: 7.5rem;
+
     @keyframes fade-in-scale {
         0% {
             opacity: 0;
@@ -70,7 +72,13 @@
 }
 
 .artpay-button-style {
-    @apply disabled:cursor-not-allowed w-full max-w-md rounded-[28px] py-3.5 px-5 flex items-center justify-center gap-2 cursor-pointer transition-all;
+    @apply disabled:cursor-not-allowed w-full rounded-[28px] py-2 px-5 flex items-center justify-center gap-2 cursor-pointer transition-all;
+}
+
+
+#payment-element {
+    border: none !important;
+    background: transparent;
 }
 
 html {

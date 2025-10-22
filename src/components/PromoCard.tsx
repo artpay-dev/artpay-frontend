@@ -7,13 +7,15 @@ export interface PromoCardProps {
   variant?: "standard" | "contrast";
   titleVariant?: TypographyProps["variant"];
   border?: boolean;
+  titleWidth?: string
 }
 
 const PromoCard: React.FC<PromoCardProps> = ({
                                                title,
                                                children,
                                                variant = "standard",
-                                               titleVariant = "display3"
+                                               titleVariant = "display3",
+                                               titleWidth = ""
                                              }) => {
   const theme = useTheme();
 
@@ -35,7 +37,7 @@ const PromoCard: React.FC<PromoCardProps> = ({
         px: { xs: 4, md: 6, lg: 13 }
       }}>
       <Typography
-        sx={{ flexGrow: 1, pr: { xs: 0, md: 3, lg: 3, xl: 8 }, pl: { xs: 0, md: 0, lg: 3 } }}
+        sx={{ flexGrow: 1, pr: { xs: 0, md: 3, lg: 3, xl: 8 }, pl: { xs: 0, md: 0, lg: 3 }, maxWidth: titleWidth ? titleWidth : "none"}}
         color={variant === "contrast" ? theme.palette.primary.contrastText : undefined}
         variant={titleVariant}>
         {title}

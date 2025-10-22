@@ -14,12 +14,15 @@ const EmailContactBox: React.FC<EmailContactBoxProps> = ({ title = "Vuoi entrare
   return (<Box sx={{ position: "relative", pb: { xs: 0, sm: 12 } }} px={px} my={12}>
     <Typography variant="display3" sx={{ maxWidth: "612px" }}>{title} </Typography>
     <Typography sx={{ mt: 6, maxWidth: "294px" }} color="textSecondary" variant="subtitle1">
-      Contattaci per qualsiasi domanda o richiesta! Puoi scriverci direttamente via email.
+      Contattaci per qualsiasi domanda
+      o richiesta! Puoi scriverci direttamente
+      via e-mail.
     </Typography>
-    <Button sx={{ mt: 3 }} href="mailto:hello@artpay.art" variant="contained">Scrivi a hello@artpay.art</Button>
+    <Button sx={{ mt: 3 }} href="mailto:hello@artpay.art" variant="outlined">Scrivi a hello@artpay.art</Button>
     <Box sx={{
       position: "absolute",
       bottom: "-64px",
+      zIndex: -1,
       right: { xs: "-160px", md: "-80px", lg: 0 },
       display: { xs: "none", sm: "block" }
     }}>

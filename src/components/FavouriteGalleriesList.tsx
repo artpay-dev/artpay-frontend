@@ -55,13 +55,16 @@ const FavouriteGalleriesList : React.FC = () => {
     });
   }, [data]);
 
+  if (favouriteGalleries.length === 0) return <></>;
+
   return (
     <Box sx={{ width: "100%" }}>
 
       {ready ? (
+        favouriteGalleries.length > 0 && (
           <>
             <div className={"flex justify-between pe-8 md:pe-0 mb-12"}>
-              <h3 className={"ps-8 md:px-0 text-3xl leading-[105%] font-normal max-w-lg text-balance"}>Shop seguiti</h3>
+              <h3 className={"ps-8 md:px-0 text-3xl leading-[105%] font-normal max-w-lg text-balance"}>Gallerie seguite</h3>
               <NavLink
                 to={"/profile/seguiti"}
                 className={
@@ -72,6 +75,7 @@ const FavouriteGalleriesList : React.FC = () => {
             </div>
             <GalleriesList disablePadding items={favouriteGalleries} emptyText={emptyText} />
           </>
+        )
       ) : (
         <>
           <div className={"flex justify-between pe-8 md:pe-0"}>
