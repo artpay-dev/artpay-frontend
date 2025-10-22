@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import {
+  Autocomplete,
   TextField,
   Button,
   FormControl,
@@ -9,37 +10,44 @@ import {
   MenuItem,
   Grid,
   FormHelperText,
-  RadioGroup
+  RadioGroup,
 } from "@mui/material";
 import countries from "../countries";
 import { BaseUserData, BillingData, ShippingData } from "../types/user.ts";
 import RadioButton from "./RadioButton.tsx";
 import Checkbox from "./Checkbox.tsx";
+import comuni_italiani from "../comuni.json";
+
+const province_italiane = [...new Set(comuni_italiani.map(comune => comune.provincia.nome))]
 
 export interface UserDataFormProps {
   defaultValues?: BillingData;
   shippingData?: ShippingData;
+  isOnlyCDS?: boolean;
   onSubmit?: (formData: BillingData) => Promise<void>;
   disabled?: boolean;
+  className?: string;
 }
 
 const BillingDataForm: React.FC<UserDataFormProps> = ({
-                                                        defaultValues,
-                                                        shippingData = {},
-                                                        onSubmit,
-                                                        disabled = false
-                                                      }) => {
+  defaultValues,
+  shippingData,
+  isOnlyCDS = false,
+  onSubmit,
+  disabled = false,
+  className = ''
+}) => {
   const {
     control,
     handleSubmit,
     watch,
     setValue,
-    formState: { errors, disabled: formDisabled }
+    formState: { errors, disabled: formDisabled },
   } = useForm<BillingData>({
     defaultValues: {
       ...defaultValues,
-      country: defaultValues?.country || "IT"
-    }
+      country: defaultValues?.country || "IT",
+    },
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -47,6 +55,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
   const sameAsShipping = watch("same_as_shipping");
 
   const handleCopyShippingData = (checked: boolean) => {
+    if (!shippingData) return;
     if (checked) {
       setIsSaving(true);
       Object.keys(shippingData).forEach((key: string) => {
@@ -61,6 +70,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
     if (onSubmit) {
       setIsSaving(true);
       onSubmit(data).then(() => {
+        console.log(data);
         setIsSaving(false);
       });
     }
@@ -73,7 +83,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
     <form onSubmit={handleSubmit(handleFormSubmit)}>
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <FormControl fullWidth error={!!errors.private_customer}>
+          <FormControl fullWidth error={!!errors.private_customer} className={className}>
             <Controller
               name="private_customer"
               control={control}
@@ -191,14 +201,25 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
             control={control}
             rules={{ required: "Città richiesta" }}
             render={({ field }) => (
-              <TextField
-                disabled={isDisabled}
-                label="Città*"
-                variant="outlined"
-                fullWidth
-                {...field}
-                error={!!errors.city}
-                helperText={errors.city?.message}
+              <Autocomplete
+                options={comuni_italiani}
+                getOptionLabel={(option) => option.nome}
+                isOptionEqualToValue={(option, value) => option.nome === value.nome}
+                onChange={(_, selectedOption) =>
+                  field.onChange(selectedOption ? selectedOption.nome : "")
+                }
+                value={
+                  comuni_italiani.find((comune) => comune.nome === field.value) || null
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Città*"
+                    variant="outlined"
+                    error={!!errors.city}
+                    helperText={errors.city?.message}
+                  />
+                )}
               />
             )}
           />
@@ -231,12 +252,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
               control={control}
               rules={{ required: "Paese richiesto" }}
               render={({ field }) => (
-                <Select
-                  disabled={isDisabled}
-                  labelId="country-label"
-                  defaultValue="IT"
-                  label="Paese"
-                  {...field}>
+                <Select disabled={isDisabled} labelId="country-label" defaultValue="IT" label="Paese" {...field}>
                   {countries.map((country) => (
                     <MenuItem value={country.code} key={country.code}>
                       {country.name}
@@ -255,14 +271,21 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
             control={control}
             rules={{ required: "Provincia richiesta" }}
             render={({ field }) => (
-              <TextField
-                disabled={isDisabled}
-                label="Provincia*"
-                variant="outlined"
-                fullWidth
-                {...field}
-                error={!!errors.state}
-                helperText={errors.state?.message}
+              <Autocomplete
+                options={province_italiane}
+                getOptionLabel={(option) => option}
+                isOptionEqualToValue={(option, value) => option === value}
+                onChange={(_, value) => field.onChange(value || "")}
+                value={field.value || null}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Provincia*"
+                    variant="outlined"
+                    error={!!errors.state}
+                    helperText={errors.state?.message}
+                  />
+                )}
               />
             )}
           />
@@ -327,7 +350,7 @@ const BillingDataForm: React.FC<UserDataFormProps> = ({
             </Grid>
           </>
         )}
-        {isPrivateCustomer && (
+        {isPrivateCustomer && !isOnlyCDS && (
           <>
             <Grid item xs={12}>
               <FormControl fullWidth error={!!errors.private_customer}>

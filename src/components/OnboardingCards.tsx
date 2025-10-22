@@ -23,16 +23,21 @@ const OnboardingCards: React.FC<OnboardingCardsProps> = ({ sx = {} }) => {
       spacing={0}
       container>
       <OnboardingCard
-        title="Potenzia la tua galleria con ArtPay."
+        title="Sei un Gallerista?"
         subtitle={
           <>
-            Crea il tuo e-shop personalizzato e offri ai clienti diverse opzioni di pagamento rateale in un'unica piattaforma. Una soluzione completa per far crescere il tuo business nell'arte.
+            Crea il tuo e-shop personalizzato
+            e offri ai tuoi Clienti diverse
+            opzioni di pagamento rateale
+            in un'unica piattaforma: loro
+            pagheranno a rate, tu incassi
+            subito l'intero importo.
           </>
         }
         ctaVariant={isMobile ? 'contained' : 'outlined'}
-        ctaText="Scopri ArtPay e iscriviti ora"
+        ctaText="Vai al sito dedicato alle Gallerie"
         sx={{ pr: { xs: 0, md: 1.5 } }}
-        onClick={() => navigate("/artpay-per-gallerie")}
+        onClick={() => window.location.href = "https://gallerie.artpay.art/"}
         background={bgOnboardingGallery}
       />
 
@@ -40,8 +45,13 @@ const OnboardingCards: React.FC<OnboardingCardsProps> = ({ sx = {} }) => {
         title="Sei un collezionista?"
         subtitle={
           <>
-            Accedi a opere uniche curate dai migliori galleristi. Scopri le opere dei tuoi artisti preferiti e acquista
-            direttamente o con piani rateali. La tua collezione inizia qui! Iscriviti ora!
+            Naviga nella tua Galleria, scopri
+            opere d'arte contemporanea di
+            autori affermati ed emergenti,
+            prenota l'opera che ti piace
+            oppure acquistala subito
+            scegliendo la frequenza di
+            pagamento più comoda per te!
           </>
         }
         ctaVariant={isMobile ? 'contained' : 'outlined'}

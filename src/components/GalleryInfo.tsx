@@ -10,9 +10,9 @@ export interface GalleryInfoProps {
 }
 
 const GalleryInfo: React.FC<GalleryInfoProps> = ({ description, contacts }) => {
-
+  console.log("GalleryInfo", contacts);
   return <Grid container>
-    <Grid xs={12} md={6} display="flex" flexDirection="column" alignItems="center" item>
+    <Grid xs={12} md={6} display="flex" flexDirection="column" alignItems="center" paddingInline={4} item>
       <Typography variant="body1" color="textSecondary"
                   sx={{ mb: 1, maxWidth: { xs: undefined, md: "400px" }, width: "100%" }}>
         About
@@ -29,12 +29,16 @@ const GalleryInfo: React.FC<GalleryInfoProps> = ({ description, contacts }) => {
         </Typography>
       )}
     </Grid>
-    <Grid xs={12} md={6} mt={{ xs: 3, md: 0 }} display="flex" flexDirection="column" alignItems="center" item>
-      <Typography variant="body1" color="textSecondary"
-                  sx={{ mb: 1, maxWidth: { xs: undefined, md: "400px" }, width: "100%" }}>
-        Indirizzo
-      </Typography>
-      {contacts && <GalleryContacts {...contacts} sx={{ pt: 0 }} />}
+    <Grid xs={12} md={6} mt={{ xs: 3, md: 0 }} sx={{px:4}} display="flex" flexDirection="column" alignItems="center" item>
+      {contacts && contacts.address.trim() != "" && (
+        <>
+          <Typography variant="body1" color="textSecondary"
+                      sx={{ mb: 1, maxWidth: { xs: undefined, md: "400px" }, width: "100%" }}>
+            Indirizzo
+          </Typography>
+          <GalleryContacts {...contacts} sx={{ pt: 0 }} />
+        </>
+      )}
     </Grid>
   </Grid>;
 };

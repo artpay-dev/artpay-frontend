@@ -27,8 +27,10 @@ const DisplayImage: React.FC<DisplayImageProps> = ({
         ...sx,
         //height: height || "auto",
         maxHeight: height || "auto",
+        minHeight: height || "auto",
         //width: width || "auto",
         maxWidth: width || "auto",
+        minWidth: width || "auto",
         cursor: onClick ? "pointer" : undefined,
         //background: "rgba(0,0,0,0.2)",
         flexShrink: 0,
@@ -38,8 +40,10 @@ const DisplayImage: React.FC<DisplayImageProps> = ({
       <img
         style={{
           maxHeight: height || "auto",
+          minHeight: height || "auto",
           maxWidth: width || "auto",
           cursor: onClick ? "pointer" : "auto",
+          minWidth: width || "auto",
           objectFit: objectFit,
           borderRadius: borderRadius
         }}

@@ -26,6 +26,9 @@ export type OrderUpdateRequest = {
   customer_note?: string;
   payment_method?: string;
   payment_method_title?: string;
+  needs_payment?: boolean;
+  needs_processing?: boolean;
+  status?: string;
   billing?: BillingData;
   shipping?: ShippingData;
   shipping_lines?: ShippingLineUpdateRequest[];

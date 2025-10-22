@@ -25,7 +25,7 @@ const ContentPage: React.FC<ContentPageProps> = ({ slug }) => {
   }, [data, slug]);
 
   return (
-    <DefaultLayout pb={3} pageLoading={!ready}>
+    <DefaultLayout pb={3} pageLoading={!ready} hasNavBar={false}>
       <Box sx={{ pt: { xs: 8, sm: 12, md: 16 }, pb: 6, px: { xs: 3, md: 10, lg: 14 } }}>
         <Typography variant="h1">{pageContent?.title?.rendered || ""}</Typography>
         <Box

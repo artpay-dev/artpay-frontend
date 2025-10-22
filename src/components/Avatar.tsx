@@ -1,6 +1,5 @@
 import React from "react";
 import { Box } from "@mui/material";
-import AvatarCircleText from "./AvatarCircleText.tsx";
 
 export interface AvatarProps {
   src?: string;
@@ -16,10 +15,14 @@ const Avatar: React.FC<AvatarProps> = ({ src, firstName, lastName, username }) =
   }
   if (!src) {
 
-    return <AvatarCircleText size="xl" text={initials} />;
+    return (
+      <Box sx={{ height: "106px", width: "106px", borderRadius: "5px", overflow: "hidden" }} className={'bg-primary flex items-center justify-center'}>
+        <span className={'text-white text-6xl font-light'}>{initials}</span>
+      </Box>
+    )
   }
   return (
-    <Box sx={{ height: "150px", width: "150px", borderRadius: "5px", backgroundColor: "#D9D9D9", overflow: "hidden" }}>
+    <Box sx={{ height: "106px", width: "106px", borderRadius: "5px", backgroundColor: "#D9D9D9", overflow: "hidden" }}>
       <img style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center" }} src={src} />
     </Box>
   );

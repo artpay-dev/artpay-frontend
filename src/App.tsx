@@ -15,7 +15,6 @@ import DialogProvider from "./hoc/DialogProvider.tsx";
 import SnackbarProvider from "./hoc/SnackbarProvider.tsx";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import ProfileSettings from "./pages/ProfileSettings.tsx";
 import PaymentProvider from "./hoc/PaymentProvider.tsx";
 import PurchaseComplete from "./pages/PurchaseComplete.tsx";
 import About from "./pages/About.tsx";
@@ -30,13 +29,25 @@ import ReactGA from "react-ga4";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useEffect } from "react";
 import Error from "./pages/Error.tsx";
-import GalleryOnboarding from "./pages/GalleryOnboarding.tsx";
+//import GalleryOnboarding from "./pages/GalleryOnboarding.tsx";
 import CustomerOnboarding from "./pages/CustomerOnboarding.tsx";
 import ArtworkReserved from "./pages/ArtworkReserved.tsx";
 import Contacts from "./pages/Contacts.tsx";
 import Messages from "./pages/Messages.tsx";
 import Galleries from "./pages/Galleries.tsx";
 import LandingPage from "./pages/LandingPage.tsx";
+import LandingForCampaignPage from "./pages/LandingForCampaignPage.tsx";
+import CdsPaymentsPage from "./pages/CdsPaymentsPage.tsx";
+import PaymentDraw from "./features/cdspayments/components/ui/paymentdraw/PaymentDraw.tsx";
+import { useScrollToTop } from "./utils.ts";
+import Tutorials from "./pages/Tutorials.tsx";
+import SinglePostPage from "./pages/SinglePostPage.tsx";
+import DashboardPage from "./pages/DashboardPage.tsx";
+import PersonalSettingsPage from "./pages/PersonalSettingsPage.tsx";
+import ShippingSettingsPage from "./pages/ShippingSettingsPage.tsx";
+import FollowedGalleriesPage from "./pages/FollowedGalleriesPage.tsx";
+import FavoritesArtworksPage from "./pages/FavoritesArtworksPage.tsx";
+import HistoryOrdersPage from "./pages/HistoryOrdersPage.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -62,9 +73,11 @@ function AppContent() {
           <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
             <AuthProvider baseUrl={baseUrl}>
               <DataProvider baseUrl={baseUrl}>
+                <PaymentDraw />
                 <PaymentProvider>
                   <Routes>
                     <Route path="/" element={<Home />} />
+                    <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/showcase" element={<Showcase />} />
                     <Route path="/gallerie" element={<Galleries />} />
                     <Route path="/landing" element={<LandingPage />} />
@@ -78,13 +91,20 @@ function AppContent() {
                     <Route path="/artisti" element={<Artists />} />
                     <Route path="/tutte-le-opere" element={<Artworks />} />
                     <Route path="/acquisto" element={<Purchase />} />
-                    <Route path="/acquisto-esterno" element={<Purchase orderMode="onHold"/>} />
+                    <Route path="/acquisto-esterno" >
+                      <Route element={<CdsPaymentsPage />} index />
+                    </Route>
                     <Route path="/completa-acquisto/:order_id" element={<Purchase orderMode="redeem" />} />
+                    <Route path={"/guide"} element={<Tutorials />} />
+                    <Route path="/guide/:slug" element={<SinglePostPage />} />
                     <Route path="/acconto-blocca-opera" element={<Purchase orderMode="loan" />} />
                     <Route path="/opera-bloccata/:slug_opera" element={<ArtworkReserved />} />
                     <Route path="/profile" element={<Profile />} />
-                    <Route path="/profile/settings" element={<ProfileSettings />} />
-                    <Route path="/profile/:slug" element={<Profile />} />
+                    <Route path="/profile/seguiti" element={<FollowedGalleriesPage />} />
+                    <Route path="/profile/opere-preferite" element={<FavoritesArtworksPage />} />
+                    <Route path="/profile/personal-settings" element={<PersonalSettingsPage />} />
+                    <Route path="/profile/history-orders" element={<HistoryOrdersPage />} />
+                    <Route path="/profile/shipping-invoice-settings" element={<ShippingSettingsPage />} />
                     <Route path="/thank-you-page" element={<PurchaseComplete />} />
                     <Route path="/thank-you-page/:order_id" element={<PurchaseComplete />} />
                     <Route path="/chi-siamo" element={<About />} />
@@ -106,11 +126,12 @@ function AppContent() {
                       element={<ContentPage slug="condizioni-generali-di-acquisto" />}
                     />
                     <Route path="/artpay-per-collezionisti" element={<CustomerOnboarding />} />
-                    <Route path="/artpay-per-gallerie" element={<GalleryOnboarding />} />
+                    {/*<Route path="/artpay-per-gallerie" element={<GalleryOnboarding />} />*/}
                     <Route path="/contatti" element={<Contacts />} />
-                    <Route path="/messaggi" element={<Messages />} />
+                    <Route path="/profile/messaggi" element={<Messages />} />
                     <Route path="/errore/:code" element={<Error />} />
                     <Route path="/errore" element={<Error />} />
+                    <Route path={"/gallerie-the-others"} element={<LandingForCampaignPage />} />
                   </Routes>
                 </PaymentProvider>
               </DataProvider>
@@ -129,6 +150,7 @@ const App = () => {
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
         <BrowserRouter>
+          <ScrollWrapper />
           <AppContent />
         </BrowserRouter>
       </ThemeProvider>
@@ -137,3 +159,9 @@ const App = () => {
 };
 
 export default App;
+
+
+function ScrollWrapper() {
+  useScrollToTop()
+  return null;
+}

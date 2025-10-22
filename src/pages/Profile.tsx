@@ -1,44 +1,27 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
-import { Box, Button, Tab } from "@mui/material";
 import { useData } from "../hoc/DataProvider.tsx";
 import { UserProfile } from "../types/user.ts";
-import ResponsiveTabs from "../components/ResponsiveTabs.tsx";
-import TabPanel from "../components/TabPanel.tsx";
-import FavouriteArtworks from "../components/FavouriteArtworks.tsx";
-import FavouriteArtists from "../components/FavouriteArtists.tsx";
-import FavouriteGalleries from "../components/FavouriteGalleries.tsx";
 import ProfileHeader from "../components/ProfileHeader.tsx";
-import { getDefaultPaddingX, useNavigate } from "../utils.ts";
 import { useAuth } from "../hoc/AuthProvider.tsx";
+import ProfileSettings from "../components/ProfileSettings.tsx";
 import OrdersHistory from "../components/OrdersHistory.tsx";
-import { useParams } from "react-router-dom";
+import ProfileSettingsSkeleton from "../components/ProfileSettingsSkeleton.tsx";
+import StepProgress from "../components/StepProgress.tsx";
 
 export interface ProfileProps {
 }
 
-const subPageSlugs = ["gallerie", "artisti", "opere-preferite", "opere-bloccate", "opere-acquistate", "messaggi"];
 const Profile: React.FC<ProfileProps> = ({}) => {
   const data = useData();
   const auth = useAuth();
-  const navigate = useNavigate();
-  const urlParams = useParams();
-
-  const selectedTab = subPageSlugs.indexOf(urlParams?.slug || "") !== -1 ? subPageSlugs.indexOf(urlParams?.slug || "") : 0;
-  const [selectedTabPanel, setSelectedTabPanel] = useState(selectedTab);
+  
   const [isReady, setIsReady] = useState(false);
   const [profile, setProfile] = useState<UserProfile>();
 
-  const handleProfileSettings = () => {
-    navigate("/profile/settings");
-  };
-
-  const handleLogout = async () => {
-    await auth.logout();
-    navigate("/");
-  };
-
-  const px = getDefaultPaddingX();
+  if (!auth.isAuthenticated) {
+    auth.login()
+  }
 
   useEffect(() => {
     data.getUserProfile().then((resp) => {
@@ -46,60 +29,38 @@ const Profile: React.FC<ProfileProps> = ({}) => {
       setIsReady(true);
     });
   }, [data]);
+
+  // Calculate completion steps based on profile data
+  const calculateCompletionSteps = (profile: UserProfile | undefined): number => {
+    if (!profile) return 1;
+    
+    let completedSteps = 1; // Base step (profile exists)
+    
+    if (profile.billing) completedSteps++;
+    if (profile.shipping) completedSteps++;
+    if (profile.avatar_url) completedSteps++;
+    
+    return completedSteps;
+  };
   return (
-    <DefaultLayout pageLoading={!isReady} authRequired>
+    <DefaultLayout authRequired>
+      <section className={'pt-35 md:pt-0 space-y-6 mb-24 px-3 md:px-0'}>
       <ProfileHeader
         profile={profile}
-        controls={[
-          <Button key="settings-btn" onClick={() => handleProfileSettings()} variant="outlined">
-            Impostazioni profilo
-          </Button>,
-          <Button key="logout-btn" color="error" onClick={() => handleLogout()}>
-            Logout
-          </Button>
-        ]}
       />
-      <Box px={{ ...px, xs: 0, sm: 0 }}>
-        <Box
-          sx={{
-            borderBottom: 1,
-            borderColor: "#CDCFD3",
-            mt: { xs: 3, md: 6 }
-          }}>
-          <ResponsiveTabs
-            breakpoint="md"
-            value={selectedTabPanel}
-            onChange={(_, newValue) => {
-              window.history.replaceState(null, "", `/profile/${subPageSlugs[newValue]}`);
-              setSelectedTabPanel(newValue);
-            }}>
-            {/*gallerie-artisti-oepre-bloccate-acquistate*/}
-            <Tab label="Gallerie seguite" />
-            <Tab label="Artisti seguiti" />
-            <Tab label="Opere preferite" />
-            <Tab label="Opere bloccate" />
-            <Tab label="Opere acquistate" />
-            <Tab label="Messaggi" onClick={() => navigate("/messaggi")} />
-          </ResponsiveTabs>
-        </Box>
-      </Box>
-      <Box>
-        <TabPanel value={selectedTabPanel} index={0}>
-          <FavouriteGalleries />
-        </TabPanel>
-        <TabPanel value={selectedTabPanel} index={1}>
-          <FavouriteArtists />
-        </TabPanel>
-        <TabPanel value={selectedTabPanel} index={2}>
-          <FavouriteArtworks />
-        </TabPanel>
-        <TabPanel value={selectedTabPanel} index={3}>
-          <OrdersHistory mode="on-hold" title="Opere bloccate" />
-        </TabPanel>
-        <TabPanel value={selectedTabPanel} index={4}>
-          <OrdersHistory mode="completed" subtitle="In questa sezione trovi tutte le tue opere già acquistate" />
-        </TabPanel>
-      </Box>
+        <StepProgress 
+          currentStep={calculateCompletionSteps(profile)} 
+          totalSteps={4}
+          title="Completamento del profilo"
+        />
+
+      </section>
+      <section className={'mb-24 px-3 md:px-0'}>
+        {!isReady && !profile ? (<ProfileSettingsSkeleton />) : (
+          <ProfileSettings />
+        )}
+        <OrdersHistory mode={"all"} title={'La tua collezione di opere acquistate'} />
+      </section>
     </DefaultLayout>
   );
 };

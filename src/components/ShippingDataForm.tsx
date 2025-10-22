@@ -1,17 +1,31 @@
 import React, { useState } from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { TextField, Button, FormControl, InputLabel, Select, MenuItem, Grid, FormHelperText } from "@mui/material";
+import {
+  TextField,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grid,
+  FormHelperText,
+  Autocomplete
+} from "@mui/material";
 import countries from "../countries";
 import { ShippingData } from "../types/user.ts";
+import comuni_italiani from "../comuni.json";
+
+const province_italiane = [...new Set(comuni_italiani.map(comune => comune.provincia.nome))]
 
 export interface UserDataFormProps {
   defaultValues?: ShippingData;
   onSubmit?: (formData: ShippingData) => Promise<void>;
   showEmail?: boolean;
   disabled?: boolean;
+  className?: string;
 }
 
-const ShippingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, showEmail, disabled = false }) => {
+const ShippingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit, showEmail, disabled = false, className = "" }) => {
   const {
     control,
     handleSubmit,
@@ -34,7 +48,7 @@ const ShippingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)}>
+    <form onSubmit={handleSubmit(handleFormSubmit)} className={className}>
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6}>
           <Controller
@@ -138,14 +152,25 @@ const ShippingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit
             control={control}
             rules={{ required: "Città richiesta" }}
             render={({ field }) => (
-              <TextField
-                disabled={isSaving || disabled}
-                label="Città*"
-                variant="outlined"
-                fullWidth
-                {...field}
-                error={!!errors.city}
-                helperText={errors.city?.message}
+              <Autocomplete
+                options={comuni_italiani}
+                getOptionLabel={(option) => option.nome}
+                isOptionEqualToValue={(option, value) => option.nome === value.nome}
+                onChange={(_, selectedOption) =>
+                  field.onChange(selectedOption ? selectedOption.nome : "")
+                }
+                value={
+                  comuni_italiani.find((comune) => comune.nome === field.value) || null
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Città*"
+                    variant="outlined"
+                    error={!!errors.city}
+                    helperText={errors.city?.message}
+                  />
+                )}
               />
             )}
           />
@@ -202,14 +227,21 @@ const ShippingDataForm: React.FC<UserDataFormProps> = ({ defaultValues, onSubmit
             control={control}
             rules={{ required: "Provincia richiesta" }}
             render={({ field }) => (
-              <TextField
-                disabled={isSaving || disabled}
-                label="Provincia*"
-                variant="outlined"
-                fullWidth
-                {...field}
-                error={!!errors.state}
-                helperText={errors.state?.message}
+              <Autocomplete
+                options={province_italiane}
+                getOptionLabel={(option) => option}
+                isOptionEqualToValue={(option, value) => option === value}
+                onChange={(_, value) => field.onChange(value || "")}
+                value={field.value || null}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Provincia*"
+                    variant="outlined"
+                    error={!!errors.state}
+                    helperText={errors.state?.message}
+                  />
+                )}
               />
             )}
           />

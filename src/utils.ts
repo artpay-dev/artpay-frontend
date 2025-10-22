@@ -30,6 +30,7 @@ import localeData from "dayjs/plugin/localeData";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import localeIt from "dayjs/locale/it";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 dayjs.extend(localizedFormat);
 dayjs.locale(localeIt, {}, false);
@@ -114,7 +115,7 @@ export const artistToGalleryItem = (artist: Artist, size: CardSize = "medium"): 
     id: `${artist.id}`,
     slug: artist.slug,
     isFavourite: false,
-    subtitle: `${artist.acf?.location}, ${artist.acf?.birth_year}`,
+    subtitle: `${artist.acf?.location ? artist.acf?.location + "," : ""} ${artist.acf?.birth_year || ""}`,
     title: artist.title?.rendered || "",
     description: artist.excerpt?.rendered || "",
     artworksCount: artist.artworks?.length || 0,
@@ -136,13 +137,14 @@ export const galleryToGalleryContent = (gallery: Gallery): GalleryContent => ({
 export const galleryToGalleryItem = (gallery: Gallery): GalleryCardProps => ({
   id: gallery.id,
   title: gallery.display_name,
-  slug: gallery.nice_name,
+  slug: gallery.shop.slug,
   subtitle: `${gallery.address?.city}`,
   imgUrl: gallery.shop.banner,
   logoUrl: gallery.shop.image
 });
 
 export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProps => {
+  const orderDesc = order.meta_data.find((m) => m.key.toLowerCase() === "original_order_desc")?.value
   const lineItem = order.line_items.length ? order.line_items[0] : undefined;
   const galleryName = lineItem?.meta_data.find((m) => m.key?.toLowerCase() === "sold by" || m.key?.toLowerCase() === "venduto da")?.display_value;
   let datePaid = "";
@@ -153,6 +155,7 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
       console.warn(e);
     }
   }
+
   // o.purchaseMode === "Stripe SEPA"
   return {
     id: order.id,
@@ -162,7 +165,7 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
     purchaseMode: order.payment_method || "",
     waitingPayment: order.status === "on-hold" && order.payment_method === "Stripe SEPA",
     subtitle: "",
-    title: lineItem?.name || "Opera senza titolo",
+    title: orderDesc || lineItem?.name || "Opera senza titolo",
     status: order.status,
     imgSrc: lineItem?.image?.src || ""
   };
@@ -465,7 +468,11 @@ export const formatMessageDate = (dt?: string | Date) => {
 // import { useNavigate } from "react-router-dom";
 export const useNavigate = () => {
   return (to: string) => {
-    window.location.href = to;
+    if (to === 'back') {
+      window.history.back();
+    } else {
+      window.location.href = to;
+    }
   };
 };
 
@@ -487,4 +494,15 @@ export const useEnvDetector = (): string | undefined => {
   }, []);
 
   return environment;
+};
+
+
+export const useScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 0);
+  }, [pathname]);
 };

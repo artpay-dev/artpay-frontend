@@ -1,16 +1,15 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme, Skeleton } from "@mui/material";
 import { UserProfile } from "../types/user.ts";
 import countries from "../countries.ts";
 import Avatar from "./Avatar.tsx";
-import { getDefaultPaddingX } from "../utils.ts";
 
 export interface ProfileHeaderProps {
   profile?: UserProfile;
   controls?: ReactNode | ReactNode[];
 }
 
-const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, controls }) => {
+const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile }) => {
   const theme = useTheme();
 
   const [joinYear, setJoinYear] = useState<number>();
@@ -28,23 +27,40 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, controls }) => {
 
   const country = countries.find((c) => c.code === profile?.shipping?.country)?.name;
 
-  const px = getDefaultPaddingX();
+
+  if (!profile) {
+    return (
+      <Box
+        display="flex"
+        gap={3}
+        sx={{
+          maxWidth: theme.breakpoints.values.xl,
+          marginLeft: "auto",
+          marginRight: "auto",
+          flexDirection: { xs: "column", md: "row" }
+        }}
+        alignItems="center">
+        <Skeleton width={100} height={160} />
+        <Box display="flex" flexDirection="column" gap={1} sx={{ maxWidth: "100%" }}>
+          <Skeleton variant="text" sx={{ typography: { xs: "h4", sm: "h3", md: "h1" }, width: 200 }} />
+          <Skeleton variant="text" width={150} />
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box
-      mt={14}
       display="flex"
       gap={3}
       sx={{
-        px: px,
-        mt: { xs: 10, sm: 14 },
         maxWidth: theme.breakpoints.values.xl,
         marginLeft: "auto",
         marginRight: "auto",
         flexDirection: { xs: "column", md: "row" }
       }}
       alignItems="center">
-      <Avatar firstName={profile?.first_name} lastName={profile?.last_name} username={profile?.username} />
+      <Avatar firstName={profile?.first_name} lastName={profile?.last_name} username={profile?.username} src={profile?.avatar_url} />
       <Box display="flex" flexDirection="column" gap={1} sx={{ maxWidth: "100%" }}>
         <Typography variant="h1" sx={{
           mt: { xs: 0, md: -1 },
@@ -54,16 +70,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, controls }) => {
           textOverflow: "ellipsis",
           maxWidth: "100%"
         }}>
-          {profile?.username}
+          {profile?.first_name && profile?.last_name ? `${profile?.first_name}  ${profile?.last_name}` : profile?.username}
         </Typography>
-        <Typography variant="h6" color="textSecondary" sx={{ textAlign: { xs: "center", md: "left" } }}>
+        <span className={'text-secondary block leading-[125%] font-normal'}>
           membro dal {joinYear}
           {country && `, ${country}`}
-        </Typography>
-      </Box>
-      <Box sx={{ display: { xs: "none", md: "block" } }} flexGrow={1}></Box>
-      <Box display="flex" flexDirection="column" gap={1}>
-        {controls}
+        </span>
       </Box>
     </Box>
   );

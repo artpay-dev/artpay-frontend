@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
 import { Box, Button, Divider, Grid, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { galleryToGalleryItem, getDefaultPaddingX, useNavigate } from "../utils.ts";
+import { galleryToGalleryItem, getDefaultPaddingX } from "../utils.ts";
 import CloseIcon from "../components/icons/CloseIcon.tsx";
 import ChatList, { ChatMessage } from "../components/ChatList.tsx";
 import { Message, UserProfile } from "../types/user.ts";
@@ -17,7 +17,6 @@ export interface MessagesProps {}
 
 const Messages: React.FC<MessagesProps> = ({}) => {
   const data = useData();
-  const navigate = useNavigate();
   const snackbar = useSnackbars();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -97,17 +96,6 @@ const Messages: React.FC<MessagesProps> = ({}) => {
 
   const px = getDefaultPaddingX();
 
-  const backButton = (
-    <Button
-      startIcon={<ArrowLeftIcon fontSize="inherit" color="secondary" />}
-      sx={{ px: 2, mx: -2 }}
-      variant="text"
-      color="secondary"
-      onClick={() => navigate("/profile")}>
-      Torna al profilo
-    </Button>
-  );
-
   if (isMobile) {
     return (
       <DefaultLayout pageLoading={!ready} sx={{ overflowX: "hidden", minHeight: "30vh" }}>
@@ -143,7 +131,7 @@ const Messages: React.FC<MessagesProps> = ({}) => {
                 </Box>
               )
             ) :
-              backButton
+              <></>
             }
           </Grid>
           {chatReady ? (
@@ -184,9 +172,6 @@ const Messages: React.FC<MessagesProps> = ({}) => {
   return (
     <DefaultLayout pageLoading={!ready} sx={{ overflowX: "hidden" }}>
       <Grid sx={{ px: px, mt: { xs: 10, sm: 12, md: 12 }, mb: 12 }} container>
-        <Grid sx={{ borderBottom: "1px solid #CDCFD3", py: { xs: 2, md: 5 } }} item xs={12}>
-          {backButton}
-        </Grid>
 
         <Grid item sx={{ borderRight: "1px solid #CDCFD3", minHeight: isMobile ? undefined : "60vh" }} xs={12} md={3}>
           <Box

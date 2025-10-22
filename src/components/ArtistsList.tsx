@@ -77,7 +77,7 @@ const ArtistsList: React.FC<ArtistsListProps> = ({
 
   return (
     <CardList title={title} disablePadding={disablePadding} cardSize={size}>
-      {items
+      {items.filter( artist => artist.imgUrl != "")
         .filter((_, i) => !maxItems || i < maxItems)
         .map((item, i) => (
           <ArtistCard

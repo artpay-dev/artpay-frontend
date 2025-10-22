@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@contentful/rich-text-react-renderer": "^16.1.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@googlemaps/markerclusterer": "^2.5.3",
@@ -24,7 +25,9 @@
     "@stripe/react-stripe-js": "^2.4.0",
     "@stripe/stripe-js": "^2.4.0",
     "@tailwindcss/vite": "^4.0.7",
+    "@uploadcare/upload-client": "^6.14.3",
     "axios": "^1.4.0",
+    "contentful": "^11.7.10",
     "dayjs": "1.11.5",
     "react": "^18.2.0",
     "react-apple-signin-auth": "^1.1.0",
@@ -40,13 +43,14 @@
     "sanitize-html": "^2.11.0",
     "swiper": "^11.0.5",
     "tailwindcss": "^4.0.7",
-    "vite": "^5.4.14"
+    "vite": "^5.4.14",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@types/archiver": "^6.0.2",
     "@types/fs-extra": "^11.0.4",
     "@types/google.maps": "^3.55.7",
-    "@types/node": "^20.11.27",
+    "@types/node": "^20.17.48",
     "@types/react": "^18.2.15",
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-dom": "^18.2.7",
@@ -63,7 +67,7 @@
     "fs-extra": "^11.2.0",
     "prettier": "3.1.0",
     "sass": "^1.69.5",
-    "typescript": "^5.0.2",
+    "typescript": "^5.8.3",
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-mkcert": "^1.17.5",
     "vite-plugin-php": "^1.0.10"

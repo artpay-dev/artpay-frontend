@@ -3,7 +3,7 @@ import ArtworkCard, { ArtworkCardProps } from "./ArtworkCard.tsx";
 import CardList from "./CardList.tsx";
 import { CardSize } from "../types";
 import { FAVOURITES_UPDATED_EVENT, useData } from "../hoc/DataProvider.tsx";
-import { useNavigate } from "../utils.ts";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hoc/AuthProvider.tsx";
 
 export interface ArtworksListProps {

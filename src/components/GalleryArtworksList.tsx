@@ -13,7 +13,7 @@ export interface GalleryArtworksListProps {
 const GalleryArtworksList: React.FC<GalleryArtworksListProps> = ({ artworks = [], onSelect, onLoadMore }) => {
   return (
     <Grid px={0} container>
-      <Grid xs={12} sx={{ maxWidth: "100%", overflow: "auto", py: { xs: 3, md: 6 } }} item>
+      <Grid xs={12} sx={{ maxWidth: "100%", overflow: "auto", py: { xs: 3, md: 6 } , px: {xs: 4, md:0}}} item>
         <ArtworksGrid
           disablePadding
           title="Le nostre opere"

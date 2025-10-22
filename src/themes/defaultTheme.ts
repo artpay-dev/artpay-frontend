@@ -218,11 +218,10 @@ const defaultTheme: Theme = createTheme({
     },
     MuiOutlinedInput: {
       styleOverrides: {
-        root: {
-          borderRadius: "24px"
-        },
         input: {
-          padding: "10px 24px"
+          padding: "10px 24px",
+          borderRadius: "8px",
+          backgroundColor: "white"
         },
         notchedOutline: {
           padding: "0 24px"

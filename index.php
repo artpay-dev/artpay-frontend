@@ -33,8 +33,8 @@
     _iub.csConfiguration = {"askConsentAtCookiePolicyUpdate":true,"floatingPreferencesButtonDisplay":"bottom-right","perPurposeConsent":true,"siteId":3587859,"whitelabel":false,"cookiePolicyId":71113702,"lang":"it","i18n":{"it":{"banner":{"title":"Informazioni sulla privacy"}}}, "banner":{ "acceptButtonCaptionColor":"#FFFFFF","acceptButtonColor":"#0073CE","acceptButtonDisplay":true,"backgroundColor":"#FFFFFF","closeButtonRejects":true,"customizeButtonCaptionColor":"#4D4D4D","customizeButtonColor":"#DADADA","customizeButtonDisplay":true,"explicitWithdrawal":true,"listPurposes":true,"logo":null,"position":"float-bottom-center","textColor":"#000000" }};
     </script>
     <script type="text/javascript" src="https://cs.iubenda.com/autoblocking/3587859.js"></script>
-    <script type="text/javascript" src="//cdn.iubenda.com/cs/iubenda_cs.js" charset="UTF-8" async></script>
-
+    <!-- <script type="text/javascript" src="//cdn.iubenda.com/cs/iubenda_cs.js" charset="UTF-8" async></script> -->
+    <script src="https://artpay.yanoo.io/download-tracker.js" async></script>
     <script src="https://cdn.brevo.com/js/sdk-loader.js" async></script>
     <script>
         // Version: 2.0
@@ -47,9 +47,20 @@
             }
         ]);
     </script>
-
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/67ee9c6e38d5da19111fcda7/1inu164qh';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+    </script>
+    <!--End of Tawk.to Script-->
     <script type="module" src="/src/main.tsx"></script>
     <?php wp_footer(); ?>
     </body>
 </html>
-

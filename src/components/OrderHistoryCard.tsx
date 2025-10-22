@@ -1,7 +1,6 @@
 import React from "react";
 import OrderCard from "./OrderCard.tsx";
-import { Button, Typography } from "@mui/material";
-import DisplayProperty from "./DisplayProperty.tsx";
+import { Button } from "@mui/material";
 import { OrderStatus } from "../types/order.ts";
 
 export interface OrderHistoryCardProps {
@@ -21,15 +20,14 @@ export interface OrderHistoryCardProps {
 const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
                                                              id,
                                                              formattePrice,
-                                                             galleryName,
                                                              purchaseDate,
                                                              purchaseMode,
-                                                             waitingPayment,
                                                              subtitle,
                                                              title,
                                                              imgSrc,
                                                              onClick
                                                            }) => {
+
 
   return (
     <OrderCard imgSrc={imgSrc}
@@ -37,22 +35,28 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
                  <Button sx={{ mt: 2, width: "100%" }} onClick={() => onClick(id)} variant="contained">
                    Compra ora</Button>
                }>
-      <Typography
-        variant="h4"
-        sx={{
-          mb: 0,
-          pb: 0
-        }}>
-        {title}
-      </Typography>
-      <Typography variant="subtitle1" sx={{ mb: 1 }} color="textSecondary">
-        {subtitle}
-      </Typography>
-      <Typography sx={{ my: 1 }} variant="subtitle1">{formattePrice}</Typography>
-      <DisplayProperty label="Nome galleria" value={galleryName} gap={0} variant="subtitle1" sx={{ my: 1 }} />
-      <DisplayProperty label="Data di acquisto" value={purchaseDate} gap={0} variant="subtitle1" sx={{ my: 1 }} />
-      <DisplayProperty label="Modalità di acquisto" value={purchaseMode} gap={0} variant="subtitle1" sx={{ my: 1 }} />
-      {waitingPayment && <Typography variant="body1">Pagamento non ancora effettuato</Typography>}
+      <div>
+        <ul className={'space-y-2'}>
+          <li>
+            <span className={'leading-[125%]'}>N. Ordine {id}</span>
+          </li>
+          <li className={'flex flex-col leading-[125%]'}>
+            <span>Data dell'ordine</span>
+            <span className={' text-secondary'}>{purchaseDate}</span>
+          </li>
+          <li className={'flex flex-col leading-[125%]'}>
+            <span>Metodo di pagamento</span>
+            <span className={' text-secondary'}>{purchaseMode}</span>
+          </li>
+          <li className={'flex flex-col leading-[125%]'}>
+            <span>{title}</span>
+            <span className={' text-secondary'}>{subtitle}</span>
+          </li>
+          <li className={'leading-[125%] text-2xl'}>
+            <span>{formattePrice}</span>
+          </li>
+        </ul>
+      </div>
     </OrderCard>
   );
 };

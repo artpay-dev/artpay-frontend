@@ -3,16 +3,89 @@
 @theme {
     --color-primary-dark: #181F5D;
     --color-primary: #3E4EEC;
+    --color-primary-hover: #313dd1;
     --color-secondary: #666F7A;
     --color-tertiary: #010F22;
+
+    --color-klarna: #feb4c7;
+    --color-klarna-hover: #fda4af;
+
+
+    --text-4xl: 2.5rem;
+    --text-4xl--line-height: 105%;
+
+    --max-width-8xl: 1440px;
+
+    --shadow-custom: rgba(62, 78, 236, 0.15) 0px 4px 16px 0px;
+
+    --shadow-custom-variant: rgba(1, 15, 34, 0.08) 0px 4px 64px 0px;
+
+
+    --shadow-custom-top: #3E4EEC26 0px -5px 16px 0px;
+
+    --animate-fade-in-scale: fade-in-scale 2500ms ease-out forwards;
+
+    @keyframes fade-in-scale {
+        0% {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        20% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        40% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        60% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        80% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        100% {
+            opacity: 0;
+            transform: scale(1);
+        }
+    }
+
+    --animate-fade-in: fade-in 150ms linear forwards;
+
+    @keyframes fade-in {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+
+    }
+
+
+
+
+}
+
+.artpay-button-style {
+    @apply disabled:cursor-not-allowed w-full max-w-md rounded-[28px] py-3.5 px-5 flex items-center justify-center gap-2 cursor-pointer transition-all;
 }
 
 html {
     scroll-behavior: smooth;
 }
 
-.artpay-button-style {
-    @apply disabled:cursor-not-allowed w-full max-w-md rounded-[28px] py-3.5 px-5 flex items-center justify-center gap-2 cursor-pointer transition-all;
+
+.custom-navbar {
+    box-shadow: rgba(62, 78, 236, 0.15) 0px 4px 16px 0px;
+    border-radius: 36px;
+}
+
+.custom-sidebar {
+    box-shadow: rgba(62, 78, 236, 0.15) 0px 4px 16px 0px;
+    border-radius: 0 36px 36px 0;
 }
 
 .SwiperCard,
@@ -36,6 +109,10 @@ html {
 
 .SwiperCard-fit, .swiper-slide.SwiperCard-fit {
     width: 100%;
+}
+
+iframe {
+    outline: none;
 }
 
 /*

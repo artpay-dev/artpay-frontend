@@ -1,20 +1,38 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, useTheme } from "@mui/material";
 import { useData } from "../hoc/DataProvider.tsx";
 import { ArtworkCardProps } from "./ArtworkCard.tsx";
-import { artworksToGalleryItems, getDefaultPaddingX } from "../utils.ts";
+import { artworksToGalleryItems } from "../utils.ts";
 import ArtworksGrid from "./ArtworksGrid.tsx";
-import Loader from "./Loader.tsx";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 
 export interface FavouriteArtworksProps {
 }
 
-const emptyText =
-  "Non ci sono opere preferite, clicca sul cuoricino a fianco di ogni opera per salvare in questa sezione le opere che vuoi tenere d'occhio";
+const Skeleton = () => {
+  return (
+    <div className={`pl-4 lg:pl-0 h-full min-w-80 `}>
+      <div className="w-full rounded-2xl overflow-hidden">
+        <div className="bg-gray-300 animate-pulse h-full w-full aspect-square" />
+      </div>
+
+      <div className="mt-4 py-4 flex flex-col justify-between">
+        <div className="flex">
+          <div className="flex flex-col flex-1 h-full min-h-40 space-y-4">
+            <div className="h-4 bg-gray-300 rounded w-1/2 animate-pulse" />
+            <div className="h-6 bg-gray-300 rounded w-3/4 animate-pulse" />
+            <div className="h-4 bg-gray-300 rounded w-1/3 animate-pulse" />
+            <div className="h-6 bg-gray-300 rounded w-1/4 mt-4 animate-pulse" />
+          </div>
+          <div className="flex flex-col items-end justify-between max-w-[50px] ml-4">
+            <div className="w-6 h-6 bg-gray-300 rounded-full animate-pulse" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const FavouriteArtworks: React.FC<FavouriteArtworksProps> = ({}) => {
-  const theme = useTheme();
   const data = useData();
   const snackbar = useSnackbars();
 
@@ -30,24 +48,21 @@ const FavouriteArtworks: React.FC<FavouriteArtworksProps> = ({}) => {
     }).catch((e) => snackbar.error(e));
   }, [data]);
 
-  const px = getDefaultPaddingX();
 
   return (
-    <Box sx={{ px: px, width: "100%" }}>
-      <Box sx={{ maxWidth: theme.breakpoints.values["xl"] }}>
-        <Typography variant="h3" sx={{ mb: 2 }}>
-          Le tue opere preferite
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 6 }}>
-          In questa sezione troverai tutte le tue opere salvate
-        </Typography>
-      </Box>
+    <div className={'mt-12'}>
       {ready ? (
-        <ArtworksGrid disablePadding cardSize="medium" items={favouriteArtworks} emptyText={emptyText} />
+        <ArtworksGrid disablePadding cardSize="medium" items={favouriteArtworks} />
       ) : (
-        <Loader />
+        <div>
+          <div className={"flex gap-8 my-12 overflow-x-hidden"}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i}  />
+            ))}
+          </div>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

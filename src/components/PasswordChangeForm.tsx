@@ -15,6 +15,7 @@ export interface PasswordChangeFormProps {
   oneColumn?: boolean;
   disabled?: boolean;
   sx?: GridProps["sx"];
+  className?: string;
 }
 
 const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
@@ -22,7 +23,8 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
                                                                  disabled,
                                                                  askOldPassword = false,
                                                                  oneColumn = false,
-                                                                 sx
+                                                                 sx,
+  className = ""
                                                                }) => {
   const {
     control,
@@ -52,7 +54,7 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
   const colWidthMd = oneColumn ? 12 : 6;
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)}>
+    <form onSubmit={handleSubmit(handleFormSubmit)}  className={className}>
       <Grid container spacing={3} sx={sx}>
         {askOldPassword && <>
           <Grid item xs={12} md={6}>

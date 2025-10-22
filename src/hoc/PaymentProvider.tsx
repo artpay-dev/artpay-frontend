@@ -31,7 +31,7 @@ export const PaymentProvider: React.FC<PaymentProviderProps> = ({ children }) =>
 
   useEffect(() => {
     /*const stripeKey = document.querySelector("meta[name=\"stripe-key\"]")?.getAttribute("content") || "";*/
-    if(data.isAuthenticated && (location.pathname.startsWith("/acquisto") || location.pathname.startsWith("/thank-you-page") || location.pathname.startsWith("/completa"))) {
+    if(data.isAuthenticated && (location.pathname.startsWith("/acquisto") || location.pathname.startsWith("/thank-you-page") || location.pathname.startsWith("/acconto") || location.pathname.startsWith("/completa"))) {
       const stripeKey = import.meta.env.VITE_STRIPE_KEY;
       if (!stripeKey) {
         //throw new Error(`No stripe key (${stripeKey})`)
@@ -44,7 +44,7 @@ export const PaymentProvider: React.FC<PaymentProviderProps> = ({ children }) =>
         setReady(true);
       });
     }
-  }, []);
+  }, [location.pathname, data.isAuthenticated]);
 
   const paymentProvider: PaymentProvider = {
     get isReady() {
@@ -54,6 +54,7 @@ export const PaymentProvider: React.FC<PaymentProviderProps> = ({ children }) =>
       return stripe;
     }
   };
+
   //
   return (
     <>

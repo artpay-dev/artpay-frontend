@@ -46,12 +46,13 @@ const GalleryCard: React.FC<GalleryCardProps> = ({
         component="img"
         image={imgUrl}
         height={isMobile && mode === "grid" ? "auto" : imgHeight}
-        className="borderRadius"
+        className="rounded-2xl"
         onClick={onClick}
         sx={{
           objectFit: "cover",
           minHeight: "100px",
-          borderRadius: "4px",
+          maxHeight: "214px",
+          borderRadius: "16px",
           backgroundColor: imgUrl ? "" : "#D9D9D9",
           cursor: onClick ? "pointer" : "auto",
           aspectRatio: fitWidth ? 1.28 : undefined
