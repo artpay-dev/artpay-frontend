@@ -2,7 +2,9 @@ import CountdownTimer from "../../../../components/CountdownTimer.tsx";
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress, Alert } from "@mui/material";
 import { Order } from "../../../../types/order.ts";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { quoteService } from "../../../../services/quoteService.ts";
+import useListDrawStore from "../../stores/listDrawStore.tsx";
 
 interface OfferCardProps {
   order: Order | Partial<Order>;
@@ -11,14 +13,19 @@ interface OfferCardProps {
 }
 
 const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) => {
+  const navigate = useNavigate();
   const [openEmailDialog, setOpenEmailDialog] = useState(false);
   const [customerEmail, setCustomerEmail] = useState("");
+  const [customerFirstName, setCustomerFirstName] = useState("");
+  const [customerLastName, setCustomerLastName] = useState("");
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [emailSuccess, setEmailSuccess] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [deletingQuote, setDeletingQuote] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const { setOpenListDraw } = useListDrawStore();
+
   // Cerca la data di scadenza nei meta_data
   const expiryDateMeta = order.meta_data?.find((meta) => meta.key === "quote_expiry_date");
   const hasExpiryDate = !!expiryDateMeta;
@@ -39,6 +46,16 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
   };
 
   const handleSendEmail = async () => {
+    if (!customerFirstName.trim()) {
+      setEmailError("Inserisci il nome del cliente");
+      return;
+    }
+
+    if (!customerLastName.trim()) {
+      setEmailError("Inserisci il cognome del cliente");
+      return;
+    }
+
     if (!customerEmail || !customerEmail.includes("@")) {
       setEmailError("Inserisci un'email valida");
       return;
@@ -53,12 +70,14 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
       setSendingEmail(true);
       setEmailError("");
 
-      await quoteService.updateOrderEmail(order.id, customerEmail);
+      await quoteService.updateOrderEmail(order.id, customerEmail, customerFirstName, customerLastName);
 
       setEmailSuccess(true);
       setTimeout(() => {
         setOpenEmailDialog(false);
         setCustomerEmail("");
+        setCustomerFirstName("");
+        setCustomerLastName("");
         setEmailSuccess(false);
       }, 2000);
     } catch (error: any) {
@@ -148,7 +167,12 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
           <Button variant={"contained"} onClick={handleShareClick}>Condividi</Button>
         ) : (
           <>
-            <Button variant={"outlined"}>Vedi dettaglio</Button>
+            <Button variant={"outlined"} onClick={() => {
+              setOpenListDraw({openListDraw: false});
+              navigate(`/vendor/fastpay/offerta/${order.id}`)
+            }}>
+              Vedi dettaglio
+            </Button>
             <Button variant={"text"} color={"inherit"} onClick={handleDeleteClick}>
               Elimina offerta
             </Button>
@@ -179,6 +203,38 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
           <>
             <TextField
               autoFocus
+              margin="dense"
+              label="Nome cliente"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={customerFirstName}
+              onChange={(e) => setCustomerFirstName(e.target.value)}
+              disabled={sendingEmail}
+              sx={{
+                mt: 2,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                },
+              }}
+            />
+            <TextField
+              margin="dense"
+              label="Cognome cliente"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={customerLastName}
+              onChange={(e) => setCustomerLastName(e.target.value)}
+              disabled={sendingEmail}
+              sx={{
+                mt: 2,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                },
+              }}
+            />
+            <TextField
               margin="dense"
               label="Email cliente"
               type="email"

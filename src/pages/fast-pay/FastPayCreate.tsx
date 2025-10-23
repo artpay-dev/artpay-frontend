@@ -31,7 +31,6 @@ import OfferCard from "../../features/fastpay/components/offer-card/offer-card.t
 import { Order } from "../../types/order.ts";
 import { Artwork } from "../../types/artwork.ts";
 import { quoteService } from "../../services/quoteService.ts";
-import { setInterval } from "node:timers";
 //import useProposalStore from "../../stores/proposalStore.tsx";
 
 const FastPayCreate = () => {
@@ -144,9 +143,7 @@ const FastPayCreate = () => {
       setCreateOrderError("");
 
       // Calcola il prezzo con sconto
-      const prezzo = parseFloat(formData.prezzo) || 0;
       const scontoPerc = parseFloat(formData.sconto) || 0;
-      const scontoAmount = (prezzo * scontoPerc) / 100;
 
       // Se c'è uno sconto, crea prima il coupon
       let couponCode = "";
@@ -164,6 +161,7 @@ const FastPayCreate = () => {
         if (couponCreated) {
           setCouponCode(couponCreated.code);
         }
+
       }
 
       // Prepara i dati dell'ordine per la chiamata API
@@ -201,6 +199,8 @@ const FastPayCreate = () => {
       setCreatingOrder(false);
     }
   };
+
+  if (couponCode) console.log("Applicato coupon:", couponCode);
 
   return (
     <>

@@ -54,10 +54,11 @@ import HistoryFailedOrdersPage from "./pages/HistoryFailedOrdersPage.tsx";
 import FatsPayLayout from "./features/fastpay/layout/FatsPayLayout.tsx";
 import FastPay from "./pages/fast-pay/FastPay.tsx";
 import FastPayCreate from "./pages/fast-pay/FastPayCreate.tsx";
+import FastPayDetail from "./pages/fast-pay/FastPayDetail.tsx";
 
 import QuotesLayout from "./features/quotes/layout/QuotesLayout.tsx";
 import QuotePage from "./pages/quotes/QuotePage.tsx";
-import CheckoutPayment from "./pages/CheckoutPayment.tsx";
+import CheckoutPayment from "./pages/quotes/CheckoutPayment.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -149,6 +150,7 @@ function AppContent() {
                     <Route path={"/vendor/fastpay"}  element={<FatsPayLayout />}>
                       <Route element={<FastPay />} index/>
                       <Route path={"crea-offerta"} element={<FastPayCreate />} />
+                      <Route path={"offerta/:orderId"} element={<FastPayDetail />} />
                     </Route>
                     <Route path={"/quotes"} element={<QuotesLayout />}>
                       <Route element={<QuotePage />} index />

@@ -47,7 +47,7 @@ const FastPay = () => {
           <button onClick={() => {
             setOpenListDraw({ openListDraw: false })
             navigate("/vendor/fastpay/crea-offerta");
-          }}>Crea offerta</button>
+          }}>Crea offerta per il tuo cliente</button>
         </li>
         <li>
           <button onClick={() => setOpenListDraw({ openListDraw: true })}>Lista offerte</button>

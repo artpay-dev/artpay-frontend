@@ -245,7 +245,7 @@ export const quoteService = {
    * Aggiorna l'email del cliente per un ordine esistente
    * Questo trigger farà partire l'email dal backend
    */
-  async updateOrderEmail(orderId: number, email: string): Promise<Order> {
+  async updateOrderEmail(orderId: number, email: string, firstName?: string, lastName?: string): Promise<Order> {
     try {
       // Recupera il token WooCommerce dal vendor-user
       const vendorUserStr = localStorage.getItem("vendor-user");
@@ -263,6 +263,8 @@ export const quoteService = {
         {
           order_id: orderId,
           email: email,
+          first_name: firstName,
+          last_name: lastName,
           send_email: true,
         },
         {
@@ -305,6 +307,61 @@ export const quoteService = {
       return resp.data;
     } catch (error) {
       console.error("Errore nell'eliminazione dell'offerta:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Completa il pagamento e aggiorna l'ordine WooCommerce
+   */
+  async completePayment(orderKey: string, paymentIntentId: string): Promise<any> {
+    try {
+      const resp = await axios.post<any, AxiosResponse<any>>(
+        `${baseUrl}/wp-json/wc-quote/v1/complete-payment`,
+        {
+          order_key: orderKey,
+          payment_intent_id: paymentIntentId,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      return resp.data;
+    } catch (error) {
+      console.error("Errore nel completamento del pagamento:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Recuper la GAlleria da MultivendorX
+   */
+  async getVendor(vendorId: string,): Promise<any> {
+    const GUEST_CONSUMER_KEY = "ck_349ace6a3d417517d0140e415779ed924c65f5e1";
+    const GUEST_CONSUMER_SECRET = "cs_b74f44b74eadd4718728c26a698fd73f9c5c9328";
+
+    const getGuestAuth = () => {
+      const credentials = btoa(GUEST_CONSUMER_KEY + ":" + GUEST_CONSUMER_SECRET);
+      return "Basic " + credentials;
+    };
+
+    try {
+      const resp = await axios.get<any, AxiosResponse<any>>(
+        `${baseUrl}/wp-json/mvx/v1/vendors/${vendorId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: getGuestAuth(),
+          },
+        },
+      );
+
+      return resp.data;
+    } catch (error) {
+      console.error("Errore nel recupero della Galleria:", error);
       throw error;
     }
   },
