@@ -125,7 +125,7 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
 
   return (
     <>
-    <li className={`border rounded-lg space-y-4 max-w-sm ${isCancelled ? 'border-gray-300 opacity-75' : 'border-[#E2E6FC]'}`}>
+    <li className={`border rounded-lg space-y-4 max-w-md ${isCancelled ? 'border-gray-300 opacity-75' : 'border-[#E2E6FC]'}`}>
       <div className={"card-header pt-4 px-4"}>
         <div className="flex items-center justify-between mb-2">
           <span>Offerta N.{order.number || "---"}</span>
