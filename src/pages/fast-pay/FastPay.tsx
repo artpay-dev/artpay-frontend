@@ -16,6 +16,7 @@ const FastPay = () => {
     setIsLoading(false);
 
     const handleLoginSuccess = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
       setIsAuthenticated(true);
     };
 
