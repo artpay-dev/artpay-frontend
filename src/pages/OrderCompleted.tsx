@@ -175,7 +175,7 @@ const OrderCompleted = () => {
                     Sconto
                   </Typography>
                   <Typography variant="body1" color="success.main">
-                    -€ {discountTotal.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    -€ {(discountTotal * 1.05).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </Typography>
                 </div>
               )}
