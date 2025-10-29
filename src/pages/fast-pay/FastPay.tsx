@@ -49,7 +49,7 @@ const FastPay = () => {
           <Button variant={'contained'} size={'medium'} onClick={() => {
             setOpenListDraw({ openListDraw: false })
             navigate("/vendor/fastpay/crea-offerta");
-          }}>Crea offerta</Button>
+          }}>Crea la tua offerta</Button>
           <p className={'text-secondary text-sm mt-2'}>In questa sezione puoi creare e inviare in meno di 20 secondi un'offerta a un tuo cliente.</p>
         </li>
         <li className={'space-y-2'}>

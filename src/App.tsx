@@ -42,6 +42,7 @@ import { useScrollToTop } from "./utils.ts";
 import Tutorials from "./pages/Tutorials.tsx";
 import SinglePostPage from "./pages/SinglePostPage.tsx";
 import DashboardPage from "./pages/DashboardPage.tsx";
+import { useDynamicManifest } from "./hooks/useDynamicManifest.ts";
 import PersonalSettingsPage from "./pages/PersonalSettingsPage.tsx";
 import ShippingSettingsPage from "./pages/ShippingSettingsPage.tsx";
 import FollowedGalleriesPage from "./pages/FollowedGalleriesPage.tsx";
@@ -175,6 +176,7 @@ const App = () => {
         <CssBaseline />
         <BrowserRouter>
           <ScrollWrapper />
+          <ManifestWrapper />
           <AppContent />
         </BrowserRouter>
       </ThemeProvider>
@@ -187,5 +189,10 @@ export default App;
 
 function ScrollWrapper() {
   useScrollToTop()
+  return null;
+}
+
+function ManifestWrapper() {
+  useDynamicManifest()
   return null;
 }

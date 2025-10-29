@@ -6,16 +6,13 @@
 <head>
 <?php $BRC_TEMPLATE_PATH = parse_url(get_template_directory_uri(), PHP_URL_PATH); ?>
 
-<meta charset="utf-8" />
-    <link rel="shortcut icon" href="/wp-content/themes/artpay-react/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <link rel="apple-touch-icon" href="<?php echo $TEMPLATE_PATH; ?>/logo192.png" />
-    <link rel="manifest" href="<?php echo $TEMPLATE_PATH; ?>/manifest.json" />
-
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
+<meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" type="image/x-icon" href="<?php echo $TEMPLATE_PATH; ?>/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="<?php echo $TEMPLATE_PATH; ?>/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo $TEMPLATE_PATH; ?>/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $TEMPLATE_PATH; ?>/apple-touch-icon.png" />
 
     <title>Artpay</title>
     <?php wp_head(); ?>
