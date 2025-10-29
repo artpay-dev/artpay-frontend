@@ -151,7 +151,12 @@ export type Artwork = {
     customer_buy_reserved: boolean;
     customer_reserved_until: string;
   };
-  vendor: string;
+  vendor: {
+    id: number;
+    name: string;
+    shop_name: string;
+    url: string;
+  } | string;
   store_name: string;
   yoast_head?: string;
   yoast_head_json?: YoastHeadJson;

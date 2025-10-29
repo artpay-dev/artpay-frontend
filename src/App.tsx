@@ -51,6 +51,15 @@ import NewDirectPurchase from "./pages/NewDirectPurchase.tsx";
 import OrderCompleted from "./pages/OrderCompleted.tsx";
 import HistoryFailedOrdersPage from "./pages/HistoryFailedOrdersPage.tsx";
 
+import FatsPayLayout from "./features/fastpay/layout/FatsPayLayout.tsx";
+import FastPay from "./pages/fast-pay/FastPay.tsx";
+import FastPayCreate from "./pages/fast-pay/FastPayCreate.tsx";
+import FastPayDetail from "./pages/fast-pay/FastPayDetail.tsx";
+
+import QuotesLayout from "./features/quotes/layout/QuotesLayout.tsx";
+import QuotePage from "./pages/quotes/QuotePage.tsx";
+import CheckoutPayment from "./pages/quotes/CheckoutPayment.tsx";
+
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
@@ -138,6 +147,15 @@ function AppContent() {
                     <Route path="/errore/:code" element={<Error />} />
                     <Route path="/errore" element={<Error />} />
                     <Route path={"/gallerie-the-others"} element={<LandingForCampaignPage />} />
+                    <Route path={"/vendor/fastpay"}  element={<FatsPayLayout />}>
+                      <Route element={<FastPay />} index/>
+                      <Route path={"crea-offerta"} element={<FastPayCreate />} />
+                      <Route path={"offerta/:orderId"} element={<FastPayDetail />} />
+                    </Route>
+                    <Route path={"/quotes"} element={<QuotesLayout />}>
+                      <Route element={<QuotePage />} index />
+                    </Route>
+                    <Route path="/checkout/payment" element={<CheckoutPayment />} />
                   </Routes>
                 </PaymentProvider>
               </DataProvider>

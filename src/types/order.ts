@@ -253,7 +253,7 @@ export type PaymentIntentResponse = {
   transfer_data: null | string;
   transfer_group: null | string;
 };
-export type OrderStatus = "pending" | "processing" | "on-hold" | "completed" | "cancelled" | "refunded" | "failed";
+export type OrderStatus = "pending" | "processing" | "on-hold" | "completed" | "cancelled" | "refunded" | "failed" | "quote";
 export type OrderFilters = {
   status?: OrderStatus | OrderStatus[] | string;
   orderby?: string;
