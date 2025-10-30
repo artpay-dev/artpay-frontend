@@ -267,7 +267,10 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
                     +(pendingOrder?.total || 0) -
                     +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total || 0) -
                     +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total_tax || 0)
-                  ).toFixed(2)
+                  ).toLocaleString("it-IT", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
                 : (Number(pendingOrder?.total) || 0).toLocaleString("it-IT", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
