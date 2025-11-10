@@ -81,11 +81,11 @@ export const quoteService = {
 
       // Filtra gli ordini per includere:
       // - Tutti i quote
-      // - Solo i cancelled e on-hold che hanno il meta "_is_fastpay_quote"
+      // - Solo i cancelled, on-hold e completed che hanno il meta "_is_fastpay_quote"
       const allOrders = ordersResp.data
         .filter((order) => {
           if (order.status === "quote") return true;
-          if (order.status === "cancelled" || order.status === "on-hold") {
+          if (order.status === "cancelled" || order.status === "on-hold" || order.status === "completed") {
             return order.meta_data?.some((meta) => meta.key === "_is_fastpay_quote" && meta.value === "yes");
           }
           return false;

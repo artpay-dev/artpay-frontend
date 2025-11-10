@@ -43,6 +43,7 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
   // Controlla se l'offerta è stata rifiutata
   const isCancelled = order.status === "cancelled";
   const isOnHold = order.status === "on-hold";
+  const isCompleted = order.status === "completed";
 
   const handleShareClick = () => {
     setOpenEmailDialog(true);
@@ -153,6 +154,17 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
               }}
             />
           )}
+          {isCompleted && (
+            <Chip
+              label="Completato"
+              size="small"
+              color="info"
+              sx={{
+                fontWeight: 500,
+                fontSize: '0.75rem',
+              }}
+            />
+          )}
         </div>
         <div className="flex items-center gap-3 my-4">
           <img
@@ -171,13 +183,27 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
         </div>
       </div>
       <div className={"card-body px-4"}>
-        {hasExpiryDate && expiryDate && (
+        {isCompleted && order.date_completed && (
+          <div className="mb-4">
+            <span className={"text-secondary block mb-1"}>Completato il:</span>
+            <span className="font-medium">
+              {new Date(order.date_completed).toLocaleDateString('it-IT', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </span>
+          </div>
+        )}
+        {hasExpiryDate && expiryDate && !isCompleted && (
           <>
             <span className={"text-secondary block mb-1"}>L'offerta scade tra:</span>
             <CountdownTimer expiryDate={expiryDate} />
           </>
         )}
-        <ul className={`flex flex-col gap-4 ${hasExpiryDate ? "mt-4" : ""}`}>
+        <ul className={`flex flex-col gap-4 ${(hasExpiryDate && !isCompleted) || isCompleted ? "mt-4" : ""}`}>
           <li className={"flex flex-col gap-1"}>
             <span className={"text-secondary"}>Prezzo</span>
             <span>
