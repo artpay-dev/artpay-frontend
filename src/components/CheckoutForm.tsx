@@ -45,7 +45,7 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
 
     // Costruisce il return URL dinamicamente per Vercel o usa URL fissi per altri ambienti
     const getReturnUrl = () => {
-      const isVercel = window.location.hostname.includes('vercel.app');
+      const isVercel = window.location.hostname.includes('vercel.app-artmatch');
 
       if (isVercel) {
         // Per Vercel, costruisci dinamicamente l'URL basandosi sull'host corrente

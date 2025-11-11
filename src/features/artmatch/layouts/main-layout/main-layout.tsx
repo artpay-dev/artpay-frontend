@@ -17,7 +17,7 @@ const BackButton = () => {
   );
 };
 
-const ArtMAtchLabel = () => (
+const ArtMatchLabel = () => (
   <div className={"bg-tertiary px-2 flex items-center justify-center w-fit ms-2"}>
     <Favorite className="text-white" />
     <span className={"text-white font-medium"}>ArtMatch</span>
@@ -33,10 +33,10 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         <div className={"custom-navbar "}>
           <BackButton />
         </div>
-        <ArtMAtchLabel />
+        <ArtMatchLabel />
       </nav>
       <SidePanel />
-      <div>{children}</div>
+      <div className={'flex justify-center items-center w-full'}>{children}</div>
     </div>
   );
 };

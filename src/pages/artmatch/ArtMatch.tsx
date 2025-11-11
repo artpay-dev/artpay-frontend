@@ -1,11 +1,5 @@
-import { MainLayout } from "../../features/artmatch";
+import AppArtMatch from "../../features/artmatch/app-artmatch/app-art-match.tsx";
 
-const ArtMatch = () => {
-  return (
-    <MainLayout>
-        <div></div>
-    </MainLayout>
-  );
-};
+const ArtMatch = () => <AppArtMatch />;
 
 export default ArtMatch;
