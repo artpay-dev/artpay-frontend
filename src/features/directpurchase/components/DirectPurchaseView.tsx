@@ -466,6 +466,19 @@ const DirectPurchaseView = () => {
               thankYouPage={thankYouPage}
             />
           );
+          case "paypal":
+          return (
+            <PaymentCard
+              orderMode={orderMode}
+              paymentMethod={paymentMethod || ""}
+              checkoutButtonRef={checkoutButtonRef}
+              onCheckout={() => handleSubmitCheckout()}
+              onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
+              onReady={() => updateState({ checkoutReady: true })}
+              paymentIntent={paymentIntent}
+              thankYouPage={thankYouPage}
+            />
+          );
           case "bank_transfer":
           return (
             <ContentCard
@@ -501,6 +514,19 @@ const DirectPurchaseView = () => {
           />
         );
       case "klarna":
+        return (
+          <PaymentCard
+            orderMode={orderMode}
+            paymentMethod={paymentMethod || ""}
+            checkoutButtonRef={checkoutButtonRef}
+            onCheckout={() => handleSubmitCheckout()}
+            onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
+            onReady={() => updateState({ checkoutReady: true })}
+            paymentIntent={paymentIntent}
+            thankYouPage={thankYouPage}
+          />
+        );
+        case "paypal":
         return (
           <PaymentCard
             orderMode={orderMode}
@@ -556,8 +582,8 @@ const DirectPurchaseView = () => {
         switch (paymentIntent?.status) {
           case "succeeded":
             await data.setOrderStatus(+completedOrderId, "completed", {
-              payment_method: paymentMethod === "klarna" ? "Klarna" : "Credit card",
-              payment_method_title: paymentMethod === "klarna" ? "Klarna" : "Carta di credito",
+              payment_method: paymentMethod === "klarna" ? "Klarna" : paymentMethod === "paypal" ? "PayPal" : "Credit card",
+              payment_method_title: paymentMethod === "klarna" ? "Klarna" : paymentMethod === "paypal" ? "PayPal" : "Carta di credito",
               customer_note:
                 orderMode === "loan"
                   ? "Blocco opera"

@@ -39,6 +39,47 @@ dayjs.extend(isYesterday);
 dayjs.extend(weekday);
 dayjs.extend(localeData);
 
+/**
+ * Normalizes image URLs by handling various malformed formats:
+ * - Fixes double protocol (https:https://)
+ * - Converts protocol-relative URLs (//domain.com) to https://
+ * - Replaces old artpay.art URLs with the correct backend URL from VITE_SERVER_URL
+ * - Handles undefined/null values
+ * - Preserves already correct URLs
+ */
+export const normalizeImageUrl = (url?: string | null): string => {
+  if (!url || url === "undefined" || url === "null") {
+    return "";
+  }
+
+  let normalizedUrl = url;
+
+  // Fix double protocol: https:https://domain.com -> https://domain.com
+  if (normalizedUrl.startsWith("https:https://") || normalizedUrl.startsWith("http:http://")) {
+    normalizedUrl = normalizedUrl.substring(normalizedUrl.indexOf("http", 1));
+  }
+
+  // Fix protocol-relative URLs: //domain.com -> https://domain.com
+  if (normalizedUrl.startsWith("//")) {
+    normalizedUrl = `https:${normalizedUrl}`;
+  }
+
+  // Get the target domain from environment variable
+  const serverUrl = import.meta.env.VITE_SERVER_URL || "https://vendor.artpay.art";
+  const targetDomain = serverUrl.replace(/^https?:\/\//, ""); // Remove protocol to get just the domain
+
+  // Replace artpay.art URLs with the correct backend domain
+  if (normalizedUrl.includes("artpay.art") && !normalizedUrl.includes(targetDomain)) {
+    // Replace any variant of artpay.art domain (including staging-api, api-staging, vendor, staging2-vendor, etc.)
+    // This regex captures any subdomain pattern before artpay.art
+    normalizedUrl = normalizedUrl.replace(/\/\/[a-zA-Z0-9-]*\.?artpay\.art/g, `//${targetDomain}`);
+    normalizedUrl = normalizedUrl.replace(/https:\/\/[a-zA-Z0-9-]*\.?artpay\.art/g, `https://${targetDomain}`);
+    normalizedUrl = normalizedUrl.replace(/http:\/\/[a-zA-Z0-9-]*\.?artpay\.art/g, `https://${targetDomain}`);
+  }
+
+  return normalizedUrl;
+};
+
 
 interface categoryValueMatcher {
   getCategoryMapValues(artwork: Artwork, key: string): string[];
@@ -82,7 +123,7 @@ export const artworkToGalleryItem = (
     size: cardSize,
     title: artwork.name,
     slug: artwork.slug,
-    imgUrl: artwork?.images?.length ? artwork.images[0].woocommerce_thumbnail : "",
+    imgUrl: normalizeImageUrl(artwork?.images?.length ? artwork.images[0].woocommerce_thumbnail : ""),
     estimatedShippingCost: artwork?.acf?.estimated_shipping_cost,
     dimensions: getArtworkDimensions(artwork),
     technique: valueMatcher?.getCategoryMapValues(artwork, "tecnica").join(" ") || "",
@@ -98,7 +139,7 @@ export const artworkToOrderItem = (artwork: Artwork, valueMatcher?: categoryValu
     price: +artwork.price,
     title: artwork.name,
     slug: artwork.slug,
-    imgUrl: artwork?.images?.length ? artwork.images[0].woocommerce_thumbnail : "",
+    imgUrl: normalizeImageUrl(artwork?.images?.length ? artwork.images[0].woocommerce_thumbnail : ""),
     artworkSize: getArtworkDimensions(artwork),
     artworkTechnique: valueMatcher?.getCategoryMapValues(artwork, "tecnica").join(" ") || "",
     reservedUntil: parseDate(artwork?.acf?.customer_reserved_until)
@@ -119,7 +160,7 @@ export const artistToGalleryItem = (artist: Artist, size: CardSize = "medium"): 
     title: artist.title?.rendered || "",
     description: artist.excerpt?.rendered || "",
     artworksCount: artist.artworks?.length || 0,
-    imgUrl: imgUrl
+    imgUrl: normalizeImageUrl(imgUrl)
   };
 };
 
@@ -127,8 +168,8 @@ export const galleryToGalleryContent = (gallery: Gallery): GalleryContent => ({
   id: gallery.id,
   title: gallery.display_name,
   subtitle: `${gallery.address?.city}`,
-  logoImage: gallery.shop?.image,
-  coverImage: gallery.shop?.banner,
+  logoImage: normalizeImageUrl(gallery.shop?.image),
+  coverImage: normalizeImageUrl(gallery.shop?.banner),
   categories: [],
   description: gallery.message_to_buyers,
   productsCount: gallery.products_count,
@@ -139,8 +180,8 @@ export const galleryToGalleryItem = (gallery: Gallery): GalleryCardProps => ({
   title: gallery.display_name,
   slug: gallery.shop.slug,
   subtitle: `${gallery.address?.city}`,
-  imgUrl: gallery.shop.banner,
-  logoUrl: gallery.shop.image
+  imgUrl: normalizeImageUrl(gallery.shop.banner),
+  logoUrl: normalizeImageUrl(gallery.shop.image)
 });
 
 export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProps => {
@@ -235,7 +276,7 @@ interface SortableHeroSlideItem extends HeroSlideItem {
 export const postAndMediaToHeroSlide = (post: Post, media?: Media): SortableHeroSlideItem => {
   return {
     cta: post.excerpt?.rendered ? ctaFromLink(post.excerpt?.rendered) : undefined,
-    imgUrl: media?.source_url || "",
+    imgUrl: normalizeImageUrl(media?.source_url || ""),
     subtitle: post.content?.rendered || "",
     title: post.title?.rendered || "",
     order: +(post.acf.ordine || "0")
@@ -253,7 +294,7 @@ export const postAndMediaToPromoItem = (
 ): SortablePromoItem => {
   return {
     cta: post.excerpt?.rendered ? ctaFromLink(post.excerpt?.rendered) : undefined,
-    imgUrl: media?.source_url || "",
+    imgUrl: normalizeImageUrl(media?.source_url || ""),
     content: post.content?.rendered || "",
     title: post.title?.rendered || "",
     order: +(post.acf.ordine || "0"),

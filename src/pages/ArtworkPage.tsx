@@ -41,6 +41,7 @@ import CardGridSkeleton from "../components/CardGridSkeleton.tsx";
 import klarna_card from "../assets/images/klarnacard.svg";
 import santander_card from "../assets/images/santandercard.svg";
 import cards_group from "../assets/images/cardsgroup.svg";
+import paypal_card from "../assets/images/paypal_card.svg";
 import { KLARNA_FEE, KLARNA_MAX_LIMIT } from "../constants.ts";
 
 const ArtworkPage: React.FC = () => {
@@ -357,12 +358,18 @@ const ArtworkPage: React.FC = () => {
                     {Number(artwork?.price) * KLARNA_FEE <= KLARNA_MAX_LIMIT && (
                       <li className={"flex justify-between items-center"}>
                         <span>Pagamento dilazionato</span>
-                        <img src={klarna_card} alt={"Klarna payment Card "} />
+                        <div className={'flex gap-2'}>
+                          <img src={paypal_card} alt={"Paypal payment Card "} className={'size-8.5'} />
+                          <img src={klarna_card} alt={"Klarna payment Card "} />
+                        </div>
                       </li>
                     )}
                     <li className={"flex justify-between items-center"}>
                       <span>Unica soluzione</span>
-                      <img src={cards_group} alt={"Other payment cards "} />
+                      <div className={'flex gap-2'}>
+                        <img src={paypal_card} alt={"PayPal card "} className={'size-8.5'} />
+                        <img src={cards_group} alt={"Other payment cards "} />
+                      </div>
                     </li>
                   </ul>
                 </div>
