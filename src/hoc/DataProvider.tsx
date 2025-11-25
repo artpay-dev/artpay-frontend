@@ -176,6 +176,8 @@ export interface DataContext {
 
   removeFavouriteGallery(id: string): Promise<number[]>;
 
+  getDislikedArtworks(): Promise<number[]>;
+
   downpaymentPercentage(): number;
 }
 
@@ -240,6 +242,7 @@ const defaultContext: DataContext = {
   getFavouriteGalleries: () => Promise.reject("Data provider loaded"),
   addFavouriteGallery: () => Promise.reject("Data provider loaded"),
   removeFavouriteGallery: () => Promise.reject("Data provider loaded"),
+  getDislikedArtworks: () => Promise.reject("Data provider loaded"),
   updatePaymentIntent: () => Promise.reject("Data provider loaded"),
   getCategoryMapValues: () => [],
   getArtistCategories: () => [],
@@ -487,6 +490,17 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       favouritesMap.galleries = resp.data || favouritesMap.galleries;
       dispatchFavouritesUpdated({ ...favouritesMap });
       return resp.data;
+    },
+
+    async getDislikedArtworks(): Promise<number[]> {
+      if (!auth.isAuthenticated) {
+        return [];
+      }
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/getUserDislikedArtworks`,
+        { headers: { Authorization: auth.getAuthToken() } },
+      );
+      return resp.data || [];
     },
   };
 

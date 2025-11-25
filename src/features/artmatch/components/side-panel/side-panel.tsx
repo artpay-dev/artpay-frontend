@@ -1,6 +1,9 @@
-import { Button, Drawer, useMediaQuery, useTheme } from "@mui/material";
-import { useState } from "react";
+import { Button, CircularProgress, Drawer, useMediaQuery, useTheme } from "@mui/material";
+import { useState, useEffect } from "react";
 import { FiltersPanel } from "../index.ts";
+import { useData, FAVOURITES_UPDATED_EVENT } from "../../../../hoc/DataProvider";
+import { Artwork } from "../../../../types/artwork";
+import { GroupedMessage } from "../../../../types/user";
 
 const FilterIcon = ({ color = "tertiary" }: { color: "primary" | "tertiary" }) => {
   const colorVariants = {
@@ -20,36 +23,77 @@ const FilterIcon = ({ color = "tertiary" }: { color: "primary" | "tertiary" }) =
   );
 };
 
-const ArtworkCard = () => (
-  <li className={"flex items-center gap-4 w-full"}>
-    <div className={"rounded-2xl overflow-hidden h-30 w-30 aspect-square "}>
-      <img src={"../images/artists_example.png"} className={"w-full h-full object-cover"} alt={"Preview"} />
-    </div>
-    <div>
-      <ul className={"flex flex-col"}>
-        <li className={"text-secondary font-medium mb-1"}>Nome artista</li>
-        <li className={"text-teriary text-2xl font-medium mb-2"}>Nome opera</li>
-        <li className={"text-secondary font-medium"}>Nome della galleria</li>
-      </ul>
-    </div>
-  </li>
-);
+interface ArtworkCardProps {
+  artwork: Artwork;
+}
 
-const MessagesCard = ({ hasNotification, date }: { hasNotification: boolean; date: string }) => (
-  <li className={"p-4 flex items-center w-full gap-2"}>
-    <div className={"overflow-hidden rounded-full h-12 min-w-12 border border-secondary/70 aspect-square"}>
-      <img src="../images/gallery-logo-example.png" alt="Gallery preview" className=" h-full w-full object-cover" />
-    </div>
-    <div className={"flex flex-col space-y-1"}>
-      <span>Galleria Lorem Ipsum</span>
-      <p className={"text-secondary text-xs"}>Messaggio lorem ipsum dolor sit consweh...</p>
-    </div>
-    <div className={`flex flex-col  text-xs space-y-2 ${hasNotification ? "text-primary" : "text-secondary"}`}>
-      <span>{date}</span>
-      {hasNotification && <span className={"bg-primary text-white px-2.5 py-1 rounded-full"}>1</span>}
-    </div>
-  </li>
-);
+const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
+  const imageUrl = artwork.images?.[0]?.src || "../images/artists_example.png";
+  const artistName = artwork.attributes?.find((attr) => attr.name === "Artista")?.options?.[0] || "Artista sconosciuto";
+  const galleryName = artwork.store_name || "Galleria";
+
+  console.log("artwork", artwork);
+
+  return (
+    <li className={"flex items-center gap-4 w-full cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"}>
+      <div className={"rounded-2xl overflow-hidden h-30 w-30 aspect-square flex-shrink-0"}>
+        <img src={imageUrl} className={"w-full h-full object-cover"} alt={artwork.name} />
+      </div>
+      <div className={"flex-1 min-w-0"}>
+        <ul className={"flex flex-col"}>
+          <li className={"text-secondary font-medium mb-1 text-sm truncate"}>{artistName}</li>
+          <li className={"text-tertiary text-base font-medium mb-2 truncate"} title={artwork.name}>
+            {artwork.name}
+          </li>
+          <li className={"text-secondary font-medium text-sm truncate"}>{galleryName}</li>
+        </ul>
+      </div>
+    </li>
+  );
+};
+
+interface MessagesCardProps {
+  conversation: GroupedMessage;
+}
+
+const MessagesCard = ({ conversation }: MessagesCardProps) => {
+  const imageUrl = conversation.product.images?.[0]?.src || "../images/gallery-logo-example.png";
+  const galleryName = conversation.product.store_name || "Galleria";
+  const artworkName = conversation.product.name;
+
+  // Tronca il messaggio se troppo lungo
+  const truncatedMessage = conversation.lastMessageText.length > 50
+    ? conversation.lastMessageText.substring(0, 50) + "..."
+    : conversation.lastMessageText;
+
+  // Formatta la data in modo relativo (Oggi, Ieri, giorno della settimana, data)
+  const formatDate = (date: any) => {
+    const now = new Date();
+    const messageDate = date.toDate();
+    const diffDays = Math.floor((now.getTime() - messageDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "Oggi";
+    if (diffDays === 1) return "Ieri";
+    if (diffDays < 7) return date.format("dddd");
+    return date.format("DD/MM/YYYY");
+  };
+
+  return (
+    <li className={"p-4 flex items-center w-full gap-2 cursor-pointer hover:bg-gray-100 transition-colors"}>
+      <div className={"overflow-hidden rounded-2xl h-16 min-w-16 aspect-square"}>
+        <img src={imageUrl} alt={artworkName} className="h-full w-full object-cover" />
+      </div>
+      <div className={"flex flex-col space-y-1 flex-1 min-w-0"}>
+        <span className="font-medium truncate">{galleryName}</span>
+        <p className="text-secondary text-xs font-medium truncate">{artworkName}</p>
+        <p className="text-secondary text-xs truncate">{truncatedMessage}</p>
+      </div>
+      <div className="flex flex-col text-xs text-secondary">
+        <span>{formatDate(conversation.lastMessageDate)}</span>
+      </div>
+    </li>
+  );
+};
 
 interface SidePanelProps {
   open?: boolean;
@@ -59,8 +103,66 @@ interface SidePanelProps {
 const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
   const [tab, setTab] = useState<"like" | "match">("like");
   const [filtersPanelOpen, setFiltersPanelOpen] = useState<boolean>(false);
+  const [likedArtworks, setLikedArtworks] = useState<Artwork[]>([]);
+  const [conversations, setConversations] = useState<GroupedMessage[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const dataProvider = useData();
+
+  // Carica i dati quando cambia il tab
+  useEffect(() => {
+    if (tab === "like") {
+      loadFavouriteArtworks();
+    } else if (tab === "match") {
+      loadConversations();
+    }
+  }, [tab]);
+
+  // Listener per aggiornamenti ai preferiti
+  useEffect(() => {
+    const handleFavouritesUpdate = () => {
+      if (tab === "like") {
+        loadFavouriteArtworks();
+      }
+    };
+
+    document.addEventListener(FAVOURITES_UPDATED_EVENT, handleFavouritesUpdate);
+    return () => {
+      document.removeEventListener(FAVOURITES_UPDATED_EVENT, handleFavouritesUpdate);
+    };
+  }, [tab]);
+
+  const loadFavouriteArtworks = async () => {
+    try {
+      setLoading(true);
+      const favouriteIds = await dataProvider.getFavouriteArtworks();
+      if (favouriteIds.length > 0) {
+        const artworks = await dataProvider.getArtworks(favouriteIds);
+        setLikedArtworks(artworks);
+      } else {
+        setLikedArtworks([]);
+      }
+    } catch (error) {
+      console.error("Errore nel caricamento delle opere preferite:", error);
+      setLikedArtworks([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadConversations = async () => {
+    try {
+      setLoading(true);
+      const chatHistory = await dataProvider.getChatHistory();
+      setConversations(chatHistory);
+    } catch (error) {
+      console.error("Errore nel caricamento delle conversazioni:", error);
+      setConversations([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFiltersPanelOpen = () => {
     setFiltersPanelOpen(!filtersPanelOpen);
@@ -102,21 +204,48 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
           </nav>
           <div className={"overflow-y-auto flex-1"}>
             {tab === "like" && (
-              <ul className={"flex flex-col mt-8 space-y-6"}>
-                <ArtworkCard />
-                <ArtworkCard />
-                <ArtworkCard />
-              </ul>
+              <>
+                {loading ? (
+                  <div className={"flex justify-center items-center mt-12"}>
+                    <CircularProgress size={40} />
+                  </div>
+                ) : likedArtworks.length === 0 ? (
+                  <div className={"flex flex-col items-center justify-center mt-12 px-4"}>
+                    <p className={"text-secondary text-center"}>Nessuna opera nei preferiti</p>
+                    <p className={"text-secondary text-sm text-center mt-2"}>
+                      Inizia a mettere like alle opere che ti piacciono!
+                    </p>
+                  </div>
+                ) : (
+                  <ul className={"flex flex-col mt-8 space-y-6"}>
+                    {likedArtworks.map((artwork) => (
+                      <ArtworkCard key={artwork.id} artwork={artwork} />
+                    ))}
+                  </ul>
+                )}
+              </>
             )}
             {tab === "match" && (
-              <ul className={"flex flex-col mt-8 space-y-6 bg-[#FAFAFB] "}>
-                <MessagesCard hasNotification={true} date={"Ieri"} />
-                <MessagesCard hasNotification={true} date={"Ieri"} />
-                <MessagesCard hasNotification={false} date={"Mercoledì"} />
-                <MessagesCard hasNotification={false} date={"Mercoledì"} />
-                <MessagesCard hasNotification={false} date={"Martedì"} />
-                <MessagesCard hasNotification={false} date={"Lunedì"} />
-              </ul>
+              <>
+                {loading ? (
+                  <div className={"flex justify-center items-center mt-12"}>
+                    <CircularProgress size={40} />
+                  </div>
+                ) : conversations.length === 0 ? (
+                  <div className={"flex flex-col items-center justify-center mt-12 px-4"}>
+                    <p className={"text-secondary text-center"}>Nessuna conversazione</p>
+                    <p className={"text-secondary text-sm text-center mt-2"}>
+                      Le tue conversazioni con le gallerie appariranno qui
+                    </p>
+                  </div>
+                ) : (
+                  <ul className={"flex flex-col mt-8 space-y-2"}>
+                    {conversations.map((conversation) => (
+                      <MessagesCard key={conversation.product.id} conversation={conversation} />
+                    ))}
+                  </ul>
+                )}
+              </>
             )}
           </div>
         </div>

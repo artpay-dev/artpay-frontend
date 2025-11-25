@@ -39,48 +39,48 @@ export const artmatchService = {
   },
 
   /**
-   * Salva un like per un prodotto
+   * Salva un like per un prodotto chiamando l'API esistente
    * @param productId - ID del prodotto che piace
+   * @param authToken - Token di autenticazione dell'utente
    */
-  async likeProduct(productId: number): Promise<void> {
-    // TODO: Implementare salvataggio like (localStorage o backend)
-    console.log("Like prodotto:", productId);
-
-    // Per ora salvo in localStorage
-    const likes = JSON.parse(localStorage.getItem("artmatch-likes") || "[]");
-    if (!likes.includes(productId)) {
-      likes.push(productId);
-      localStorage.setItem("artmatch-likes", JSON.stringify(likes));
+  async likeProduct(productId: number, authToken: string): Promise<number[]> {
+    try {
+      const resp = await axios.post<unknown, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/addUserFavoriteArtwork/${productId}`,
+        {},
+        {
+          headers: {
+            Authorization: authToken,
+          },
+        },
+      );
+      return resp.data;
+    } catch (error) {
+      console.error("Errore nel salvataggio del like:", error);
+      throw error;
     }
   },
 
   /**
    * Salva un dislike per un prodotto
    * @param productId - ID del prodotto che non piace
+   * @param authToken - Token di autenticazione dell'utente
    */
-  async dislikeProduct(productId: number): Promise<void> {
-    // TODO: Implementare salvataggio dislike (localStorage o backend)
-    console.log("Dislike prodotto:", productId);
-
-    // Per ora salvo in localStorage
-    const dislikes = JSON.parse(localStorage.getItem("artmatch-dislikes") || "[]");
-    if (!dislikes.includes(productId)) {
-      dislikes.push(productId);
-      localStorage.setItem("artmatch-dislikes", JSON.stringify(dislikes));
+  async dislikeProduct(productId: number, authToken: string): Promise<number[]> {
+    try {
+      const resp = await axios.post<unknown, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/wp/v2/addUserDislikedArtwork/${productId}`,
+        {},
+        {
+          headers: {
+            Authorization: authToken,
+          },
+        },
+      );
+      return resp.data;
+    } catch (error) {
+      console.error("Errore nel salvataggio del dislike:", error);
+      throw error;
     }
-  },
-
-  /**
-   * Recupera la lista di prodotti piaciuti
-   */
-  async getLikedProducts(): Promise<number[]> {
-    return JSON.parse(localStorage.getItem("artmatch-likes") || "[]");
-  },
-
-  /**
-   * Recupera la lista di prodotti non piaciuti
-   */
-  async getDislikedProducts(): Promise<number[]> {
-    return JSON.parse(localStorage.getItem("artmatch-dislikes") || "[]");
   },
 };

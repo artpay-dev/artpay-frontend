@@ -4,12 +4,16 @@ import { SwipeCard } from "../swipe-card";
 import { artmatchService } from "../../services/artmatch-services";
 import { Artwork } from "../../../../types/artwork";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import { useAuth } from "../../../../hoc/AuthProvider";
+import { useData } from "../../../../hoc/DataProvider";
 
 const MainApp = () => {
   const [products, setProducts] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const auth = useAuth();
+  const dataProvider = useData();
 
   // Carica i prodotti iniziali
   useEffect(() => {
@@ -20,8 +24,34 @@ const MainApp = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await artmatchService.getProducts(10);
-      setProducts(data);
+
+      // Carica i prodotti dal backend
+      const data = await artmatchService.getProducts(50); // Carica più prodotti per compensare il filtering
+
+      // Se l'utente è autenticato, filtra le opere già viste
+      if (auth.isAuthenticated) {
+        try {
+          const [likedIds, dislikedIds] = await Promise.all([
+            dataProvider.getFavouriteArtworks(),
+            dataProvider.getDislikedArtworks(),
+          ]);
+
+          // Crea un Set di tutti gli ID già visti (liked + disliked)
+          const seenIds = new Set([...likedIds, ...dislikedIds]);
+
+          // Filtra le opere per escludere quelle già viste
+          const filteredProducts = data.filter((artwork) => !seenIds.has(artwork.id));
+
+          setProducts(filteredProducts);
+        } catch (filterErr) {
+          console.error("Errore nel filtraggio dei prodotti:", filterErr);
+          // In caso di errore, mostra comunque tutti i prodotti
+          setProducts(data);
+        }
+      } else {
+        setProducts(data);
+      }
+
       setCurrentIndex(0);
     } catch (err) {
       console.error("Errore nel caricamento dei prodotti:", err);
@@ -32,13 +62,42 @@ const MainApp = () => {
   };
 
   const handleLike = async (artwork: Artwork) => {
-    await artmatchService.likeProduct(artwork.id);
+    // Cambia card immediatamente
     moveToNext();
+
+    // Salva il like in background usando il DataProvider
+    try {
+      if (!auth.isAuthenticated) {
+        console.error("User not authenticated");
+        auth.login();
+        return;
+      }
+      dataProvider.addFavouriteArtwork(artwork.id.toString()).catch((err) => {
+        console.error("Errore nel salvare il like:", err);
+      });
+    } catch (err) {
+      console.error("Errore nel salvare il like:", err);
+    }
   };
 
   const handleDislike = async (artwork: Artwork) => {
-    await artmatchService.dislikeProduct(artwork.id);
+    // Cambia card immediatamente
     moveToNext();
+
+    // Salva il dislike in background
+    try {
+      const authToken = auth.getAuthToken();
+      if (!authToken) {
+        console.error("User not authenticated");
+        auth.login();
+        return;
+      }
+      artmatchService.dislikeProduct(artwork.id, authToken).catch((err) => {
+        console.error("Errore nel salvare il dislike:", err);
+      });
+    } catch (err) {
+      console.error("Errore nel salvare il dislike:", err);
+    }
   };
 
   const moveToNext = () => {
