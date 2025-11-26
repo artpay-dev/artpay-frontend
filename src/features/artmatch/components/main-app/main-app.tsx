@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Box, CircularProgress, Typography, Button } from "@mui/material";
 import { SwipeCard } from "../swipe-card";
 import { artmatchService } from "../../services/artmatch-services";
@@ -6,12 +6,21 @@ import { Artwork } from "../../../../types/artwork";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useAuth } from "../../../../hoc/AuthProvider";
 import { useData } from "../../../../hoc/DataProvider";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { EffectCards } from "swiper/modules";
+import type { Swiper as SwiperType } from "swiper";
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/effect-cards";
+import "../../styles/artmatch.css";
 
 const MainApp = () => {
   const [products, setProducts] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const swiperRef = useRef<SwiperType | null>(null);
   const auth = useAuth();
   const dataProvider = useData();
 
@@ -101,12 +110,18 @@ const MainApp = () => {
   };
 
   const moveToNext = () => {
-    const nextIndex = currentIndex + 1;
-    if (nextIndex >= products.length) {
-      // Ricarica nuovi prodotti quando finiscono
+    if (swiperRef.current) {
+      swiperRef.current.slideNext();
+    }
+  };
+
+  const handleSlideChange = (swiper: SwiperType) => {
+    const newIndex = swiper.activeIndex;
+    setCurrentIndex(newIndex);
+
+    // Ricarica nuovi prodotti quando si avvicina alla fine
+    if (newIndex >= products.length - 2) {
       loadProducts();
-    } else {
-      setCurrentIndex(nextIndex);
     }
   };
 
@@ -169,9 +184,6 @@ const MainApp = () => {
     );
   }
 
-  const currentProduct = products[currentIndex];
-  const nextProduct = currentIndex + 1 < products.length ? products[currentIndex + 1] : null;
-
   return (
     <Box
       sx={{
@@ -183,32 +195,37 @@ const MainApp = () => {
         padding: 4,
         position: "relative",
       }}>
-      {/* Container per le card */}
+      {/* Swiper con effetto cards */}
       <Box
         sx={{
-          position: "relative",
           width: "100%",
-          maxWidth: "500px",
-          minHeight: "600px",
+          maxWidth: "400px",
+          height: "720px",
         }}>
-        {/* Card successiva (sfondo) */}
-        {nextProduct && (
-          <Box
-            sx={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-              transform: "scale(0.95)",
-              opacity: 0.5,
-            }}>
-            <SwipeCard artwork={nextProduct} onLike={() => {}} onDislike={() => {}} />
-          </Box>
-        )}
-
-        {/* Card corrente (in primo piano) */}
-        {currentProduct && (
-          <SwipeCard artwork={currentProduct} onLike={handleLike} onDislike={handleDislike} isTop={true} />
-        )}
+        <Swiper
+          effect="cards"
+          grabCursor={true}
+          modules={[EffectCards]}
+          onSwiper={(swiper) => (swiperRef.current = swiper)}
+          onSlideChange={handleSlideChange}
+          cardsEffect={{
+            perSlideOffset: 8,
+            perSlideRotate: 2,
+            rotate: true,
+            slideShadows: true,
+          }}
+          className="artmatch-swiper">
+          {products.map((artwork, index) => (
+            <SwiperSlide key={artwork.id}>
+              <SwipeCard
+                artwork={artwork}
+                onLike={handleLike}
+                onDislike={handleDislike}
+                isTop={index === currentIndex}
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </Box>
     </Box>
   );
