@@ -1,9 +1,25 @@
-import { Button, CircularProgress, Drawer, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Drawer,
+  IconButton,
+  TextField,
+  Typography,
+  useMediaQuery,
+  useTheme,
+  Box,
+} from "@mui/material";
 import { useState, useEffect } from "react";
 import { FiltersPanel } from "../index.ts";
 import { useData, FAVOURITES_UPDATED_EVENT } from "../../../../hoc/DataProvider";
 import { Artwork } from "../../../../types/artwork";
 import { GroupedMessage } from "../../../../types/user";
+import CloseIcon from "@mui/icons-material/Close";
+import SendIcon from "@mui/icons-material/Send";
+import dayjs from "dayjs";
 
 const FilterIcon = ({ color = "tertiary" }: { color: "primary" | "tertiary" }) => {
   const colorVariants = {
@@ -54,9 +70,10 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
 
 interface MessagesCardProps {
   conversation: GroupedMessage;
+  onClick: () => void;
 }
 
-const MessagesCard = ({ conversation }: MessagesCardProps) => {
+const MessagesCard = ({ conversation, onClick }: MessagesCardProps) => {
   const imageUrl = conversation.product.images?.[0]?.src || "../images/gallery-logo-example.png";
   const galleryName = conversation.product.store_name || "Galleria";
   const artworkName = conversation.product.name;
@@ -79,7 +96,7 @@ const MessagesCard = ({ conversation }: MessagesCardProps) => {
   };
 
   return (
-    <li className={"p-4 flex items-center w-full gap-2 cursor-pointer hover:bg-gray-100 transition-colors"}>
+    <li onClick={onClick} className={"p-4 flex items-center w-full gap-2 cursor-pointer hover:bg-gray-100 transition-colors"}>
       <div className={"overflow-hidden rounded-2xl h-16 min-w-16 aspect-square"}>
         <img src={imageUrl} alt={artworkName} className="h-full w-full object-cover" />
       </div>
@@ -106,6 +123,10 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
   const [likedArtworks, setLikedArtworks] = useState<Artwork[]>([]);
   const [conversations, setConversations] = useState<GroupedMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [selectedConversation, setSelectedConversation] = useState<GroupedMessage | null>(null);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [newMessage, setNewMessage] = useState<string>("");
+  const [sending, setSending] = useState<boolean>(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const dataProvider = useData();
@@ -155,7 +176,23 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
     try {
       setLoading(true);
       const chatHistory = await dataProvider.getChatHistory();
-      setConversations(chatHistory);
+
+      // Filtra solo le conversazioni ArtMatch con risposta dalla galleria
+      const artMatchConversations = chatHistory.filter((conversation) => {
+        // Verifica se almeno un messaggio utente inizia con "ArtMatch"
+        const hasArtMatchMessage = conversation.messages.some(
+          (msg) => msg.userMessage && msg.text.startsWith("ArtMatch")
+        );
+
+        // Verifica se c'è almeno una risposta dalla galleria
+        const hasGalleryResponse = conversation.messages.some(
+          (msg) => !msg.userMessage
+        );
+
+        return hasArtMatchMessage && hasGalleryResponse;
+      });
+
+      setConversations(artMatchConversations);
     } catch (error) {
       console.error("Errore nel caricamento delle conversazioni:", error);
       setConversations([]);
@@ -166,6 +203,49 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
 
   const handleFiltersPanelOpen = () => {
     setFiltersPanelOpen(!filtersPanelOpen);
+  };
+
+  const handleConversationClick = (conversation: GroupedMessage) => {
+    setSelectedConversation(conversation);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedConversation(null);
+    setNewMessage("");
+  };
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !selectedConversation || sending) return;
+
+    try {
+      setSending(true);
+      await dataProvider.sendQuestionToVendor({
+        product_id: selectedConversation.product.id,
+        question: newMessage,
+      });
+
+      // Aggiungi il messaggio all'interfaccia
+      const newMsg = {
+        text: newMessage,
+        userMessage: true,
+        date: dayjs(),
+      };
+
+      setSelectedConversation({
+        ...selectedConversation,
+        messages: [...selectedConversation.messages, newMsg],
+        lastMessageText: newMessage,
+        lastMessageDate: dayjs(),
+      });
+
+      setNewMessage("");
+    } catch (error) {
+      console.error("Errore nell'invio del messaggio:", error);
+    } finally {
+      setSending(false);
+    }
   };
 
   const panelContent = (
@@ -241,7 +321,11 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
                 ) : (
                   <ul className={"flex flex-col mt-8 space-y-2"}>
                     {conversations.map((conversation) => (
-                      <MessagesCard key={conversation.product.id} conversation={conversation} />
+                      <MessagesCard
+                        key={conversation.product.id}
+                        conversation={conversation}
+                        onClick={() => handleConversationClick(conversation)}
+                      />
                     ))}
                   </ul>
                 )}
@@ -256,14 +340,194 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
   // Su mobile: mostra come Drawer
   if (isMobile) {
     return (
-      <Drawer anchor="left" open={open} onClose={onClose}>
-        {panelContent}
-      </Drawer>
+      <>
+        <Drawer anchor="left" open={open} onClose={onClose}>
+          {panelContent}
+        </Drawer>
+        {/* Modale conversazione */}
+        {selectedConversation && (
+          <Dialog open={modalOpen} onClose={handleModalClose} maxWidth="md" fullWidth>
+            <DialogTitle>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box>
+                  <Typography variant="h6">{selectedConversation.product.store_name || "Galleria"}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {selectedConversation.product.name}
+                  </Typography>
+                </Box>
+                <IconButton onClick={handleModalClose} edge="end">
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+            </DialogTitle>
+            <DialogContent>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2, py: 2 }}>
+                {selectedConversation.messages.map((message, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: "flex",
+                      justifyContent: message.userMessage ? "flex-end" : "flex-start",
+                      width: "100%",
+                    }}>
+                    <Box
+                      sx={{
+                        maxWidth: "70%",
+                        padding: 2,
+                        borderRadius: 2,
+                        backgroundColor: message.userMessage ? "#42B396" : "#f5f5f5",
+                        color: message.userMessage ? "white" : "text.primary",
+                      }}>
+                      <Typography variant="body2">{message.text}</Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: "block",
+                          mt: 0.5,
+                          opacity: 0.7,
+                          fontSize: "0.7rem",
+                        }}>
+                        {message.date.format("DD/MM/YYYY HH:mm")}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+
+              {/* Input per rispondere */}
+              <Box sx={{ display: "flex", gap: 1, mt: 2, pt: 2, pb: 3, borderTop: "1px solid #e0e0e0" }}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Scrivi un messaggio..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                  disabled={sending}
+                  multiline
+                  maxRows={2}
+                />
+                <IconButton
+                  onClick={handleSendMessage}
+                  disabled={!newMessage.trim() || sending}
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    minWidth: 40,
+                    minHeight: 40,
+                    backgroundColor: "#42B396",
+                    color: "white",
+                    "&:hover": { backgroundColor: "#358f7a" },
+                    "&:disabled": { backgroundColor: "#e0e0e0" },
+                  }}>
+                  {sending ? <CircularProgress size={20} color="inherit" /> : <SendIcon fontSize="small" />}
+                </IconButton>
+              </Box>
+            </DialogContent>
+          </Dialog>
+        )}
+      </>
     );
   }
 
   // Su desktop: mostra sempre fisso
-  return panelContent;
+  return (
+    <>
+      {panelContent}
+      {/* Modale conversazione */}
+      {selectedConversation && (
+        <Dialog open={modalOpen} onClose={handleModalClose} maxWidth="md" fullWidth>
+          <DialogTitle>
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Box>
+                <Typography variant="h6">{selectedConversation.product.store_name || "Galleria"}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {selectedConversation.product.name}
+                </Typography>
+              </Box>
+              <IconButton onClick={handleModalClose} edge="end">
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, py: 2 }}>
+              {selectedConversation.messages.map((message, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: "flex",
+                    justifyContent: message.userMessage ? "flex-end" : "flex-start",
+                    width: "100%",
+                  }}>
+                  <Box
+                    sx={{
+                      maxWidth: "70%",
+                      padding: 2,
+                      borderRadius: 2,
+                      backgroundColor: message.userMessage ? "#42B396" : "#f5f5f5",
+                      color: message.userMessage ? "white" : "text.primary",
+                    }}>
+                    <Typography variant="body2">{message.text}</Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "block",
+                        mt: 0.5,
+                        opacity: 0.7,
+                        fontSize: "0.7rem",
+                      }}>
+                      {message.date.format("DD/MM/YYYY HH:mm")}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+
+            {/* Input per rispondere */}
+            <Box sx={{ display: "flex", gap: 1, mt: 2, pt: 2, pb: 3, borderTop: "1px solid #e0e0e0" }}>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Scrivi un messaggio..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+                disabled={sending}
+                multiline
+                maxRows={2}
+              />
+              <IconButton
+                onClick={handleSendMessage}
+                disabled={!newMessage.trim() || sending}
+                sx={{
+                  width: 40,
+                  height: 40,
+                  minWidth: 40,
+                  minHeight: 40,
+                  backgroundColor: "#42B396",
+                  color: "white",
+                  "&:hover": { backgroundColor: "#358f7a" },
+                  "&:disabled": { backgroundColor: "#e0e0e0" },
+                }}>
+                {sending ? <CircularProgress size={20} color="inherit" /> : <SendIcon fontSize="small" />}
+              </IconButton>
+            </Box>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
+  );
 };
 
 export default SidePanel;

@@ -81,9 +81,25 @@ const MainApp = () => {
         auth.login();
         return;
       }
+
+      // Salva il like
       dataProvider.addFavouriteArtwork(artwork.id.toString()).catch((err) => {
         console.error("Errore nel salvare il like:", err);
       });
+
+      // Invia messaggio automatico alla galleria con prefisso "ArtMatch"
+      const artworkName = artwork.name || "quest'opera";
+      const artistName = artwork.acf?.artist?.[0]?.post_title || "questo artista";
+      const message = `ArtMatch - Sono interessato a ${artworkName} di ${artistName}. Vorrei avere maggiori informazioni.`;
+
+      dataProvider
+        .sendQuestionToVendor({
+          product_id: artwork.id,
+          question: message,
+        })
+        .catch((err) => {
+          console.error("Errore nell'invio del messaggio alla galleria:", err);
+        });
     } catch (err) {
       console.error("Errore nel salvare il like:", err);
     }
