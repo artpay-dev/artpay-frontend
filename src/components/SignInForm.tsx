@@ -28,6 +28,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
                                                  onSubmit,
                                                  disabled = false
                                                }) => {
+  const baseUrl = import.meta.env.VITE_SERVER_URL || "https://vendor.artpay.art";
   const registrationFormContent: SignInFormContent = {
     fields: {
       email: { label: "Email" },
@@ -88,6 +89,13 @@ const SignInForm: React.FC<SignInFormProps> = ({
           variant="contained"
           disabled={disabled}>
           {registrationFormContent.buttonLabel}
+        </Button>
+        <Button
+          sx={{ mt: 1 }}
+          href={`${baseUrl}/wp-login.php`}
+          variant="outlined"
+          disabled={disabled}>
+          Accedi come galleria
         </Button>
       </Box>
     </form>
