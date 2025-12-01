@@ -14,6 +14,17 @@ export interface PasswordRecoveryFormData {
   email: string;
 }
 
+function normalizeEmailFromQuery(email: string) {
+  if (!email) return null;
+
+  // Ripristina il "+" che l'URL converte in spazio
+  const fixed = email.replace(/ /g, "+");
+
+  // Decodifica eventuali caratteri URL-encoded
+  return decodeURIComponent(fixed);
+}
+
+
 const subtitle = "La password deve contenere almeno una maiuscola, una minuscola, un numero, un segno punteggiatura (esclusi i caratteri $&#<>). La password deve essere lunga non meno di 8 caratteri e non più lunga di 50";
 
 const PasswordRecovery: React.FC<PasswordRecoveryProps> = ({}) => {
@@ -33,6 +44,7 @@ const PasswordRecovery: React.FC<PasswordRecoveryProps> = ({}) => {
     }
     setIsSaving(true);
     try {
+      console.log(email);
       await auth.resetPassword({ code: resetCode, email: email, password: data.newPassword });
       setComplete(true);
     } catch (e) {
@@ -45,9 +57,13 @@ const PasswordRecovery: React.FC<PasswordRecoveryProps> = ({}) => {
     const queryParams = new URLSearchParams(window.location.search);
     const resetCode = queryParams.get("code");
     const email = queryParams.get("email");
+    const normalizedEmail = normalizeEmailFromQuery(email as string);
+
+    console.log(normalizedEmail);
+
     if (resetCode && email) {
       setResetCode(resetCode);
-      setEmail(email);
+      setEmail(normalizedEmail as string);
       setIsReady(true);
     } else {
       snackbar.error("Link di recupero password non valido").then(() => {
