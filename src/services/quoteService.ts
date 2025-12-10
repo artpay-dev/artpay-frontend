@@ -259,9 +259,16 @@ export const quoteService = {
 
   /**
    * Aggiorna l'email del cliente per un ordine esistente
-   * Questo trigger farà partire l'email dal backend
+   * Questo trigger farà partire l'email o WhatsApp dal backend
    */
-  async updateOrderEmail(orderId: number, email: string, firstName?: string, lastName?: string): Promise<Order> {
+  async updateOrderEmail(
+    orderId: number,
+    email: string,
+    firstName?: string,
+    lastName?: string,
+    sendVia?: "email" | "whatsapp",
+    phone?: string
+  ): Promise<Order> {
     try {
       // Recupera il token WooCommerce dal vendor-user
       const vendorUserStr = localStorage.getItem("vendor-user");
@@ -274,15 +281,23 @@ export const quoteService = {
       const wcCredentials = btoa(`${consumer_key}:${consumer_secret}`);
       const wcToken = "Basic " + wcCredentials;
 
+      const requestBody: any = {
+        order_id: orderId,
+        email: email,
+        first_name: firstName,
+        last_name: lastName,
+        send_email: true,
+        send_via: sendVia || "email",
+      };
+
+      // Aggiungi il telefono solo se è stato fornito e si usa WhatsApp
+      if (sendVia === "whatsapp" && phone) {
+        requestBody.phone = phone;
+      }
+
       const resp = await axios.post<any, AxiosResponse<Order>>(
         `${baseUrl}/wp-json/wc-quote/v1/update-customer-email`,
-        {
-          order_id: orderId,
-          email: email,
-          first_name: firstName,
-          last_name: lastName,
-          send_email: true,
-        },
+        requestBody,
         {
           headers: {
             Authorization: wcToken,
