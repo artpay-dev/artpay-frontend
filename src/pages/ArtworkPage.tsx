@@ -185,10 +185,10 @@ const ArtworkPage: React.FC = () => {
         setArtwork(artwork);
 
         const [galleryArtworks, favouriteArtworks, favouriteGalleries, galleryDetails, artistDetails, userProfile] = await Promise.all([
-          data.listArtworksForGallery(artwork.vendor),
+          data.listArtworksForGallery(artwork.vendor as string),
           data.getFavouriteArtworks().catch(() => []),
           data.getFavouriteGalleries().catch(() => []),
-          artwork.vendor ? data.getGallery(artwork.vendor) : Promise.resolve(undefined),
+          artwork.vendor ? data.getGallery(artwork.vendor as string) : Promise.resolve(undefined),
           getPropertyFromMetadata(artwork.meta_data, "artist")?.ID
             ? data.getArtist(getPropertyFromMetadata(artwork.meta_data, "artist")!.ID)
             : Promise.resolve(undefined),
@@ -342,7 +342,7 @@ const ArtworkPage: React.FC = () => {
                 )}
               </Box>
               <Box display="flex" flexDirection={"column"} mt={12} bgcolor={"#EFF1FF"} borderRadius={2} padding={2} position="relative">
-                <div className={"flex w-full justify-between items-center mb-6 border-b border-[#010F22]/20  pb-6 relative"}>
+                <div className={"flex w-full justify-between items-center pb-6 relative"}>
                   <Typography variant="h2" sx={{ typography: { xs: "h4", sm: "h2" } }}>
                     € {formatCurrency(+(artwork?.price || 0))}
                   </Typography>
@@ -354,9 +354,16 @@ const ArtworkPage: React.FC = () => {
                   </Button>
                 </div>
                 <div className={"flex flex-col w-full md:flex-row justify-between space-y-4 md:space-y-0"}>
-                  <ul className={"flex flex-col gap-2 text-secondary leading-6 w-full "}>
+                  <ul className={"flex flex-col gap-6 divide-y divide-[#010F22]/20 text-secondary leading-6 w-full "}>
+                    <li className={"flex justify-between items-center pb-6"}>
+                      <span>Unica soluzione</span>
+                      <div className={'flex gap-2'}>
+                        <img src={paypal_card} alt={"PayPal card "} className={'size-8.5'} />
+                        <img src={cards_group} alt={"Other payment cards "} />
+                      </div>
+                    </li>
                     {Number(artwork?.price) * KLARNA_FEE <= KLARNA_MAX_LIMIT && (
-                      <li className={"flex justify-between items-center"}>
+                      <li className={"flex justify-between items-center "}>
                         <span>Pagamento dilazionato</span>
                         <div className={'flex gap-2'}>
                           <img src={paypal_card} alt={"Paypal payment Card "} className={'size-8.5'} />
@@ -364,13 +371,6 @@ const ArtworkPage: React.FC = () => {
                         </div>
                       </li>
                     )}
-                    <li className={"flex justify-between items-center"}>
-                      <span>Unica soluzione</span>
-                      <div className={'flex gap-2'}>
-                        <img src={paypal_card} alt={"PayPal card "} className={'size-8.5'} />
-                        <img src={cards_group} alt={"Other payment cards "} />
-                      </div>
-                    </li>
                   </ul>
                 </div>
 
