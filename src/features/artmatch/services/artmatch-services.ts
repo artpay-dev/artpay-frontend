@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { Artwork } from "../../../types/artwork";
+import { ArtmatchFilters } from "../store/filters-store";
 
 const baseUrl = import.meta.env.VITE_SERVER_URL || "";
 
@@ -12,20 +13,71 @@ const getGuestAuth = () => {
   return "Basic " + credentials;
 };
 
+/**
+ * Converte i filtri in parametri per l'API WooCommerce
+ */
+const buildQueryParams = (filters?: ArtmatchFilters, limit: number = 10, offset: number = 0) => {
+  const params: Record<string, any> = {
+    per_page: limit,
+    offset: offset,
+    status: "publish",
+  };
+
+  if (!filters) return params;
+
+  // Filtra per prezzo min/max
+  if (filters.price.min !== undefined) {
+    params.min_price = filters.price.min;
+  }
+  if (filters.price.max !== undefined) {
+    params.max_price = filters.price.max;
+  }
+
+  // Se ci sono range di prezzo selezionati, gestiscili
+  if (filters.price.selectedRanges && filters.price.selectedRanges.length > 0) {
+    // Per i range predefiniti, determina min/max complessivi
+    const ranges = filters.price.selectedRanges;
+    let minFromRanges: number | undefined;
+    let maxFromRanges: number | undefined;
+
+    ranges.forEach((range) => {
+      if (range === "0-200") {
+        minFromRanges = minFromRanges === undefined ? 0 : Math.min(minFromRanges, 0);
+        maxFromRanges = maxFromRanges === undefined ? 200 : Math.max(maxFromRanges, 200);
+      } else if (range === "200-500") {
+        minFromRanges = minFromRanges === undefined ? 200 : Math.min(minFromRanges, 200);
+        maxFromRanges = maxFromRanges === undefined ? 500 : Math.max(maxFromRanges, 500);
+      } else if (range === "500+") {
+        minFromRanges = minFromRanges === undefined ? 500 : Math.min(minFromRanges, 500);
+        // Non impostiamo max per "500+"
+      }
+    });
+
+    // Combina con min/max personalizzati se presenti
+    if (minFromRanges !== undefined && !params.min_price) {
+      params.min_price = minFromRanges;
+    }
+    if (maxFromRanges !== undefined && !params.max_price && !ranges.includes("500+")) {
+      params.max_price = maxFromRanges;
+    }
+  }
+
+  return params;
+};
+
 export const artmatchService = {
   /**
-   * Recupera prodotti casuali per il feed artmatch
+   * Recupera prodotti per il feed artmatch con filtri opzionali
    * @param limit - Numero di prodotti da recuperare (default: 10)
    * @param offset - Offset per la paginazione (default: 0)
+   * @param filters - Filtri opzionali da applicare
    */
-  async getProducts(limit: number = 10, offset: number = 0): Promise<Artwork[]> {
+  async getProducts(limit: number = 10, offset: number = 0, filters?: ArtmatchFilters): Promise<Artwork[]> {
     try {
+      const params = buildQueryParams(filters, limit, offset);
+
       const resp = await axios.get<unknown, AxiosResponse<Artwork[]>>(`${baseUrl}/wp-json/wc/v3/products/`, {
-        params: {
-          per_page: limit,
-          offset: offset,
-          status: "publish",
-        },
+        params,
         headers: {
           Authorization: getGuestAuth(),
         },

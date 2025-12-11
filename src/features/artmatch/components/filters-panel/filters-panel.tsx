@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@mui/material";
+import { useFiltersStore } from "../../store/filters-store";
 
 const ExpandIcon = ({ className = "" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
@@ -30,7 +31,14 @@ const AccordionElement = ({ title = "title", children }: { title?: string; child
   );
 };
 
-const FiltersPanel = () => {
+interface FiltersPanelProps {
+  onApplyFilters?: () => void;
+}
+
+const FiltersPanel = ({ onApplyFilters }: FiltersPanelProps) => {
+  const filtersStore = useFiltersStore();
+
+  // Stati locali per l'input
   const [distanceValue, setDistanceValue] = useState<number>(20);
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
@@ -38,6 +46,18 @@ const FiltersPanel = () => {
   const [rata, setRata] = useState<string>("");
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+
+  // Inizializza gli stati dal store
+  useEffect(() => {
+    const { filters } = filtersStore;
+    if (filters.price.min !== undefined) setMinPrice(filters.price.min.toString());
+    if (filters.price.max !== undefined) setMaxPrice(filters.price.max.toString());
+    if (filters.price.selectedRanges) setSelectedPriceRanges(filters.price.selectedRanges);
+    if (filters.distance !== undefined) setDistanceValue(filters.distance);
+    if (filters.installment) setRata(filters.installment);
+    if (filters.historicalPeriods) setSelectedPeriods(filters.historicalPeriods);
+    if (filters.artTypes) setSelectedTypes(filters.artTypes);
+  }, []);
 
   const priceRanges = [
     { id: "range1", label: "0-200€", value: "0-200" },
@@ -74,19 +94,38 @@ const FiltersPanel = () => {
   };
 
   const handleSubmit = () => {
-    const filters = {
-      priceRange: {
-        min: minPrice,
-        max: maxPrice,
-      },
-      selectedPriceRanges,
-      distance: distanceValue,
-      installment: rata,
-      historicalPeriods: selectedPeriods,
-      artTypes: selectedTypes,
-    };
+    // Aggiorna lo store con i filtri selezionati
+    filtersStore.setMinPrice(minPrice ? parseFloat(minPrice) : undefined);
+    filtersStore.setMaxPrice(maxPrice ? parseFloat(maxPrice) : undefined);
+    filtersStore.setSelectedPriceRanges(selectedPriceRanges);
+    filtersStore.setDistance(distanceValue);
+    filtersStore.setInstallment(rata);
+    filtersStore.setHistoricalPeriods(selectedPeriods);
+    filtersStore.setArtTypes(selectedTypes);
 
-    console.log("Filtri selezionati:", filters);
+    // Chiama il callback se fornito
+    if (onApplyFilters) {
+      onApplyFilters();
+    }
+  };
+
+  const handleReset = () => {
+    // Resetta tutti gli stati locali
+    setMinPrice("");
+    setMaxPrice("");
+    setSelectedPriceRanges([]);
+    setDistanceValue(20);
+    setRata("");
+    setSelectedPeriods([]);
+    setSelectedTypes([]);
+
+    // Resetta lo store
+    filtersStore.resetFilters();
+
+    // Chiama il callback se fornito
+    if (onApplyFilters) {
+      onApplyFilters();
+    }
   };
 
   return (
@@ -187,12 +226,22 @@ const FiltersPanel = () => {
           ))}
         </div>
       </AccordionElement>
-      <Button
-        variant="outlined"
-        onClick={handleSubmit}
-      >
-        Applica Filtri
-      </Button>
+      <div className="flex flex-col gap-2">
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          fullWidth
+        >
+          Applica Filtri
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={handleReset}
+          fullWidth
+        >
+          Resetta Filtri
+        </Button>
+      </div>
     </section>
   );
 };

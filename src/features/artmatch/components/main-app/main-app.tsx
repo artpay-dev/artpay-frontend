@@ -6,6 +6,7 @@ import { Artwork } from "../../../../types/artwork";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useAuth } from "../../../../hoc/AuthProvider";
 import { useData } from "../../../../hoc/DataProvider";
+import { useFiltersStore } from "../../store/filters-store";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCards } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
@@ -23,19 +24,28 @@ const MainApp = () => {
   const swiperRef = useRef<SwiperType | null>(null);
   const auth = useAuth();
   const dataProvider = useData();
+  const { filters } = useFiltersStore();
 
   // Carica i prodotti iniziali
   useEffect(() => {
     loadProducts();
   }, []);
 
+  // Ricarica i prodotti quando cambiano i filtri
+  useEffect(() => {
+    // Non ricaricare al primo render (già gestito dall'useEffect precedente)
+    if (products.length > 0) {
+      loadProducts();
+    }
+  }, [filters]);
+
   const loadProducts = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Carica i prodotti dal backend
-      const data = await artmatchService.getProducts(50); // Carica più prodotti per compensare il filtering
+      // Carica i prodotti dal backend con i filtri attivi
+      const data = await artmatchService.getProducts(50, 0, filters); // Carica più prodotti per compensare il filtering
 
       // Se l'utente è autenticato, filtra le opere già viste
       if (auth.isAuthenticated) {
