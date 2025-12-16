@@ -42,8 +42,8 @@ import klarna_card from "../assets/images/klarnacard.svg";
 import santander_card from "../assets/images/santandercard.svg";
 import cards_group from "../assets/images/cardsgroup.svg";
 import paypal_card from "../assets/images/paypal_card.svg";
-import revolut_pay from "../assets/images/revolut_pay_card.svg";
-import google_pay from "../assets/images/google_pay_card.svg";
+/*import revolut_pay from "../assets/images/revolut_pay_card.svg";
+import google_pay from "../assets/images/google_pay_card.svg";*/
 import { KLARNA_FEE, KLARNA_MAX_LIMIT } from "../constants.ts";
 
 const ArtworkPage: React.FC = () => {

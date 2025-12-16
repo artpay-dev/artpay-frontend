@@ -174,7 +174,7 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
                 setExpressCheckoutReady(true);
                 onReady && onReady(element as any);
               }}
-              onClick={(event) => {
+              onClick={() => {
                 console.log("Google Pay button clicked");
                 if (!privacyChecked) {
                   setError("Devi accettare le condizioni generali d'acquisto");
