@@ -1,5 +1,5 @@
 import React, { MutableRefObject, useState } from "react";
-import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { PaymentElement, ExpressCheckoutElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import {
   StripePaymentElement,
   StripePaymentElementChangeEvent
@@ -42,6 +42,7 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
 
     const [error, setError] = useState<string>();
     const [isLoading, setIsLoading] = useState(false);
+    const [expressCheckoutReady, setExpressCheckoutReady] = useState(false);
 
     // Costruisce il return URL dinamicamente per Vercel o usa URL fissi per altri ambienti
     const getReturnUrl = () => {
@@ -126,6 +127,23 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
       setIsLoading(false);
     };
 
+    // Handler per Express Checkout Element (Google Pay, Apple Pay, etc.)
+    const handleExpressCheckoutConfirm = async () => {
+      if (!privacyChecked) {
+        setError("Devi accettare le condizioni generali d'acquisto");
+        return;
+      }
+
+      setIsLoading(true);
+      setError(undefined);
+
+      // Salva l'order ID nel localStorage PRIMA del redirect di Stripe
+      if (pendingOrder) {
+        console.log("Setting completed-order in localStorage", pendingOrder.id.toString());
+        localStorage.setItem("completed-order", pendingOrder.id.toString());
+      }
+    };
+
     return (
       <form id="checkout-form" onSubmit={handleSubmit}>
         {error && (
@@ -134,40 +152,91 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
             {error}
           </Alert>
         )}
-        <PaymentElement
-          id="payment-element"
-          onChange={async (event: StripePaymentElementChangeEvent) => {
-            if (onChange) await onChange(event.value.type);
-          }}
-          options={{
-            layout: "accordion"
-          }}
-          onReady={(element) => {
-            onReady && onReady(element);
-          }}
-          onLoadError={async ({ error }) => {
-            setError(error.message);
-          }}
-        />
-        <Grid container>
-          <Grid item></Grid>
-        </Grid>
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          my={2}>
-          <Button
-            className={`${buttonStyles[paymentMethod as keyof typeof buttonStyles]?.style || buttonStyles.card.style} w-full`}
-            variant="contained"
-            type="submit"
-            ref={ref}
-            disabled={isLoading || !stripe || !elements || !privacyChecked}
-            id="submit">
-            <span id="button-text">{isLoading ? <div className="spinner" id="spinner"></div> : (buttonStyles[paymentMethod as keyof typeof buttonStyles]?.text || buttonStyles.card.text)}</span>
-          </Button>
-        </Box>
+
+        {paymentMethod === "google_pay" ? (
+          // Usa ExpressCheckoutElement solo per Google Pay
+          <>
+            <Box sx={{ mb: 2 }}>
+              <Alert severity="info">
+                <AlertTitle>Google Pay</AlertTitle>
+                Per utilizzare Google Pay devi:
+                <ul style={{ marginTop: '8px', marginBottom: 0, paddingLeft: '20px' }}>
+                  <li>Usare Chrome o un browser compatibile</li>
+                  <li>Avere configurato Google Pay sul tuo dispositivo</li>
+                  <li>Aggiungere almeno una carta a Google Pay</li>
+                </ul>
+              </Alert>
+            </Box>
+            <ExpressCheckoutElement
+              onConfirm={handleExpressCheckoutConfirm}
+              onReady={(element) => {
+                console.log("ExpressCheckoutElement ready - Google Pay available");
+                setExpressCheckoutReady(true);
+                onReady && onReady(element as any);
+              }}
+              onClick={(event) => {
+                console.log("Google Pay button clicked");
+                if (!privacyChecked) {
+                  setError("Devi accettare le condizioni generali d'acquisto");
+                  return;
+                }
+                setError(undefined);
+              }}
+              onLoadError={(event: any) => {
+                console.error("ExpressCheckoutElement load error:", event);
+                setError("Google Pay non è disponibile su questo dispositivo. Prova con un altro metodo di pagamento.");
+              }}
+              options={{
+                buttonType: {
+                  googlePay: 'buy' as const,
+                },
+              }}
+            />
+            {!expressCheckoutReady && (
+              <Box sx={{ textAlign: 'center', py: 2, color: 'text.secondary' }}>
+                Caricamento Google Pay...
+              </Box>
+            )}
+          </>
+        ) : (
+          // Usa PaymentElement standard per carte, Klarna, PayPal
+          <>
+            <PaymentElement
+              id="payment-element"
+              onChange={async (event: StripePaymentElementChangeEvent) => {
+                if (onChange) await onChange(event.value.type);
+              }}
+              options={{
+                layout: "accordion"
+              }}
+              onReady={(element) => {
+                onReady && onReady(element);
+              }}
+              onLoadError={async ({ error }) => {
+                setError(error.message);
+              }}
+            />
+            <Grid container>
+              <Grid item></Grid>
+            </Grid>
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              my={2}>
+              <Button
+                className={`${buttonStyles[paymentMethod as keyof typeof buttonStyles]?.style || buttonStyles.card.style} w-full`}
+                variant="contained"
+                type="submit"
+                ref={ref}
+                disabled={isLoading || !stripe || !elements || !privacyChecked}
+                id="submit">
+                <span id="button-text">{isLoading ? <div className="spinner" id="spinner"></div> : (buttonStyles[paymentMethod as keyof typeof buttonStyles]?.text || buttonStyles.card.text)}</span>
+              </Button>
+            </Box>
+          </>
+        )}
       </form>
     );
   }

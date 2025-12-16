@@ -42,6 +42,8 @@ import klarna_card from "../assets/images/klarnacard.svg";
 import santander_card from "../assets/images/santandercard.svg";
 import cards_group from "../assets/images/cardsgroup.svg";
 import paypal_card from "../assets/images/paypal_card.svg";
+import revolut_pay from "../assets/images/revolut_pay_card.svg";
+import google_pay from "../assets/images/google_pay_card.svg";
 import { KLARNA_FEE, KLARNA_MAX_LIMIT } from "../constants.ts";
 
 const ArtworkPage: React.FC = () => {
@@ -355,18 +357,20 @@ const ArtworkPage: React.FC = () => {
                 </div>
                 <div className={"flex flex-col w-full md:flex-row justify-between space-y-4 md:space-y-0"}>
                   <ul className={"flex flex-col gap-6 divide-y divide-[#010F22]/20 text-secondary leading-6 w-full "}>
-                    <li className={"flex justify-between items-center pb-6"}>
+                    <li className={"flex justify-between items-start lg:items-center pb-6"}>
                       <span>Unica soluzione</span>
-                      <div className={'flex gap-2'}>
-                        <img src={paypal_card} alt={"PayPal card "} className={'size-8.5'} />
+                      <div className={'flex gap-2 flex-wrap max-w-40 lg:max-w-none'}>
                         <img src={cards_group} alt={"Other payment cards "} />
+                        <img src={paypal_card} alt={"PayPal card "} className={'size-10'} />
+                        {/*<img src={revolut_pay} alt={"Revolut Pay card "} className={'size-10'} />
+                        <img src={google_pay} alt={"Google Pay cards "} className={'h-10'}/>*/}
                       </div>
                     </li>
                     {Number(artwork?.price) * KLARNA_FEE <= KLARNA_MAX_LIMIT && (
                       <li className={"flex justify-between items-center "}>
                         <span>Pagamento dilazionato</span>
                         <div className={'flex gap-2'}>
-                          <img src={paypal_card} alt={"Paypal payment Card "} className={'size-8.5'} />
+                          <img src={paypal_card} alt={"Paypal payment Card "} className={'size-10'} />
                           <img src={klarna_card} alt={"Klarna payment Card "} />
                         </div>
                       </li>
