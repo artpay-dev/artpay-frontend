@@ -15,6 +15,7 @@ import {
 import { useState, useEffect } from "react";
 import { FiltersPanel } from "../index.ts";
 import { useData, FAVOURITES_UPDATED_EVENT } from "../../../../hoc/DataProvider";
+import { useFiltersStore } from "../../store/filters-store";
 import { Artwork } from "../../../../types/artwork";
 import { GroupedMessage } from "../../../../types/user";
 import CloseIcon from "@mui/icons-material/Close";
@@ -237,20 +238,17 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
     try {
       setSending(true);
 
-      // Ottieni i filtri attuali (opzionale)
-      // const currentFilters = useFiltersStore.getState().filters;
+      // Ottieni i filtri attuali dal store
+      const currentFilters = useFiltersStore.getState().filters;
 
-      const response = await fetch('/wp-json/artpay/v1/ai-search', {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/wp-json/artpay/v1/ai-search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           prompt: aiPrompt,
-          filters: {
-            // price: currentFilters.price,
-            // Aggiungi altri filtri se necessario
-          }
+          filters: currentFilters
         })
       });
 

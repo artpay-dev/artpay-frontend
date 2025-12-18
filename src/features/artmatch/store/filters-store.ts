@@ -8,10 +8,8 @@ export interface PriceFilter {
 
 export interface ArtmatchFilters {
   price: PriceFilter;
-  distance?: number;
-  installment?: string;
   historicalPeriods?: string[];
-  artTypes?: string[];
+  artTypes?: number[]; // IDs delle categorie WordPress
 }
 
 interface FiltersStore {
@@ -19,18 +17,14 @@ interface FiltersStore {
   setMinPrice: (min: number | undefined) => void;
   setMaxPrice: (max: number | undefined) => void;
   setSelectedPriceRanges: (ranges: string[]) => void;
-  setDistance: (distance: number) => void;
-  setInstallment: (installment: string) => void;
   setHistoricalPeriods: (periods: string[]) => void;
-  setArtTypes: (types: string[]) => void;
+  setArtTypes: (types: number[]) => void;
   resetFilters: () => void;
   hasActiveFilters: () => boolean;
 }
 
 const initialFilters: ArtmatchFilters = {
   price: {},
-  distance: undefined,
-  installment: undefined,
   historicalPeriods: [],
   artTypes: [],
 };
@@ -62,16 +56,6 @@ export const useFiltersStore = create<FiltersStore>((set, get) => ({
       },
     })),
 
-  setDistance: (distance) =>
-    set((state) => ({
-      filters: { ...state.filters, distance },
-    })),
-
-  setInstallment: (installment) =>
-    set((state) => ({
-      filters: { ...state.filters, installment },
-    })),
-
   setHistoricalPeriods: (periods) =>
     set((state) => ({
       filters: { ...state.filters, historicalPeriods: periods },
@@ -90,8 +74,6 @@ export const useFiltersStore = create<FiltersStore>((set, get) => ({
       !!filters.price.min ||
       !!filters.price.max ||
       (filters.price.selectedRanges && filters.price.selectedRanges.length > 0) ||
-      !!filters.distance ||
-      !!filters.installment ||
       (filters.historicalPeriods && filters.historicalPeriods.length > 0) ||
       (filters.artTypes && filters.artTypes.length > 0)
     );

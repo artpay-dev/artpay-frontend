@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import { useFiltersStore } from "../../store/filters-store";
+import { artmatchService } from "../../services/artmatch-services";
+
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  count: number;
+}
 
 const ExpandIcon = ({ className = "" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
@@ -39,13 +47,49 @@ const FiltersPanel = ({ onApplyFilters }: FiltersPanelProps) => {
   const filtersStore = useFiltersStore();
 
   // Stati locali per l'input
-  const [distanceValue, setDistanceValue] = useState<number>(20);
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
-  const [rata, setRata] = useState<string>("");
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<number[]>([]);
+
+  // Stati per categorie dinamiche
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  // Periodi storici basati su anno_di_produzione
+  const historicalPeriods = [
+    { id: "ancient", label: "Antico (prima del 1800)", value: "ancient", yearRange: [0, 1799] },
+    { id: "modern", label: "Moderno (1800-1945)", value: "modern", yearRange: [1800, 1945] },
+    { id: "contemporary", label: "Contemporaneo (1945-oggi)", value: "contemporary", yearRange: [1946, new Date().getFullYear()] },
+  ];
+
+  // Range di prezzo predefiniti
+  const priceRanges = [
+    { id: "range1", label: "0-200€", value: "0-200" },
+    { id: "range2", label: "200-500€", value: "200-500" },
+    { id: "range3", label: "500-1000€", value: "500-1000" },
+    { id: "range4", label: "1000-5000€", value: "1000-5000" },
+    { id: "range5", label: "5000+€", value: "5000+" },
+  ];
+
+  // Carica le categorie tramite il service
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const data = await artmatchService.getCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error('Errore nel caricamento delle categorie:', error);
+        setCategories([]);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // Inizializza gli stati dal store
   useEffect(() => {
@@ -53,27 +97,9 @@ const FiltersPanel = ({ onApplyFilters }: FiltersPanelProps) => {
     if (filters.price.min !== undefined) setMinPrice(filters.price.min.toString());
     if (filters.price.max !== undefined) setMaxPrice(filters.price.max.toString());
     if (filters.price.selectedRanges) setSelectedPriceRanges(filters.price.selectedRanges);
-    if (filters.distance !== undefined) setDistanceValue(filters.distance);
-    if (filters.installment) setRata(filters.installment);
     if (filters.historicalPeriods) setSelectedPeriods(filters.historicalPeriods);
     if (filters.artTypes) setSelectedTypes(filters.artTypes);
   }, []);
-
-  const priceRanges = [
-    { id: "range1", label: "0-200€", value: "0-200" },
-    { id: "range2", label: "200-500€", value: "200-500" },
-    { id: "range3", label: "500+€", value: "500+" },
-  ];
-
-  const periods = [
-    { id: "periodo-a", label: "Periodo A", value: "periodo-a" },
-    { id: "periodo-b", label: "Periodo B", value: "periodo-b" },
-  ];
-
-  const types = [
-    { id: "pittura", label: "Pittura", value: "pittura" },
-    { id: "scultura", label: "Scultura", value: "scultura" },
-  ];
 
   const handlePriceRangeChange = (value: string) => {
     setSelectedPriceRanges((prev) =>
@@ -87,9 +113,9 @@ const FiltersPanel = ({ onApplyFilters }: FiltersPanelProps) => {
     );
   };
 
-  const handleTypeChange = (value: string) => {
+  const handleTypeChange = (id: number) => {
     setSelectedTypes((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
     );
   };
 
@@ -98,8 +124,6 @@ const FiltersPanel = ({ onApplyFilters }: FiltersPanelProps) => {
     filtersStore.setMinPrice(minPrice ? parseFloat(minPrice) : undefined);
     filtersStore.setMaxPrice(maxPrice ? parseFloat(maxPrice) : undefined);
     filtersStore.setSelectedPriceRanges(selectedPriceRanges);
-    filtersStore.setDistance(distanceValue);
-    filtersStore.setInstallment(rata);
     filtersStore.setHistoricalPeriods(selectedPeriods);
     filtersStore.setArtTypes(selectedTypes);
 
@@ -114,8 +138,6 @@ const FiltersPanel = ({ onApplyFilters }: FiltersPanelProps) => {
     setMinPrice("");
     setMaxPrice("");
     setSelectedPriceRanges([]);
-    setDistanceValue(20);
-    setRata("");
     setSelectedPeriods([]);
     setSelectedTypes([]);
 
@@ -169,32 +191,10 @@ const FiltersPanel = ({ onApplyFilters }: FiltersPanelProps) => {
           ))}
         </ul>
       </AccordionElement>
-      <AccordionElement title={"Distanza max"}>
-        <div className="flex flex-col space-y-3">
-          <span>{distanceValue} Km</span>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={distanceValue}
-            onChange={(e) => setDistanceValue(Number(e.target.value))}
-          />
-        </div>
-      </AccordionElement>
-      <AccordionElement title={"Ipotesi rata"}>
-        <input
-          type="text"
-          title="Rata"
-          name="rata"
-          placeholder="Rata"
-          value={rata}
-          onChange={(e) => setRata(e.target.value)}
-          className={"border border-[#CDCFD3] rounded-lg p-4 w-full"}
-        />
-      </AccordionElement>
+
       <AccordionElement title={"Periodo storico"}>
         <div className={"space-y-2"}>
-          {periods.map((period) => (
+          {historicalPeriods.map((period) => (
             <label key={period.id} className={"flex items-center gap-2"}>
               <input
                 type="checkbox"
@@ -209,23 +209,35 @@ const FiltersPanel = ({ onApplyFilters }: FiltersPanelProps) => {
           ))}
         </div>
       </AccordionElement>
+
       <AccordionElement title={"Tipo"}>
-        <div className={"space-y-2"}>
-          {types.map((type) => (
-            <label key={type.id} className={"flex items-center gap-2"}>
-              <input
-                type="checkbox"
-                name={type.id}
-                id={type.id}
-                checked={selectedTypes.includes(type.value)}
-                onChange={() => handleTypeChange(type.value)}
-                className={"size-3.5"}
-              />
-              <span className={"text-sm"}>{type.label}</span>
-            </label>
-          ))}
-        </div>
+        {loadingCategories ? (
+          <div className="flex justify-center py-4">
+            <CircularProgress size={24} />
+          </div>
+        ) : categories.length === 0 ? (
+          <p className="text-sm text-gray-500">Nessuna categoria disponibile</p>
+        ) : (
+          <div className={"space-y-2 max-h-60 overflow-y-auto"}>
+            {categories.map((category) => (
+              <label key={category.id} className={"flex items-center gap-2"}>
+                <input
+                  type="checkbox"
+                  name={`cat-${category.id}`}
+                  id={`cat-${category.id}`}
+                  checked={selectedTypes.includes(category.id)}
+                  onChange={() => handleTypeChange(category.id)}
+                  className={"size-3.5"}
+                />
+                <span className={"text-sm"}>
+                  {category.name} ({category.count})
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
       </AccordionElement>
+
       <div className="flex flex-col gap-2">
         <Button
           variant="contained"

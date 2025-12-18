@@ -14,13 +14,12 @@ const getGuestAuth = () => {
 };
 
 /**
- * Converte i filtri in parametri per l'API WooCommerce
+ * Converte i filtri in parametri per l'API ArtMatch
  */
 const buildQueryParams = (filters?: ArtmatchFilters, limit: number = 10, offset: number = 0) => {
   const params: Record<string, any> = {
     per_page: limit,
     offset: offset,
-    status: "publish",
   };
 
   if (!filters) return params;
@@ -47,9 +46,15 @@ const buildQueryParams = (filters?: ArtmatchFilters, limit: number = 10, offset:
       } else if (range === "200-500") {
         minFromRanges = minFromRanges === undefined ? 200 : Math.min(minFromRanges, 200);
         maxFromRanges = maxFromRanges === undefined ? 500 : Math.max(maxFromRanges, 500);
-      } else if (range === "500+") {
+      } else if (range === "500-1000") {
         minFromRanges = minFromRanges === undefined ? 500 : Math.min(minFromRanges, 500);
-        // Non impostiamo max per "500+"
+        maxFromRanges = maxFromRanges === undefined ? 1000 : Math.max(maxFromRanges, 1000);
+      } else if (range === "1000-5000") {
+        minFromRanges = minFromRanges === undefined ? 1000 : Math.min(minFromRanges, 1000);
+        maxFromRanges = maxFromRanges === undefined ? 5000 : Math.max(maxFromRanges, 5000);
+      } else if (range === "5000+") {
+        minFromRanges = minFromRanges === undefined ? 5000 : Math.min(minFromRanges, 5000);
+        // Non impostiamo max per "5000+"
       }
     });
 
@@ -57,9 +62,19 @@ const buildQueryParams = (filters?: ArtmatchFilters, limit: number = 10, offset:
     if (minFromRanges !== undefined && !params.min_price) {
       params.min_price = minFromRanges;
     }
-    if (maxFromRanges !== undefined && !params.max_price && !ranges.includes("500+")) {
+    if (maxFromRanges !== undefined && !params.max_price && !ranges.includes("5000+")) {
       params.max_price = maxFromRanges;
     }
+  }
+
+  // Filtra per categorie (artTypes)
+  if (filters.artTypes && filters.artTypes.length > 0) {
+    params.categories = JSON.stringify(filters.artTypes);
+  }
+
+  // Filtra per periodi storici
+  if (filters.historicalPeriods && filters.historicalPeriods.length > 0) {
+    params.historical_periods = JSON.stringify(filters.historicalPeriods);
   }
 
   return params;
@@ -72,18 +87,18 @@ export const artmatchService = {
    * @param offset - Offset per la paginazione (default: 0)
    * @param filters - Filtri opzionali da applicare
    */
-  async getProducts(limit: number = 10, offset: number = 0, filters?: ArtmatchFilters): Promise<Artwork[]> {
+  async getProducts(limit: number = 100, offset: number = 0, filters?: ArtmatchFilters): Promise<Artwork[]> {
     try {
       const params = buildQueryParams(filters, limit, offset);
 
-      const resp = await axios.get<unknown, AxiosResponse<Artwork[]>>(`${baseUrl}/wp-json/wc/v3/products/`, {
-        params,
-        headers: {
-          Authorization: getGuestAuth(),
-        },
-      });
+      const resp = await axios.get<unknown, AxiosResponse<{ success: boolean; products: Artwork[]; total: number }>>(
+        `${baseUrl}/wp-json/artpay/v1/artmatch/products`,
+        {
+          params,
+        }
+      );
 
-      return resp.data;
+      return resp.data.products || [];
     } catch (error) {
       console.error("Errore nel recupero dei prodotti:", error);
       throw error;
@@ -132,6 +147,29 @@ export const artmatchService = {
       return resp.data;
     } catch (error) {
       console.error("Errore nel salvataggio del dislike:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Recupera le categorie prodotti
+   */
+  async getCategories(): Promise<Array<{ id: number; name: string; slug: string; count: number }>> {
+    try {
+      const resp = await axios.get<
+        unknown,
+        AxiosResponse<Array<{ id: number; name: string; slug: string; count: number }>>
+      >(`${baseUrl}/wp-json/wp/v2/categories`, {
+        params: {
+          per_page: 100,
+        },
+        headers: {
+          Authorization: getGuestAuth(),
+        },
+      });
+      return resp.data.filter((cat) => cat.count > 0);
+    } catch (error) {
+      console.error("Errore nel recupero delle categorie:", error);
       throw error;
     }
   },
