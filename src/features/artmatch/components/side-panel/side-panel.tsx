@@ -39,6 +39,24 @@ const FilterIcon = ({ color = "tertiary" }: { color: "primary" | "tertiary" }) =
   );
 };
 
+const AiSparkleIcon = ({ color = "tertiary" }: { color: "primary" | "tertiary" }) => {
+  const colorVariants = {
+    primary: "fill-primary",
+    tertiary: "fill-tertiary",
+  };
+
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`${colorVariants[color]}`}>
+      <path d="M12 2L13.09 8.26L15 8L17.94 9.87L17.94 9.87C18.3 10.13 18.54 10.53 18.59 10.97L19.95 19.61C20.03 20.16 19.67 20.67 19.12 20.75C19.08 20.76 19.03 20.76 18.99 20.76H5.01C4.45 20.76 4 20.31 4 19.75C4 19.71 4 19.66 4.01 19.62L5.41 10.97C5.46 10.54 5.7 10.13 6.06 9.87L9 8L10.91 8.26L12 2M12 5.53L11.34 8.75L9 9.03L6.8 10.5L5.7 17.76H18.3L17.2 10.5L15 9.03L12.66 8.75L12 5.53M9 12C9 12.6 8.6 13 8 13S7 12.6 7 12 7.4 11 8 11 9 11.4 9 12M16 13C15.4 13 15 12.6 15 12S15.4 11 16 11 17 11.4 17 12 16.6 13 16 13Z" />
+    </svg>
+  );
+};
+
 interface ArtworkCardProps {
   artwork: Artwork;
 }
@@ -120,6 +138,8 @@ interface SidePanelProps {
 const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
   const [tab, setTab] = useState<"like" | "match">("like");
   const [filtersPanelOpen, setFiltersPanelOpen] = useState<boolean>(false);
+  const [aiSearchOpen, setAiSearchOpen] = useState<boolean>(false);
+  const [aiPrompt, setAiPrompt] = useState<string>("");
   const [likedArtworks, setLikedArtworks] = useState<Artwork[]>([]);
   const [conversations, setConversations] = useState<GroupedMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -203,6 +223,68 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
 
   const handleFiltersPanelOpen = () => {
     setFiltersPanelOpen(!filtersPanelOpen);
+    setAiSearchOpen(false);
+  };
+
+  const handleAiSearchOpen = () => {
+    setAiSearchOpen(!aiSearchOpen);
+    setFiltersPanelOpen(false);
+  };
+
+  const handleAiSearch = async () => {
+    if (!aiPrompt.trim() || sending) return;
+
+    try {
+      setSending(true);
+
+      // Ottieni i filtri attuali (opzionale)
+      // const currentFilters = useFiltersStore.getState().filters;
+
+      const response = await fetch('/wp-json/artpay/v1/ai-search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: aiPrompt,
+          filters: {
+            // price: currentFilters.price,
+            // Aggiungi altri filtri se necessario
+          }
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Errore nella ricerca AI');
+      }
+
+      if (data.success && data.results.length > 0) {
+        // TODO: Mostrare i risultati all'utente
+        console.log('AI Search Results:', data.results);
+        console.log('AI Reasoning:', data.results[0]?.ai_reasoning);
+
+        // Opzione 1: Mostrare in un modale
+        // setAiResults(data.results);
+        // setAiResultsModalOpen(true);
+
+        // Opzione 2: Navigare a una pagina di risultati
+        // navigate('/artmatch/results', { state: { results: data.results } });
+
+        // Per ora mostriamo un alert
+        alert(`Trovate ${data.total} opere che corrispondono alla tua ricerca!`);
+        setAiSearchOpen(false);
+      } else {
+        alert('Nessuna opera trovata. Prova a modificare la tua richiesta.');
+      }
+
+    } catch (error) {
+      console.error('AI Search Error:', error);
+      alert('Errore durante la ricerca AI. Riprova più tardi.');
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleConversationClick = (conversation: GroupedMessage) => {
@@ -250,12 +332,79 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
 
   const panelContent = (
     <aside className={"h-screen rounded-r-2xl w-full max-w-xs lg:max-w-sm bg-white pt-16 lg:pt-30 px-6 pb-12 overflow-y-hidden"}>
-      <Button className={"custom-navbar flex items-center gap-2.5 py-6!"} onClick={handleFiltersPanelOpen}>
-        <FilterIcon color={filtersPanelOpen ? "primary" : "tertiary"} />
-        <span className={`${filtersPanelOpen ? "text-primary" : "text-tertiary"}`}>Filtri</span>
-      </Button>
+      <div className="flex gap-2">
+        <Button className={"custom-navbar flex items-center gap-2.5 py-6! flex-1"} onClick={handleFiltersPanelOpen}>
+          <FilterIcon color={filtersPanelOpen ? "primary" : "tertiary"} />
+          <span className={`${filtersPanelOpen ? "text-primary" : "text-tertiary"}`}>Filtri</span>
+        </Button>
+        <Button
+          className={"custom-navbar flex items-center gap-2.5 py-6! flex-1"}
+          onClick={handleAiSearchOpen}
+          sx={{
+            background: aiSearchOpen ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+            '&:hover': {
+              background: aiSearchOpen ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'rgba(102, 126, 234, 0.1)',
+            }
+          }}>
+          <AiSparkleIcon color={aiSearchOpen ? "primary" : "tertiary"} />
+          <span className={`${aiSearchOpen ? "text-white" : "text-tertiary"}`}>AI</span>
+        </Button>
+      </div>
       {filtersPanelOpen ? (
         <FiltersPanel />
+      ) : aiSearchOpen ? (
+        <div className="mt-8 flex flex-col gap-4">
+          <div className="relative p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200">
+            <div className="absolute top-2 right-2">
+            </div>
+            <h3 className="text-lg font-semibold text-purple-900 mb-2 flex items-center gap-2">
+              <AiSparkleIcon color="primary" />
+              Ricerca AI
+            </h3>
+            <p className="text-sm text-purple-700 mb-4">
+              Descrivi l'opera che stai cercando e l'AI ti aiuterà a trovarla
+            </p>
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              placeholder="Es: Cerco un dipinto astratto con tonalità blu e verdi, stile contemporaneo, di medie dimensioni..."
+              value={aiPrompt}
+              onChange={(e) => setAiPrompt(e.target.value)}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: 'white',
+                  borderRadius: 2,
+                },
+              }}
+            />
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleAiSearch}
+              disabled={!aiPrompt.trim() || sending}
+              sx={{
+                mt: 2,
+                py: 1.5,
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #5568d3 0%, #6440 8c 100%)',
+                },
+                '&:disabled': {
+                  background: '#e0e0e0',
+                },
+              }}>
+              {sending ? (
+                <>
+                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                  Ricerca in corso...
+                </>
+              ) : (
+                "Cerca un'opera con l'AI"
+              )}
+            </Button>
+          </div>
+        </div>
       ) : (
         <div className="flex flex-col h-full">
           <nav className={"flex items-center mt-12 "}>
