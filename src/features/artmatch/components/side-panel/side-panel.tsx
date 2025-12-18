@@ -13,6 +13,7 @@ import {
   Box,
 } from "@mui/material";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FiltersPanel } from "../index.ts";
 import { useData, FAVOURITES_UPDATED_EVENT } from "../../../../hoc/DataProvider";
 import { useFiltersStore } from "../../store/filters-store";
@@ -63,14 +64,19 @@ interface ArtworkCardProps {
 }
 
 const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
+  const navigate = useNavigate();
   const imageUrl = artwork.images?.[0]?.src || "../images/artists_example.png";
   const artistName = artwork.attributes?.find((attr) => attr.name === "Artista")?.options?.[0] || "Artista sconosciuto";
   const galleryName = artwork.store_name || "Galleria";
 
-  console.log("artwork", artwork);
+  const handleClick = () => {
+    navigate(`/opere/${artwork.slug}`);
+  };
 
   return (
-    <li className={"flex items-center gap-4 w-full cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"}>
+    <li
+      onClick={handleClick}
+      className={"flex items-center gap-4 w-full cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"}>
       <div className={"rounded-2xl overflow-hidden h-30 w-30 aspect-square flex-shrink-0"}>
         <img src={imageUrl} className={"w-full h-full object-cover"} alt={artwork.name} />
       </div>
@@ -134,9 +140,10 @@ const MessagesCard = ({ conversation, onClick }: MessagesCardProps) => {
 interface SidePanelProps {
   open?: boolean;
   onClose?: () => void;
+  onAiResults?: (results: Artwork[]) => void;
 }
 
-const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
+const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
   const [tab, setTab] = useState<"like" | "match">("like");
   const [filtersPanelOpen, setFiltersPanelOpen] = useState<boolean>(false);
   const [aiSearchOpen, setAiSearchOpen] = useState<boolean>(false);
@@ -148,6 +155,12 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [newMessage, setNewMessage] = useState<string>("");
   const [sending, setSending] = useState<boolean>(false);
+
+  // Stati per il modale AI
+  const [aiResultsModalOpen, setAiResultsModalOpen] = useState<boolean>(false);
+  const [aiResults, setAiResults] = useState<Artwork[]>([]);
+  const [aiResultsCount, setAiResultsCount] = useState<number>(0);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const dataProvider = useData();
@@ -259,19 +272,10 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
       }
 
       if (data.success && data.results.length > 0) {
-        // TODO: Mostrare i risultati all'utente
-        console.log('AI Search Results:', data.results);
-        console.log('AI Reasoning:', data.results[0]?.ai_reasoning);
-
-        // Opzione 1: Mostrare in un modale
-        // setAiResults(data.results);
-        // setAiResultsModalOpen(true);
-
-        // Opzione 2: Navigare a una pagina di risultati
-        // navigate('/artmatch/results', { state: { results: data.results } });
-
-        // Per ora mostriamo un alert
-        alert(`Trovate ${data.total} opere che corrispondono alla tua ricerca!`);
+        // Salva i risultati e apri il modale
+        setAiResults(data.results);
+        setAiResultsCount(data.total);
+        setAiResultsModalOpen(true);
         setAiSearchOpen(false);
       } else {
         alert('Nessuna opera trovata. Prova a modificare la tua richiesta.');
@@ -326,6 +330,21 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
     } finally {
       setSending(false);
     }
+  };
+
+  const handleAiResultsConfirm = () => {
+    // Chiama la callback per passare i risultati al parent
+    if (onAiResults) {
+      onAiResults(aiResults);
+    }
+    // Chiudi il modale
+    setAiResultsModalOpen(false);
+    // Reset prompt
+    setAiPrompt("");
+  };
+
+  const handleAiResultsClose = () => {
+    setAiResultsModalOpen(false);
   };
 
   const panelContent = (
@@ -578,6 +597,74 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
             </DialogContent>
           </Dialog>
         )}
+
+        {/* Modale risultati AI */}
+        <Dialog open={aiResultsModalOpen} onClose={handleAiResultsClose} maxWidth="sm" fullWidth>
+          <DialogTitle>
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Box display="flex" alignItems="center" gap={1}>
+                <AiSparkleIcon color="primary" />
+                <Typography variant="h6">Risultati AI</Typography>
+              </Box>
+              <IconButton onClick={handleAiResultsClose} edge="end">
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ py: 2 }}>
+              <Box
+                sx={{
+                  p: 3,
+                  mb: 3,
+                  borderRadius: 2,
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                }}
+              >
+                <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>
+                  {aiResultsCount} {aiResultsCount === 1 ? 'opera trovata' : 'opere trovate'}!
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.95 }}>
+                  L'AI ha selezionato le opere più adatte alla tua richiesta. Conferma per visualizzarle.
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleAiResultsConfirm}
+                  sx={{
+                    py: 1.5,
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #5568d3 0%, #6440 8c 100%)',
+                    },
+                  }}
+                >
+                  Mostra risultati
+                </Button>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  onClick={handleAiResultsClose}
+                  sx={{
+                    py: 1.5,
+                    borderColor: '#667eea',
+                    color: '#667eea',
+                    '&:hover': {
+                      borderColor: '#5568d3',
+                      backgroundColor: 'rgba(102, 126, 234, 0.04)',
+                    },
+                  }}
+                >
+                  Annulla
+                </Button>
+              </Box>
+            </Box>
+          </DialogContent>
+        </Dialog>
       </>
     );
   }
@@ -673,6 +760,74 @@ const SidePanel = ({ open = true, onClose }: SidePanelProps) => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Modale risultati AI */}
+      <Dialog open={aiResultsModalOpen} onClose={handleAiResultsClose} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <Box display="flex" alignItems="center" justifyContent="space-between">
+            <Box display="flex" alignItems="center" gap={1}>
+              <AiSparkleIcon color="primary" />
+              <Typography variant="h6">Risultati AI</Typography>
+            </Box>
+            <IconButton onClick={handleAiResultsClose} edge="end">
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ py: 2 }}>
+            <Box
+              sx={{
+                p: 3,
+                mb: 3,
+                borderRadius: 2,
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>
+                {aiResultsCount} {aiResultsCount === 1 ? 'opera trovata' : 'opere trovate'}!
+              </Typography>
+              <Typography variant="body2" sx={{ opacity: 0.95 }}>
+                L'AI ha selezionato le opere più adatte alla tua richiesta. Conferma per visualizzarle.
+              </Typography>
+            </Box>
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={handleAiResultsConfirm}
+                sx={{
+                  py: 1.5,
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #5568d3 0%, #6440 8c 100%)',
+                  },
+                }}
+              >
+                Mostra risultati
+              </Button>
+              <Button
+                variant="outlined"
+                fullWidth
+                onClick={handleAiResultsClose}
+                sx={{
+                  py: 1.5,
+                  borderColor: '#667eea',
+                  color: '#667eea',
+                  '&:hover': {
+                    borderColor: '#5568d3',
+                    backgroundColor: 'rgba(102, 126, 234, 0.04)',
+                  },
+                }}
+              >
+                Annulla
+              </Button>
+            </Box>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

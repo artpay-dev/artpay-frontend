@@ -26,7 +26,14 @@ const ArtMatchLabel = () => (
 )
 
 
-const MainLayout = ({ children }: { children: React.ReactNode }) => {
+import { Artwork } from "../../../../types/artwork";
+
+interface MainLayoutProps {
+  children: React.ReactNode;
+  onAiResults?: (results: Artwork[]) => void;
+}
+
+const MainLayout = ({ children, onAiResults }: MainLayoutProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -57,8 +64,8 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
         <ArtMatchLabel />
       </nav>
-      {!isMobile && <SidePanel open={true} onClose={toggleDrawer} />}
-      {isMobile && <SidePanel open={drawerOpen} onClose={toggleDrawer} />}
+      {!isMobile && <SidePanel open={true} onClose={toggleDrawer} onAiResults={onAiResults} />}
+      {isMobile && <SidePanel open={drawerOpen} onClose={toggleDrawer} onAiResults={onAiResults} />}
       <div className={'flex justify-center items-center flex-1'}>{children}</div>
     </div>
   );

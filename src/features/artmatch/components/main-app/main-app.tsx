@@ -16,7 +16,11 @@ import "swiper/css";
 import "swiper/css/effect-cards";
 import "../../styles/artmatch.css";
 
-const MainApp = () => {
+interface MainAppProps {
+  aiResults?: Artwork[] | null;
+}
+
+const MainApp = ({ aiResults }: MainAppProps) => {
   const [products, setProducts] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +42,18 @@ const MainApp = () => {
       loadProducts();
     }
   }, [filters]);
+
+  // Aggiorna i prodotti quando arrivano risultati AI
+  useEffect(() => {
+    if (aiResults && aiResults.length > 0) {
+      setProducts(aiResults);
+      setCurrentIndex(0);
+      // Reset swiper alla prima card
+      if (swiperRef.current) {
+        swiperRef.current.slideTo(0);
+      }
+    }
+  }, [aiResults]);
 
   const loadProducts = async () => {
     try {
@@ -144,11 +160,6 @@ const MainApp = () => {
   const handleSlideChange = (swiper: SwiperType) => {
     const newIndex = swiper.activeIndex;
     setCurrentIndex(newIndex);
-
-    // Ricarica nuovi prodotti quando si avvicina alla fine
-    if (newIndex >= products.length - 2) {
-      loadProducts();
-    }
   };
 
   const handleReload = () => {
