@@ -211,19 +211,14 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
       setLoading(true);
       const chatHistory = await dataProvider.getChatHistory();
 
-      // Filtra solo le conversazioni ArtMatch con risposta dalla galleria
+      // Filtra solo le conversazioni con risposta dalla galleria
       const artMatchConversations = chatHistory.filter((conversation) => {
-        // Verifica se almeno un messaggio utente inizia con "ArtMatch"
-        const hasArtMatchMessage = conversation.messages.some(
-          (msg) => msg.userMessage && msg.text.startsWith("ArtMatch")
-        );
-
         // Verifica se c'è almeno una risposta dalla galleria
         const hasGalleryResponse = conversation.messages.some(
           (msg) => !msg.userMessage
         );
 
-        return hasArtMatchMessage && hasGalleryResponse;
+        return hasGalleryResponse;
       });
 
       setConversations(artMatchConversations);

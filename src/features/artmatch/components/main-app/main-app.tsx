@@ -1,15 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { Box, CircularProgress, Typography, Button } from "@mui/material";
+import { Box, CircularProgress, Typography, Button, Grid, Card, CardMedia, CardContent, IconButton } from "@mui/material";
 import { SwipeCard } from "../swipe-card";
 import { artmatchService } from "../../services/artmatch-services";
 import { Artwork } from "../../../../types/artwork";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import CloseIcon from "@mui/icons-material/Close";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useAuth } from "../../../../hoc/AuthProvider";
 import { useData } from "../../../../hoc/DataProvider";
 import { useFiltersStore } from "../../store/filters-store";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCards } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
+import { useNavigate } from "react-router-dom";
 
 // Import Swiper styles
 import "swiper/css";
@@ -25,10 +28,13 @@ const MainApp = ({ aiResults }: MainAppProps) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [showAiGrid, setShowAiGrid] = useState<boolean>(false);
+  const [aiGridResults, setAiGridResults] = useState<Artwork[]>([]);
   const swiperRef = useRef<SwiperType | null>(null);
   const auth = useAuth();
   const dataProvider = useData();
   const { filters } = useFiltersStore();
+  const navigate = useNavigate();
 
   // Carica i prodotti iniziali
   useEffect(() => {
@@ -46,14 +52,19 @@ const MainApp = ({ aiResults }: MainAppProps) => {
   // Aggiorna i prodotti quando arrivano risultati AI
   useEffect(() => {
     if (aiResults && aiResults.length > 0) {
-      setProducts(aiResults);
-      setCurrentIndex(0);
-      // Reset swiper alla prima card
-      if (swiperRef.current) {
-        swiperRef.current.slideTo(0);
-      }
+      setAiGridResults(aiResults);
+      setShowAiGrid(true);
     }
   }, [aiResults]);
+
+  const handleCloseAiGrid = () => {
+    setShowAiGrid(false);
+    setAiGridResults([]);
+  };
+
+  const handleArtworkClick = (artwork: Artwork) => {
+    navigate(`/opere/${artwork.slug}`);
+  };
 
   const loadProducts = async () => {
     try {
@@ -97,8 +108,13 @@ const MainApp = ({ aiResults }: MainAppProps) => {
   };
 
   const handleLike = async (artwork: Artwork) => {
-    // Cambia card immediatamente
-    moveToNext();
+    // Cambia card immediatamente solo se siamo nello swiper
+    if (!showAiGrid) {
+      moveToNext();
+    } else {
+      // Nella griglia, rimuovi la card dalla lista
+      setAiGridResults((prev) => prev.filter((item) => item.id !== artwork.id));
+    }
 
     // Salva il like in background usando il DataProvider
     try {
@@ -132,8 +148,13 @@ const MainApp = ({ aiResults }: MainAppProps) => {
   };
 
   const handleDislike = async (artwork: Artwork) => {
-    // Cambia card immediatamente
-    moveToNext();
+    // Cambia card immediatamente solo se siamo nello swiper
+    if (!showAiGrid) {
+      moveToNext();
+    } else {
+      // Nella griglia, rimuovi la card dalla lista
+      setAiGridResults((prev) => prev.filter((item) => item.id !== artwork.id));
+    }
 
     // Salva il dislike in background
     try {
@@ -221,6 +242,186 @@ const MainApp = ({ aiResults }: MainAppProps) => {
     );
   }
 
+  // Renderizza griglia AI se attiva
+  if (showAiGrid && aiGridResults.length > 0) {
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          minHeight: "600px",
+          padding: 4,
+          position: "relative",
+        }}>
+        {/* Header con titolo e pulsante chiudi */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 4,
+            px: 2,
+          }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              }}
+            />
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 600,
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}>
+              Risultati AI ({aiGridResults.length})
+            </Typography>
+          </Box>
+          <Button
+            variant="outlined"
+            onClick={handleCloseAiGrid}
+            startIcon={<CloseIcon />}
+            sx={{
+              borderColor: "#667eea",
+              color: "#667eea",
+              "&:hover": {
+                borderColor: "#5568d3",
+                backgroundColor: "rgba(102, 126, 234, 0.04)",
+              },
+            }}>
+            Chiudi
+          </Button>
+        </Box>
+
+        {/* Griglia delle opere */}
+        <Grid container spacing={3}>
+          {aiGridResults.map((artwork) => {
+            const imageUrl = artwork.images?.[0]?.src || "../images/artists_example.png";
+            const artistName =
+              artwork.attributes?.find((attr) => attr.name === "Artista")?.options?.[0] || "Artista sconosciuto";
+            const galleryName = artwork.store_name || "Galleria";
+
+            return (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={artwork.id}>
+                <Card
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    borderRadius: "20px",
+                    overflow: "hidden",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: "translateY(-8px)",
+                      boxShadow: "0 12px 24px rgba(102, 126, 234, 0.2)",
+                    },
+                  }}>
+                  <Box
+                    onClick={() => handleArtworkClick(artwork)}
+                    sx={{
+                      cursor: "pointer",
+                      position: "relative",
+                    }}>
+                    <CardMedia
+                      component="img"
+                      image={imageUrl}
+                      alt={artwork.name}
+                      sx={{
+                        height: 280,
+                        objectFit: "cover",
+                      }}
+                    />
+                  </Box>
+                  <CardContent sx={{ flexGrow: 1, p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+                    <Box onClick={() => handleArtworkClick(artwork)} sx={{ cursor: "pointer", flex: 1 }}>
+                      <Typography
+                        variant="subtitle2"
+                        color="text.secondary"
+                        sx={{ mb: 0.5, fontSize: "0.875rem" }}>
+                        {artistName}
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          mb: 1,
+                          fontWeight: 500,
+                          fontSize: "1rem",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                        }}>
+                        {artwork.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem" }}>
+                        {galleryName}
+                      </Typography>
+                    </Box>
+
+                    {/* Pulsanti Like/Dislike */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: 1,
+                        pt: 1,
+                        borderTop: "1px solid #f0f0f0",
+                      }}>
+                      <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDislike(artwork);
+                        }}
+                        sx={{
+                          flex: 1,
+                          height: 48,
+                          backgroundColor: "#ffebee",
+                          borderRadius: "12px",
+                          color: "#EC6F7B",
+                          "&:hover": {
+                            backgroundColor: "#ffcdd2",
+                          },
+                          transition: "all 0.2s",
+                        }}>
+                        <CloseIcon />
+                      </IconButton>
+
+                      <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLike(artwork);
+                        }}
+                        sx={{
+                          flex: 1,
+                          height: 48,
+                          backgroundColor: "#e8f5e9",
+                          borderRadius: "12px",
+                          color: "#42B396",
+                          "&:hover": {
+                            backgroundColor: "#c8e6c9",
+                          },
+                          transition: "all 0.2s",
+                        }}>
+                        <FavoriteIcon />
+                      </IconButton>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            );
+          })}
+        </Grid>
+      </Box>
+    );
+  }
+
+  // Renderizza swiper normale
   return (
     <Box
       sx={{

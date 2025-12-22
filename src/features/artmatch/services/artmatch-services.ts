@@ -152,14 +152,14 @@ export const artmatchService = {
   },
 
   /**
-   * Recupera le categorie prodotti
+   * Recupera le categorie prodotti WooCommerce
    */
   async getCategories(): Promise<Array<{ id: number; name: string; slug: string; count: number }>> {
     try {
       const resp = await axios.get<
         unknown,
         AxiosResponse<Array<{ id: number; name: string; slug: string; count: number }>>
-      >(`${baseUrl}/wp-json/wp/v2/categories`, {
+      >(`${baseUrl}/wp-json/wc/v3/products/categories`, {
         params: {
           per_page: 100,
         },
