@@ -22,6 +22,7 @@ import { GroupedMessage } from "../../../../types/user";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import dayjs from "dayjs";
+import Linkify from "linkify-react";
 
 const FilterIcon = ({ color = "tertiary" }: { color: "primary" | "tertiary" }) => {
   const colorVariants = {
@@ -702,7 +703,13 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
                       backgroundColor: message.userMessage ? "#42B396" : "#f5f5f5",
                       color: message.userMessage ? "white" : "text.primary",
                     }}>
-                    <Typography variant="body2">{message.text}</Typography>
+                    <Typography variant="body2" style={{whiteSpace: 'pre-line'}}><Linkify
+                      options={{
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                      }}>
+                      {message.text}
+                    </Linkify></Typography>
                     <Typography
                       variant="caption"
                       sx={{

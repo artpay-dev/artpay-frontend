@@ -175,14 +175,27 @@ export const galleryToGalleryContent = (gallery: Gallery): GalleryContent => ({
   productsCount: gallery.products_count,
   foundationYear: gallery.shop?.foundation_year
 });
-export const galleryToGalleryItem = (gallery: Gallery): GalleryCardProps => ({
-  id: gallery.id,
-  title: gallery.display_name,
-  slug: gallery.shop.slug,
-  subtitle: `${gallery.address?.city}`,
-  imgUrl: normalizeImageUrl(gallery.shop.banner),
-  logoUrl: normalizeImageUrl(gallery.shop.image)
-});
+export const galleryToGalleryItem = (gallery: Gallery | null | undefined): GalleryCardProps => {
+  if (!gallery) {
+    return {
+      id: 0,
+      title: "",
+      slug: "",
+      subtitle: "",
+      imgUrl: "",
+      logoUrl: ""
+    };
+  }
+
+  return {
+    id: gallery.id,
+    title: gallery.display_name,
+    slug: gallery.shop?.slug || "",
+    subtitle: `${gallery.address?.city || ""}`,
+    imgUrl: normalizeImageUrl(gallery.shop?.banner),
+    logoUrl: normalizeImageUrl(gallery.shop?.image)
+  };
+};
 
 export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProps => {
   const orderDesc = order.meta_data.find((m) => m.key.toLowerCase() === "original_order_desc")?.value
@@ -253,6 +266,30 @@ export const getArtworkDimensions = (artwork?: Artwork): string => {
   return `${artwork?.dimensions.width || 0} x ${artwork?.dimensions.height || 0} x ${
     artwork?.dimensions.length || 0
   } cm`;
+};
+
+/**
+ * Extracts vendor ID from an Artwork object
+ * Handles both object and string vendor formats
+ */
+export const getVendorId = (artwork?: Artwork): string | undefined => {
+  if (!artwork || !artwork.vendor) {
+    return undefined;
+  }
+
+  const vendor = artwork.vendor;
+
+  // If vendor is an object, return the id as string
+  if (typeof vendor === 'object' && 'id' in vendor) {
+    return vendor.id.toString();
+  }
+
+  // If vendor is already a string, return it
+  if (typeof vendor === 'string') {
+    return vendor;
+  }
+
+  return undefined;
 };
 
 function ctaFromLink(htmlString: string): Cta | undefined {
