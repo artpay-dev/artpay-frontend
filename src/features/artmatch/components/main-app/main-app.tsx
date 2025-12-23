@@ -278,7 +278,7 @@ const MainApp = ({ aiResults }: MainAppProps) => {
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}>
-              Risultati AI ({aiGridResults.length})
+              Risultati ArtMatch ({aiGridResults.length})
             </Typography>
           </Box>
           <Button

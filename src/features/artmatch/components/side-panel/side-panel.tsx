@@ -599,7 +599,7 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
             <Box display="flex" alignItems="center" justifyContent="space-between">
               <Box display="flex" alignItems="center" gap={1}>
                 <AiSparkleIcon color="primary" />
-                <Typography variant="h6">Risultati AI</Typography>
+                <Typography variant="h6">Risultati ArtMatch</Typography>
               </Box>
               <IconButton onClick={handleAiResultsClose} edge="end">
                 <CloseIcon />
@@ -762,7 +762,7 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
           <Box display="flex" alignItems="center" justifyContent="space-between">
             <Box display="flex" alignItems="center" gap={1}>
               <AiSparkleIcon color="primary" />
-              <Typography variant="h6">Risultati AI</Typography>
+              <Typography variant="h6">Risultati ArtMatch</Typography>
             </Box>
             <IconButton onClick={handleAiResultsClose} edge="end">
               <CloseIcon />

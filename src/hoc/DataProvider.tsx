@@ -497,7 +497,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         return [];
       }
       const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
-        `${baseUrl}/wp-json/wp/v2/getUserDislikedArtworks`,
+        `${baseUrl}/wp-json/artpay/v1/getUserDislikedArtworks`,
         { headers: { Authorization: auth.getAuthToken() } },
       );
       return resp.data || [];

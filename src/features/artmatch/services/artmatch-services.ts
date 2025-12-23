@@ -136,7 +136,7 @@ export const artmatchService = {
   async dislikeProduct(productId: number, authToken: string): Promise<number[]> {
     try {
       const resp = await axios.post<unknown, AxiosResponse<number[]>>(
-        `${baseUrl}/wp-json/wp/v2/addUserDislikedArtwork/${productId}`,
+        `${baseUrl}/wp-json/artpay/v1/addUserDislikedArtwork/${productId}`,
         {},
         {
           headers: {
