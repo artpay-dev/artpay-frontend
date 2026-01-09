@@ -582,6 +582,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
           headers: { Authorization: auth.getGuestAuth() },
           params: {
             include: ids.join(","), //include=${ids.join(",")}
+            per_page: Math.max(ids.length, 100), // Assicura di ottenere tutti i prodotti richiesti
           },
         });
         return resp.data;
