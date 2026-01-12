@@ -148,7 +148,7 @@ function AppContent() {
                     <Route path="/profile/messaggi" element={<Messages />} />
                     <Route path="/errore/:code" element={<Error />} />
                     <Route path="/errore" element={<Error />} />
-                    <Route path={"/gallerie-the-others"} element={<LandingForCampaignPage />} />
+                    <Route path={"/campaign/:slug"} element={<LandingForCampaignPage />} />
                     <Route path={"/vendor/fastpay"}  element={<FatsPayLayout />}>
                       <Route element={<FastPay />} index/>
                       <Route path={"crea-offerta"} element={<FastPayCreate />} />
