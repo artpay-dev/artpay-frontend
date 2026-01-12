@@ -223,7 +223,7 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
   return {
     id: order.id,
     formattePrice: `€ ${order.total}`,
-    orderType: order.created_via == "rest-api" ? "Galleria" : "Casa D'asta",
+    orderType: order.created_via == "rest-api" ? "Galleria" : order?.meta_data.find(k => k.key === "_question_id")?.value ? "Artmatch" : "Casa D'Asta",
     galleryName: galleryName || "",
     purchaseDate: datePaid,
     dateCreated: order.date_created,
