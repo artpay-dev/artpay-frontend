@@ -40,6 +40,9 @@ export const useDirectPurchaseUtils = () => {
         klarna: "Klarna",
         Santander: "Santander",
         bank_transfer: "Bonifico",
+        paypal: "PayPal",
+        revolut_pay: "Revolut Pay",
+        google_pay: "Google Pay",
       };
 
       const displayName = paymentMethodMap[payment] || payment;

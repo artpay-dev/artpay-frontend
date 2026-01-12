@@ -108,7 +108,7 @@ export const useDirectPurchaseData = () => {
 
             // Gestione del payment method basata sull'orderMode
             if (orderMode === "loan") {
-              const supportedMethods = ["card"];
+              const supportedMethods = ["card", "paypal", "revolut_pay", "google_pay"];
               const methodToUse = order.payment_method && supportedMethods.includes(order.payment_method)
                 ? order.payment_method
                 : "card";
@@ -122,7 +122,7 @@ export const useDirectPurchaseData = () => {
                 console.error("Error creating payment intent for loan:", e);
               }
             } else {
-              const supportedMethods = ["card", "klarna"];
+              const supportedMethods = ["card", "klarna", "paypal", "revolut_pay", "google_pay"];
 
               if (order.payment_method && supportedMethods.includes(order.payment_method)) {
                 updateState({ paymentMethod: order.payment_method });
@@ -183,7 +183,7 @@ export const useDirectPurchaseData = () => {
           // Se orderMode è "loan", controlla se c'è già un metodo impostato o usa "card" di default
           if (orderMode === "loan") {
             const currentPaymentMethod = useDirectPurchaseStore.getState().paymentMethod;
-            const supportedMethods = ["card"];
+            const supportedMethods = ["card", "paypal", "revolut_pay", "google_pay"];
             const methodToUse = currentPaymentMethod && supportedMethods.includes(currentPaymentMethod)
               ? currentPaymentMethod
               : (resp.payment_method && supportedMethods.includes(resp.payment_method)
@@ -202,7 +202,7 @@ export const useDirectPurchaseData = () => {
             // Per gli orderMode non-loan, controlla se l'utente ha già selezionato un metodo
             const currentPaymentMethod = useDirectPurchaseStore.getState().paymentMethod;
             const currentPaymentIntent = useDirectPurchaseStore.getState().paymentIntent;
-            const supportedMethods = ["card", "klarna"];
+            const supportedMethods = ["card", "klarna", "paypal", "revolut_pay", "google_pay"];
 
             // NON sovrascrivere se l'utente ha già selezionato un metodo e c'è un payment intent
             if (currentPaymentMethod && currentPaymentIntent && supportedMethods.includes(currentPaymentMethod)) {
@@ -271,7 +271,7 @@ export const useDirectPurchaseData = () => {
         // Se orderMode è "loan", controlla se c'è già un metodo impostato o usa "card" di default
         if (orderMode === "loan") {
           const currentPaymentMethod = useDirectPurchaseStore.getState().paymentMethod;
-          const supportedMethods = ["card"];
+          const supportedMethods = ["card", "paypal", "revolut_pay", "google_pay"];
           const methodToUse = currentPaymentMethod && supportedMethods.includes(currentPaymentMethod)
             ? currentPaymentMethod
             : (order.payment_method && supportedMethods.includes(order.payment_method)
@@ -290,7 +290,7 @@ export const useDirectPurchaseData = () => {
           // Per gli orderMode non-loan, controlla se l'utente ha già selezionato un metodo
           const currentPaymentMethod = useDirectPurchaseStore.getState().paymentMethod;
           const currentPaymentIntent = useDirectPurchaseStore.getState().paymentIntent;
-          const supportedMethods = ["card", "klarna"];
+          const supportedMethods = ["card", "klarna", "paypal", "revolut_pay", "google_pay"];
 
           // NON sovrascrivere se l'utente ha già selezionato un metodo e c'è un payment intent
           if (currentPaymentMethod && currentPaymentIntent && supportedMethods.includes(currentPaymentMethod)) {
