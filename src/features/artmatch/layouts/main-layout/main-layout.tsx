@@ -19,9 +19,10 @@ const BackButton = () => {
 };
 
 const ArtMatchLabel = () => (
-  <div className={"bg-tertiary px-2 flex items-center justify-center w-fit ms-2"}>
+  <div className={"bg-tertiary px-2 flex items-center justify-center w-fit ms-2 relative"}>
     <Favorite className="text-white" />
     <span className={"text-white font-medium"}>ArtMatch</span>
+    <span className={'text-xs block absolute bottom-0 right-0 text-white shadow -rotate-10 bg-linear-to-tr from-primary to-blue-600 border border-primary px-3 py-1 rounded-full translate-y-3/4 translate-x-1/3'}>Beta</span>
   </div>
 )
 

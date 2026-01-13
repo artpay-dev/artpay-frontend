@@ -45,10 +45,11 @@ const FilterIcon = ({ color = "tertiary" }: { color: "primary" | "tertiary" }) =
   );
 };
 
-const AiSparkleIcon = ({ color = "tertiary" }: { color: "primary" | "tertiary" }) => {
+const AiSparkleIcon = ({ color = "tertiary" }: { color: "primary" | "tertiary" | "white"}) => {
   const colorVariants = {
     primary: "fill-primary",
     tertiary: "fill-tertiary",
+    white: "fill-white",
   };
 
   return (
@@ -184,10 +185,10 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
             handleModalClose();
             routerNavigate('/profile/history-quotes');
           }}
-          className="mui-btn mui-btn-contained mui-btn-small"
-          style={{ marginTop: '8px', display: 'inline-block' }}
+          className="py-2 px-3 text-md cursor-pointer rounded-full border border-primary bg-white text-primary hover:border-primary-hover hover:text-shadow-primary-hover hover:shadow-custom transition-all"
+          style={{ display: 'inline-block' }}
         >
-          Visualizza offerta
+          Visualizza offerte
         </button>
       );
     }
@@ -414,7 +415,7 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
           <span className={`${filtersPanelOpen ? "text-primary" : "text-tertiary"}`}>Filtri</span>
         </Button>
         <Button
-          className={"custom-navbar flex items-center gap-2.5 py-6! flex-1"}
+          className={"custom-navbar flex items-center gap-2.5 py-6! flex-1 relative"}
           onClick={handleAiSearchOpen}
           sx={{
             background: aiSearchOpen ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
@@ -422,7 +423,7 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
               background: aiSearchOpen ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'rgba(102, 126, 234, 0.1)',
             }
           }}>
-          <AiSparkleIcon color={aiSearchOpen ? "primary" : "tertiary"} />
+          <AiSparkleIcon color={aiSearchOpen ? "white" : "tertiary"} />
           <span className={`${aiSearchOpen ? "text-white" : "text-tertiary"}`}>AI</span>
         </Button>
       </div>
@@ -540,7 +541,7 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
                   <div className={"flex flex-col items-center justify-center mt-12 px-4"}>
                     <p className={"text-secondary text-center"}>Nessuna conversazione</p>
                     <p className={"text-secondary text-sm text-center mt-2"}>
-                      Le tue conversazioni con le gallerie appariranno qui
+                      I tuoi match appariranno qui
                     </p>
                   </div>
                 ) : (

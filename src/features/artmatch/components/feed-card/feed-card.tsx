@@ -10,7 +10,7 @@ const FeedCard = () => {
       <div className="flex flex-col justify-between">
         <div className={'flex flex-col gap-6 '}>
           <Typography variant="display3" color={'white'}>Voglia di match?</Typography>
-          <p className={'text-white text-balance text-xl leading-[125%]'}>Fai swipe tra le opere di artmatch, quando ti piace qualcosa metti like e invia una....</p>
+          <p className={'text-white text-balance text-xl leading-[125%]'}>Fai swipe tra le opere di artmatch, quando ti piace qualcosa metti like e fai match con una Galleria.</p>
         </div>
         <Button variant={'contained'} className={'w-fit'} onClick={() => navigate('/artmatch')}>Vai a fare swipe</Button>
       </div>
