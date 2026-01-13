@@ -117,7 +117,7 @@ export const artworkToGalleryItem = (
   return {
     id: artwork.id.toString(),
     artistName: getPropertyFromMetadata(artwork.meta_data, "artist")?.artist_name,
-    galleryId: artwork.vendor,
+    galleryId: artwork.vendor as string,
     galleryName: artwork.store_name,
     price: +artwork.price,
     size: cardSize,
@@ -134,7 +134,7 @@ export const artworkToOrderItem = (artwork: Artwork, valueMatcher?: categoryValu
   return {
     id: artwork.id.toString(),
     artistName: getPropertyFromMetadata(artwork.meta_data, "artist")?.artist_name,
-    galleryId: artwork.vendor,
+    galleryId: artwork.vendor as string,
     galleryName: artwork.store_name,
     price: +artwork.price,
     title: artwork.name,
@@ -201,7 +201,10 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
   const orderDesc = order.meta_data.find((m) => m.key.toLowerCase() === "original_order_desc")?.value
   const lineItem = order.line_items.length ? order.line_items[0] : undefined;
   const galleryName = lineItem?.meta_data.find((m) => m.key?.toLowerCase() === "sold by" || m.key?.toLowerCase() === "venduto da")?.display_value;
+  const quoteNotes = order?.meta_data.find((m) => m.key === "_quote_notes")?.value || "";
+  const quoteConditions = order?.meta_data.find((m) => m.key === "_quote_conditions")?.value  || "";
 
+  console.log(order)
   // Cerca la data di scadenza nei meta_data
   const expiryDateMeta = order.meta_data.find((m) =>
     m.key.toLowerCase() === "_expiry_date" ||
@@ -234,7 +237,11 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
     status: order.status,
     imgSrc: lineItem?.image?.src || "",
     expiryDate: expiryDateMeta,
-    customer_note: order.customer_note
+    customer_note: order.customer_note,
+    quoteNotes: quoteNotes,
+    quoteConditions: quoteConditions,
+    orderKey: order.order_key,
+    email: order.billing?.email || "",
   };
 };
 
@@ -454,9 +461,9 @@ export const newOrder = (artwork: Artwork) => {
           {
             id: 19859,
             key: "_vendor_id",
-            value: artwork.vendor,
+            value: artwork.vendor as string,
             display_key: "_vendor_id",
-            display_value: artwork.vendor
+            display_value: artwork.vendor as string,
           },
           {
             id: 19860,

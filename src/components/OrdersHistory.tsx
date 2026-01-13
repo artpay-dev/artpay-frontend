@@ -5,6 +5,7 @@ import { ordersToOrderHistoryCardProps, useNavigate } from "../utils.ts";
 import { Order, OrderStatus } from "../types/order.ts";
 import OrderHistoryCard, { OrderHistoryCardProps } from "./OrderHistoryCard.tsx";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
+import { useLocation } from "react-router-dom";
 
 
 export interface OrdersHistoryProps {
@@ -41,6 +42,7 @@ const Skeleton = () => {
 
 const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate", noTitle, mode = ["completed"] }) => {
   const data = useData();
+  const location = useLocation().pathname;
   const navigate = useNavigate();
   const snackbar = useSnackbars();
 
@@ -82,17 +84,23 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate
     return undefined;
   };
 
+  const loadOrders = async () => {
+    try {
+      const fetchedOrders = await data.listOrders({ status: mode, per_page: 10 });
+      const filteredOrders = fetchedOrders.filter(o => !o.created_via.includes("mvx"));
+      setRawOrders(filteredOrders);
+      setOrders(ordersToOrderHistoryCardProps(filteredOrders));
+    } catch (e) {
+      snackbar.error(e);
+    }
+  };
+
+  const handleRefreshOrders = async () => {
+    await loadOrders();
+  };
+
   useEffect(() => {
-    data
-      .listOrders({ status: mode, per_page: 10 })
-      .then((fetchedOrders) => {
-        const filteredOrders = fetchedOrders.filter(o => !o.created_via.includes("mvx"));
-        setRawOrders(filteredOrders);
-        setOrders(ordersToOrderHistoryCardProps(filteredOrders));
-      })
-      .catch((e) => snackbar.error(e));
-
-
+    loadOrders();
   }, []);
 
   // Calcola il padding in base al numero di colonne
@@ -136,7 +144,13 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate
               pl={padding.pl}
               pb={3}
               item>
-              <OrderHistoryCard {...order} onClick={getClickHandler(order.purchaseMode, order.status)} />
+              <OrderHistoryCard
+                {...order}
+                onClick={getClickHandler(order.purchaseMode, order.status)}
+                galleryName={order.galleryName}
+                onQuoteAccepted={handleRefreshOrders}
+                onQuoteRejected={handleRefreshOrders}
+              />
             </Grid>
           );
         })
@@ -144,7 +158,7 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate
         <div>
           {orders?.length === 0 ? (
             <div className={'text-lg text-secondary'}>
-              Non ci sono transazioni
+              Non ci sono {location.endsWith('quotes') ? "offerte" : "transazioni"} per ora
             </div>
           ) : (
             <div className={"flex gap-8 my-12 overflow-x-hidden"}>

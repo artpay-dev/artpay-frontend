@@ -61,6 +61,7 @@ import QuotesLayout from "./features/quotes/layout/QuotesLayout.tsx";
 import QuotePage from "./pages/quotes/QuotePage.tsx";
 import CheckoutPayment from "./pages/quotes/CheckoutPayment.tsx";
 import ArtMatch from "./pages/artmatch/ArtMatch.tsx";
+import HistoryQuotesPage from "./pages/HistoryQuotesPage.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -120,6 +121,7 @@ function AppContent() {
                     <Route path="/profile/opere-preferite" element={<FavoritesArtworksPage />} />
                     <Route path="/profile/personal-settings" element={<PersonalSettingsPage />} />
                     <Route path="/profile/history-orders" element={<HistoryOrdersPage />} />
+                    <Route path="/profile/history-quotes" element={<HistoryQuotesPage />} />
                     <Route path="/profile/history-failed-orders" element={<HistoryFailedOrdersPage />} />
                     <Route path="/profile/shipping-invoice-settings" element={<ShippingSettingsPage />} />
                     <Route path="/thank-you-page" element={<PurchaseComplete />} />
