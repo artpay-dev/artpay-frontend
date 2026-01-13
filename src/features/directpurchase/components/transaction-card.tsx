@@ -17,7 +17,6 @@ const TransactionCard = ({
   expiryDate,
   customer_note,
   galleryName,
-  quoteNotes,
   quoteConditions,
   orderKey,
   email,
@@ -25,6 +24,7 @@ const TransactionCard = ({
   onQuoteRejected,
 }: OrderHistoryCardProps) => {
   const [loading, setLoading] = useState(false);
+  const [rejectedLoader, setRejectedLoader] = useState(false);
   const [actionStatus, setActionStatus] = useState<"accepted" | "rejected" | null>(null);
 
   const handleAcceptQuote = async () => {
@@ -62,7 +62,7 @@ const TransactionCard = ({
     if (!confirmed) return;
 
     try {
-      setLoading(true);
+      setRejectedLoader(true);
       await quoteService.rejectQuote({ order_key: orderKey, email });
       setActionStatus("rejected");
 
@@ -74,7 +74,7 @@ const TransactionCard = ({
       console.error("Errore nel rifiuto del preventivo:", error);
       alert("Errore nel rifiuto del preventivo. Riprova.");
     } finally {
-      setLoading(false);
+      setRejectedLoader(false);
     }
   };
 
@@ -125,14 +125,8 @@ const TransactionCard = ({
         </div>
         {quoteConditions && (
           <div className={"flex flex-col "}>
-            <span>Condizioni:</span>
+            <span>Condizioni e note:</span>
             <span className={"text-secondary"}>{quoteConditions}</span>
-          </div>
-        )}
-        {quoteNotes && (
-          <div className={"flex flex-col "}>
-            <span>Condizioni:</span>
-            <span className={"text-secondary"}>{quoteNotes}</span>
           </div>
         )}
 
@@ -221,8 +215,8 @@ const TransactionCard = ({
               color={"error"}
               onClick={handleRejectQuote}
               disabled={loading}
-              startIcon={loading ? <CircularProgress size={20} /> : undefined}>
-              {loading ? "Rifiuto in corso..." : "Rifiuta"}
+              startIcon={rejectedLoader ? <CircularProgress size={20} /> : undefined}>
+              {rejectedLoader ? "Rifiuto in corso..." : "Rifiuta"}
             </Button>
           </div>
         </div>
@@ -234,8 +228,8 @@ const TransactionCard = ({
             <span className={"px-2 py-1 rounded-full text-xs font-medium bg-[#42B396] text-white w-fit"}>
               Preventivo accettato
             </span>
-            <div className={"flex flex-col gap-1"}>
-              <span>Il preventivo è stato accettato con successo. Riceverai un'email con le istruzioni per il pagamento.</span>
+            <div className={"flex flex-col gap-1 leading-[125%]"}>
+              <span>Il preventivo è stato accettato con successo. Controlla le tue transazioni.</span>
             </div>
           </div>
         </div>

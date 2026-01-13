@@ -21,8 +21,10 @@ import { Artwork } from "../../../../types/artwork";
 import { GroupedMessage } from "../../../../types/user";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
+import DeleteIcon from "@mui/icons-material/Delete";
 import dayjs from "dayjs";
 import Linkify from "linkify-react";
+import { useNavigate as useReactRouterNavigate } from "react-router-dom";
 import './side-panel.css'
 
 const FilterIcon = ({ color = "tertiary" }: { color: "primary" | "tertiary" }) => {
@@ -157,6 +159,7 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [newMessage, setNewMessage] = useState<string>("");
   const [sending, setSending] = useState<boolean>(false);
+  const [deletingConversation, setDeletingConversation] = useState<boolean>(false);
 
   // Stati per il modale AI
   const [aiResultsModalOpen, setAiResultsModalOpen] = useState<boolean>(false);
@@ -166,6 +169,36 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const dataProvider = useData();
+  const routerNavigate = useReactRouterNavigate();
+
+  // Render personalizzato per i link di Linkify
+  const renderLink = ({ attributes, content }: { attributes: any; content: string }) => {
+    const href = attributes.href;
+
+    // Se il link contiene "/quotes", renderizza un bottone che naviga a /profile/history-quotes
+    if (href && href.includes('/quotes')) {
+      return (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            handleModalClose();
+            routerNavigate('/profile/history-quotes');
+          }}
+          className="mui-btn mui-btn-contained mui-btn-small"
+          style={{ marginTop: '8px', display: 'inline-block' }}
+        >
+          Visualizza offerta
+        </button>
+      );
+    }
+
+    // Altrimenti renderizza un link normale
+    return (
+      <a {...attributes} className="linkify-link">
+        {content}
+      </a>
+    );
+  };
 
   // Carica i dati quando cambia il tab
   useEffect(() => {
@@ -326,6 +359,35 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
       console.error("Errore nell'invio del messaggio:", error);
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleDeleteConversation = async () => {
+    if (!selectedConversation || deletingConversation) return;
+
+    const confirmed = window.confirm(
+      "Sei sicuro di voler eliminare questa conversazione? Questa azione non può essere annullata."
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingConversation(true);
+
+      // Elimina tutte le domande per questa conversazione usando il DataProvider
+      await dataProvider.deleteConversation(selectedConversation.questionIds);
+
+      // Chiudi il modale
+      handleModalClose();
+
+      // Ricarica la lista delle conversazioni
+      await loadConversations();
+
+    } catch (error) {
+      console.error("Errore nell'eliminazione della conversazione:", error);
+      alert("Errore nell'eliminazione della conversazione. Riprova.");
+    } finally {
+      setDeletingConversation(false);
     }
   };
 
@@ -518,9 +580,20 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
                     {selectedConversation.product.name}
                   </Typography>
                 </Box>
-                <IconButton onClick={handleModalClose} edge="end">
-                  <CloseIcon />
-                </IconButton>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <IconButton
+                    onClick={handleDeleteConversation}
+                    disabled={deletingConversation}
+                    sx={{
+                      color: "#EC6F7B",
+                      "&:hover": { backgroundColor: "rgba(236, 111, 123, 0.1)" },
+                    }}>
+                    {deletingConversation ? <CircularProgress size={24} color="inherit" /> : <DeleteIcon />}
+                  </IconButton>
+                  <IconButton onClick={handleModalClose} edge="end">
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
               </Box>
             </DialogTitle>
             <DialogContent>
@@ -546,7 +619,8 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
                           target: "_blank",
                           rel: "noopener noreferrer",
                           truncate: 36,
-                          className: 'linkify-link'
+                          className: 'linkify-link',
+                          render: renderLink
                         }}>
                         {message.text}
                       </Linkify></Typography>
@@ -689,9 +763,20 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
                   {selectedConversation.product.name}
                 </Typography>
               </Box>
-              <IconButton onClick={handleModalClose} edge="end">
-                <CloseIcon />
-              </IconButton>
+              <Box display="flex" alignItems="center" gap={1}>
+                <IconButton
+                  onClick={handleDeleteConversation}
+                  disabled={deletingConversation}
+                  sx={{
+                    color: "#EC6F7B",
+                    "&:hover": { backgroundColor: "rgba(236, 111, 123, 0.1)" },
+                  }}>
+                  {deletingConversation ? <CircularProgress size={24} color="inherit" /> : <DeleteIcon />}
+                </IconButton>
+                <IconButton onClick={handleModalClose} edge="end">
+                  <CloseIcon />
+                </IconButton>
+              </Box>
             </Box>
           </DialogTitle>
           <DialogContent>
@@ -717,7 +802,8 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
                         target: "_blank",
                         rel: "noopener noreferrer",
                         truncate: 42,
-                        className: 'linkify-link'
+                        className: 'linkify-link',
+                        render: renderLink
                       }}>
                       {message.text}
                     </Linkify></Typography>
