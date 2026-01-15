@@ -45,6 +45,8 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
   quoteNotes,
   orderKey,
   email,
+  onQuoteAccepted,
+  onQuoteRejected,
 }) => {
   if (status != "completed")
     return (
@@ -66,6 +68,8 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
         quoteConditions={quoteConditions}
         orderKey={orderKey}
         email={email}
+        onQuoteAccepted={onQuoteAccepted}
+        onQuoteRejected={onQuoteRejected}
       />
     );
 

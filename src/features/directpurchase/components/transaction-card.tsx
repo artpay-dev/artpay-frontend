@@ -53,13 +53,7 @@ const TransactionCard = ({
   };
 
   const handleRejectQuote = async () => {
-    if (!orderKey || !email) {
-      alert("Dati mancanti per rifiutare il preventivo");
-      return;
-    }
-
-    const confirmed = window.confirm("Sei sicuro di voler rifiutare questo preventivo?");
-    if (!confirmed) return;
+    if (!orderKey || !email) return
 
     try {
       setRejectedLoader(true);
