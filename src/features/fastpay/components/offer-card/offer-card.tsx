@@ -219,7 +219,7 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
         </div>
         <div className="flex items-center gap-3 my-4">
           <img
-            src={mainItem?.image?.src || "/images/immagine--galleria.png"}
+            src={mainItem?.image?.src || "/images/placeholder.png"}
             alt={mainItem?.name || "Artwork"}
             width={400}
             height={400}

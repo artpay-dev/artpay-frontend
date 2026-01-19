@@ -469,7 +469,7 @@ const FastPayCreate = () => {
                     <ListItemButton onClick={() => handleSelectArtwork(artwork)} sx={{ borderRadius: 2, mb: 1 }}>
                       <ListItemAvatar>
                         <Avatar
-                          src={artwork.images[0]?.src || "/images/immagine--galleria.png"}
+                          src={artwork.images[0]?.src || "/images/placeholder.png"}
                           alt={artwork.name}
                           variant="rounded"
                           sx={{ width: 60, height: 60 }}
