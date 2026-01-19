@@ -18,11 +18,16 @@ const Galleries: React.FC<GalleriesProps> = ({}) => {
     return galleries.filter((gallery) => !hideIds.includes(gallery.id));
   };
 
+  const filterGalleriesWithoutBanner = (galleries: Gallery[]) => {
+    return galleries.filter((gallery) => gallery.shop.banner.trim().length > 0);
+  };
+
 
   useEffect(() => {
     data.getGalleries().then((resp) => {
       const hideIds = [220, 221, 144, 212, 76];
-      setGalleries(filterGalleriesByIds(resp, hideIds));
+      const galleriesByIds = filterGalleriesByIds(resp, hideIds)
+      setGalleries(filterGalleriesWithoutBanner(galleriesByIds));
       setIsReady(true);
     });
   }, []);
