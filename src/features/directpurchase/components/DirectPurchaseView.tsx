@@ -106,7 +106,7 @@ const DirectPurchaseView = () => {
 
   const showBillingSection = userProfile && (requireInvoice || orderMode === "loan");
 
-  const isReedemPurchase = pendingOrder?.status === "on-hold" && pendingOrder.created_via == "rest-api";
+  const isReedemPurchase = pendingOrder?.status === "on-hold" && pendingOrder.created_via == "rest-api"
 
   const handleBlockNavigation = async (path?: string, extrernal?: boolean) => {
     // Blocca solo in modalità loan o standard quando lo status è pending

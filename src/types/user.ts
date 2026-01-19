@@ -192,4 +192,5 @@ export interface GroupedMessage {
   lastMessageDate: Dayjs,
   lastMessageText: string
   messages: Message[]
+  questionIds: number[] // IDs delle domande per questa conversazione
 }
