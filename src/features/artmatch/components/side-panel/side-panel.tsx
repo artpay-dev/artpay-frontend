@@ -71,7 +71,7 @@ interface ArtworkCardProps {
 const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
   const navigate = useNavigate();
   const imageUrl = artwork.images?.[0]?.src || "../images/artists_example.png";
-  const artistName = artwork.attributes?.find((attr) => attr.name === "Artista")?.options?.[0] || "Artista sconosciuto";
+  const artistName = artwork.acf?.artist?.[0]?.post_title || "Artista sconosciuto";
   const galleryName = artwork.store_name || "Galleria";
 
   const handleClick = () => {
@@ -81,17 +81,17 @@ const ArtworkCard = ({ artwork }: ArtworkCardProps) => {
   return (
     <li
       onClick={handleClick}
-      className={"flex items-center gap-4 w-full cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"}>
-      <div className={"rounded-2xl overflow-hidden h-30 w-30 aspect-square flex-shrink-0"}>
+      className={"flex items-center gap-2 md:gap-4 w-full cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"}>
+      <div className={"rounded-xl md:rounded-2xl overflow-hidden h-20 w-20 md:h-30 md:w-30 aspect-square flex-shrink-0"}>
         <img src={imageUrl} className={"w-full h-full object-cover"} alt={artwork.name} />
       </div>
       <div className={"flex-1 min-w-0"}>
-        <ul className={"flex flex-col"}>
-          <li className={"text-secondary font-medium mb-1 text-sm truncate"}>{artistName}</li>
-          <li className={"text-tertiary text-base font-medium mb-2 truncate"} title={artwork.name}>
+        <ul className={"flex flex-col gap-0.5"}>
+          <li className={"text-secondary font-medium text-xs md:text-sm truncate"}>{artistName}</li>
+          <li className={"text-tertiary text-sm md:text-base font-medium truncate"} title={artwork.name}>
             {artwork.name}
           </li>
-          <li className={"text-secondary font-medium text-sm truncate"}>{galleryName}</li>
+          <li className={"text-secondary font-medium text-xs md:text-sm truncate"}>{galleryName}</li>
         </ul>
       </div>
     </li>
@@ -108,9 +108,11 @@ const MessagesCard = ({ conversation, onClick }: MessagesCardProps) => {
   const galleryName = conversation.product.store_name || "Galleria";
   const artworkName = conversation.product.name;
 
-  // Tronca il messaggio se troppo lungo
-  const truncatedMessage = conversation.lastMessageText.length > 50
-    ? conversation.lastMessageText.substring(0, 50) + "..."
+  // Tronca il messaggio se troppo lungo (più corto su mobile)
+  const isMobileView = window.innerWidth < 768;
+  const maxLength = isMobileView ? 30 : 50;
+  const truncatedMessage = conversation.lastMessageText.length > maxLength
+    ? conversation.lastMessageText.substring(0, maxLength) + "..."
     : conversation.lastMessageText;
 
   // Formatta la data in modo relativo (Oggi, Ieri, giorno della settimana, data)
@@ -126,17 +128,17 @@ const MessagesCard = ({ conversation, onClick }: MessagesCardProps) => {
   };
 
   return (
-    <li onClick={onClick} className={"p-4 flex items-center w-full gap-2 cursor-pointer hover:bg-gray-100 transition-colors"}>
-      <div className={"overflow-hidden rounded-2xl h-16 min-w-16 aspect-square"}>
+    <li onClick={onClick} className={"p-2 md:p-4 flex items-center w-full gap-2 cursor-pointer hover:bg-gray-100 transition-colors rounded-lg"}>
+      <div className={"overflow-hidden rounded-xl md:rounded-2xl h-12 min-w-12 md:h-16 md:min-w-16 aspect-square"}>
         <img src={imageUrl} alt={artworkName} className="h-full w-full object-cover" />
       </div>
-      <div className={"flex flex-col space-y-1 flex-1 min-w-0"}>
-        <span className="font-medium truncate">{galleryName}</span>
+      <div className={"flex flex-col space-y-0.5 md:space-y-1 flex-1 min-w-0"}>
+        <span className="font-medium text-sm md:text-base truncate">{galleryName}</span>
         <p className="text-secondary text-xs font-medium truncate">{artworkName}</p>
         <p className="text-secondary text-xs truncate">{truncatedMessage}</p>
       </div>
-      <div className="flex flex-col text-xs text-secondary">
-        <span>{formatDate(conversation.lastMessageDate)}</span>
+      <div className="flex flex-col text-xs text-secondary flex-shrink-0">
+        <span className="text-right">{formatDate(conversation.lastMessageDate)}</span>
       </div>
     </li>
   );
@@ -150,7 +152,7 @@ interface SidePanelProps {
 
 const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
   const [tab, setTab] = useState<"like" | "match">("like");
-  const { filtersPanelOpen, toggleFiltersPanel } = useFiltersStore();
+  const { filtersPanelOpen, toggleFiltersPanel, setFiltersPanelOpen } = useFiltersStore();
   const [aiSearchOpen, setAiSearchOpen] = useState<boolean>(false);
   const [aiPrompt, setAiPrompt] = useState<string>("");
   const [likedArtworks, setLikedArtworks] = useState<Artwork[]>([]);
@@ -408,90 +410,233 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
   };
 
   const panelContent = (
-    <aside className={"h-screen rounded-r-2xl w-full max-w-xs lg:max-w-sm bg-white pt-16 lg:pt-30 px-6 pb-12 overflow-y-hidden"}>
-      <div className="flex gap-2">
-        <Button className={"custom-navbar flex items-center gap-2.5 py-6! flex-1"} onClick={handleFiltersPanelOpen}>
+    <aside className={"h-screen rounded-r-2xl w-80 md:w-80 lg:w-96 bg-white pt-12 md:pt-16 lg:pt-30 px-3 md:px-6 pb-12 overflow-y-hidden overflow-x-hidden"}>
+      <div className="flex gap-2 mb-4">
+        <Button
+          className={"custom-navbar flex items-center gap-2 md:gap-2.5 py-5 md:py-6! flex-1 text-sm md:text-base"}
+          onClick={handleFiltersPanelOpen}
+          sx={{
+            minWidth: 'auto',
+            padding: { xs: '12px 8px', md: '16px 12px' }
+          }}
+        >
           <FilterIcon color={filtersPanelOpen ? "primary" : "tertiary"} />
-          <span className={`${filtersPanelOpen ? "text-primary" : "text-tertiary"}`}>Filtri</span>
+          <span className={`${filtersPanelOpen ? "text-primary" : "text-tertiary"} hidden sm:inline`}>Filtri</span>
         </Button>
         <Button
-          className={"custom-navbar flex items-center gap-2.5 py-6! flex-1 relative"}
+          className={"custom-navbar flex items-center gap-2 md:gap-2.5 py-5 md:py-6! flex-1 relative text-sm md:text-base"}
           onClick={handleAiSearchOpen}
           sx={{
+            minWidth: 'auto',
+            padding: { xs: '12px 8px', md: '16px 12px' },
             background: aiSearchOpen ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
             '&:hover': {
               background: aiSearchOpen ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'rgba(102, 126, 234, 0.1)',
             }
           }}>
           <AiSparkleIcon color={aiSearchOpen ? "white" : "tertiary"} />
-          <span className={`${aiSearchOpen ? "text-white" : "text-tertiary"}`}>AI</span>
+          <span className={`${aiSearchOpen ? "text-white" : "text-tertiary"} hidden sm:inline`}>AI</span>
         </Button>
       </div>
       {filtersPanelOpen ? (
-        <FiltersPanel />
+        <Box sx={{ width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
+          <FiltersPanel />
+        </Box>
       ) : aiSearchOpen ? (
-        <div className="mt-8 flex flex-col gap-4">
-          <div className="relative p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200">
-            <div className="absolute top-2 right-2">
-            </div>
-            <h3 className="text-lg font-semibold text-purple-900 mb-2 flex items-center gap-2">
-              <AiSparkleIcon color="primary" />
-              Ricerca AI
-            </h3>
-            <p className="text-sm text-purple-700 mb-4">
-              Descrivi l'opera che stai cercando e l'AI ti aiuterà a trovarla
-            </p>
+        <Box sx={{ mt: 4, overflowX: 'hidden', overflowY: 'auto', maxHeight: 'calc(100vh - 200px)', width: '100%', maxWidth: '100%' }}>
+          {/* Header con icona e titolo */}
+          <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Box
+              sx={{
+                width: 36,
+                height: 36,
+                minWidth: 36,
+                borderRadius: "10px",
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)",
+              }}>
+              <AiSparkleIcon color="white" />
+            </Box>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, color: "#2d3748", fontSize: { xs: '0.95rem', md: '1.1rem' } }} noWrap>
+                Ricerca AI
+              </Typography>
+              <Typography variant="caption" sx={{ color: "#718096", fontSize: { xs: '0.65rem', md: '0.7rem' } }}>
+                Descrivi l'opera che cerchi
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Box principale con gradiente */}
+          <Box
+            sx={{
+              position: "relative",
+              p: { xs: 1.5, md: 2 },
+              borderRadius: "12px",
+              boxSizing: 'border-box',
+              background: "linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)",
+              border: "2px solid",
+              borderColor: aiPrompt.trim() ? "#667eea" : "#e2e8f0",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                borderColor: "#667eea",
+                boxShadow: "0 4px 20px rgba(102, 126, 234, 0.1)",
+              },
+            }}>
+            {/* TextField con stile migliorato */}
             <TextField
               fullWidth
               multiline
-              rows={4}
-              placeholder="Es: Cerco un dipinto astratto con tonalità blu e verdi, stile contemporaneo, di medie dimensioni..."
+              rows={3}
+              placeholder="Es: Dipinto astratto..."
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'white',
-                  borderRadius: 2,
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  fontSize: { xs: "0.8rem", md: "0.875rem" },
+                  lineHeight: 1.5,
+                  "& fieldset": {
+                    borderColor: "#e2e8f0",
+                    borderWidth: "1px",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#667eea",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#667eea",
+                    borderWidth: "1.5px",
+                  },
+                },
+                "& .MuiOutlinedInput-input": {
+                  "&::placeholder": {
+                    color: "#a0aec0",
+                    opacity: 1,
+                  },
                 },
               }}
             />
+
+            {/* Contatore caratteri */}
+            <Box sx={{ mt: 0.75, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Typography variant="caption" sx={{ color: "#a0aec0", fontSize: { xs: '0.65rem', md: '0.7rem' } }}>
+                {aiPrompt.length} / 500
+              </Typography>
+              {aiPrompt.length > 500 && (
+                <Typography variant="caption" sx={{ color: "#f56565", fontSize: { xs: '0.65rem', md: '0.7rem' } }}>
+                  Troppo lungo!
+                </Typography>
+              )}
+            </Box>
+
+            {/* Esempi suggeriti */}
+            {!aiPrompt.trim() && (
+              <Box sx={{ mt: { xs: 1.5, md: 2 } }}>
+                <Typography variant="caption" sx={{ color: "#718096", fontWeight: 600, mb: 1, display: "block", fontSize: { xs: '0.65rem', md: '0.7rem' } }}>
+                  💡 Prova con:
+                </Typography>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
+                  {[
+                    "Scultura moderna",
+                    "Paesaggio marino",
+                    "Ritratto B/N",
+                  ].map((example) => (
+                    <Box
+                      key={example}
+                      onClick={() => setAiPrompt(example)}
+                      sx={{
+                        px: { xs: 1.5, md: 1.5 },
+                        py: { xs: 0.75, md: 0.875 },
+                        borderRadius: "8px",
+                        backgroundColor: "white",
+                        border: "1px solid #e2e8f0",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                        fontSize: { xs: '0.75rem', md: '0.8rem' },
+                        color: "#4a5568",
+                        boxSizing: 'border-box',
+                        "&:hover": {
+                          borderColor: "#667eea",
+                          backgroundColor: "#f7fafc",
+                        },
+                      }}>
+                      {example}
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            )}
+
+            {/* Bottone cerca */}
             <Button
               fullWidth
               variant="contained"
               onClick={handleAiSearch}
-              disabled={!aiPrompt.trim() || sending}
+              disabled={!aiPrompt.trim() || sending || aiPrompt.length > 500}
               sx={{
-                mt: 2,
-                py: 1.5,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #5568d3 0%, #6440 8c 100%)',
+                mt: { xs: 1.5, md: 2 },
+                py: { xs: 1, md: 1.25 },
+                borderRadius: "10px",
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                fontSize: { xs: '0.8rem', md: '0.9rem' },
+                fontWeight: 600,
+                textTransform: "none",
+                boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+                boxSizing: 'border-box',
+                "&:hover": {
+                  background: "linear-gradient(135deg, #5568d3 0%, #653a91 100%)",
+                  boxShadow: "0 6px 16px rgba(102, 126, 234, 0.5)",
                 },
-                '&:disabled': {
-                  background: '#e0e0e0',
+                "&:disabled": {
+                  background: "#e2e8f0",
+                  color: "#a0aec0",
+                  boxShadow: "none",
                 },
+                transition: "all 0.2s ease",
               }}>
               {sending ? (
-                <>
-                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
-                  Ricerca in corso...
-                </>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                  <CircularProgress size={16} color="inherit" />
+                  <span>Ricerca...</span>
+                </Box>
               ) : (
-                "Cerca un'opera con l'AI"
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                  <AiSparkleIcon color="white" />
+                  <span>Cerca con AI</span>
+                </Box>
               )}
             </Button>
-          </div>
-        </div>
+          </Box>
+
+          {/* Info card */}
+          <Box
+            sx={{
+              mt: { xs: 1.5, md: 2 },
+              p: { xs: 1.5, md: 2 },
+              borderRadius: "10px",
+              backgroundColor: "#f7fafc",
+              border: "1px solid #e2e8f0",
+              boxSizing: 'border-box',
+            }}>
+            <Typography variant="body2" sx={{ color: "#4a5568", lineHeight: 1.5, fontSize: { xs: '0.7rem', md: '0.8rem' } }}>
+              <strong>💡 Tip:</strong> Più dettagli fornisci, migliori saranno i risultati.
+            </Typography>
+          </Box>
+        </Box>
       ) : (
-        <div className="flex flex-col h-full">
-          <nav className={"flex items-center mt-12 "}>
-            <ul className={"flex items-center justify-center w-full "}>
+        <Box sx={{ width: '100%', maxWidth: '100%', overflowX: 'hidden', display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <nav className={"flex items-center mt-6 md:mt-12"}>
+            <ul className={"flex items-center justify-center w-full"}>
               <li
                 className={`flex items-center justify-center w-full ${
                   tab == "like" ? "border-primary border-b-2" : "text-tertiary border-b"
                 }`}>
                 <button
-                  className={`py-2.5 cursor-pointer ${tab == "like" ? "text-primary" : "text-tertiary"}`}
+                  className={`py-2 md:py-2.5 cursor-pointer text-sm md:text-base font-medium ${tab == "like" ? "text-primary" : "text-tertiary"}`}
                   onClick={() => setTab("like")}>
                   Like
                 </button>
@@ -501,29 +646,29 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
                   tab == "match" ? "border-primary border-b-2" : "text-tertiary border-b"
                 }`}>
                 <button
-                  className={`py-2.5 cursor-pointer ${tab == "match" ? "text-primary" : "text-tertiary"}`}
+                  className={`py-2 md:py-2.5 cursor-pointer text-sm md:text-base font-medium ${tab == "match" ? "text-primary" : "text-tertiary"}`}
                   onClick={() => setTab("match")}>
                   Match
                 </button>
               </li>
             </ul>
           </nav>
-          <div className={"overflow-y-auto flex-1"}>
+          <div className={"overflow-y-auto flex-1 px-1 md:px-0"}>
             {tab === "like" && (
               <>
                 {loading ? (
-                  <div className={"flex justify-center items-center mt-12"}>
+                  <div className={"flex justify-center items-center mt-8 md:mt-12"}>
                     <CircularProgress size={40} />
                   </div>
                 ) : likedArtworks.length === 0 ? (
-                  <div className={"flex flex-col items-center justify-center mt-12 px-4"}>
-                    <p className={"text-secondary text-center"}>Nessuna opera nei preferiti</p>
-                    <p className={"text-secondary text-sm text-center mt-2"}>
+                  <div className={"flex flex-col items-center justify-center mt-8 md:mt-12 px-4"}>
+                    <p className={"text-secondary text-center text-sm md:text-base"}>Nessuna opera nei preferiti</p>
+                    <p className={"text-secondary text-xs md:text-sm text-center mt-2"}>
                       Inizia a mettere like alle opere che ti piacciono!
                     </p>
                   </div>
                 ) : (
-                  <ul className={"flex flex-col mt-8 space-y-6"}>
+                  <ul className={"flex flex-col mt-4 md:mt-8 space-y-3 md:space-y-6"}>
                     {likedArtworks.map((artwork) => (
                       <ArtworkCard key={artwork.id} artwork={artwork} />
                     ))}
@@ -534,18 +679,18 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
             {tab === "match" && (
               <>
                 {loading ? (
-                  <div className={"flex justify-center items-center mt-12"}>
+                  <div className={"flex justify-center items-center mt-8 md:mt-12"}>
                     <CircularProgress size={40} />
                   </div>
                 ) : conversations.length === 0 ? (
-                  <div className={"flex flex-col items-center justify-center mt-12 px-4"}>
-                    <p className={"text-secondary text-center"}>Nessuna conversazione</p>
-                    <p className={"text-secondary text-sm text-center mt-2"}>
+                  <div className={"flex flex-col items-center justify-center mt-8 md:mt-12 px-4"}>
+                    <p className={"text-secondary text-center text-sm md:text-base"}>Nessuna conversazione</p>
+                    <p className={"text-secondary text-xs md:text-sm text-center mt-2"}>
                       I tuoi match appariranno qui
                     </p>
                   </div>
                 ) : (
-                  <ul className={"flex flex-col mt-8 space-y-2"}>
+                  <ul className={"flex flex-col mt-4 md:mt-8 space-y-1 md:space-y-2"}>
                     {conversations.map((conversation) => (
                       <MessagesCard
                         key={conversation.product.id}
@@ -558,7 +703,7 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
               </>
             )}
           </div>
-        </div>
+        </Box>
       )}
     </aside>
   );
@@ -572,33 +717,52 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
         </Drawer>
         {/* Modale conversazione */}
         {selectedConversation && (
-          <Dialog open={modalOpen} onClose={handleModalClose} maxWidth="md" fullWidth>
-            <DialogTitle>
+          <Dialog
+            open={modalOpen}
+            onClose={handleModalClose}
+            fullScreen
+            PaperProps={{
+              sx: {
+                m: 0,
+                maxHeight: 'none',
+                height: '100%',
+                width: '100%',
+                maxWidth: 'none',
+                borderRadius: 0,
+                display: 'flex',
+                flexDirection: 'column',
+              }
+            }}
+          >
+            <DialogTitle sx={{ pb: 2, borderBottom: '1px solid #e0e0e0', flexShrink: 0 }}>
               <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box>
-                  <Typography variant="h6">{selectedConversation.product.store_name || "Galleria"}</Typography>
-                  <Typography variant="body2" color="text.secondary">
+                <Box sx={{ flex: 1, minWidth: 0, pr: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, fontSize: '1rem', mb: 0.5 }}>
+                    {selectedConversation.product.store_name || "Galleria"}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem', display: 'block' }} noWrap>
                     {selectedConversation.product.name}
                   </Typography>
                 </Box>
-                <Box display="flex" alignItems="center" gap={1}>
+                <Box display="flex" alignItems="center" gap={0.5}>
                   <IconButton
                     onClick={handleDeleteConversation}
                     disabled={deletingConversation}
+                    size="small"
                     sx={{
                       color: "#EC6F7B",
                       "&:hover": { backgroundColor: "rgba(236, 111, 123, 0.1)" },
                     }}>
-                    {deletingConversation ? <CircularProgress size={24} color="inherit" /> : <DeleteIcon />}
+                    {deletingConversation ? <CircularProgress size={20} color="inherit" /> : <DeleteIcon fontSize="small" />}
                   </IconButton>
-                  <IconButton onClick={handleModalClose} edge="end">
-                    <CloseIcon />
+                  <IconButton onClick={handleModalClose} edge="end" size="small">
+                    <CloseIcon fontSize="small" />
                   </IconButton>
                 </Box>
               </Box>
             </DialogTitle>
-            <DialogContent>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2, py: 2 }}>
+            <DialogContent sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, py: 1, overflowY: 'auto', flex: 1, minHeight: 0 }}>
                 {selectedConversation.messages.map((message, index) => (
                   <Box
                     key={index}
@@ -609,29 +773,31 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
                     }}>
                     <Box
                       sx={{
-                        maxWidth: "70%",
-                        padding: 2,
+                        maxWidth: { xs: "85%", sm: "75%", md: "70%" },
+                        padding: { xs: 1.5, md: 2 },
                         borderRadius: 2,
                         backgroundColor: message.userMessage ? "#42B396" : "#f5f5f5",
                         color: message.userMessage ? "white" : "text.primary",
                       }}>
-                      <Typography variant="body2" style={{whiteSpace: 'pre-line'}}><Linkify
-                        options={{
-                          target: "_blank",
-                          rel: "noopener noreferrer",
-                          truncate: 36,
-                          className: 'linkify-link',
-                          render: renderLink
-                        }}>
-                        {message.text}
-                      </Linkify></Typography>
+                      <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', md: '0.9375rem' } }} style={{whiteSpace: 'pre-line'}}>
+                        <Linkify
+                          options={{
+                            target: "_blank",
+                            rel: "noopener noreferrer",
+                            truncate: 36,
+                            className: 'linkify-link',
+                            render: renderLink
+                          }}>
+                          {message.text}
+                        </Linkify>
+                      </Typography>
                       <Typography
                         variant="caption"
                         sx={{
                           display: "block",
                           mt: 0.5,
                           opacity: 0.7,
-                          fontSize: "0.7rem",
+                          fontSize: { xs: '0.625rem', md: '0.7rem' },
                         }}>
                         {message.date.format("DD/MM/YYYY HH:mm")}
                       </Typography>
@@ -640,8 +806,16 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
                 ))}
               </Box>
 
-              {/* Input per rispondere */}
-              <Box sx={{ display: "flex", gap: 1, mt: 2, pt: 2, pb: 3, borderTop: "1px solid #e0e0e0" }}>
+              {/* Input per rispondere - Fixed at bottom */}
+              <Box sx={{
+                display: "flex",
+                gap: 1,
+                mt: 2,
+                pt: 2,
+                borderTop: "1px solid #e0e0e0",
+                backgroundColor: 'white',
+                flexShrink: 0,
+              }}>
                 <TextField
                   fullWidth
                   size="small"
@@ -656,16 +830,21 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
                   }}
                   disabled={sending}
                   multiline
-                  maxRows={2}
+                  maxRows={3}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      fontSize: { xs: '0.875rem', md: '1rem' }
+                    }
+                  }}
                 />
                 <IconButton
                   onClick={handleSendMessage}
                   disabled={!newMessage.trim() || sending}
                   sx={{
-                    width: 40,
-                    height: 40,
-                    minWidth: 40,
-                    minHeight: 40,
+                    width: { xs: 36, md: 40 },
+                    height: { xs: 36, md: 40 },
+                    minWidth: { xs: 36, md: 40 },
+                    minHeight: { xs: 36, md: 40 },
                     backgroundColor: "#42B396",
                     color: "white",
                     "&:hover": { backgroundColor: "#358f7a" },
@@ -679,67 +858,154 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
         )}
 
         {/* Modale risultati AI */}
-        <Dialog open={aiResultsModalOpen} onClose={handleAiResultsClose} maxWidth="sm" fullWidth>
-          <DialogTitle>
+        <Dialog
+          open={aiResultsModalOpen}
+          onClose={handleAiResultsClose}
+          maxWidth="sm"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: '20px',
+              boxShadow: '0 20px 60px rgba(102, 126, 234, 0.3)',
+            }
+          }}
+        >
+          <DialogTitle sx={{ pb: 1 }}>
             <Box display="flex" alignItems="center" justifyContent="space-between">
-              <Box display="flex" alignItems="center" gap={1}>
-                <AiSparkleIcon color="primary" />
-                <Typography variant="h6">Risultati ArtMatch</Typography>
+              <Box display="flex" alignItems="center" gap={1.5}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <AiSparkleIcon color="white" />
+                </Box>
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.25rem' }}>
+                    Ricerca completata!
+                  </Typography>
+                </Box>
               </Box>
-              <IconButton onClick={handleAiResultsClose} edge="end">
+              <IconButton
+                onClick={handleAiResultsClose}
+                edge="end"
+                sx={{
+                  color: '#718096',
+                  '&:hover': {
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    color: '#667eea',
+                  }
+                }}
+              >
                 <CloseIcon />
               </IconButton>
             </Box>
           </DialogTitle>
           <DialogContent>
             <Box sx={{ py: 2 }}>
+              {/* Box con conteggio opere */}
               <Box
                 sx={{
-                  p: 3,
+                  p: 4,
                   mb: 3,
-                  borderRadius: 2,
+                  borderRadius: '16px',
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   color: 'white',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    width: '150px',
+                    height: '150px',
+                    background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+                    borderRadius: '50%',
+                    transform: 'translate(30%, -30%)',
+                  }
                 }}
               >
-                <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>
-                  {aiResultsCount} {aiResultsCount === 1 ? 'opera trovata' : 'opere trovate'}!
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.95 }}>
-                  L'AI ha selezionato le opere più adatte alla tua richiesta. Conferma per visualizzarle.
+                <Box sx={{ position: 'relative', zIndex: 1 }}>
+                  <Typography variant="h3" sx={{ mb: 1, fontWeight: 700, fontSize: '2.5rem' }}>
+                    {aiResultsCount}
+                  </Typography>
+                  <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 600 }}>
+                    {aiResultsCount === 1 ? 'Opera trovata' : 'Opere trovate'}
+                  </Typography>
+                  <Typography variant="body2" sx={{ opacity: 0.95, lineHeight: 1.6 }}>
+                    L'intelligenza artificiale ha analizzato la tua richiesta e selezionato {aiResultsCount === 1 ? "l'opera più adatta" : `le ${aiResultsCount} opere più adatte`} al tuo gusto.
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* Info aggiuntiva */}
+              <Box
+                sx={{
+                  p: 2.5,
+                  mb: 3,
+                  borderRadius: '12px',
+                  backgroundColor: '#f7fafc',
+                  border: '1px solid #e2e8f0',
+                }}
+              >
+                <Typography variant="body2" sx={{ color: '#4a5568', lineHeight: 1.6, fontSize: '0.875rem' }}>
+                  <strong>✨ Cosa succede ora?</strong><br />
+                  Le opere verranno visualizzate in una griglia interattiva dove potrai esplorarle, mettere like e contattare le gallerie.
                 </Typography>
               </Box>
 
+              {/* Bottoni CTA */}
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Button
                   variant="contained"
                   fullWidth
                   onClick={handleAiResultsConfirm}
                   sx={{
-                    py: 1.5,
+                    py: 1.75,
+                    borderRadius: '12px',
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
                     '&:hover': {
-                      background: 'linear-gradient(135deg, #5568d3 0%, #6440 8c 100%)',
+                      background: 'linear-gradient(135deg, #5568d3 0%, #653a91 100%)',
+                      boxShadow: '0 6px 16px rgba(102, 126, 234, 0.5)',
+                      transform: 'translateY(-2px)',
                     },
+                    transition: 'all 0.2s ease',
                   }}
                 >
-                  Mostra risultati
+                  🎨 Visualizza le opere
                 </Button>
                 <Button
                   variant="outlined"
                   fullWidth
                   onClick={handleAiResultsClose}
                   sx={{
-                    py: 1.5,
-                    borderColor: '#667eea',
-                    color: '#667eea',
+                    py: 1.75,
+                    borderRadius: '12px',
+                    borderColor: '#e2e8f0',
+                    color: '#718096',
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    borderWidth: 2,
                     '&:hover': {
-                      borderColor: '#5568d3',
-                      backgroundColor: 'rgba(102, 126, 234, 0.04)',
+                      borderColor: '#cbd5e0',
+                      backgroundColor: '#f7fafc',
+                      borderWidth: 2,
                     },
                   }}
                 >
-                  Annulla
+                  Chiudi
                 </Button>
               </Box>
             </Box>
@@ -755,12 +1021,29 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
       {panelContent}
       {/* Modale conversazione */}
       {selectedConversation && (
-        <Dialog open={modalOpen} onClose={handleModalClose} maxWidth="md" fullWidth>
-          <DialogTitle>
+        <Dialog
+          open={modalOpen}
+          onClose={handleModalClose}
+          maxWidth="md"
+          fullWidth
+          fullScreen={isMobile}
+          PaperProps={{
+            sx: {
+              borderRadius: { xs: 0, sm: '16px' },
+              maxHeight: { xs: '100vh', sm: '90vh' },
+              height: { xs: '100vh', sm: 'auto' },
+              margin: { xs: 0, sm: 2 },
+              width: { xs: '100vw', sm: '600px' },
+            }
+          }}
+        >
+          <DialogTitle sx={{ pb: 2, borderBottom: '1px solid #e0e0e0' }}>
             <Box display="flex" alignItems="center" justifyContent="space-between">
-              <Box>
-                <Typography variant="h6">{selectedConversation.product.store_name || "Galleria"}</Typography>
-                <Typography variant="body2" color="text.secondary">
+              <Box sx={{ flex: 1, minWidth: 0, pr: 2 }}>
+                <Typography variant="h6" sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>
+                  {selectedConversation.product.store_name || "Galleria"}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }} noWrap>
                   {selectedConversation.product.name}
                 </Typography>
               </Box>
@@ -780,8 +1063,8 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
               </Box>
             </Box>
           </DialogTitle>
-          <DialogContent>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, py: 2 }}>
+          <DialogContent sx={{ display: 'flex', flexDirection: 'column', p: { xs: 2, sm: 3 } }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 1.5, md: 2 }, py: 2, overflowY: 'auto', flex: 1, maxHeight: '60vh' }}>
               {selectedConversation.messages.map((message, index) => (
                 <Box
                   key={index}
@@ -792,29 +1075,31 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
                   }}>
                   <Box
                     sx={{
-                      maxWidth: "70%",
-                      padding: 2,
-                      borderRadius: 2,
+                      maxWidth: { xs: "85%", md: "70%" },
+                      padding: { xs: 1.5, md: 2 },
+                      borderRadius: { xs: '12px', md: '16px' },
                       backgroundColor: message.userMessage ? "#42B396" : "#f5f5f5",
                       color: message.userMessage ? "white" : "text.primary",
                     }}>
-                    <Typography variant="body2" style={{whiteSpace: 'pre-line'}}><Linkify
-                      options={{
-                        target: "_blank",
-                        rel: "noopener noreferrer",
-                        truncate: 42,
-                        className: 'linkify-link',
-                        render: renderLink
-                      }}>
-                      {message.text}
-                    </Linkify></Typography>
+                    <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', md: '0.9375rem' } }} style={{whiteSpace: 'pre-line'}}>
+                      <Linkify
+                        options={{
+                          target: "_blank",
+                          rel: "noopener noreferrer",
+                          truncate: 42,
+                          className: 'linkify-link',
+                          render: renderLink
+                        }}>
+                        {message.text}
+                      </Linkify>
+                    </Typography>
                     <Typography
                       variant="caption"
                       sx={{
                         display: "block",
                         mt: 0.5,
                         opacity: 0.7,
-                        fontSize: "0.7rem",
+                        fontSize: { xs: '0.625rem', md: '0.7rem' },
                       }}>
                       {message.date.format("DD/MM/YYYY HH:mm")}
                     </Typography>
@@ -824,7 +1109,7 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
             </Box>
 
             {/* Input per rispondere */}
-            <Box sx={{ display: "flex", gap: 1, mt: 2, pt: 2, pb: 3, borderTop: "1px solid #e0e0e0" }}>
+            <Box sx={{ display: "flex", gap: 1, mt: 2, pt: 2, borderTop: "1px solid #e0e0e0" }}>
               <TextField
                 fullWidth
                 size="small"
@@ -839,7 +1124,13 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
                 }}
                 disabled={sending}
                 multiline
-                maxRows={2}
+                maxRows={3}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    fontSize: { xs: '0.875rem', md: '1rem' }
+                  }
+                }}
               />
               <IconButton
                 onClick={handleSendMessage}
@@ -851,6 +1142,7 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
                   minHeight: 40,
                   backgroundColor: "#42B396",
                   color: "white",
+                  borderRadius: '12px',
                   "&:hover": { backgroundColor: "#358f7a" },
                   "&:disabled": { backgroundColor: "#e0e0e0" },
                 }}>
@@ -862,67 +1154,154 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
       )}
 
       {/* Modale risultati AI */}
-      <Dialog open={aiResultsModalOpen} onClose={handleAiResultsClose} maxWidth="sm" fullWidth>
-        <DialogTitle>
+      <Dialog
+        open={aiResultsModalOpen}
+        onClose={handleAiResultsClose}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '20px',
+            boxShadow: '0 20px 60px rgba(102, 126, 234, 0.3)',
+          }
+        }}
+      >
+        <DialogTitle sx={{ pb: 1 }}>
           <Box display="flex" alignItems="center" justifyContent="space-between">
-            <Box display="flex" alignItems="center" gap={1}>
-              <AiSparkleIcon color="primary" />
-              <Typography variant="h6">Risultati ArtMatch</Typography>
+            <Box display="flex" alignItems="center" gap={1.5}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <AiSparkleIcon color="white" />
+              </Box>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.25rem' }}>
+                  Ricerca completata!
+                </Typography>
+              </Box>
             </Box>
-            <IconButton onClick={handleAiResultsClose} edge="end">
+            <IconButton
+              onClick={handleAiResultsClose}
+              edge="end"
+              sx={{
+                color: '#718096',
+                '&:hover': {
+                  backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                  color: '#667eea',
+                }
+              }}
+            >
               <CloseIcon />
             </IconButton>
           </Box>
         </DialogTitle>
         <DialogContent>
           <Box sx={{ py: 2 }}>
+            {/* Box con conteggio opere */}
             <Box
               sx={{
-                p: 3,
+                p: 4,
                 mb: 3,
-                borderRadius: 2,
+                borderRadius: '16px',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: 'white',
+                position: 'relative',
+                overflow: 'hidden',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  width: '150px',
+                  height: '150px',
+                  background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+                  borderRadius: '50%',
+                  transform: 'translate(30%, -30%)',
+                }
               }}
             >
-              <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>
-                {aiResultsCount} {aiResultsCount === 1 ? 'opera trovata' : 'opere trovate'}!
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.95 }}>
-                L'AI ha selezionato le opere più adatte alla tua richiesta. Conferma per visualizzarle.
+              <Box sx={{ position: 'relative', zIndex: 1 }}>
+                <Typography variant="h3" sx={{ mb: 1, fontWeight: 700, fontSize: '2.5rem' }}>
+                  {aiResultsCount}
+                </Typography>
+                <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 600 }}>
+                  {aiResultsCount === 1 ? 'Opera trovata' : 'Opere trovate'}
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.95, lineHeight: 1.6 }}>
+                  L'intelligenza artificiale ha analizzato la tua richiesta e selezionato {aiResultsCount === 1 ? "l'opera più adatta" : `le ${aiResultsCount} opere più adatte`} al tuo gusto.
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Info aggiuntiva */}
+            <Box
+              sx={{
+                p: 2.5,
+                mb: 3,
+                borderRadius: '12px',
+                backgroundColor: '#f7fafc',
+                border: '1px solid #e2e8f0',
+              }}
+            >
+              <Typography variant="body2" sx={{ color: '#4a5568', lineHeight: 1.6, fontSize: '0.875rem' }}>
+                <strong>✨ Cosa succede ora?</strong><br />
+                Le opere verranno visualizzate in una griglia interattiva dove potrai esplorarle, mettere like e contattare le gallerie.
               </Typography>
             </Box>
 
+            {/* Bottoni CTA */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Button
                 variant="contained"
                 fullWidth
                 onClick={handleAiResultsConfirm}
                 sx={{
-                  py: 1.5,
+                  py: 1.75,
+                  borderRadius: '12px',
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #5568d3 0%, #6440 8c 100%)',
+                    background: 'linear-gradient(135deg, #5568d3 0%, #653a91 100%)',
+                    boxShadow: '0 6px 16px rgba(102, 126, 234, 0.5)',
+                    transform: 'translateY(-2px)',
                   },
+                  transition: 'all 0.2s ease',
                 }}
               >
-                Mostra risultati
+                🎨 Visualizza le opere
               </Button>
               <Button
                 variant="outlined"
                 fullWidth
                 onClick={handleAiResultsClose}
                 sx={{
-                  py: 1.5,
-                  borderColor: '#667eea',
-                  color: '#667eea',
+                  py: 1.75,
+                  borderRadius: '12px',
+                  borderColor: '#e2e8f0',
+                  color: '#718096',
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  borderWidth: 2,
                   '&:hover': {
-                    borderColor: '#5568d3',
-                    backgroundColor: 'rgba(102, 126, 234, 0.04)',
+                    borderColor: '#cbd5e0',
+                    backgroundColor: '#f7fafc',
+                    borderWidth: 2,
                   },
                 }}
               >
-                Annulla
+                Chiudi
               </Button>
             </Box>
           </Box>

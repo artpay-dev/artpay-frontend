@@ -574,8 +574,7 @@ const MainApp = ({ aiResults }: MainAppProps) => {
         <Grid container spacing={3}>
           {aiGridResults.map((artwork) => {
             const imageUrl = artwork.images?.[0]?.src || "../images/artists_example.png";
-            const artistName =
-              artwork.attributes?.find((attr) => attr.name === "Artista")?.options?.[0] || "Artista sconosciuto";
+            const artistName = artwork.acf?.artist?.[0]?.post_title || "Artista sconosciuto";
             const galleryName = artwork.store_name || "Galleria";
 
             return (
