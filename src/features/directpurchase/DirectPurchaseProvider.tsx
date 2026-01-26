@@ -8,7 +8,7 @@ import useDirectPurchaseStore from "./stores/directPurchaseStore.ts";
 
 
 export interface PurchaseProps {
-  orderMode?: "standard" | "loan" | "redeem" | "onHold";
+  orderMode?: "standard" | "loan" | "redeem" | "onHold" | "deposit";
   children?: ReactNode;
 }
 
@@ -63,14 +63,19 @@ const DirectPurchaseProvider: React.FC<PurchaseProps> = ({ orderMode = "standard
     }
   }, [pendingOrder, updateState]);
 
-  // Update order mode based on customer note
+  // Update order mode based on customer note and created_via
   useEffect(() => {
     if (pendingOrder?.customer_note === "Blocco opera" && currentOrderMode !== "loan") {
       setDirectPurchaseData({ orderMode: "loan" });
     }
+
+    // Check if this is a deposit order
+    if (pendingOrder?.created_via === "artpay_deposit_api" && currentOrderMode !== "deposit") {
+      setDirectPurchaseData({ orderMode: "deposit" });
+    }
   }, [pendingOrder, currentOrderMode, setDirectPurchaseData]);
 
-  // Create context value  
+  // Create context value
   const storeState = useDirectPurchaseStore();
   const contextValue = {
     ...storeState,
@@ -85,8 +90,6 @@ const DirectPurchaseProvider: React.FC<PurchaseProps> = ({ orderMode = "standard
     getCardContentTitle,
     onCancelPaymentMethod,
   };
-
-  console.log(contextValue);
 
   return (
     <DirectPurchaseContext.Provider value={contextValue}>

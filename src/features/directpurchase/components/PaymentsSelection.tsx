@@ -37,6 +37,8 @@ const PaymentsSelection = ({ paymentMethod, onChange }: PaymentsSelectionProps) 
 
   const showKlarna = klarnaAvailable && (orderMode !== "redeem" || hasQuestionId);
 
+  // Per gli ordini deposit, mostra solo Santander e Klarna
+  const isDepositOrder = orderMode === "deposit";
 
   const paymentMethods = {
     Santander: {
@@ -281,28 +283,50 @@ const PaymentsSelection = ({ paymentMethod, onChange }: PaymentsSelectionProps) 
       contentPadding={0}
       contentPaddingMobile={0}>
       <div className="space-y-8">
-        {showKlarna && (
+        {isDepositOrder ? (
+          // Per ordini deposit: mostra solo Santander e Klarna
           <div className="space-y-4">
-            <h3>Pagamento dilazionato</h3>
+            <h3>Finanziamento e pagamento dilazionato</h3>
             <PaymentRadioSelector
-              method={paymentMethods.klarna}
+              method={paymentMethods.Santander}
               selectedMethod={paymentMethod}
               onMethodChange={onChange}
             />
+            {showKlarna && (
+              <PaymentRadioSelector
+                method={paymentMethods.klarna}
+                selectedMethod={paymentMethod}
+                onMethodChange={onChange}
+              />
+            )}
           </div>
+        ) : (
+          // Per ordini normali: mostra tutti i metodi
+          <>
+            {showKlarna && (
+              <div className="space-y-4">
+                <h3>Pagamento dilazionato</h3>
+                <PaymentRadioSelector
+                  method={paymentMethods.klarna}
+                  selectedMethod={paymentMethod}
+                  onMethodChange={onChange}
+                />
+              </div>
+            )}
+            <div className="space-y-4">
+              {showKlarna && <h3>Unica soluzione</h3>}
+              <PaymentRadioSelector method={paymentMethods.card} selectedMethod={paymentMethod} onMethodChange={onChange} />
+              <PaymentRadioSelector
+                method={paymentMethods.bank_transfer}
+                selectedMethod={paymentMethod}
+                onMethodChange={onChange}
+              />
+              <PaymentRadioSelector method={paymentMethods.paypal} selectedMethod={paymentMethod} onMethodChange={onChange} />
+              <PaymentRadioSelector method={paymentMethods.revolut_pay} selectedMethod={paymentMethod} onMethodChange={onChange} />
+              <PaymentRadioSelector method={paymentMethods.google_pay} selectedMethod={paymentMethod} onMethodChange={onChange} />
+            </div>
+          </>
         )}
-        <div className="space-y-4">
-          {showKlarna && <h3>Unica soluzione</h3>}
-            <PaymentRadioSelector method={paymentMethods.card} selectedMethod={paymentMethod} onMethodChange={onChange} />
-            <PaymentRadioSelector
-              method={paymentMethods.bank_transfer}
-              selectedMethod={paymentMethod}
-              onMethodChange={onChange}
-            />
-            <PaymentRadioSelector method={paymentMethods.paypal} selectedMethod={paymentMethod} onMethodChange={onChange} />
-            <PaymentRadioSelector method={paymentMethods.revolut_pay} selectedMethod={paymentMethod} onMethodChange={onChange} />
-            <PaymentRadioSelector method={paymentMethods.google_pay} selectedMethod={paymentMethod} onMethodChange={onChange} />
-        </div>
       </div>
     </ContentCard>
   );

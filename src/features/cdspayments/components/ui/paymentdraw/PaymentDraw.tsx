@@ -16,7 +16,6 @@ const PaymentDraw = () => {
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const user: User = JSON.parse(localStorage.getItem("artpay-user") as string);
-  console.log(orders);
 
   const handleOrderClick = async (orderId: number) => {
     setPaymentData({ openDraw: false });
@@ -26,6 +25,8 @@ const PaymentDraw = () => {
 
     if (order.status === "completed") {
       navigate(`/complete-order/${order.id}`);
+    } else if (order.created_via === "artpay_deposit_api") {
+      navigate(`/saldo-opera/${order.id}`);
     } else if (order.created_via == "gallery_auction") {
       navigate(`/acquisto-esterno?order=${order.id}`);
     } else {
@@ -123,6 +124,10 @@ const PaymentDraw = () => {
                       quoteConditions={formattedOrder.quoteConditions}
                       onQuoteAccepted={handleRefreshOrders}
                       onQuoteRejected={handleRefreshOrders}
+                      depositAmount={formattedOrder.depositAmount}
+                      balanceAmount={formattedOrder.balanceAmount}
+                      created_via={formattedOrder.created_via}
+                      depositStatus={formattedOrder.depositStatus}
                     />
                   </li>
                 );

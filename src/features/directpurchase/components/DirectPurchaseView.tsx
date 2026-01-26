@@ -38,8 +38,6 @@ const DirectPurchaseView = () => {
     orderTotal?: string;
   }>({ status: null });
 
-
-
   const {
     // State
     isReady,
@@ -103,6 +101,23 @@ const DirectPurchaseView = () => {
   const currentShippingMethod = getCurrentShippingMethod();
   const estimatedShippingCost = getEstimatedShippingCost();
   const thankYouPage = getThankYouPage();
+
+  // Helper per estrarre metadata specifici dell'ordine deposit
+  const getDepositMetadata = () => {
+    if (!pendingOrder?.meta_data) return null;
+
+    const depositAmount = pendingOrder.meta_data.find((m: any) => m.key === '_adp_deposit_amount')?.value;
+    const balanceAmount = pendingOrder.meta_data.find((m: any) => m.key === '_adp_balance_amount')?.value;
+    const depositStatus = pendingOrder.meta_data.find((m: any) => m.key === '_adp_deposit_status')?.value;
+
+    return {
+      depositAmount: depositAmount ? parseFloat(depositAmount) : null,
+      balanceAmount: balanceAmount ? parseFloat(balanceAmount) : null,
+      depositStatus,
+    };
+  };
+
+  const depositMetadata = getDepositMetadata();
 
   const showBillingSection = userProfile && (requireInvoice || orderMode === "loan");
 
@@ -201,8 +216,7 @@ const DirectPurchaseView = () => {
   };
 
   const handleLoanRequest = () => {
-
-    handleUpdateCustomerNote("Richiesta prestito in corso", false);
+    handleUpdateCustomerNote("Ottenuto", false);
   };
 
   const handleLoanCompleted = () => {
@@ -295,6 +309,117 @@ const DirectPurchaseView = () => {
         <PaymentCard
           orderMode={orderMode}
           paymentMethod={paymentMethod || "card"}
+          checkoutButtonRef={checkoutButtonRef}
+          onCheckout={handleCheckout}
+          onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
+          onReady={() => updateState({ checkoutReady: true })}
+          paymentIntent={paymentIntent}
+          thankYouPage={thankYouPage}
+        />
+      );
+    }
+
+    // Se orderMode è "deposit", mostra il form di pagamento
+    if (orderMode === "deposit") {
+      // Se non ha ancora selezionato un metodo di pagamento
+      if (pendingOrder?.payment_method === "") {
+        return <PaymentsSelection paymentMethod={paymentMethod} onChange={onChangePaymentMethod} />;
+      }
+
+      // Se ha selezionato Santander, mostra il flusso prestito
+      if (paymentMethod === "Santander" || pendingOrder?.payment_method === "Santander") {
+        // Se ha già confermato la richiesta di prestito, mostra il bonifico
+        if (
+          pendingOrder?.customer_note?.includes("Ottenuto") ||
+          pendingOrder?.customer_note?.includes("Documentazione caricata") ||
+          pendingOrder?.payment_method.includes("bank_transfer")
+        ) {
+          return (
+            <ContentCard
+              title="Pagamento"
+              icon={<PiCreditCardThin size="28px" />}
+              contentPadding={0}
+              contentPaddingMobile={0}>
+              <PaymentProviderCard>
+                <BankTransfer order={pendingOrder} handleRestoreOrder={handleCancelPaymentMethod} />
+              </PaymentProviderCard>
+            </ContentCard>
+          );
+        }
+
+        // Altrimenti mostra il form per richiedere il prestito Santander
+        return (
+          <ContentCard
+            title="Finanziamento"
+            icon={<PiCreditCardThin size="28px" />}
+            contentPadding={0}
+            contentPaddingMobile={0}>
+            <PaymentProviderCard
+              icon={<SantanderIcon />}
+              cardTitle={"Santander"}
+              subtitle={"A partire da € 1.500,00 fino a € 30.000,00"}>
+              <ol className={"list-decimal ps-4 space-y-1 border-b border-zinc-300 pb-6"}>
+                <li>Richiedi finanziamento</li>
+                <li>Calcola rata e conferma richiesta</li>
+                <li>Paga su artpay con il finanziamento ricevuto</li>
+              </ol>
+              <div className={"w-full flex justify-between py-4"}>
+                <div>
+                  <strong>Saldo da pagare:</strong>
+                  <p className={"text-secondary text-xs"}>Incluse commissioni artpay</p>
+                </div>
+                <strong>
+                  €&nbsp;
+                  {depositMetadata
+                    ? depositMetadata.balanceAmount.toLocaleString("it-IT", {
+                        maximumFractionDigits: 2,
+                        minimumFractionDigits: 2,
+                      })
+                    : Number(pendingOrder.total)?.toLocaleString("it-IT", {
+                        maximumFractionDigits: 2,
+                        minimumFractionDigits: 2,
+                      })
+                  }
+                </strong>
+              </div>
+              <p className={"mt-6 text-secondary text-xs"}>
+                Il costo del finanziamento varia in base al piano scelto
+              </p>
+              <button
+                disabled={!privacyChecked || isSaving}
+                onClick={handleSantanderLoanRequest}
+                className={
+                  "artpay-button-style w-full bg-primary hover:bg-primary-hover text-white disabled:opacity-60"
+                }>
+                {isSaving ? "Avvio in corso..." : "Avvia richiesta prestito"}
+              </button>
+              <Checkbox
+                disabled={isSaving}
+                checked={privacyChecked}
+                onChange={(e) => updateState({ privacyChecked: e.target.checked })}
+                label={
+                  <Typography variant="body1">
+                    Accetto le{" "}
+                    <Link to="/condizioni-generali-di-acquisto" target="_blank" className={'underline text-primary'}>
+                      condizioni generali d'acquisto
+                    </Link>
+                  </Typography>
+                }
+              />
+            </PaymentProviderCard>
+
+            <PaymentProviderCard backgroundColor={'bg-[#FAFAFB] mt-6'}>
+              <Button variant={'link'} className={'!text-primary '} onClick={handleLoanRequest}>Ho già richiesto il prestito</Button>
+            </PaymentProviderCard>
+          </ContentCard>
+        );
+      }
+
+      // Mostra sempre PaymentCard (gestirà internamente il caso senza payment intent per deposit)
+      return (
+        <PaymentCard
+          orderMode={orderMode}
+          paymentMethod={paymentMethod || pendingOrder?.payment_method || "card"}
           checkoutButtonRef={checkoutButtonRef}
           onCheckout={handleCheckout}
           onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
@@ -863,7 +988,35 @@ const DirectPurchaseView = () => {
               )}
               <Divider sx={{ my: 3, borderColor: "#d8ddfa" }} />
               <Box display="flex" flexDirection="column" gap={2} sx={{ px: 2 }}>
-                {orderMode === "loan" ? (
+                {orderMode === "deposit" ? (
+                  <>
+                    <Box display="flex" justifyContent="space-between">
+                      <Typography variant="body1" fontWeight={500}>
+                        Totale opera
+                      </Typography>
+                      <Typography variant="body1" fontWeight={500}>
+                        € {pendingOrder?.total}
+                      </Typography>
+                    </Box>
+                    <Box display="flex" justifyContent="space-between">
+                      <Typography variant="body1" fontWeight={500} sx={{ color: 'success.main' }}>
+                        Acconto pagato ✓
+                      </Typography>
+                      <Typography variant="body1" fontWeight={500} sx={{ color: 'success.main' }}>
+                        - € {depositMetadata?.depositAmount?.toFixed(2) || '0.00'}
+                      </Typography>
+                    </Box>
+                    <Divider sx={{ my: 1 }} />
+                    <Box display="flex" justifyContent="space-between">
+                      <Typography variant="subtitle1" fontSize={20} fontWeight={700}>
+                        Saldo da pagare
+                      </Typography>
+                      <Typography variant="subtitle1" fontSize={20} fontWeight={700} sx={{ color: 'primary.main' }}>
+                        € {depositMetadata?.balanceAmount?.toFixed(2) || (+(pendingOrder?.total || 0)).toFixed(2)}
+                      </Typography>
+                    </Box>
+                  </>
+                ) : orderMode === "loan" ? (
                   <>
                     <Box display="flex" justifyContent="space-between">
                       <Typography variant="body1" fontWeight={500}>

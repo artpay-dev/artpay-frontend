@@ -68,6 +68,28 @@ const BankTransferFlow = ({
   // Privacy checkbox state
   const [privacyChecked, setPrivacyChecked] = useState(false);
 
+  // Extract deposit metadata for deposit orders
+  const depositMetadata = useMemo(() => {
+    if (order.created_via !== "artpay_deposit_api" || !order.meta_data) return null;
+
+    const depositAmount = order.meta_data.find((m: any) => m.key === '_adp_deposit_amount')?.value;
+    const balanceAmount = order.meta_data.find((m: any) => m.key === '_adp_balance_amount')?.value;
+    const depositStatus = order.meta_data.find((m: any) => m.key === '_adp_deposit_status')?.value;
+
+    return {
+      depositAmount: depositAmount ? parseFloat(depositAmount) : null,
+      balanceAmount: balanceAmount ? parseFloat(balanceAmount) : null,
+      depositStatus,
+    };
+  }, [order]);
+
+  // Calculate the amount to show (balance for deposit orders, total for others)
+  const amountToPay = useMemo(() => {
+    if (depositMetadata?.balanceAmount) {
+      return depositMetadata.balanceAmount;
+    }
+    return Number(order.total);
+  }, [depositMetadata, order.total]);
 
   // Bank transfer fields configuration
   const copyableFields: CopyableFieldType[] = useMemo(() => [
@@ -83,7 +105,7 @@ const BankTransferFlow = ({
     },
     {
       label: "Importo",
-      value: `€ ${order.total}`,
+      value: `€ ${amountToPay.toFixed(2)}`,
       copyText: "Copia importo"
     },
     {
@@ -92,7 +114,7 @@ const BankTransferFlow = ({
       copyText: "Copia causale",
       warning: "Attenzione! In assenza della causale corretta potrebbero verificarsi complicazioni."
     }
-  ], [config, order]);
+  ], [config, order, amountToPay]);
 
   const handleConfirmTransfer = useCallback(() => {
     nextStep();
@@ -254,13 +276,13 @@ const BankTransferFlow = ({
           <div className="py-4 ">
             <div className="flex items-center justify-between">
             <span className={"font-semibold"}>
-              <span>Prezzo opera</span>
+              <span>{depositMetadata ? "Saldo da pagare" : "Prezzo opera"}</span>
               <br />
               <span className={"text-secondary text-sm font-light"}>Incluse commissioni artpay</span>
             </span>
               <span className={'font-semibold'}>
               €&nbsp;
-                {(Number(order?.total) || 0).toLocaleString("it-IT", {
+                {amountToPay.toLocaleString("it-IT", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}

@@ -62,6 +62,8 @@ import QuotePage from "./pages/quotes/QuotePage.tsx";
 import CheckoutPayment from "./pages/quotes/CheckoutPayment.tsx";
 import ArtMatch from "./pages/artmatch/ArtMatch.tsx";
 import HistoryQuotesPage from "./pages/HistoryQuotesPage.tsx";
+import DepositTestPage from "./pages/deposit/DepositTestPage.tsx";
+import DepositPage from "@/pages/deposit/DepositPage.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -111,6 +113,7 @@ function AppContent() {
                     </Route>
                     {/*<Route path="/completa-acquisto/:order_id" element={<Purchase orderMode="redeem" />} />*/}
                     <Route path="/completa-acquisto/:order_id" element={<NewDirectPurchase orderMode="redeem" />} />
+                    <Route path="/saldo-opera/:order_id" element={<NewDirectPurchase orderMode="deposit" />} />
                     <Route path={"/guide"} element={<Tutorials />} />
                     <Route path="/guide/:slug" element={<SinglePostPage />} />
                     <Route path="/complete-order/:order_id" element={<OrderCompleted />} />
@@ -161,6 +164,8 @@ function AppContent() {
                     </Route>
                     <Route path="/checkout/payment" element={<CheckoutPayment />} />
                     <Route path="/artmatch" element={<ArtMatch />} />
+                    <Route path="/deposit-test" element={<DepositTestPage />} />
+                    <Route path="/deposit" element={<DepositPage />} />
                   </Routes>
                 </PaymentProvider>
               </DataProvider>

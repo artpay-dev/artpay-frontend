@@ -23,6 +23,11 @@ export const useDirectPurchaseData = () => {
     // Usa SEMPRE il metodo passato come parametro se fornito, altrimenti quello dell'ordine
     const methodToUse = paymentMethod || resp.payment_method;
 
+    // Per gli ordini deposit, usa l'endpoint dedicato /adp/v1/balance/pay
+    if (orderMode === "deposit") {
+      return await data.payDepositBalance(resp.id);
+    }
+
     if (resp.payment_method === "bnpl" && orderMode === "redeem") {
       return await data.createRedeemIntent({
         wc_order_key: resp.order_key as string,
@@ -234,7 +239,7 @@ export const useDirectPurchaseData = () => {
     }
 
     const getOrderFunction =
-      orderMode === "redeem" || urlParams.order_id
+      orderMode === "redeem" || orderMode === "deposit" || urlParams.order_id
         ? data.getOrder(+(urlParams?.order_id ?? 0))
         : orderMode === "onHold"
           ? data.getOnHoldOrder()

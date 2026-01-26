@@ -130,6 +130,8 @@ export interface DataContext {
 
   createBlockIntent(body: PaymentIntentRequest): Promise<PaymentIntent>;
 
+  payDepositBalance(orderId: number): Promise<PaymentIntent>;
+
   clearCachedPaymentIntent(body: PaymentIntentRequest): Promise<void>;
 
   getArtist(id: string): Promise<Artist>;
@@ -222,6 +224,7 @@ const defaultContext: DataContext = {
   createPaymentIntentCds: () => Promise.reject("Data provider loaded"),
   createRedeemIntent: () => Promise.reject("Data provider loaded"),
   createBlockIntent: () => Promise.reject("Data provider loaded"),
+  payDepositBalance: () => Promise.reject("Data provider loaded"),
   clearCachedPaymentIntent: () => Promise.reject("Data provider loaded"),
   getUserInfo: () => Promise.reject("Data provider loaded"),
   getUserProfile: () => Promise.reject("Data provider loaded"),
@@ -1049,6 +1052,37 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         );
         // localStorage.setItem(cacheKey, JSON.stringify(resp.data));
         return resp.data;
+      },
+      async payDepositBalance(orderId: number): Promise<PaymentIntent> {
+        const resp = await axios.post<{ order_id: number }, AxiosResponse<{ success: boolean; data: any }>>(
+          `${baseUrl}/wp-json/adp/v1/balance/pay`,
+          { order_id: orderId },
+          {
+            headers: {
+              Authorization: auth.getAuthToken(),
+            },
+          },
+        );
+
+        // Trasforma la risposta in un PaymentIntent compatibile
+        const depositData = resp.data.data;
+
+        // Estrai l'ID del payment intent dal client_secret (formato: pi_XXXXX_secret_YYYY)
+        const paymentIntentId = depositData.client_secret.split('_secret_')[0];
+
+        const paymentIntent: PaymentIntent = {
+          id: paymentIntentId,
+          object: 'payment_intent',
+          amount: Math.round(depositData.balance_amount * 100), // Converti in centesimi
+          currency: depositData.currency.toLowerCase(),
+          status: 'requires_payment_method',
+          client_secret: depositData.client_secret,
+          created: Math.floor(Date.now() / 1000),
+          livemode: !depositData.test_mode,
+        } as PaymentIntent;
+
+        console.log("PaymentIntent created from deposit balance:", paymentIntent);
+        return paymentIntent;
       },
       async clearCachedPaymentIntent(body: PaymentIntentRequest): Promise<void> {
         const cacheKey = `payment-intents-${body.wc_order_key}`;

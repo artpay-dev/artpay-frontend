@@ -61,7 +61,7 @@ export const useDirectPurchaseUtils = () => {
 
         // 2. Recupera l'ordine aggiornato da WooCommerce con le fee corrette
         let order;
-        if (orderMode === "redeem" ) {
+        if (orderMode === "redeem" || orderMode === "deposit") {
           const orderId = +window.location.pathname.split('/').pop()!;
           order = await data.getOrder(orderId);
         } else if (orderMode === "onHold") {
@@ -80,12 +80,13 @@ export const useDirectPurchaseUtils = () => {
         updatePageData({ pendingOrder: order });
 
         // 4. Crea il payment intent usando l'ordine aggiornato (con le fee corrette)
-        if (payment != "bank_transfer") {
+        // Non creare payment intent per bonifico e Santander
+        if (payment != "bank_transfer" && payment != "Santander") {
           const newPaymentIntent = await createPaymentIntent(order, orderMode, payment);
           console.log("New payment intent created with updated order:", newPaymentIntent);
           updatePageData({ paymentIntent: newPaymentIntent });
         } else {
-          // Per bonifico, rimuovi il payment intent
+          // Per bonifico e Santander, rimuovi il payment intent
           updatePageData({ paymentIntent: undefined });
         }
 
@@ -135,8 +136,11 @@ export const useDirectPurchaseUtils = () => {
   }, [getCurrentShippingMethod, getEstimatedShippingCost]);
 
   const getCardContentTitle = useCallback((): string => {
+    if (orderMode === "deposit") {
+      return "Completa il pagamento del saldo";
+    }
     return "Dettagli dell'ordine";
-  }, []);
+  }, [orderMode]);
 
   const onCancelPaymentMethod = useCallback(async (): Promise<void> => {
     console.log("Cancelling payment method...");
@@ -169,7 +173,7 @@ export const useDirectPurchaseUtils = () => {
 
         // Refresh the order to get updated state based on orderMode
         let updatedOrder;
-        if (orderMode === "redeem") {
+        if (orderMode === "redeem" || orderMode === "deposit") {
           updatedOrder = await data.getOrder(pendingOrder.id);
         } else if (orderMode === "onHold") {
           updatedOrder = await data.getOnHoldOrder();
