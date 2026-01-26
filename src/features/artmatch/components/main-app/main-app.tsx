@@ -6,6 +6,9 @@ import { Artwork } from "../../../../types/artwork";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CloseIcon from "@mui/icons-material/Close";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import SearchOffIcon from "@mui/icons-material/SearchOff";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useAuth } from "../../../../hoc/AuthProvider";
 import { useData } from "../../../../hoc/DataProvider";
 import { useFiltersStore } from "../../store/filters-store";
@@ -31,6 +34,9 @@ const MainApp = ({ aiResults }: MainAppProps) => {
   const [showAiGrid, setShowAiGrid] = useState<boolean>(false);
   const [aiGridResults, setAiGridResults] = useState<Artwork[]>([]);
   const swiperRef = useRef<SwiperType | null>(null);
+  const touchStartX = useRef<number>(0);
+  const swipeStartIndex = useRef<number>(0);
+  const isForceSliding = useRef<boolean>(false);
   const auth = useAuth();
   const dataProvider = useData();
   const { filters } = useFiltersStore();
@@ -107,11 +113,11 @@ const MainApp = ({ aiResults }: MainAppProps) => {
     }
   };
 
-  const handleLike = async (artwork: Artwork) => {
-    // Cambia card immediatamente solo se siamo nello swiper
-    if (!showAiGrid) {
+  const handleLike = async (artwork: Artwork, autoAdvance: boolean = true) => {
+    // Cambia card immediatamente solo se siamo nello swiper e autoAdvance è true
+    if (!showAiGrid && autoAdvance) {
       moveToNext();
-    } else {
+    } else if (showAiGrid) {
       // Nella griglia, rimuovi la card dalla lista
       setAiGridResults((prev) => prev.filter((item) => item.id !== artwork.id));
     }
@@ -147,11 +153,11 @@ const MainApp = ({ aiResults }: MainAppProps) => {
     }
   };
 
-  const handleDislike = async (artwork: Artwork) => {
-    // Cambia card immediatamente solo se siamo nello swiper
-    if (!showAiGrid) {
+  const handleDislike = async (artwork: Artwork, autoAdvance: boolean = true) => {
+    // Cambia card immediatamente solo se siamo nello swiper e autoAdvance è true
+    if (!showAiGrid && autoAdvance) {
       moveToNext();
-    } else {
+    } else if (showAiGrid) {
       // Nella griglia, rimuovi la card dalla lista
       setAiGridResults((prev) => prev.filter((item) => item.id !== artwork.id));
     }
@@ -178,8 +184,63 @@ const MainApp = ({ aiResults }: MainAppProps) => {
     }
   };
 
+  const handleTouchStart = (swiper: SwiperType, event: TouchEvent | MouseEvent | PointerEvent) => {
+    if ('touches' in event) {
+      touchStartX.current = event.touches[0].clientX;
+    } else {
+      touchStartX.current = event.clientX;
+    }
+    swipeStartIndex.current = swiper.activeIndex;
+  };
+
+  const handleTouchEnd = (swiper: SwiperType, event: TouchEvent | MouseEvent | PointerEvent) => {
+    let touchEndX: number;
+
+    if ('changedTouches' in event) {
+      touchEndX = event.changedTouches[0].clientX;
+    } else {
+      touchEndX = event.clientX;
+    }
+
+    const diff = touchEndX - touchStartX.current;
+    const threshold = 50; // Soglia minima di movimento in pixel
+
+    // Se lo swipe è significativo
+    if (Math.abs(diff) > threshold) {
+      const swipedArtwork = products[swipeStartIndex.current];
+
+      if (diff > 0) {
+        // Swipe verso destra = Like
+        handleLike(swipedArtwork, false);
+      } else {
+        // Swipe verso sinistra = Dislike
+        handleDislike(swipedArtwork, false);
+      }
+    }
+  };
+
   const handleSlideChange = (swiper: SwiperType) => {
     const newIndex = swiper.activeIndex;
+
+    // Se stiamo forzando lo slide, ignora
+    if (isForceSliding.current) {
+      isForceSliding.current = false;
+      setCurrentIndex(newIndex);
+      return;
+    }
+
+    // Se l'utente ha provato a tornare indietro (swipe verso destra),
+    // forza l'avanzamento alla prossima card
+    if (newIndex < swipeStartIndex.current) {
+      isForceSliding.current = true;
+      setTimeout(() => {
+        if (swiperRef.current) {
+          swiperRef.current.slideTo(swipeStartIndex.current + 1);
+        }
+      }, 0);
+      return;
+    }
+
     setCurrentIndex(newIndex);
   };
 
@@ -192,12 +253,45 @@ const MainApp = ({ aiResults }: MainAppProps) => {
       <Box
         sx={{
           display: "flex",
+          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           minHeight: "600px",
-          width: "fit-content",
+          gap: 3,
         }}>
-        <CircularProgress size={60} />
+        {/* CircularProgress con gradiente */}
+        <Box
+          sx={{
+            position: "relative",
+            display: "inline-flex",
+          }}>
+          <CircularProgress
+            size={80}
+            thickness={4}
+            sx={{
+              color: "#667eea",
+              "& .MuiCircularProgress-circle": {
+                strokeLinecap: "round",
+              },
+            }}
+          />
+        </Box>
+
+        {/* Testo caricamento */}
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 500,
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>
+          Caricamento opere d'arte...
+        </Typography>
+
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem" }}>
+          Stiamo cercando le opere perfette per te
+        </Typography>
       </Box>
     );
   }
@@ -211,14 +305,82 @@ const MainApp = ({ aiResults }: MainAppProps) => {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "600px",
-          gap: 2,
+          maxWidth: "500px",
+          margin: "0 auto",
+          padding: 4,
+          gap: 3,
         }}>
-        <Typography variant="h6" color="error">
+        {/* Icona errore */}
+        <Box
+          sx={{
+            width: 120,
+            height: 120,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #EC6F7B 0%, #D9534F 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 10px 40px rgba(236, 111, 123, 0.3)",
+          }}>
+          <ErrorOutlineIcon sx={{ fontSize: 60, color: "white" }} />
+        </Box>
+
+        {/* Titolo */}
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 600,
+            textAlign: "center",
+            color: "#EC6F7B",
+          }}>
+          Oops! Qualcosa è andato storto
+        </Typography>
+
+        {/* Messaggio descrittivo */}
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          sx={{
+            textAlign: "center",
+            lineHeight: 1.7,
+            maxWidth: "400px",
+          }}>
           {error}
         </Typography>
-        <Button variant="contained" onClick={handleReload} startIcon={<RefreshIcon />}>
+
+        {/* Bottone azione */}
+        <Button
+          variant="contained"
+          onClick={handleReload}
+          startIcon={<RefreshIcon />}
+          sx={{
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            color: "white",
+            padding: "12px 32px",
+            borderRadius: "12px",
+            textTransform: "none",
+            fontSize: "1rem",
+            fontWeight: 600,
+            boxShadow: "0 4px 20px rgba(102, 126, 234, 0.4)",
+            "&:hover": {
+              background: "linear-gradient(135deg, #5568d3 0%, #653a91 100%)",
+              boxShadow: "0 6px 24px rgba(102, 126, 234, 0.5)",
+            },
+          }}>
           Riprova
         </Button>
+
+        {/* Suggerimento */}
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            textAlign: "center",
+            fontSize: "0.875rem",
+            fontStyle: "italic",
+          }}>
+          💡 Se il problema persiste, ricarica la pagina o contatta l'assistenza
+        </Typography>
       </Box>
     );
   }
@@ -232,12 +394,123 @@ const MainApp = ({ aiResults }: MainAppProps) => {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "600px",
-          gap: 2,
+          maxWidth: "500px",
+          margin: "0 auto",
+          padding: 4,
+          gap: 3,
         }}>
-        <Typography variant="h6">Nessun prodotto disponibile</Typography>
-        <Button variant="contained" onClick={handleReload} startIcon={<RefreshIcon />}>
-          Ricarica
-        </Button>
+        {/* Icona con gradiente */}
+        <Box
+          sx={{
+            width: 120,
+            height: 120,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 10px 40px rgba(102, 126, 234, 0.3)",
+          }}>
+          <SearchOffIcon sx={{ fontSize: 60, color: "white" }} />
+        </Box>
+
+        {/* Titolo */}
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 600,
+            textAlign: "center",
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>
+          Nessuna opera trovata
+        </Typography>
+
+        {/* Messaggio descrittivo */}
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          sx={{
+            textAlign: "center",
+            lineHeight: 1.7,
+            maxWidth: "400px",
+          }}>
+          Non abbiamo trovato opere che corrispondono ai tuoi criteri di ricerca.
+          {auth.isAuthenticated
+            ? " Hai già visto tutte le opere disponibili o i filtri attuali sono troppo restrittivi."
+            : " Prova a modificare i filtri per vedere più risultati."}
+        </Typography>
+
+        {/* Bottoni azione */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            width: "100%",
+            maxWidth: "300px",
+          }}>
+          <Button
+            variant="contained"
+            onClick={handleReload}
+            startIcon={<RefreshIcon />}
+            sx={{
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              color: "white",
+              padding: "12px 24px",
+              borderRadius: "12px",
+              textTransform: "none",
+              fontSize: "1rem",
+              fontWeight: 600,
+              boxShadow: "0 4px 20px rgba(102, 126, 234, 0.4)",
+              "&:hover": {
+                background: "linear-gradient(135deg, #5568d3 0%, #653a91 100%)",
+                boxShadow: "0 6px 24px rgba(102, 126, 234, 0.5)",
+              },
+            }}>
+            Ricarica opere
+          </Button>
+
+          <Button
+            variant="outlined"
+            startIcon={<FilterAltIcon />}
+            onClick={() => {
+              // Apri il pannello filtri tramite lo store
+              useFiltersStore.getState().setFiltersPanelOpen(true);
+            }}
+            sx={{
+              borderColor: "#667eea",
+              color: "#667eea",
+              padding: "12px 24px",
+              borderRadius: "12px",
+              textTransform: "none",
+              fontSize: "1rem",
+              fontWeight: 600,
+              borderWidth: 2,
+              "&:hover": {
+                borderColor: "#5568d3",
+                backgroundColor: "rgba(102, 126, 234, 0.04)",
+                borderWidth: 2,
+              },
+            }}>
+            Modifica filtri
+          </Button>
+        </Box>
+
+        {/* Suggerimento */}
+        {!auth.isAuthenticated && (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              textAlign: "center",
+              fontSize: "0.875rem",
+              fontStyle: "italic",
+            }}>
+            💡 Accedi per vedere opere personalizzate in base ai tuoi gusti
+          </Typography>
+        )}
       </Box>
     );
   }
@@ -301,8 +574,7 @@ const MainApp = ({ aiResults }: MainAppProps) => {
         <Grid container spacing={3}>
           {aiGridResults.map((artwork) => {
             const imageUrl = artwork.images?.[0]?.src || "../images/artists_example.png";
-            const artistName =
-              artwork.attributes?.find((attr) => attr.name === "Artista")?.options?.[0] || "Artista sconosciuto";
+            const artistName = artwork.acf?.artist?.[0]?.post_title || "Artista sconosciuto";
             const galleryName = artwork.store_name || "Galleria";
 
             return (
@@ -446,6 +718,8 @@ const MainApp = ({ aiResults }: MainAppProps) => {
           modules={[EffectCards]}
           onSwiper={(swiper) => (swiperRef.current = swiper)}
           onSlideChange={handleSlideChange}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
           cardsEffect={{
             perSlideOffset: 8,
             perSlideRotate: 2,
