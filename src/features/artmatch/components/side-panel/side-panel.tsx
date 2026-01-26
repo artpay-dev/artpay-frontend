@@ -150,7 +150,7 @@ interface SidePanelProps {
 
 const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
   const [tab, setTab] = useState<"like" | "match">("like");
-  const [filtersPanelOpen, setFiltersPanelOpen] = useState<boolean>(false);
+  const { filtersPanelOpen, toggleFiltersPanel } = useFiltersStore();
   const [aiSearchOpen, setAiSearchOpen] = useState<boolean>(false);
   const [aiPrompt, setAiPrompt] = useState<string>("");
   const [likedArtworks, setLikedArtworks] = useState<Artwork[]>([]);
@@ -267,7 +267,7 @@ const SidePanel = ({ open = true, onClose, onAiResults }: SidePanelProps) => {
   };
 
   const handleFiltersPanelOpen = () => {
-    setFiltersPanelOpen(!filtersPanelOpen);
+    toggleFiltersPanel();
     setAiSearchOpen(false);
   };
 
