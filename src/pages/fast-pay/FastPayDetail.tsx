@@ -213,7 +213,7 @@ const FastPayDetail = () => {
           {/* Header con immagine e info base */}
           <div className="flex items-start gap-4">
             <img
-              src={mainItem?.image?.src || "/images/immagine--galleria.png"}
+              src={mainItem?.image?.src || "/images/placeholder.svg"}
               alt={mainItem?.name || "Artwork"}
               className="rounded-lg object-cover w-24 h-24"
             />

@@ -20,7 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Key Application Structure
 
-- **HOC Providers**: The app uses multiple context providers layered in App.tsx:
+- **HOC Providers**: The app uses multiple context providers layered in AppArtmatch.tsx:
   - `AuthProvider` - User authentication state
   - `DataProvider` - API data management  
   - `PaymentProvider` - Payment flow state

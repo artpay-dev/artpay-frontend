@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import useDirectPurchaseStore from "../features/directpurchase/stores/directPurchaseStore.ts";
 import usePaymentStore from "../features/cdspayments/stores/paymentStore.ts";
 import { useDialogs } from "../hoc/DialogProvider.tsx";
+import GooglePayMark from "./icons/GooglePayMark.tsx";
 
 export interface PaymentCardProps {
   tabTitles?: string[]; // Nuova proprietà per i titoli delle tab
@@ -44,6 +45,14 @@ const providerCardStyles = {
   paypal: {
     style: "!bg-[#E8F4FD] ",
     bgcolor: "#E8F4FD",
+  },
+  revolut_pay: {
+    style: "!bg-[#E3F2FF] ",
+    bgcolor: "#E3F2FF",
+  },
+  google_pay: {
+    style: "!bg-[#F0F0F0] ",
+    bgcolor: "#F0F0F0",
   },
 };
 
@@ -203,7 +212,19 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
       {/* Tabs for switching payment methods */}
 
       <PaymentProviderCard
-        cardTitle={paymentMethod == "card" ? "Carta di credito" : paymentMethod == "klarna" ? "Klarna" : "PayPal"}
+        cardTitle={
+          paymentMethod == "card"
+            ? "Carta di credito"
+            : paymentMethod == "klarna"
+            ? "Klarna"
+            : paymentMethod == "paypal"
+            ? "PayPal"
+            : paymentMethod == "revolut_pay"
+            ? "Revolut Pay"
+            : paymentMethod == "google_pay"
+            ? "Google Pay"
+            : "Pagamento"
+        }
         backgroundColor={providerCardStyles[paymentMethod as keyof typeof providerCardStyles]?.style}
         icon={
           paymentMethod == "card" ? (
@@ -255,7 +276,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
                 fill="#17120F"
               />
             </svg>
-          ) : (
+          ) : paymentMethod == "paypal" ? (
             <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 -139.5 750 750" version="1.1" className="size-10">
               <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                 <g id="paypal" fillRule="nonzero">
@@ -292,7 +313,14 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
                 </g>
               </g>
             </svg>
-          )
+          ) : paymentMethod == "revolut_pay" ? (
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-10">
+              <rect width="40" height="40" rx="8" fill="#0075EB"/>
+              <path d="M14 28V12H20.5C23.5376 12 26 14.4624 26 17.5C26 19.5913 24.7402 21.3846 22.9688 22.1719L26.5 28H23.5L20.5 22.5H17V28H14ZM17 19.5H20.5C21.8807 19.5 23 18.3807 23 17C23 15.6193 21.8807 14.5 20.5 14.5H17V19.5Z" fill="white"/>
+            </svg>
+          ) : paymentMethod == "google_pay" ? (
+            <GooglePayMark />
+          ) : null
         }>
         <div className={"space-y-4 py-6 border-t border-gray-950/20"}>
           <div className="flex items-center justify-between">
@@ -447,11 +475,21 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
                 rules: {
                   ".StripeElement": {
                     border: "none",
-                    backgroundColor: paymentMethod == "klarna" ? "#FFE9EE" : paymentMethod == "paypal" ? "#E8F4FD" : "#EAF0FF",
+                    backgroundColor:
+                      paymentMethod == "klarna" ? "#FFE9EE" :
+                      paymentMethod == "paypal" ? "#E8F4FD" :
+                      paymentMethod == "revolut_pay" ? "#E3F2FF" :
+                      paymentMethod == "google_pay" ? "#F0F0F0" :
+                      "#EAF0FF",
                   },
                   ".AccordionItem": {
                     border: "none",
-                    backgroundColor: paymentMethod == "klarna" ? "#FFE9EE" : paymentMethod == "paypal" ? "#E8F4FD" : "#EAF0FF",
+                    backgroundColor:
+                      paymentMethod == "klarna" ? "#FFE9EE" :
+                      paymentMethod == "paypal" ? "#E8F4FD" :
+                      paymentMethod == "revolut_pay" ? "#E3F2FF" :
+                      paymentMethod == "google_pay" ? "#F0F0F0" :
+                      "#EAF0FF",
                     padding: "24px",
                   },
                   ".Input": {

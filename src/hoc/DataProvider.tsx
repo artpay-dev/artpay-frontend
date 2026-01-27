@@ -176,6 +176,10 @@ export interface DataContext {
 
   removeFavouriteGallery(id: string): Promise<number[]>;
 
+  getDislikedArtworks(): Promise<number[]>;
+
+  deleteConversation(questionIds: number[]): Promise<void>;
+
   downpaymentPercentage(): number;
 }
 
@@ -240,6 +244,8 @@ const defaultContext: DataContext = {
   getFavouriteGalleries: () => Promise.reject("Data provider loaded"),
   addFavouriteGallery: () => Promise.reject("Data provider loaded"),
   removeFavouriteGallery: () => Promise.reject("Data provider loaded"),
+  getDislikedArtworks: () => Promise.reject("Data provider loaded"),
+  deleteConversation: () => Promise.reject("Data provider loaded"),
   updatePaymentIntent: () => Promise.reject("Data provider loaded"),
   getCategoryMapValues: () => [],
   getArtistCategories: () => [],
@@ -488,6 +494,17 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       dispatchFavouritesUpdated({ ...favouritesMap });
       return resp.data;
     },
+
+    async getDislikedArtworks(): Promise<number[]> {
+      if (!auth.isAuthenticated) {
+        return [];
+      }
+      const resp = await axios.get<SignInFormData, AxiosResponse<number[]>>(
+        `${baseUrl}/wp-json/artpay/v1/getUserDislikedArtworks`,
+        { headers: { Authorization: auth.getAuthToken() } },
+      );
+      return resp.data || [];
+    },
   };
 
   const dataContext = useMemo(
@@ -568,6 +585,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
           headers: { Authorization: auth.getGuestAuth() },
           params: {
             include: ids.join(","), //include=${ids.join(",")}
+            per_page: Math.max(ids.length, 100), // Assicura di ottenere tutti i prodotti richiesti
           },
         });
         return resp.data;
@@ -1119,12 +1137,17 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         });
 
         const messageGroups: { [key: string]: Message[] } = {};
+        const questionIdsMap: { [key: string]: number[] } = {}; // Mappa product_ID -> question IDs
         const messages: GroupedMessage[] = [];
 
         resp.data.forEach((msg) => {
           if (!messageGroups[msg.product_ID]) {
             messageGroups[msg.product_ID] = [];
+            questionIdsMap[msg.product_ID] = [];
           }
+          // Aggiungi l'ID della domanda alla mappa
+          questionIdsMap[msg.product_ID].push(parseInt(msg.ques_ID));
+
           try {
             messageGroups[msg.product_ID].push({
               text: msg.ques_details,
@@ -1163,6 +1186,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
             lastMessageDate: lastMessage.date,
             lastMessageText: lastMessage.text,
             messages: messageGroups[product.id.toString()],
+            questionIds: questionIdsMap[product.id.toString()] || [],
           });
         });
 
@@ -1209,6 +1233,17 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
               throw err;
             }
           });
+      },
+
+      async deleteConversation(questionIds: number[]): Promise<void> {
+        // Elimina tutte le domande per questa conversazione
+        await Promise.all(
+          questionIds.map((questionId) =>
+            axios.delete(`${baseUrl}/wp-json/wc/v3/customer-question/${questionId}`, {
+              headers: { Authorization: auth.getAuthToken() },
+            })
+          )
+        );
       },
 
       getCategoryMapValues(artwork: Artwork, key: string): string[] {

@@ -60,6 +60,8 @@ import FastPayDetail from "./pages/fast-pay/FastPayDetail.tsx";
 import QuotesLayout from "./features/quotes/layout/QuotesLayout.tsx";
 import QuotePage from "./pages/quotes/QuotePage.tsx";
 import CheckoutPayment from "./pages/quotes/CheckoutPayment.tsx";
+import ArtMatch from "./pages/artmatch/ArtMatch.tsx";
+import HistoryQuotesPage from "./pages/HistoryQuotesPage.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -119,6 +121,7 @@ function AppContent() {
                     <Route path="/profile/opere-preferite" element={<FavoritesArtworksPage />} />
                     <Route path="/profile/personal-settings" element={<PersonalSettingsPage />} />
                     <Route path="/profile/history-orders" element={<HistoryOrdersPage />} />
+                    <Route path="/profile/history-quotes" element={<HistoryQuotesPage />} />
                     <Route path="/profile/history-failed-orders" element={<HistoryFailedOrdersPage />} />
                     <Route path="/profile/shipping-invoice-settings" element={<ShippingSettingsPage />} />
                     <Route path="/thank-you-page" element={<PurchaseComplete />} />
@@ -147,7 +150,7 @@ function AppContent() {
                     <Route path="/profile/messaggi" element={<Messages />} />
                     <Route path="/errore/:code" element={<Error />} />
                     <Route path="/errore" element={<Error />} />
-                    <Route path={"/gallerie-the-others"} element={<LandingForCampaignPage />} />
+                    <Route path={"/campaign/:slug"} element={<LandingForCampaignPage />} />
                     <Route path={"/vendor/fastpay"}  element={<FatsPayLayout />}>
                       <Route element={<FastPay />} index/>
                       <Route path={"crea-offerta"} element={<FastPayCreate />} />
@@ -157,6 +160,7 @@ function AppContent() {
                       <Route element={<QuotePage />} index />
                     </Route>
                     <Route path="/checkout/payment" element={<CheckoutPayment />} />
+                    <Route path="/artmatch" element={<ArtMatch />} />
                   </Routes>
                 </PaymentProvider>
               </DataProvider>

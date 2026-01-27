@@ -106,7 +106,7 @@ const DirectPurchaseView = () => {
 
   const showBillingSection = userProfile && (requireInvoice || orderMode === "loan");
 
-  const isReedemPurchase = pendingOrder?.status === "on-hold" && pendingOrder.created_via == "rest-api";
+  const isReedemPurchase = pendingOrder?.status === "on-hold" && pendingOrder.created_via == "rest-api"
 
   const handleBlockNavigation = async (path?: string, extrernal?: boolean) => {
     // Blocca solo in modalità loan o standard quando lo status è pending
@@ -479,6 +479,32 @@ const DirectPurchaseView = () => {
               thankYouPage={thankYouPage}
             />
           );
+        case "revolut_pay":
+          return (
+            <PaymentCard
+              orderMode={orderMode}
+              paymentMethod={paymentMethod || ""}
+              checkoutButtonRef={checkoutButtonRef}
+              onCheckout={() => handleSubmitCheckout()}
+              onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
+              onReady={() => updateState({ checkoutReady: true })}
+              paymentIntent={paymentIntent}
+              thankYouPage={thankYouPage}
+            />
+          );
+        case "google_pay":
+          return (
+            <PaymentCard
+              orderMode={orderMode}
+              paymentMethod={paymentMethod || ""}
+              checkoutButtonRef={checkoutButtonRef}
+              onCheckout={() => handleSubmitCheckout()}
+              onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
+              onReady={() => updateState({ checkoutReady: true })}
+              paymentIntent={paymentIntent}
+              thankYouPage={thankYouPage}
+            />
+          );
           case "bank_transfer":
           return (
             <ContentCard
@@ -539,6 +565,32 @@ const DirectPurchaseView = () => {
             thankYouPage={thankYouPage}
           />
         );
+      case "revolut_pay":
+        return (
+          <PaymentCard
+            orderMode={orderMode}
+            paymentMethod={paymentMethod || ""}
+            checkoutButtonRef={checkoutButtonRef}
+            onCheckout={() => handleSubmitCheckout()}
+            onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
+            onReady={() => updateState({ checkoutReady: true })}
+            paymentIntent={paymentIntent}
+            thankYouPage={thankYouPage}
+          />
+        );
+      case "google_pay":
+        return (
+          <PaymentCard
+            orderMode={orderMode}
+            paymentMethod={paymentMethod || ""}
+            checkoutButtonRef={checkoutButtonRef}
+            onCheckout={() => handleSubmitCheckout()}
+            onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
+            onReady={() => updateState({ checkoutReady: true })}
+            paymentIntent={paymentIntent}
+            thankYouPage={thankYouPage}
+          />
+        );
       case "bank_transfer":
         return (
           <ContentCard
@@ -581,9 +633,27 @@ const DirectPurchaseView = () => {
 
         switch (paymentIntent?.status) {
           case "succeeded":
+            // Mappa i payment methods ai loro display names
+            const getPaymentMethodDisplay = (method: string | null) => {
+              switch (method) {
+                case "klarna":
+                  return { method: "Klarna", title: "Klarna" };
+                case "paypal":
+                  return { method: "PayPal", title: "PayPal" };
+                case "revolut_pay":
+                  return { method: "Revolut Pay", title: "Revolut Pay" };
+                case "google_pay":
+                  return { method: "Google Pay", title: "Google Pay" };
+                default:
+                  return { method: "Credit card", title: "Carta di credito" };
+              }
+            };
+
+            const paymentDisplay = getPaymentMethodDisplay(paymentMethod);
+
             await data.setOrderStatus(+completedOrderId, "completed", {
-              payment_method: paymentMethod === "klarna" ? "Klarna" : paymentMethod === "paypal" ? "PayPal" : "Credit card",
-              payment_method_title: paymentMethod === "klarna" ? "Klarna" : paymentMethod === "paypal" ? "PayPal" : "Carta di credito",
+              payment_method: paymentDisplay.method,
+              payment_method_title: paymentDisplay.title,
               customer_note:
                 orderMode === "loan"
                   ? "Blocco opera"

@@ -19,6 +19,12 @@ export interface OrderHistoryCardProps {
   onClick?: (orderId: number) => Promise<void>;
   expiryDate?: string;
   customer_note?: string;
+  quoteNotes?: string;
+  quoteConditions?: string;
+  orderKey?: string;
+  email?: string;
+  onQuoteAccepted?: () => void;
+  onQuoteRejected?: () => void;
 }
 
 const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
@@ -35,6 +41,12 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
   status,
   customer_note,
   expiryDate,
+  quoteConditions,
+  quoteNotes,
+  orderKey,
+  email,
+  onQuoteAccepted,
+  onQuoteRejected,
 }) => {
   if (status != "completed")
     return (
@@ -52,6 +64,12 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
         status={status}
         expiryDate={expiryDate}
         onClick={onClick}
+        quoteNotes={quoteNotes}
+        quoteConditions={quoteConditions}
+        orderKey={orderKey}
+        email={email}
+        onQuoteAccepted={onQuoteAccepted}
+        onQuoteRejected={onQuoteRejected}
       />
     );
 
