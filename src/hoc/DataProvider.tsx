@@ -930,7 +930,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
           }
         }
         const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
-          `${baseUrl}/wp-json/wc/v3/stripe/payment_intent`,
+          `${baseUrl}/wp-json/artpay/v1/stripe/payment-intent-connect`,
           body,
           {
             headers: {
@@ -956,7 +956,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
           }
         }
         const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
-          `${baseUrl}/wp-json/artpay/v1/stripe/payment-intent-connect`,
+          `${baseUrl}/wp-json/wc/v3/stripe/cds_payment_intent`,
           body,
           {
             headers: {
