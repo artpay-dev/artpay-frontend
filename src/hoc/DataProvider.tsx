@@ -929,17 +929,39 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
             console.error(e);
           }
         }
-        const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
-          `${baseUrl}/wp-json/artpay/v1/stripe/payment-intent-connect`,
-          body,
-          {
-            headers: {
-              Authorization: auth.getAuthToken(),
+
+        try {
+          const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
+            `${baseUrl}/wp-json/artpay/v1/stripe/payment-intent-connect`,
+            body,
+            {
+              headers: {
+                Authorization: auth.getAuthToken(),
+              },
             },
-          },
-        );
-        localStorage.setItem(cacheKey, JSON.stringify(resp.data));
-        return resp.data;
+          );
+          localStorage.setItem(cacheKey, JSON.stringify(resp.data));
+          return resp.data;
+        } catch (error) {
+          if (
+            isAxiosError(error) &&
+            error.response?.data?.error === "Vendor has not connected their Stripe account"
+          ) {
+            console.log("Vendor Stripe account not connected, using fallback endpoint");
+            const fallbackResp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
+              `https://vendor.artpay.art/wp-json/wc/v3/stripe/payment_intent`,
+              body,
+              {
+                headers: {
+                  Authorization: auth.getAuthToken(),
+                },
+              },
+            );
+            localStorage.setItem(cacheKey, JSON.stringify(fallbackResp.data));
+            return fallbackResp.data;
+          }
+          throw error;
+        }
       },
 
       async createPaymentIntentCds(body: PaymentIntentRequest): Promise<PaymentIntent> {
