@@ -8,16 +8,14 @@ import { useEffect, useState } from "react";
 import PaymentForm from "../paymentform/PaymentForm.tsx";
 import { Elements } from "@stripe/react-stripe-js";
 import { usePayments } from "../../../../../hoc/PaymentProvider.tsx";
+import { calculateArtpayFee, calculatePaymentGatewayFee } from "../../../utils/orderCalculations.ts";
 
 const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<PaymentProviderCardProps>) => {
   const payments = usePayments();
   const { order, setPaymentData, paymentIntent } = usePaymentStore();
   const [fee, setFee] = useState<number>(0);
+  const [totalWithFees, setTotalWithFees] = useState<number>(0);
   const data = useData();
-  // Calcola la rata: se fee_lines è vuoto usa il totale presunto, altrimenti usa order.total
-  const totalWithFees = order && subtotal
-    ? (!order?.fee_lines?.length ? subtotal * 1.04 * 1.061 : Number(order.total))
-    : 0;
   const quote = totalWithFees / 3;
 
   const handlingKlarnaSelection = async (): Promise<void> => {
@@ -31,10 +29,12 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
       });
       try {
 
-        const updatePayment = await data.updatePaymentIntent({
+        const updatePayment = await data.updatePaymentIntentCds({
           wc_order_key: order?.order_key,
           payment_method: "klarna",
         });
+
+        console.log("updatePayment", updatePayment);
         if (!updatePayment) throw new Error("Error during updating payment intent");
         console.log('update payment intent', updatePayment);
 
@@ -81,16 +81,30 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
 
   useEffect(() => {
     if (!paymentIntent) createPaymentIntent();
+  }, [paymentIntent, createPaymentIntent]);
+
+  useEffect(() => {
     if (order && subtotal) {
-      // Se fee_lines è vuoto, calcola la fee presunta (Artpay 4% + Klarna 6.1%)
-      // Altrimenti usa la differenza tra order.total e subtotal
-      const totalFee = !order?.fee_lines?.length
-        ? subtotal * 1.04 * 1.061 - subtotal
-        : Number(order?.total) - subtotal;
-      setFee(totalFee);
+      const artpayFee = calculateArtpayFee(order, subtotal);
+
+      // Se payment_method non è ancora "klarna", stima la fee di Klarna (circa 5% già con IVA)
+      if (order.payment_method !== "klarna") {
+        // Stima: Klarna fee è circa 5% sul (subtotale + artpay)
+        const baseForKlarna = subtotal + artpayFee;
+        const klarnaFeeEstimated = baseForKlarna * 0.05; // 5% (già include IVA)
+        const totalFees = artpayFee + klarnaFeeEstimated;
+
+        setFee(totalFees);
+        setTotalWithFees(subtotal + totalFees);
+      } else {
+        // Se già selezionato Klarna, usa i valori reali dall'ordine
+        const gatewayFee = calculatePaymentGatewayFee(order);
+        const totalFees = artpayFee + gatewayFee;
+
+        setFee(totalFees);
+        setTotalWithFees(order.total ? Number(order.total) : subtotal + totalFees);
+      }
     }
-
-
   }, [order, subtotal]);
 
 
@@ -136,18 +150,18 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
                   </li>
                   <li >
                     <div className={"w-full flex justify-between"}>
-                      Commissioni artpay: <span>€&nbsp;{fee.toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</span>
+                      {order?.payment_method === "klarna" ? "Commissioni artpay:" : "Commissioni totali:"} <span>€&nbsp;{fee.toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</span>
                     </div>
                     <p className={'text-secondary text-xs'}>Inclusi costi del finanziamento</p>
                   </li>
                   <li className={"w-full flex justify-between"}>
-                    <strong>Totale:</strong> <strong>€&nbsp;{(Number(subtotal) + Number(fee)).toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</strong>
+                    <strong>Totale:</strong> <strong>€&nbsp;{totalWithFees.toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</strong>
                   </li>
                 </ul>
                 <div className={"flex justify-center"}>
                   <button
                     onClick={handlingKlarnaSelection}
-                    className={"artpay-button-style bg-klarna hover:bg-klarna-hover"}>
+                    className={"artpay-button-style py-3! bg-klarna hover:bg-klarna-hover"}>
                     Paga la prima rata da € {quote.toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
                   </button>
                 </div>

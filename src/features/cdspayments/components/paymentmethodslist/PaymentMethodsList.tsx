@@ -2,6 +2,7 @@ import { Order } from "../../../../types/order.ts";
 import SkeletonCard from "../ui/paymentprovidercard/SkeletonCard.tsx";
 import KlarnaCard from "../ui/klarnacard/KlarnaCard.tsx";
 import SantanderCard from "../ui/santandercard/SantanderCard.tsx";
+import { calculateOrderSubtotal } from "../../utils/orderCalculations.ts";
 
 type PaymentMethodProps = {
   order: Order;
@@ -9,10 +10,7 @@ type PaymentMethodProps = {
 };
 
 const PaymentMethodsList = ({ order, isLoading }: PaymentMethodProps) => {
-  // Subtotal = (line_items + tasse) / 1.04 per ottenere il valore base prima della fee Artpay
-  const lineItemsTotal = order?.line_items.reduce((acc, item) => acc + Number(item.total), 0) || 0;
-  const taxTotal = order?.line_items.reduce((acc, item) => acc + Number(item.total_tax), 0) || 0;
-  const subtotal = (lineItemsTotal + taxTotal) / 1.04;
+  const subtotal = order ? calculateOrderSubtotal(order) : 0;
 
 
   return (

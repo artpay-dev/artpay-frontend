@@ -3,6 +3,7 @@ import SkeletonCard from "../ui/paymentprovidercard/SkeletonCard.tsx";
 import KlarnaCard from "../ui/klarnacard/KlarnaCard.tsx";
 import SantanderCard from "../ui/santandercard/SantanderCard.tsx";
 import usePaymentStore from "../../stores/paymentStore.ts";
+import { calculateOrderSubtotal } from "../../utils/orderCalculations.ts";
 
 type PaymentsProps = {
   order: Order;
@@ -10,7 +11,7 @@ type PaymentsProps = {
 };
 
 const ConfirmPayment = ({ order, isLoading }: PaymentsProps) => {
-  const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.04 : Number(order?.total) / 1.04 / 1.061;
+  const subtotal = order ? calculateOrderSubtotal(order) : 0;
   const { paymentMethod } = usePaymentStore();
 
 

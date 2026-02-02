@@ -4,13 +4,14 @@ import { PaymentProviderCardProps } from "../../../types.ts";
 import { NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import usePaymentStore from "../../../stores/paymentStore.ts";
-import { calculateArtPayFee } from "../../../utils.ts";
+import { calculateArtpayFee } from "../../../utils/orderCalculations.ts";
 import { useData } from "../../../../../hoc/DataProvider.tsx";
 import AgreementCheckBox from "../agreementcheckbox/AgreementCheckBox.tsx";
 import SantanderIcon from "../../../../../components/icons/SantanderIcon.tsx";
 
 const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<PaymentProviderCardProps>) => {
   const [fee, setFee] = useState<number>(0);
+  const [totalWithFees, setTotalWithFees] = useState<number>(0);
   const data = useData();
   const { setPaymentData, order, paymentIntent } = usePaymentStore();
   const [isChecked, setIsChecked] = useState(false);
@@ -49,7 +50,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
     });
     try {
       if (paymentIntent) {
-        const updatePayment = await data.updatePaymentIntent({
+        const updatePayment = await data.updatePaymentIntentCds({
           wc_order_key: order.order_key,
           payment_method: "santander",
         });
@@ -86,7 +87,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
     });
     try {
       if (paymentIntent) {
-        const updatePayment = await data.updatePaymentIntent({
+        const updatePayment = await data.updatePaymentIntentCds({
           wc_order_key: order?.order_key,
           payment_method: "bnpl",
         });
@@ -115,11 +116,14 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
   };
 
   useEffect(() => {
-    if (order) {
-      const artpayFee = calculateArtPayFee(order);
+    if (order && subtotal) {
+      const artpayFee = calculateArtpayFee(order, subtotal);
       setFee(artpayFee);
+      // Usa order.total per il totale
+      const orderTotal = order.total ? Number(order.total) : subtotal + artpayFee;
+      setTotalWithFees(orderTotal);
     }
-  }, [order]);
+  }, [order, subtotal]);
 
   return (
     <PaymentProviderCard
@@ -146,7 +150,7 @@ const SantanderCard = ({ subtotal, disabled, paymentSelected = true }: Partial<P
               <p className={'text-secondary text-xs'}>Inclusi costi del finanziamento</p>
             </li>
             <li className={"w-full flex justify-between"}>
-              <strong>Totale:</strong> <strong>€&nbsp;{(Number(subtotal) + Number(fee)).toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</strong>
+              <strong>Totale:</strong> <strong>€&nbsp;{totalWithFees.toLocaleString('it-IT', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</strong>
             </li>
           </ul>
           {order?.payment_method == "santander" ? (

@@ -7,6 +7,7 @@ import usePaymentStore from "../../stores/paymentStore.ts";
 import { useData } from "../../../../hoc/DataProvider.tsx";
 import BankTransfer from "../banktransfer/BankTransfer.tsx";
 import SantanderIcon from "../../../../components/icons/SantanderIcon.tsx";
+import { calculateOrderSubtotal } from "../../utils/orderCalculations.ts";
 
 type SantanderFlowProps = {
   isLoading?: boolean;
@@ -16,7 +17,7 @@ type SantanderFlowProps = {
 const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
   const { setPaymentData, orderNote } = usePaymentStore();
   const data = useData();
-  const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.04 : Number(order?.total) / 1.04 / 1.061;
+  const subtotal = order ? calculateOrderSubtotal(order) : 0;
   const { user } = useAuth();
 
   const event_name = "santander_click";

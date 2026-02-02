@@ -22,6 +22,7 @@ import { GalleryCardProps } from "./components/GalleryCard.tsx";
 import { Order } from "./types/order.ts";
 import { OrderHistoryCardProps } from "./components/OrderHistoryCard.tsx";
 import { OrderLoanCardProps } from "./components/OrderLoanCard.tsx";
+import { calculateDisplayPrice } from "./features/cdspayments/utils/orderCalculations.ts";
 import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
 import isYesterday from "dayjs/plugin/isYesterday";
@@ -200,7 +201,18 @@ export const galleryToGalleryItem = (gallery: Gallery | null | undefined): Galle
 export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProps => {
   const orderDesc = order.meta_data.find((m) => m.key.toLowerCase() === "original_order_desc")?.value
   const lineItem = order.line_items.length ? order.line_items[0] : undefined;
-  const galleryName = lineItem?.meta_data.find((m) => m.key?.toLowerCase() === "sold by" || m.key?.toLowerCase() === "venduto da")?.display_value;
+
+  // Per ordini normali, cerca il vendor nei line_items
+  let galleryName = lineItem?.meta_data.find((m) => m.key?.toLowerCase() === "sold by" || m.key?.toLowerCase() === "venduto da")?.display_value;
+
+  // Per ordini gallery_auction, cerca il vendor nei meta_data dell'ordine
+  if (!galleryName && order.created_via === "gallery_auction") {
+    galleryName =
+      order.meta_data.find((m) => m.key.toLowerCase() === "vendor_name" || m.key.toLowerCase() === "gallery_name")?.value ||
+      order.meta_data.find((m) => m.key.toLowerCase() === "_vendor_name" || m.key.toLowerCase() === "_gallery_name")?.value ||
+      "Casa d'asta"; // Fallback per ordini gallery_auction
+  }
+
   const quoteNotes = order?.meta_data.find((m) => m.key === "_quote_notes")?.value || "";
   const quoteConditions = order?.meta_data.find((m) => m.key === "_quote_conditions")?.value  || "";
 
@@ -222,10 +234,13 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
     }
   }
 
+  // Calcola il prezzo da visualizzare con IVA (per ordini normali e gallery_auction)
+  const displayPrice = calculateDisplayPrice(order);
+
   // o.purchaseMode === "Stripe SEPA"
   return {
     id: order.id,
-    formattePrice: `€ ${order.total}`,
+    formattePrice: `€ ${displayPrice.toFixed(2)}`,
     orderType: order.created_via == "rest-api" ? "Galleria" : order?.meta_data.find(k => k.key === "_question_id")?.value ? "Artmatch" : "Casa D'Asta",
     galleryName: galleryName || "",
     purchaseDate: datePaid,

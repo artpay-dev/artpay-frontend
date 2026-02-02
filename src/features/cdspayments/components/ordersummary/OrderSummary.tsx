@@ -2,6 +2,7 @@ import { Order } from "../../../../types/order.ts";
 import { Gallery } from "../../../../types/gallery.ts";
 import PaymentProviderCard from "../ui/paymentprovidercard/PaymentProviderCard.tsx";
 import usePaymentStore from "../../stores/paymentStore.ts";
+import { calculateOrderSubtotal } from "../../utils/orderCalculations.ts";
 
 type OrderDetailsProps = {
   vendor: Gallery | null;
@@ -13,7 +14,7 @@ type OrderDetailsProps = {
 const OrderSummary = ({vendor, order} : OrderDetailsProps ) => {
   const {orderNote} = usePaymentStore();
   const orderDesc = order?.meta_data.filter((data) => data.key == "original_order_desc").map((data) => data.value);
-  const subtotal= !order?.fee_lines.length ? (Number(order?.total) / 1.04) : (Number(order?.total) / 1.04 / 1.061)
+  const subtotal = order ? calculateOrderSubtotal(order) : 0;
 
 
   return (

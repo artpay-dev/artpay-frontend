@@ -76,6 +76,8 @@ export interface DataContext {
 
   updatePaymentIntent: (data: UpdatePaymentIntentRequest) => Promise<PaymentIntent>;
 
+  updatePaymentIntentCds: (data: UpdatePaymentIntentRequest) => Promise<PaymentIntent>;
+
   getGallery(id: string): Promise<Gallery>;
 
   getGalleries(ids?: number[]): Promise<Gallery[]>;
@@ -247,6 +249,7 @@ const defaultContext: DataContext = {
   getDislikedArtworks: () => Promise.reject("Data provider loaded"),
   deleteConversation: () => Promise.reject("Data provider loaded"),
   updatePaymentIntent: () => Promise.reject("Data provider loaded"),
+  updatePaymentIntentCds: () => Promise.reject("Data provider loaded"),
   getCategoryMapValues: () => [],
   getArtistCategories: () => [],
   downpaymentPercentage: () => 0,
@@ -983,7 +986,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
           },
         );
         if (resp.data.amount < 150000) {
-          const updateFee = await this.updatePaymentIntent({
+          const updateFee = await this.updatePaymentIntentCds({
             wc_order_key: body.wc_order_key,
             payment_method: "klarna",
           });
@@ -996,6 +999,18 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       async updatePaymentIntent(data: UpdatePaymentIntentRequest): Promise<PaymentIntent> {
         const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
           `${baseUrl}/wp-json/wc/v3/stripe/upd_payment_intent_fee`,
+          data,
+          {
+            headers: {
+              Authorization: auth.getAuthToken(),
+            },
+          },
+        );
+        return resp.data;
+      },
+      async updatePaymentIntentCds(data: UpdatePaymentIntentRequest): Promise<PaymentIntent> {
+        const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
+          `${baseUrl}/wp-json/wc/v3/stripe/upd_cds_payment_intent_fee`,
           data,
           {
             headers: {

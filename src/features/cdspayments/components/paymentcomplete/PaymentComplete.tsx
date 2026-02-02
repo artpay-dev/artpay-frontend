@@ -5,9 +5,10 @@ import { Order } from "../../../../types/order.ts";
 import KlarnaIcon from "../ui/paymentprovidercard/KlarnaIcon.tsx";
 import { ReactElement } from "react";
 import CompletePaymentCard from "../ui/completepaymentcard/CompletePaymentCard.tsx";
+import { calculateOrderSubtotal } from "../../utils/orderCalculations.ts";
 
 const PaymentFailed1 = ({order, isLoading}: {order: Order, isLoading: boolean}) => {
-  const subtotal = !order?.fee_lines.length ? Number(order?.total) / 1.04 : Number(order?.total) / 1.04 / 1.061;
+  const subtotal = order ? calculateOrderSubtotal(order) : 0;
 
   const icons: Record<Order["payment_method"], ReactElement> = {
     "klarna": <KlarnaIcon />,
