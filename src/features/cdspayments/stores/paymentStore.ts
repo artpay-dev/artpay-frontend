@@ -19,6 +19,10 @@ interface PaymentState {
   user: UserProfile | null;
   openDraw?: boolean;
   refreshTimestamp?: number;
+  guestFormCompleted?: boolean;
+  showUserRegisteredModal?: boolean;
+  userRegistered?: boolean;
+  userChoiceMade?: boolean; // Flag to remember user already chose login or guest
 
   setPaymentData: (data: Partial<PaymentState>) => void;
   refreshOrders: () => void;
@@ -39,6 +43,10 @@ const usePaymentStore = create<PaymentState>((set) => ({
   user: null,
   openDraw: false,
   refreshTimestamp: 0,
+  guestFormCompleted: false,
+  showUserRegisteredModal: false,
+  userRegistered: false,
+  userChoiceMade: false,
 
   setPaymentData: (data) => set((state) => ({ ...state, ...data })),
   refreshOrders: () => set({ refreshTimestamp: Date.now() }),

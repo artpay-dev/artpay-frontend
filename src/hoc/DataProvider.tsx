@@ -78,6 +78,14 @@ export interface DataContext {
 
   updatePaymentIntentCds: (data: UpdatePaymentIntentRequest) => Promise<PaymentIntent>;
 
+  updateCdsCustomerData: (data: { wc_order_key: string; billing: any }) => Promise<PaymentIntent>;
+
+  convertCdsOrderToGuest: (orderKey: string) => Promise<Order>;
+
+  createPaymentIntentKlarna: (wc_order_key: string) => Promise<PaymentIntent>;
+
+  createPaymentIntentSantander: (wc_order_key: string) => Promise<PaymentIntent>;
+
   getGallery(id: string): Promise<Gallery>;
 
   getGalleries(ids?: number[]): Promise<Gallery[]>;
@@ -116,11 +124,19 @@ export interface DataContext {
 
   getOrder(id: number): Promise<Order | null>;
 
+  flashOrder(order_id: string): Promise<Order | null>;
+
+  regainFlashOrder(ec_order: string): Promise<Order | null>;
+
   createOrder(body: OrderCreateRequest): Promise<Order>;
 
   updateOrder(orderId: number, body: OrderUpdateRequest): Promise<Order>;
 
+  updateCdsOrder(orderId: number, body: OrderUpdateRequest): Promise<Order>;
+
   setOrderStatus(orderId: number, status: OrderStatus, params?: Partial<OrderUpdateRequest>): Promise<Order>;
+
+  setCdsOrderStatus(orderId: number, status: OrderStatus, params?: Partial<OrderUpdateRequest>): Promise<Order>;
 
   purchaseArtwork(artworkId: number, loan?: boolean): Promise<Order>;
 
@@ -216,6 +232,7 @@ const defaultContext: DataContext = {
   getProcessingOrder: () => Promise.reject("Data provider loaded"),
   getExternalOrder: () => Promise.reject("Data provider loaded"),
   getOrder: () => Promise.reject("Data provider loaded"),
+  regainFlashOrder: () => Promise.reject("Data provider loaded"),
   createOrder: () => Promise.reject("Data provider loaded"),
   updateOrder: () => Promise.reject("Data provider loaded"),
   setOrderStatus: () => Promise.reject("Data provider loaded"),
@@ -250,6 +267,10 @@ const defaultContext: DataContext = {
   deleteConversation: () => Promise.reject("Data provider loaded"),
   updatePaymentIntent: () => Promise.reject("Data provider loaded"),
   updatePaymentIntentCds: () => Promise.reject("Data provider loaded"),
+  updateCdsCustomerData: () => Promise.reject("Data provider loaded"),
+  convertCdsOrderToGuest: () => Promise.reject("Data provider loaded"),
+  createPaymentIntentKlarna: () => Promise.reject("Data provider loaded"),
+  createPaymentIntentSantander: () => Promise.reject("Data provider loaded"),
   getCategoryMapValues: () => [],
   getArtistCategories: () => [],
   downpaymentPercentage: () => 0,
@@ -797,9 +818,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
           headers: { Authorization: auth.getAuthToken() },
         });
 
-        localStorage.setItem("CdsOrder", JSON.stringify(resp.data[0]));
+        const order = resp.data[0];
+        if (order) {
+          localStorage.setItem("CdsOrder", JSON.stringify(order));
+          // Salva anche l'order ID per facilitare il recupero
+          localStorage.setItem("cdsOrderId", order.id.toString());
+        }
 
-        return resp.data.length === 1 ? resp.data[0] : null;
+        return resp.data.length === 1 ? order : null;
       },
 
       async getExternalOrder(): Promise<void> {
@@ -821,9 +847,52 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       },
 
       async getOrder(id: number): Promise<Order | null> {
+        // Usa auth token se disponibile, altrimenti usa guest auth
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
         const resp = await axios.get<unknown, AxiosResponse<Order>>(`${baseUrl}/wp-json/wc/v3/orders/${id}`, {
-          headers: { Authorization: auth.getAuthToken() },
+          headers: { Authorization: authHeader },
         });
+        console.log(resp);
+        return resp.data;
+      },
+
+      async flashOrder(order_id: string): Promise<Order | null> {
+        try {
+          // Fetch order using WooCommerce API with order_key as query parameter
+          const orderResp = await axios.get<unknown, AxiosResponse<Order[]>>(
+            `${baseUrl}/wp-json/api/v1/external-order/${order_id}`,{
+              headers: {
+                Authorization: auth.getGuestAuth()
+              }
+            }
+          );
+
+          console.log(orderResp.data);
+
+          if (orderResp.data) {
+            console.log("FlashOrder - Full order data:", orderResp.data);
+            return orderResp.data;
+          }
+
+          console.error("Order not found with order_key:", order_id);
+          return null;
+        } catch (error) {
+          console.error("Error fetching flash order:", error);
+          return null;
+        }
+      },
+
+      async regainFlashOrder(wc_order:string ): Promise<void> {
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
+        const resp = await axios.get(
+          `${baseUrl}/wp-json/wp/v2/regain-flash-order`,
+          {
+            params: {
+              order_id: wc_order,
+            },
+            headers: { Authorization: authHeader },
+          }
+        );
         return resp.data;
       },
 
@@ -844,9 +913,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
           headers: { Authorization: auth.getAuthToken() },
         });
 
-        localStorage.setItem("CdsOrder", JSON.stringify(resp.data[0]));
+        const order = resp.data[0];
+        if (order) {
+          localStorage.setItem("CdsOrder", JSON.stringify(order));
+          // Salva anche l'order ID per facilitare il recupero
+          localStorage.setItem("cdsOrderId", order.id.toString());
+        }
 
-        return resp.data.length === 1 ? resp.data[0] : null;
+        return resp.data.length === 1 ? order : null;
       },
 
       async createOrder(body: OrderCreateRequest): Promise<Order> {
@@ -860,27 +934,63 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         return resp.data;
       },
       async updateOrder(orderId: number, body: OrderUpdateRequest): Promise<Order> {
+        // Usa auth token se disponibile, altrimenti usa guest auth
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
         const resp = await axios.put<OrderUpdateRequest, AxiosResponse<Order>>(
           `${baseUrl}/wp-json/wc/v3/orders/${orderId}`,
           body,
           {
-            headers: { Authorization: auth.getAuthToken() },
+            headers: { Authorization: authHeader },
           },
         );
         return resp.data;
       },
+
+      async updateCdsOrder(orderId: number, body: OrderUpdateRequest): Promise<Order> {
+        // Use guest auth for CDS orders
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
+        const resp = await axios.put<OrderUpdateRequest, AxiosResponse<Order>>(
+          `${baseUrl}/wp-json/wc/v3/orders/${orderId}`,
+          body,
+          {
+            headers: {
+              Authorization: authHeader,
+            },
+          }
+        );
+        return resp.data;
+      },
+
       async setOrderStatus(orderId: number, status: OrderStatus, params = {}): Promise<Order> {
+        // Usa auth token se disponibile, altrimenti usa guest auth
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
         const resp = await axios.put<OrderUpdateRequest, AxiosResponse<Order>>(
           `${baseUrl}/wp-json/wc/v3/orders/${orderId}`,
           { status: status, ...params },
           {
             headers: {
-              Authorization: auth.getAuthToken(),
+              Authorization: authHeader,
             },
           },
         );
         return resp.data;
       },
+
+      async setCdsOrderStatus(orderId: number, status: OrderStatus, params = {}): Promise<Order> {
+        // Use guest auth for CDS orders
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
+        const resp = await axios.put<OrderUpdateRequest, AxiosResponse<Order>>(
+          `${baseUrl}/wp-json/wc/v3/orders/${orderId}`,
+          { status: status, ...params },
+          {
+            headers: {
+              Authorization: authHeader,
+            },
+          }
+        );
+        return resp.data;
+      },
+
       async purchaseArtwork(artworkId: number, loan = false): Promise<Order> {
         // , loan = false
         const customerId = auth.user?.id;
@@ -950,12 +1060,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
             console.error(e);
           }
         }
+        // Usa auth token se disponibile, altrimenti usa guest auth
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
         const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
           `${baseUrl}/wp-json/wc/v3/stripe/payment_intent`,
           body,
           {
             headers: {
-              Authorization: auth.getAuthToken(),
+              Authorization: authHeader,
             },
           },
         );
@@ -976,45 +1088,104 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
             console.error(e);
           }
         }
+        // Usa auth token se disponibile, altrimenti usa guest auth
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
         const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
           `${baseUrl}/wp-json/wc/v3/stripe/cds_payment_intent`,
           body,
           {
             headers: {
-              Authorization: auth.getAuthToken(),
+              Authorization: authHeader,
             },
           },
         );
-        if (resp.data.amount < 150000) {
+        /*if (resp.data.amount < 150000) {
           const updateFee = await this.updatePaymentIntentCds({
             wc_order_key: body.wc_order_key,
             payment_method: "klarna",
           });
           localStorage.setItem(cacheKey, JSON.stringify(updateFee));
           return updateFee;
-        }
+        }*/
         localStorage.setItem(cacheKey, JSON.stringify(resp.data));
         return resp.data;
       },
       async updatePaymentIntent(data: UpdatePaymentIntentRequest): Promise<PaymentIntent> {
+        // Usa auth token se disponibile, altrimenti usa guest auth
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
         const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
           `${baseUrl}/wp-json/wc/v3/stripe/upd_payment_intent_fee`,
           data,
           {
             headers: {
-              Authorization: auth.getAuthToken(),
+              Authorization: authHeader,
             },
           },
         );
         return resp.data;
       },
       async updatePaymentIntentCds(data: UpdatePaymentIntentRequest): Promise<PaymentIntent> {
+        // Usa auth token se disponibile, altrimenti usa guest auth
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
         const resp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
           `${baseUrl}/wp-json/wc/v3/stripe/upd_cds_payment_intent_fee`,
           data,
           {
             headers: {
-              Authorization: auth.getAuthToken(),
+              Authorization: authHeader,
+            },
+          },
+        );
+        return resp.data;
+      },
+      async updateCdsCustomerData(data: { wc_order_key: string; billing: any }): Promise<PaymentIntent> {
+        // Usa auth token se disponibile, altrimenti usa guest auth
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
+        const resp = await axios.post<{ wc_order_key: string; billing: any }, AxiosResponse<PaymentIntent>>(
+          `${baseUrl}/wp-json/wc/v3/stripe/cds_update_customer_data`,
+          data,
+          {
+            headers: {
+              Authorization: authHeader,
+            },
+          },
+        );
+        return resp.data;
+      },
+      async convertCdsOrderToGuest(orderKey: string): Promise<Order> {
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
+        const resp = await axios.post<unknown, AxiosResponse<Order>>(
+          `${baseUrl}/wp-json/api/v1/cds-order/convert-to-guest`,
+          { wc_order_key: orderKey },
+          {
+            headers: {
+              Authorization: authHeader,
+            },
+          },
+        );
+        return resp.data;
+      },
+      async createPaymentIntentKlarna(wc_order_key: string): Promise<PaymentIntent> {
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
+        const resp = await axios.post<{ wc_order_key: string }, AxiosResponse<PaymentIntent>>(
+          `${baseUrl}/wp-json/wc/v3/stripe/cds_payment_intent_klarna`,
+          { wc_order_key },
+          {
+            headers: {
+              Authorization: authHeader,
+            },
+          },
+        );
+        return resp.data;
+      },
+      async createPaymentIntentSantander(wc_order_key: string): Promise<PaymentIntent> {
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
+        const resp = await axios.post<{ wc_order_key: string }, AxiosResponse<PaymentIntent>>(
+          `${baseUrl}/wp-json/wc/v3/stripe/cds_payment_intent_santander`,
+          { wc_order_key },
+          {
+            headers: {
+              Authorization: authHeader,
             },
           },
         );

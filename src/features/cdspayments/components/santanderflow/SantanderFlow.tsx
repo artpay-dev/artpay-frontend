@@ -5,9 +5,13 @@ import { ArrowRight } from "@mui/icons-material";
 import { useAuth } from "../../../../hoc/AuthProvider.tsx";
 import usePaymentStore from "../../stores/paymentStore.ts";
 import { useData } from "../../../../hoc/DataProvider.tsx";
-import BankTransfer from "../banktransfer/BankTransfer.tsx";
 import SantanderIcon from "../../../../components/icons/SantanderIcon.tsx";
 import { calculateOrderSubtotal } from "../../utils/orderCalculations.ts";
+import { Elements } from "@stripe/react-stripe-js";
+import { usePayments } from "../../../../hoc/PaymentProvider.tsx";
+import PaymentForm from "../ui/paymentform/PaymentForm.tsx";
+import GuestBillingForm from "../guestbillingform/GuestBillingForm.tsx";
+import { useEffect } from "react";
 
 type SantanderFlowProps = {
   isLoading?: boolean;
@@ -15,10 +19,27 @@ type SantanderFlowProps = {
 };
 
 const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
-  const { setPaymentData, orderNote } = usePaymentStore();
+  const { setPaymentData, orderNote, paymentIntent, user: storeUser, guestFormCompleted } = usePaymentStore();
   const data = useData();
+  const payments = usePayments();
   const subtotal = order ? calculateOrderSubtotal(order) : 0;
   const { user } = useAuth();
+
+  // Check if guest needs to fill form
+  const isGuest = !storeUser;
+  const hasBillingData = !!(
+    (order?.billing?.first_name && order?.billing?.last_name) ||
+    (order?.billing_address?.first_name && order?.billing_address?.last_name)
+  );
+  const needsGuestForm = isGuest && !hasBillingData && !guestFormCompleted;
+
+  console.log("SantanderFlow - paymentIntent:", paymentIntent);
+  console.log("SantanderFlow - paymentIntent.client_secret:", paymentIntent?.client_secret);
+  console.log("SantanderFlow - payments.stripe:", payments.stripe);
+  console.log("SantanderFlow - orderNote:", orderNote);
+  console.log("SantanderFlow - order?.payment_method:", order?.payment_method);
+  console.log("SantanderFlow - needsGuestForm:", needsGuestForm);
+  console.log("SantanderFlow - Should show Elements:", !!(paymentIntent && paymentIntent.client_secret && payments.stripe));
 
   const event_name = "santander_click";
   const properties = {
@@ -33,6 +54,24 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
     total: order?.total,
   };
 
+  // Auto-create payment intent when user has obtained the loan
+  useEffect(() => {
+    const createPaymentIntentIfNeeded = async () => {
+      if (orderNote && orderNote !== "" && !paymentIntent && order) {
+        console.log("Auto-creating payment intent for completed Santander loan");
+        try {
+          const newPaymentIntent = await data.createPaymentIntentSantander(order.order_key);
+          console.log("Payment intent auto-created:", newPaymentIntent);
+          setPaymentData({ paymentIntent: newPaymentIntent });
+        } catch (error) {
+          console.error("Error auto-creating payment intent:", error);
+        }
+      }
+    };
+
+    createPaymentIntentIfNeeded();
+  }, [orderNote, paymentIntent, order?.order_key]);
+
   const handleDeleteOrder = async () => {
     setPaymentData({
       loading: true,
@@ -40,7 +79,8 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
     try {
       if (!order) return;
 
-      const restoreToOnHold = await data.updateOrder(order?.id, {
+      // Use order_key for CDS orders
+      const restoreToOnHold = await data.updateCdsOrder(order?.id, {
         status: "on-hold",
         payment_method: "bnpl",
         customer_note: "",
@@ -75,13 +115,39 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
       loading: true,
     });
     try {
-      const resp = await data.updateOrder(order?.id, { customer_note: "Prestito ottenuto" });
-      console.log(resp);
+      // Create payment intent for Santander if not exists
+      let updatedPaymentIntent = paymentIntent;
+      if (!paymentIntent) {
+        console.log("Creating payment intent for santander/customer_balance");
+        updatedPaymentIntent = await data.createPaymentIntentSantander(order.order_key);
+        console.log("Payment intent created:", updatedPaymentIntent);
+      }
+
+      // Update order to mark loan as obtained
+      const resp = await data.updateCdsOrder(order?.id, { customer_note: "Prestito ottenuto" });
+      console.log("Order updated with customer note:", resp);
       if (!resp) throw Error("Error updating order");
+
+      // Preserve email and billing_address from current order
+      const preservedEmail = (order as any).email || order.billing_email;
+      const preservedBillingAddress = (order as any).billing_address || order.billing;
+
+      if (preservedEmail) {
+        (resp as any).email = preservedEmail;
+        if (!resp.billing_email) {
+          resp.billing_email = preservedEmail;
+        }
+      }
+
+      if (preservedBillingAddress) {
+        (resp as any).billing_address = preservedBillingAddress;
+      }
+
       setPaymentData({
         readyToPay: true,
         orderNote: resp.customer_note,
         order: resp,
+        paymentIntent: updatedPaymentIntent,
       });
     } catch (error) {
       console.error(error);
@@ -132,7 +198,6 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
                     <div className={"flex flex-col gap-1"}>
                       <span className={"text-secondary"}>N. Ordine</span>
                       <span className={"text-lg"}>{order.id}</span>
-                      <p>Il N. Ordine va inserito nella causale in caso di pagamento con bonifico</p>
                     </div>
                     <div className={"flex flex-col gap-1"}>
                       <span className={"text-secondary"}>Stato</span>
@@ -178,7 +243,49 @@ const SantanderFlow = ({ isLoading, order }: SantanderFlowProps) => {
                   )}
                 {orderNote != "" ? (
                   <PaymentProviderCard backgroundColor={"bg-[#FAFAFB]"}>
-                    <BankTransfer order={order} handleRestoreOrder={handleDeleteOrder}/>
+                    {needsGuestForm ? (
+                      <GuestBillingForm />
+                    ) : (paymentIntent && paymentIntent.client_secret && payments.stripe) ? (
+                      <>
+                        <Elements
+                          stripe={payments.stripe}
+                          options={{
+                            clientSecret: paymentIntent.client_secret,
+                            loader: "always",
+                            appearance: {
+                              theme: "flat",
+                              variables: {
+                                colorBackground: '#FAFAFB',
+                                colorTextSecondary: '#808791',
+                                colorPrimary: '#EA1D25', // Santander red
+                              },
+                              rules: {
+                                ".Block": {
+                                  backgroundColor: "#FAFAFB",
+                                },
+                              },
+                            },
+                            defaultValues: {
+                              billingDetails: {
+                                email: (order as any)?.email || order?.billing_email || '',
+                                name: order?.billing?.first_name && order?.billing?.last_name
+                                  ? `${order.billing.first_name} ${order.billing.last_name}`
+                                  : '',
+                                address: {
+                                  country: order?.billing?.country || 'IT',
+                                },
+                              },
+                            },
+                          }}>
+                          <PaymentForm variant="santander" />
+                        </Elements>
+                      </>
+                    ) : (
+                      <div className="flex justify-center py-4">
+                        <div className="inline-block size-8 border-2 border-primary border-b-transparent rounded-full animate-spin"></div>
+                        <p className="text-sm text-gray-500 mt-2">Caricamento metodo di pagamento...</p>
+                      </div>
+                    )}
                   </PaymentProviderCard>
                 ) : (
                   <PaymentProviderCard backgroundColor={"bg-[#FAFAFB]"}>

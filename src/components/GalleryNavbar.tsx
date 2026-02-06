@@ -51,7 +51,7 @@ const GalleryNavbar: React.FC<GalleryNavbarProps> = ({ onMenuToggle }) => {
     }
   });
 
-  const handlePendingOrder = async (pendingOrder: any) => {
+  /*const handlePendingOrder = async (pendingOrder: any) => {
     if (pendingOrder && pendingOrder.created_via !== "gallery_auction") {
       setShowCheckout(true);
       setHasPendingOrder(true);
@@ -60,7 +60,7 @@ const GalleryNavbar: React.FC<GalleryNavbarProps> = ({ onMenuToggle }) => {
     }
     localStorage.removeItem(STORAGE_KEYS.SHOW_CHECKOUT);
     return false;
-  };
+  };*/
 
   const handleOnHoldOrder = async (orders: any) => {
     if (orders.created_via === "gallery_auction") {

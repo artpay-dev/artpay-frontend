@@ -1,23 +1,28 @@
 import { ReactNode, useEffect, useState } from "react";
 import Logo from "../../../../components/icons/Logo.tsx";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useData } from "../../../../hoc/DataProvider.tsx";
 import { Gallery } from "../../../../types/gallery.ts";
 import { ArticleDraw } from "../../components/ui/articledraw/ArticleDraw.tsx";
 import useArticleStore from "../../stores/articleDrawStore.ts";
 import LogoSa from "../../../../components/LogoSa.tsx";
+import usePaymentStore from "../../stores/paymentStore.ts";
 
 const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
   const { setOpenArticleDraw, openArticleDraw } = useArticleStore();
+  const { order } = usePaymentStore();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [vendor, setVendor] = useState<Gallery | null>(null);
   const data = useData();
+
+  console.log(order)
 
   const getVendor = async () => {
     try {
       //const galleryId = environment == 'production' ? '76' : '21'
 
-      const vendorResp: Gallery = await data.getGallery("76");
+      const vendorResp: Gallery = await data.getGallery("21");
       if (!vendorResp) throw new Error("Vendor not found");
       setVendor(vendorResp);
     } catch (e) {
@@ -53,9 +58,9 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
         <div className={"overlay fixed z-50 inset-0 w-full h-screen bg-zinc-950/65 animate-fade-in"}></div>
       )}
       <div className={` min-h-screen flex flex-col bg-primary`}>
-        <div className={` mx-auto container max-w-md relative bg-white`}>
+        <div className={` mx-auto container max-w-2xl relative bg-white`}>
           <ArticleDraw />
-          <header className={"fixed w-full z-30 top-6 px-2 max-w-md "}>
+          <header className={"fixed w-full z-30 top-6 px-2 max-w-2xl "}>
             <nav className={"p-4 custom-navbar flex justify-center items-center w-full bg-white "}>
               <Logo />
             </nav>
@@ -80,7 +85,7 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
                     <LogoSa />
                   </div>
                 </div>
-                <p className={"mt-20 mb-4 leading-[125%] line-clamp-5 text-balance px-8"}>
+                <p className={"mt-32 mb-4 leading-[125%] line-clamp-5  px-8"}>
                   Stai per completare l’acquisto con artpay, un nuovo servizio selezionato da Sant’Agostino casa d'aste
                   per rendere l’arte più accessibile Rateizza il tuo pagamento in modo sicuro, 100% online scegliendo
                   tra i nostri partner selezionati.
@@ -95,16 +100,70 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
               </article>
             )}
           </section>
-          <main className="flex-1 bg-white pt-6 px-8 pb-50 ">{children}</main>
-          <section className="fixed bottom-0 w-full shadow-custom-top  bg-white rounded-t-3xl py-6 px-8 flex flex-col items-center justify-center space-y-4 md:max-w-md max-w-full">
+          <main className="flex-1 bg-white pt-6 px-8 pb-50">{children}</main>
+          <section className="fixed bottom-0 w-full shadow-custom-top  bg-white rounded-t-3xl py-6 px-8 flex flex-col items-center justify-center space-y-4 md:max-w-2xl max-w-full">
             <button
-              className={"artpay-button-style bg-primary hover:bg-primary-hover text-white"}
+              className={"artpay-button-style bg-primary hover:bg-primary-hover text-white py-3!"}
               onClick={() => {
                 if (openArticleDraw) {
                   document.body.classList.remove("overflow-hidden");
                 }
                 if (!document.body.classList.contains("overflow-hidden")) {
-                  navigate("/acquisto-esterno");
+                  // Recupera l'order ID da varie fonti (in ordine di priorità)
+                  let orderId = null;
+
+                  // 1. Dallo store (se già caricato)
+                  if (order?.id) {
+                    orderId = order.id;
+                  }
+
+                  // 2. Da localStorage cdsOrderId (salvato dopo regain)
+                  if (!orderId) {
+                    const savedOrderId = localStorage.getItem("cdsOrderId");
+                    if (savedOrderId) {
+                      orderId = savedOrderId;
+                    }
+                  }
+
+                  // 3. Dall'URL
+                  if (!orderId) {
+                    const orderIdFromUrl = searchParams.get("order_id");
+                    if (orderIdFromUrl) {
+                      orderId = orderIdFromUrl;
+                    }
+                  }
+
+                  // 4. Da localStorage externalOrderKey (prima della regain)
+                  if (!orderId) {
+                    const orderIdFromStorage = localStorage.getItem("externalOrderKey");
+                    if (orderIdFromStorage) {
+                      orderId = orderIdFromStorage;
+                    }
+                  }
+
+                  // 5. Fallback: prova da localStorage CdsOrder (oggetto completo)
+                  if (!orderId) {
+                    try {
+                      const cdsOrderString = localStorage.getItem("CdsOrder");
+                      if (cdsOrderString) {
+                        const cdsOrder = JSON.parse(cdsOrderString);
+                        if (cdsOrder?.id) {
+                          orderId = cdsOrder.id;
+                        }
+                      }
+                    } catch (e) {
+                      console.error("Error parsing CdsOrder from localStorage:", e);
+                    }
+                  }
+
+                  // Naviga con il parametro order
+                  if (orderId) {
+                    navigate(`/acquisto-esterno?order=${orderId}`);
+                  } else {
+                    console.error("Order ID non trovato in nessuna fonte");
+                    // Naviga comunque, il provider gestirà l'errore
+                    navigate("/acquisto-esterno");
+                  }
                 }
               }}>
               Paga a rate

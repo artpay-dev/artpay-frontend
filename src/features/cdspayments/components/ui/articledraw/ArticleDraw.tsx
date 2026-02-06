@@ -10,7 +10,7 @@ export const ArticleDraw = () => {
     <aside
       className={`${
         openArticleDraw ? "" : "translate-y-full "
-      } py-6 payment-draw shadow-custom-top fixed w-full z-50 rounded-t-3xl bottom-0 h-7/8 bg-white transition-all  max-w-md`}>
+      } py-6 payment-draw shadow-custom-top fixed w-full z-50 rounded-t-3xl bottom-0 h-7/8 bg-white transition-all  max-w-2xl`}>
       <div className={"flex items-center justify-end bg-white  w-full pe-8"}>
         <button
           className={" cursor-pointer bg-gray-100 rounded-full p-1 "}
@@ -129,7 +129,7 @@ export const ArticleDraw = () => {
           </main>
         </article>
       </section>
-      <section className="fixed bottom-0 w-full shadow-custom-top  bg-white rounded-t-3xl py-6 px-8 flex flex-col items-center justify-center space-y-4 md:max-w-md max-w-full">
+      <section className="fixed bottom-0 w-full shadow-custom-top  bg-white rounded-t-3xl py-6 px-8 flex flex-col items-center justify-center space-y-4 md:max-w-2xl max-w-full">
         <button
           className={"artpay-button-style text-primary border border-primary hover:border-primary-hover hover:text-primary-hover cursor-pointer"}
           onClick={() => {

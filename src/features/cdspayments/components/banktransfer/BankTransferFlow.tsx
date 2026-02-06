@@ -116,7 +116,8 @@ const BankTransferFlow = ({
     setCouponError("");
 
     try {
-      const updatedOrder = await data.updateOrder(order.id, {
+      // Use order_key for CDS orders
+      const updatedOrder = await data.updateCdsOrder(order.id, {
         coupon_lines: [{ code: couponCode.trim() }],
       });
 
@@ -141,7 +142,8 @@ const BankTransferFlow = ({
     setIsCouponApplying(true);
 
     try {
-      const updatedOrder = await data.updateOrder(order.id, {
+      // Use order_key for CDS orders
+      const updatedOrder = await data.updateCdsOrder(order.id, {
         coupon_lines: [],
       });
 
@@ -168,7 +170,8 @@ const BankTransferFlow = ({
 
     try {
       // Update order with note, status, and billing info
-      const updatedOrder = await data.updateOrder(order.id, {
+      // Use order_key for CDS orders
+      const updatedOrder = await data.updateCdsOrder(order.id, {
         status: "processing",
         customer_note: "Documentazione caricata, in attesa di conferma da artpay",
         billing: user?.billing?.invoice_type

@@ -14,49 +14,58 @@ import { useData } from "../../../../hoc/DataProvider.tsx";
 import PaymentProviderCard from "../../components/ui/paymentprovidercard/PaymentProviderCard.tsx";
 import { useNavigate } from "../../../../utils.ts";
 import { clearLocalStorage } from "../../utils.ts";
+import UserRegisteredModal from "../../components/userregisteredmodal/UserRegisteredModal.tsx";
 
 // Constants
 const INVOICE_TYPE = {
   RECEIPT: "receipt",
-  NONE: ""
+  NONE: "",
 } as const;
 
 const ORDER_STATUS = {
   PROCESSING: "processing",
   ON_HOLD: "on-hold",
-  CANCELLED: "cancelled"
+  CANCELLED: "cancelled",
 } as const;
 
 const PAYMENT_METHOD = {
-  BNPL: "bnpl"
+  BNPL: "bnpl",
 } as const;
 
-
 const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
-  const { order, vendor, user, setPaymentData, paymentMethod, loading } = usePaymentStore();
+  const { order, vendor, user, setPaymentData, paymentMethod, loading, showUserRegisteredModal } = usePaymentStore();
   const [shippingDataEditing, setShippingDataEditing] = useState(false);
+
+  console.log("CdsTransactionLayout - showUserRegisteredModal:", showUserRegisteredModal);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<UserProfile>();
   const data = useData();
   const navigate = useNavigate();
 
   // Derived state
-  const requireInvoice = useMemo(() => 
-    user?.billing?.invoice_type === INVOICE_TYPE.RECEIPT, 
-    [user?.billing?.invoice_type]
+  const requireInvoice = useMemo(
+    () => user?.billing?.invoice_type === INVOICE_TYPE.RECEIPT,
+    [user?.billing?.invoice_type],
   );
 
-  const showBillingSection = useMemo(() => 
-    paymentMethod !== PAYMENT_METHOD.BNPL && 
-    paymentMethod !== "" &&
-    paymentMethod !== null &&
-    (order?.status === ORDER_STATUS.ON_HOLD),
-    [paymentMethod, order?.status]
+  const showBillingSection = useMemo(
+    () =>
+      paymentMethod !== PAYMENT_METHOD.BNPL &&
+      paymentMethod !== "" &&
+      paymentMethod !== null &&
+      order?.status === ORDER_STATUS.ON_HOLD,
+    [paymentMethod, order?.status],
   );
 
   const isOrderLoading = !order;
 
   const getUserProfile = useCallback(async () => {
+    // Solo se l'utente è nello store (autenticato), carica il profilo
+    if (!user) {
+      console.log("User not authenticated, skipping profile load");
+      return;
+    }
+
     try {
       const resp = await data.getUserProfile();
       if (!resp) throw new Error("Error getting user profile");
@@ -64,73 +73,73 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error("Failed to get user profile:", error);
     }
-  }, [data]);
+  }, [data, user]);
 
   const handleCancelPayment = useCallback(async () => {
     if (!order) return;
-    
+
     setPaymentData({ loading: true });
-    
+
     try {
-      const cancelOrder = await data.updateOrder(order.id, {
+      // Use numeric order ID for WooCommerce API
+      const cancelOrder = await data.updateCdsOrder(order.id, {
         status: ORDER_STATUS.CANCELLED,
       });
-      
+
       if (!cancelOrder) throw new Error("Failed to cancel order");
-      
+
       console.log("Order cancelled successfully:", cancelOrder.id);
-      
+
       setPaymentData({
         order: cancelOrder,
         paymentStatus: ORDER_STATUS.CANCELLED,
         paymentMethod: INVOICE_TYPE.NONE,
         orderNote: INVOICE_TYPE.NONE,
-        loading: false
+        loading: false,
       });
-      
+
       clearLocalStorage(order);
       navigate("/");
-      
     } catch (error) {
       console.error("Failed to cancel payment:", error);
       setPaymentData({ loading: false });
     }
   }, [order, data, setPaymentData, navigate]);
 
+  const handleProfileDataSubmit = useCallback(
+    async (formData: BillingData) => {
+      if (!user?.id) return;
 
-  const handleProfileDataSubmit = useCallback(async (formData: BillingData) => {
-    if (!user?.id) return;
-    
-    setSaving(true);
-    
-    try {
-      const updatedProfile = await data.updateUserProfile({ billing: formData });
-      if (!updatedProfile) throw new Error("Failed to update user profile");
-      
-      setPaymentData({ user: updatedProfile });
-      setShippingDataEditing(false);
-      
-    } catch (error) {
-      console.error("Failed to update profile data:", error);
-    } finally {
-      setSaving(false);
-    }
-  }, [user?.id, data, setPaymentData]);
+      setSaving(true);
+
+      try {
+        const updatedProfile = await data.updateUserProfile({ billing: formData });
+        if (!updatedProfile) throw new Error("Failed to update user profile");
+
+        setPaymentData({ user: updatedProfile });
+        setShippingDataEditing(false);
+      } catch (error) {
+        console.error("Failed to update profile data:", error);
+      } finally {
+        setSaving(false);
+      }
+    },
+    [user?.id, data, setPaymentData],
+  );
 
   const handleInvoiceToggle = useCallback(async () => {
     setSaving(true);
-    
+
     try {
       const newInvoiceType = requireInvoice ? INVOICE_TYPE.NONE : INVOICE_TYPE.RECEIPT;
-      
-      const updatedProfile = await data.updateUserProfile({ 
-        billing: { invoice_type: newInvoiceType } 
+
+      const updatedProfile = await data.updateUserProfile({
+        billing: { invoice_type: newInvoiceType },
       });
-      
+
       if (!updatedProfile) throw new Error("Failed to update invoice preference");
-      
+
       setPaymentData({ user: updatedProfile });
-      
     } catch (error) {
       console.error("Failed to update invoice setting:", error);
     } finally {
@@ -141,7 +150,6 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     void getUserProfile();
   }, [getUserProfile]);
-
 
   return (
     <CdsTransactionsProvider>
@@ -210,18 +218,22 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
                 </PaymentProviderCard>
               </>
             )}
-            <div className={"flex flex-col items-center space-y-6 mt-12"}>
-              <p className={"leading-[125%] text-center"}>
-                Se interrompi la procedura con artpay il tuo lotto verrà rimosso dal carrello. 
-                Potrai aggiungerlo di nuovo in un secondo momento.
-              </p>
-              <button
-                className={"text-[#EC6F7B] artpay-button-style bg-[#FAFAFB] disabled:cursor-not-allowed disabled:opacity-65"}
-                onClick={handleCancelPayment}
-                disabled={loading}>
-                Elimina Transazione
-              </button>
-            </div>
+            {order?.status !== "completed" && (
+                <div className={"flex flex-col items-center space-y-6 mt-12"}>
+                  <p className={"leading-[125%] text-center"}>
+                    Se interrompi la procedura con artpay il tuo lotto verrà rimosso dal carrello. Potrai aggiungerlo di
+                    nuovo in un secondo momento.
+                  </p>
+                  <button
+                    className={
+                      "text-[#EC6F7B] artpay-button-style bg-[#FAFAFB] disabled:cursor-not-allowed disabled:opacity-65"
+                    }
+                    onClick={handleCancelPayment}
+                    disabled={loading}>
+                    Elimina Transazione
+                  </button>
+                </div>
+              )}
             {vendor && <VendorDetails vendor={vendor} />}
           </main>
         </div>
@@ -254,6 +266,7 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
           </section>
         </footer>
       </div>
+      {showUserRegisteredModal && !user && <UserRegisteredModal />}
     </CdsTransactionsProvider>
   );
 };

@@ -9,14 +9,34 @@ import PaymentForm from "../paymentform/PaymentForm.tsx";
 import { Elements } from "@stripe/react-stripe-js";
 import { usePayments } from "../../../../../hoc/PaymentProvider.tsx";
 import { calculateArtpayFee, calculatePaymentGatewayFee } from "../../../utils/orderCalculations.ts";
+import GuestBillingForm from "../../guestbillingform/GuestBillingForm.tsx";
 
 const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<PaymentProviderCardProps>) => {
   const payments = usePayments();
-  const { order, setPaymentData, paymentIntent } = usePaymentStore();
+  const { order, setPaymentData, paymentIntent, user, guestFormCompleted } = usePaymentStore();
   const [fee, setFee] = useState<number>(0);
   const [totalWithFees, setTotalWithFees] = useState<number>(0);
   const data = useData();
   const quote = totalWithFees / 3;
+
+  // Check if guest needs to fill form
+  const isGuest = !user;
+  const hasBillingData = !!(
+    (order?.billing?.first_name && order?.billing?.last_name) ||
+    (order?.billing_address?.first_name && order?.billing_address?.last_name)
+  );
+  const needsGuestForm = isGuest && !hasBillingData && !guestFormCompleted;
+
+  console.log("KlarnaCard - isGuest:", isGuest);
+  console.log("KlarnaCard - hasBillingData:", hasBillingData);
+  console.log("KlarnaCard - order?.billing:", order?.billing);
+  console.log("KlarnaCard - order?.billing_address:", order?.billing_address);
+  console.log("KlarnaCard - order?.email:", order?.email);
+  console.log("KlarnaCard - order?.billing_email:", order?.billing_email);
+  console.log("KlarnaCard - guestFormCompleted:", guestFormCompleted);
+  console.log("KlarnaCard - needsGuestForm:", needsGuestForm);
+  console.log("KlarnaCard - order?.payment_method:", order?.payment_method);
+  console.log("KlarnaCard - paymentIntent:", paymentIntent);
 
   const handlingKlarnaSelection = async (): Promise<void> => {
     if(!order) {
@@ -29,20 +49,36 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
       });
       try {
 
+        // Add Klarna fee to the payment intent
         const updatePayment = await data.updatePaymentIntentCds({
           wc_order_key: order?.order_key,
-          payment_method: "klarna",
+          add_klarna_fee: true,
         });
 
-        console.log("updatePayment", updatePayment);
+        console.log("updatePayment with Klarna fee", updatePayment);
         if (!updatePayment) throw new Error("Error during updating payment intent");
         console.log('update payment intent', updatePayment);
 
 
-        const updateOrder = await data.updateOrder(order.id, { payment_method: "klarna" });
+        // Use numeric order ID for WooCommerce API
+        const updateOrder = await data.updateCdsOrder(order.id, { payment_method: "klarna" });
         if (!updateOrder) throw new Error("Error during updating payment intent");
         console.log('update order', updateOrder);
 
+        // Preserve email and billing_address from current order
+        const preservedEmail = (order as any).email || order.billing_email;
+        const preservedBillingAddress = (order as any).billing_address || order.billing;
+
+        if (preservedEmail) {
+          (updateOrder as any).email = preservedEmail;
+          if (!updateOrder.billing_email) {
+            updateOrder.billing_email = preservedEmail;
+          }
+        }
+
+        if (preservedBillingAddress) {
+          (updateOrder as any).billing_address = preservedBillingAddress;
+        }
 
         setPaymentData({
           order: updateOrder,
@@ -60,28 +96,28 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
       }
   };
 
-  const createPaymentIntent = async () => {
-    if(!order) {
-      console.log("order not found");
-      return;
-    }
-
-    try {
-      const createPayment = await data.createPaymentIntentCds({ wc_order_key: order?.order_key, payment_method: 'klarna' });
-      if (!createPayment) throw new Error("Errore nella creazione del payment intent");
-      console.log("Primo payment intent creato", createPayment);
-
-      setPaymentData({
-        paymentIntent: createPayment,
-      })
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   useEffect(() => {
-    if (!paymentIntent) createPaymentIntent();
-  }, [paymentIntent, createPaymentIntent]);
+    const createPaymentIntent = async () => {
+      if(!order || paymentIntent) {
+        return;
+      }
+
+      try {
+        console.log("Creating payment intent for Klarna with order_key:", order.order_key);
+        const createPayment = await data.createPaymentIntentKlarna(order.order_key);
+        if (!createPayment) throw new Error("Errore nella creazione del payment intent");
+        console.log("Payment intent created for Klarna:", createPayment);
+
+        setPaymentData({
+          paymentIntent: createPayment,
+        });
+      } catch (error) {
+        console.error("Error creating payment intent:", error);
+      }
+    };
+
+    createPaymentIntent();
+  }, [order?.order_key, paymentIntent]);
 
   useEffect(() => {
     if (order && subtotal) {
@@ -117,28 +153,51 @@ const KlarnaCard = ({ subtotal, disabled, paymentSelected = true }: Partial<Paym
       subtitle={"Paga in 3 rate fino a €2.500,00"}>
       {paymentSelected ? (
         <>
-          {order?.payment_method == "klarna" && paymentIntent ? (
-            <Elements
-              stripe={payments.stripe}
-              options={{
-                clientSecret: paymentIntent?.client_secret || undefined,
-                loader: "always",
-                appearance: {
-                  theme: "flat",
-                  variables: {
-                    colorBackground: '#fff',
-                    colorTextSecondary: '#808791'
-                  },
-                  rules: {
-                    ".Block": {
-                      backgroundColor: "#FFE9EE",
+          {order?.payment_method == "klarna" ? (
+            // Klarna selected - check if guest form needed
+            needsGuestForm ? (
+              <GuestBillingForm />
+            ) : paymentIntent ? (
+              <>
+                {console.log("Rendering Elements with clientSecret:", paymentIntent?.client_secret)}
+                <Elements
+                  stripe={payments.stripe}
+                  options={{
+                    clientSecret: paymentIntent?.client_secret || undefined,
+                    loader: "always",
+                    appearance: {
+                      theme: "flat",
+                      variables: {
+                        colorBackground: '#fff',
+                        colorTextSecondary: '#808791',
+                        colorPrimary: '#FFB3C7', // Klarna pink
+                      },
+                      rules: {
+                        ".Block": {
+                          backgroundColor: "#FFE9EE",
+                        },
+                      },
                     },
-                  },
-                },
-
-              }}>
-              <PaymentForm />
-            </Elements>
+                    defaultValues: {
+                      billingDetails: {
+                        email: (order as any)?.email || order?.billing_email || '',
+                        name: order?.billing?.first_name && order?.billing?.last_name
+                          ? `${order.billing.first_name} ${order.billing.last_name}`
+                          : '',
+                        address: {
+                          country: order?.billing?.country || 'IT',
+                        },
+                      },
+                    },
+                  }}>
+                  <PaymentForm variant="klarna" />
+                </Elements>
+              </>
+            ) : (
+              <div className="flex justify-center py-4">
+                <div className="inline-block size-8 border-2 border-primary border-b-transparent rounded-full animate-spin"></div>
+              </div>
+            )
           ) : (
             order &&
             Number(order?.total) <= 2500 && (

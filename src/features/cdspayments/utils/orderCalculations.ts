@@ -8,8 +8,8 @@ import { Order } from "../../../types/order.ts";
 export const calculateOrderSubtotal = (order: Order): number => {
   // Se l'ordine ha line_items, è un ordine normale
   if (order.line_items && order.line_items.length > 0) {
-    const lineItemsTotal = order.line_items.reduce((acc, item) => acc + Number(item.total), 0);
-    const taxTotal = order.line_items.reduce((acc, item) => acc + Number(item.total_tax), 0);
+    const lineItemsTotal = order.line_items.reduce((acc, item) => acc + Number(item.total || 0), 0);
+    const taxTotal = order.line_items.reduce((acc, item) => acc + Number(item.total_tax || 0), 0);
     return (lineItemsTotal + taxTotal) / 1.04;
   }
 
@@ -18,21 +18,28 @@ export const calculateOrderSubtotal = (order: Order): number => {
   const auctionItem = order.fee_lines?.find(
     (fee: any) => !fee.name.toLowerCase().includes("commissione") && !fee.name.toLowerCase().includes("fee")
   );
-  if (auctionItem) {
+  if (auctionItem && auctionItem.total) {
     // Il campo 'total' è già con IVA inclusa
-    return Number(auctionItem.total);
+    const total = Number(auctionItem.total);
+    if (!isNaN(total)) return total;
   }
 
   // Fallback: cerca nei meta_data e aggiungi IVA al 5%
   const baseTotal = order.meta_data?.find((meta) => meta.key === "cds_auction_base_total");
-  if (baseTotal) {
+  if (baseTotal && baseTotal.value) {
     const baseTotalValue = Number(baseTotal.value);
     // Aggiungi IVA al 5%
-    return baseTotalValue * 1.05;
+    if (!isNaN(baseTotalValue)) return baseTotalValue * 1.05;
   }
 
   // Ultima opzione: calcola dal totale
-  return Number(order.total) / 1.04;
+  if (order.total) {
+    const total = Number(order.total);
+    if (!isNaN(total)) return total / 1.04;
+  }
+
+  console.error("Cannot calculate order subtotal, returning 0", order);
+  return 0;
 };
 
 /**
@@ -45,17 +52,18 @@ export const calculateArtpayFee = (order: Order, subtotal?: number): number => {
   const artpayFeeLine = order.fee_lines?.find((fee: any) =>
     fee.name.toLowerCase().includes("commissione artpay")
   );
-  if (artpayFeeLine) {
+  if (artpayFeeLine && artpayFeeLine.total) {
     // Il campo 'total' è già con IVA inclusa
-    return Number(artpayFeeLine.total);
+    const total = Number(artpayFeeLine.total);
+    if (!isNaN(total)) return total;
   }
 
   // Fallback: cerca nei meta_data e aggiungi IVA al 5%
   const artpayFeeMeta = order.meta_data?.find((meta) => meta.key === "artpay_fee");
-  if (artpayFeeMeta) {
+  if (artpayFeeMeta && artpayFeeMeta.value) {
     const feeValue = Number(artpayFeeMeta.value);
     // Aggiungi IVA al 5%
-    return feeValue * 1.05;
+    if (!isNaN(feeValue)) return feeValue * 1.05;
   }
 
   // Fallback finale: calcola come 4% del subtotale
@@ -72,9 +80,10 @@ export const calculatePaymentGatewayFee = (order: Order): number => {
     fee.name.toLowerCase().includes("payment-gateway-fee")
   );
 
-  if (gatewayFee) {
+  if (gatewayFee && gatewayFee.total) {
     // Il campo 'total' è già con IVA inclusa
-    return Number(gatewayFee.total);
+    const total = Number(gatewayFee.total);
+    if (!isNaN(total)) return total;
   }
 
   return 0;
@@ -108,8 +117,8 @@ export const calculateDisplayPrice = (order: Order): number => {
   // Per ordini normali con line_items
   if (order.line_items && order.line_items.length > 0) {
     // Somma il totale dei line items con IVA inclusa
-    const lineItemsTotal = order.line_items.reduce((acc, item) => acc + Number(item.total), 0);
-    const taxTotal = order.line_items.reduce((acc, item) => acc + Number(item.total_tax), 0);
+    const lineItemsTotal = order.line_items.reduce((acc, item) => acc + Number(item.total || 0), 0);
+    const taxTotal = order.line_items.reduce((acc, item) => acc + Number(item.total_tax || 0), 0);
     return lineItemsTotal + taxTotal;
   }
 
@@ -118,15 +127,23 @@ export const calculateDisplayPrice = (order: Order): number => {
   const auctionItem = order.fee_lines?.find(
     (fee: any) => !fee.name.toLowerCase().includes("commissione") && !fee.name.toLowerCase().includes("fee")
   );
-  if (auctionItem) {
-    return Number(auctionItem.total);
+  if (auctionItem && auctionItem.total) {
+    const total = Number(auctionItem.total);
+    if (!isNaN(total)) return total;
   }
 
   // Fallback
   const baseTotal = order.meta_data?.find((meta) => meta.key === "cds_auction_base_total");
-  if (baseTotal) {
-    return Number(baseTotal.value) * 1.05;
+  if (baseTotal && baseTotal.value) {
+    const value = Number(baseTotal.value);
+    if (!isNaN(value)) return value * 1.05;
   }
 
-  return Number(order.total);
+  if (order.total) {
+    const total = Number(order.total);
+    if (!isNaN(total)) return total;
+  }
+
+  console.error("Cannot calculate display price, returning 0", order);
+  return 0;
 };

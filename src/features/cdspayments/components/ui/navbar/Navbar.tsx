@@ -1,12 +1,18 @@
 import LogoFastArtpay from "../../../../../components/icons/LogoFastArtpay.tsx";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../../../hoc/AuthProvider.tsx";
 
 const Navbar = ({handleClick} : {handleClick?: () => void}) => {
   const navigate = useNavigate();
+  const auth = useAuth();
 
 
   const handleBackToArtpay = () => {
-    navigate("/dashboard");
+    if (auth.isAuthenticated) {
+      navigate("/dashboard");
+    } else {
+      navigate("/");
+    }
   }
 
   return (

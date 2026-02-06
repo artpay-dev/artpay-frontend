@@ -13,7 +13,7 @@ type OrderDetailsProps = {
 
 const OrderSummary = ({vendor, order} : OrderDetailsProps ) => {
   const {orderNote} = usePaymentStore();
-  const orderDesc = order?.meta_data.filter((data) => data.key == "original_order_desc").map((data) => data.value);
+  const orderDesc = order?.meta_data?.find((data) => data.key == "original_order_desc")?.value;
   const subtotal = order ? calculateOrderSubtotal(order) : 0;
 
 

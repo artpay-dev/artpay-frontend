@@ -19,13 +19,29 @@ const FailedPaymentCard = () => {
     try {
       if (!order) return;
 
-      const restoreToOnHold = await data.updateOrder(order?.id, {
+      // Use numeric order ID for WooCommerce API
+      const restoreToOnHold = await data.updateCdsOrder(order?.id, {
         status: "on-hold",
         payment_method: "bnpl",
         customer_note: "",
       });
       if (!restoreToOnHold) throw Error("Error updating order to on-hold");
       console.log("Order restored to on-hold");
+
+      // Preserve email and billing_address from current order
+      const preservedEmail = (order as any).email || order.billing_email;
+      const preservedBillingAddress = (order as any).billing_address || order.billing;
+
+      if (preservedEmail) {
+        (restoreToOnHold as any).email = preservedEmail;
+        if (!restoreToOnHold.billing_email) {
+          restoreToOnHold.billing_email = preservedEmail;
+        }
+      }
+
+      if (preservedBillingAddress) {
+        (restoreToOnHold as any).billing_address = preservedBillingAddress;
+      }
 
       setPaymentData({
         order: restoreToOnHold,

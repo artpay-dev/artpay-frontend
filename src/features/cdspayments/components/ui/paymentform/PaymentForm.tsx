@@ -5,7 +5,11 @@ import { useEnvDetector } from "../../../../../utils.ts";
 import usePaymentStore from "../../../stores/paymentStore.ts";
 import { useData } from "../../../../../hoc/DataProvider.tsx";
 
-const PaymentForm = () => {
+type PaymentFormProps = {
+  variant?: 'klarna' | 'santander' | 'default';
+};
+
+const PaymentForm = ({ variant = 'default' }: PaymentFormProps) => {
   const {setPaymentData} = usePaymentStore()
 
   const data = useData();
@@ -16,14 +20,46 @@ const PaymentForm = () => {
 
   const environment = useEnvDetector();
 
+  // Extract billing details from order
+  const billingEmail = (order as any)?.email || order?.billing_email || '';
+  const billingName = order?.billing?.first_name && order?.billing?.last_name
+    ? `${order.billing.first_name} ${order.billing.last_name}`
+    : '';
+
+  console.log("PaymentForm rendered");
+  console.log("PaymentForm - stripe:", stripe);
+  console.log("PaymentForm - elements:", elements);
+  console.log("PaymentForm - order:", order);
+  console.log("PaymentForm - variant:", variant);
+  console.log("PaymentForm - billingEmail:", billingEmail);
+  console.log("PaymentForm - billingName:", billingName);
+
   const [message, setMessage] = useState<string | undefined>("");
   const [isLoading, setIsLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
 
+  // Variant-specific styling
+  const buttonConfig = {
+    klarna: {
+      className: "artpay-button-style bg-klarna hover:bg-klarna-hover mt-6 disabled:opacity-65 py-3!",
+      text: "Paga ora",
+    },
+    santander: {
+      className: "artpay-button-style bg-[#EA1D25] hover:bg-[#c91920] text-white mt-6 disabled:opacity-65 py-3!",
+      text: "Completa il pagamento",
+    },
+    default: {
+      className: "artpay-button-style bg-primary hover:bg-primary-hover text-white mt-6 disabled:opacity-65 py-3!",
+      text: "Paga ora",
+    },
+  };
+
+  const currentButton = buttonConfig[variant] || buttonConfig.default;
+
   const returnUrl:Record<any, any> = {
-    local: "http://localhost:5173/acquisto-esterno?order=" + order?.id,
-    staging: "https://staging2.artpay.art/acquisto-esterno?order=" + order?.id,
-    production: "http://artpay.art/acquisto-esterno?order=" + order?.id,
+    local: "http://localhost:5173/acquisto-esterno?order=" + order?.order_key,
+    staging: "https://staging2.artpay.art/acquisto-esterno?order=" + order?.order_key,
+    production: "http://artpay.art/acquisto-esterno?order=" + order?.order_key,
   };
 
   const handleDeleteOrder = async () => {
@@ -33,13 +69,29 @@ const PaymentForm = () => {
     try {
       if (!order) return;
 
-      const restoreToOnHold = await data.updateOrder(order?.id, {
+      // Use numeric order ID for WooCommerce API
+      const restoreToOnHold = await data.updateCdsOrder(order?.id, {
         status: "on-hold",
         payment_method: "bnpl",
         customer_note: "",
       });
       if (!restoreToOnHold) throw Error("Error updating order to on-hold");
       console.log("Order restore to on-hold");
+
+      // Preserve email and billing_address from current order
+      const preservedEmail = (order as any).email || order.billing_email;
+      const preservedBillingAddress = (order as any).billing_address || order.billing;
+
+      if (preservedEmail) {
+        (restoreToOnHold as any).email = preservedEmail;
+        if (!restoreToOnHold.billing_email) {
+          restoreToOnHold.billing_email = preservedEmail;
+        }
+      }
+
+      if (preservedBillingAddress) {
+        (restoreToOnHold as any).billing_address = preservedBillingAddress;
+      }
 
       setPaymentData({
         order: restoreToOnHold,
@@ -71,11 +123,25 @@ const PaymentForm = () => {
 
     setIsLoading(true);
 
+    console.log("Confirming payment with billing details:", {
+      email: billingEmail,
+      name: billingName,
+    });
+
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
         // Make sure to change this to your payment completion page
         return_url: environment ? returnUrl[environment] : returnUrl.local,
+        payment_method_data: {
+          billing_details: {
+            email: billingEmail,
+            name: billingName,
+            address: {
+              country: order?.billing?.country || 'IT',
+            },
+          },
+        },
       },
     });
 
@@ -95,20 +161,31 @@ const PaymentForm = () => {
 
   return (
     <form id="payment-form" onSubmit={handleSubmit}>
+      {variant === 'santander' && (
+        <div className="mb-4 p-4 bg-[#FFF5F5] border border-[#EA1D25]/20 rounded-lg">
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-gray-900">
+              Completa il pagamento con il prestito Santander
+            </p>
+            <p className="text-xs text-gray-600">
+              Inserisci il tuo indirizzo email, riceverai le istruzioni con i dati bancari e l'importo esatto da trasferire per completare il pagamento del tuo ordine.
+            </p>
+          </div>
+        </div>
+      )}
       <PaymentElement id="payment-element" options={{ layout: "accordion" }} />
-      <AgreementCheckBox isChecked={isChecked} handleChange={handleCheckBox} />
       <div className={'space-y-6'}>
         <button
-          disabled={isLoading || !stripe || !elements || !isChecked}
+          disabled={isLoading || !stripe || !elements }
           id="submit"
-          className={"artpay-button-style bg-klarna hover:bg-klarna-hover mt-6 disabled:opacity-65"}>
+          className={currentButton.className}>
         <span id="button-text">
           {isLoading ? (
             <div
-              className="size-4 border border-tertiary border-b-transparent rounded-full animate-spin"
+              className="size-4 border border-white border-b-transparent rounded-full animate-spin"
               id="spinner"></div>
           ) : (
-            "Paga ora"
+            currentButton.text
           )}
         </span>
         </button>
