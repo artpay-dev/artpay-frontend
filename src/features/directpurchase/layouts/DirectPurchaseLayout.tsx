@@ -245,6 +245,13 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
 
   const isReedemPurchase = pendingOrder?.status === "on-hold" && pendingOrder?.created_via === "rest-api";
 
+  // Extract deposit metadata for deposit orders
+  const depositMetadata = pendingOrder?.created_via === "artpay_deposit_api" ? {
+    depositAmount: parseFloat(pendingOrder.meta_data.find(m => m.key === "_adp_deposit_amount")?.value || "0"),
+    balanceAmount: parseFloat(pendingOrder.meta_data.find(m => m.key === "_adp_balance_amount")?.value || "0"),
+    depositStatus: pendingOrder.meta_data.find(m => m.key === "_adp_deposit_status")?.value
+  } : null;
+
 
 
   /*useEffect(() => {
@@ -302,6 +309,17 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
           {orderMode === "loan" ? (
             <h2 className="text-4xl font-normal flex flex-col mb-13">
               <span className={" leading-[125%] text-primary font-light"}>Prenota</span>
+            </h2>
+          ) : orderMode === "deposit" ? (
+            <h2 className="text-4xl font-normal flex flex-col mb-13">
+              {pendingOrder ? (
+                <>
+                  <span className={" leading-[125%] text-primary font-light"}>Completa pagamento</span>
+                  <span className={"leading-[125%]  text-2xl"}>Saldo opera - Ordine N.{pendingOrder.id}</span>
+                </>
+              ) : (
+                <span className="size-12 my-5 block border-2 border-white border-b-transparent rounded-full animate-spin"></span>
+              )}
             </h2>
           ) : (
             <h2 className="text-4xl font-normal flex flex-col mb-13">
@@ -378,7 +396,7 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
                   </div>
                 ) : (
                   <div className={"w-full rounded-sm bg-[#FED1824D] p-4 space-y-2 flex flex-col"}>
-                    {pendingOrder?.status !== "pending" && pendingOrder?.status !== "processing" && !pendingOrder?.meta_data.find(k => k.key === "_question_id")?.value && (
+                    {pendingOrder?.status !== "pending" && pendingOrder?.status !== "processing" && !pendingOrder?.meta_data.find(k => k.key === "_question_id")?.value && pendingOrder?.created_via != "artpay_deposit_api" && (
                       <span className={"px-2 py-1 rounded-full text-xs font-medium bg-[#6576EE] text-white w-fit"}>
                         {pendingOrder?.status}
                       </span>
@@ -396,41 +414,69 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
                     </Typography>
                     <Typography variant="body1">{artworks[0]?.galleryName}</Typography>
                   </div>
-                  <div>
-                    <Typography variant="body1" color="textSecondary" className={"block"} mb={0.5}>
-                      Prezzo
-                    </Typography>
-                    <Typography variant="body1">
-                      € {subtotal.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </Typography>
-                  </div>
-                  {(orderMode === "loan" || isReedemPurchase) && (
-                    <div>
-                      <Typography variant="body1" color="textSecondary" className={"block"} mb={0.5}>
-                        Caparra
-                      </Typography>
-                      <Typography variant="body1">
-                        €{" "}
-                        {(subtotal * 0.05).toLocaleString("it-IT", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </Typography>
-                      <p className={"mt-2 text-[#D49B38]"}>
-                        Prenota l'opera per 7 giorni. La caparra ti verrà rimborsata al completamento del pagamento.
-                      </p>
-                      <div className={" text-secondary space-y-2 mt-6"}>
-                        <p>Come funziona?</p>
-                        <ol className={"list-decimal ps-5 space-y-2"}>
-                          <li>
-                            Prenota l'opera per 7 giorni versando solo il 5%. (Se non concludi l'acquisto, ti
-                            rimborsiamo tutto.
-                          </li>
-                          <li>Richiedi il prestito. Soggetto ad approvazione dell'istituto di credito.</li>
-                          <li>Concludi l'acquisto e transazione su artpay.</li>
-                        </ol>
+                  {orderMode === "deposit" && depositMetadata ? (
+                    <div className="space-y-4">
+                      <div className="w-full rounded-sm bg-[#E3F2FD] p-4 space-y-3">
+                        <div className="flex justify-between items-center">
+                          <Typography variant="body1" color="textSecondary">Totale opera</Typography>
+                          <Typography variant="body1" fontWeight={500}>
+                            € {subtotal.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </Typography>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <Typography variant="body1" sx={{ color: '#42B396' }}>Acconto pagato ✓</Typography>
+                          <Typography variant="body1" fontWeight={500} sx={{ color: '#42B396' }}>
+                            € {depositMetadata.depositAmount.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </Typography>
+                        </div>
+                        <div className="h-px bg-[#2196F3] my-2" />
+                        <div className="flex justify-between items-center">
+                          <Typography variant="subtitle1" fontWeight={700}>Saldo da pagare</Typography>
+                          <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#2196F3' }}>
+                            € {depositMetadata.balanceAmount.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </Typography>
+                        </div>
                       </div>
                     </div>
+                  ) : (
+                    <>
+                      <div>
+                        <Typography variant="body1" color="textSecondary" className={"block"} mb={0.5}>
+                          Prezzo
+                        </Typography>
+                        <Typography variant="body1">
+                          € {subtotal.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </Typography>
+                      </div>
+                      {(orderMode === "loan" || isReedemPurchase) && (
+                        <div>
+                          <Typography variant="body1" color="textSecondary" className={"block"} mb={0.5}>
+                            Caparra
+                          </Typography>
+                          <Typography variant="body1">
+                            €{" "}
+                            {(subtotal * 0.05).toLocaleString("it-IT", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </Typography>
+                          <p className={"mt-2 text-[#D49B38]"}>
+                            Prenota l'opera per 7 giorni. La caparra ti verrà rimborsata al completamento del pagamento.
+                          </p>
+                          <div className={" text-secondary space-y-2 mt-6"}>
+                            <p>Come funziona?</p>
+                            <ol className={"list-decimal ps-5 space-y-2"}>
+                              <li>
+                                Prenota l'opera per 7 giorni versando solo il 5%. (Se non concludi l'acquisto, ti
+                                rimborsiamo tutto.
+                              </li>
+                              <li>Richiedi il prestito. Soggetto ad approvazione dell'istituto di credito.</li>
+                              <li>Concludi l'acquisto e transazione su artpay.</li>
+                            </ol>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -480,15 +526,15 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
           )}
 
           {children}
-          {(pendingOrder?.payment_method.includes("Acconto") || pendingOrder?.status == "processing") && !pendingOrder?.customer_note.includes("Richiesta di cancellazione") && (
+          {(pendingOrder?.payment_method.includes("Acconto") || pendingOrder?.status == "processing") && !pendingOrder?.customer_note.includes("Richiesta di cancellazione") && orderMode !== "deposit" && (
             <div className={"flex flex-col items-center space-y-6 mt-12"}>
               {pendingOrder?.status === "processing" ? (
                 <p className={"leading-[125%] text-center"}>
-                  Se interrompi la procedura con artpay costo dell’opera ti verrà rimborsato.
+                  Se interrompi la procedura con artpay costo dell'opera ti verrà rimborsato.
                 </p>
               ) : (
                 <p className={"leading-[125%] text-center"}>
-                  Se interrompi la procedura con artpay l’opera non sarà più prenotata a tuo nome. Il costo dell’acconto
+                  Se interrompi la procedura con artpay l'opera non sarà più prenotata a tuo nome. Il costo dell'acconto
                   ti verrà rimborsato.
                 </p>
               )}
@@ -502,10 +548,10 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
               </button>
             </div>
           )}
-          {(pendingOrder && !pendingOrder?.payment_method.includes("Acconto") && pendingOrder.status !== "processing" ) && !pendingOrder?.customer_note.includes("Richiesta di cancellazione") && orderMode !== "loan" && (
+          {(pendingOrder && !pendingOrder?.payment_method.includes("Acconto") && pendingOrder.status !== "processing" ) && !pendingOrder?.customer_note.includes("Richiesta di cancellazione") && orderMode !== "loan" && orderMode !== "deposit" && (
             <div className={"flex flex-col items-center space-y-6 mt-12"}>
               <p className={"leading-[125%] text-center text-balance"}>
-                Se interrompi la procedura con artpay l’opera non sarà più disponibile nel tuo carrello.
+                Se interrompi la procedura con artpay l'opera non sarà più disponibile nel tuo carrello.
               </p>
               <button
                 className={

@@ -58,6 +58,8 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ title = "Opere acquistate
 
     if (order?.created_via === "gallery_auction") {
       navigate(`/acquisto-esterno?order=${orderId}`);
+    } else if (order?.created_via === "artpay_deposit_api") {
+      navigate(`/saldo-opera/${orderId}`);
     } else {
       navigate(`/completa-acquisto/${orderId}`);
     }

@@ -81,6 +81,13 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
   const [couponError, setCouponError] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
 
+  // Extract deposit metadata for deposit orders
+  const depositMetadata = pendingOrder?.created_via === "artpay_deposit_api" ? {
+    depositAmount: parseFloat(pendingOrder.meta_data.find((m: any) => m.key === "_adp_deposit_amount")?.value || "0"),
+    balanceAmount: parseFloat(pendingOrder.meta_data.find((m: any) => m.key === "_adp_balance_amount")?.value || "0"),
+    depositStatus: pendingOrder.meta_data.find((m: any) => m.key === "_adp_deposit_status")?.value
+  } : null;
+
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
       setCouponError("Inserisci un codice coupon");
@@ -205,6 +212,8 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
     }
   };
 
+  console.log(paymentIntent)
+
   if (!paymentIntent) return <StripePaymentSkeleton />;
 
   return (
@@ -325,7 +334,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
         <div className={"space-y-4 py-6 border-t border-gray-950/20"}>
           <div className="flex items-center justify-between">
             <span className={"font-semibold"}>
-              <span>Prezzo</span>
+              <span>{depositMetadata ? "Saldo da pagare" : "Prezzo"}</span>
               <br />
               <span className={"text-secondary text-sm font-light"}>Incluse commissioni artpay</span>
             </span>
@@ -333,14 +342,14 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
               €&nbsp;
               {paymentMethod == "klarna"
                 ? (
-                    +(pendingOrder?.total || 0) -
+                    (depositMetadata ? depositMetadata.balanceAmount : +(pendingOrder?.total || 0)) -
                     +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total || 0) -
                     +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total_tax || 0)
                   ).toLocaleString("it-IT", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })
-                : (Number(pendingOrder?.total) || 0).toLocaleString("it-IT", {
+                : (depositMetadata ? depositMetadata.balanceAmount : Number(pendingOrder?.total) || 0).toLocaleString("it-IT", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
@@ -362,7 +371,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
                   €&nbsp;
                   {paymentMethod == "klarna"
                     ? (
-                        +(pendingOrder?.total || 0) -
+                        (depositMetadata ? depositMetadata.balanceAmount : +(pendingOrder?.total || 0)) -
                         +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total || 0) -
                         +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total_tax || 0)
                       ).toFixed(2)
@@ -388,7 +397,12 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
               </div>
               <div className="flex items-center justify-between">
                 <span className={"font-bold"}>Totale</span>
-                <span>€&nbsp;{((paymentIntent?.amount || 0) / 100).toFixed(2)}</span>
+                <span>
+                  €&nbsp;
+                  {(
+                    (depositMetadata ? depositMetadata.balanceAmount : +(pendingOrder?.total || 0))
+                  ).toFixed(2)}
+                </span>
               </div>
             </>
           )}

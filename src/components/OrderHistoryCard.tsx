@@ -25,6 +25,11 @@ export interface OrderHistoryCardProps {
   email?: string;
   onQuoteAccepted?: () => void;
   onQuoteRejected?: () => void;
+  // Deposit-specific props
+  depositAmount?: number;
+  balanceAmount?: number;
+  created_via?: string;
+  depositStatus?: string;
 }
 
 const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
@@ -47,6 +52,10 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
   email,
   onQuoteAccepted,
   onQuoteRejected,
+  depositAmount,
+  balanceAmount,
+  created_via,
+  depositStatus,
 }) => {
   if (status != "completed")
     return (
@@ -70,6 +79,10 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
         email={email}
         onQuoteAccepted={onQuoteAccepted}
         onQuoteRejected={onQuoteRejected}
+        depositAmount={depositAmount}
+        balanceAmount={balanceAmount}
+        created_via={created_via}
+        depositStatus={depositStatus}
       />
     );
 

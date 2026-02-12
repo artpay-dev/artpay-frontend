@@ -60,7 +60,9 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
       const returnUrl: Record<any, any> = {
         local:
           (orderMode == "loan"
-            ? "http://localhost:5173/opera-bloccata"
+            ? "http://localhost:5173/opera-bloccata" :
+            orderMode == "deposit" ?
+              "http://localhost:5173/deposit?"
             : "http://localhost:5173/acquisto?order=" + pendingOrder?.id),
         staging:
           (orderMode == "loan"

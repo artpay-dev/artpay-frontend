@@ -27,7 +27,7 @@ export interface DirectPurchaseState {
   paymentIntent?: PaymentIntent;
   artworks: ArtworkCardProps[];
   galleries: Gallery[];
-  orderMode: "standard" | "loan" | "redeem" | "onHold";
+  orderMode: "standard" | "loan" | "redeem" | "onHold" | "deposit";
 
   // Actions
   setDirectPurchaseData: (data: Partial<DirectPurchaseState>) => void;

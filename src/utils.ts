@@ -213,6 +213,11 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
     m.key.toLowerCase() === "reservation_expiry"
   )?.value;
 
+  // Extract deposit metadata
+  const depositAmount = order.meta_data.find((m) => m.key === "_adp_deposit_amount")?.value;
+  const balanceAmount = order.meta_data.find((m) => m.key === "_adp_balance_amount")?.value;
+  const depositStatus = order.meta_data.find((m) => m.key === "_adp_deposit_status")?.value;
+
   let datePaid = "";
   if (order.date_paid) {
     try {
@@ -226,7 +231,7 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
   return {
     id: order.id,
     formattePrice: `€ ${order.total}`,
-    orderType: order.created_via == "rest-api" ? "Galleria" : order?.meta_data.find(k => k.key === "_question_id")?.value ? "Artmatch" : "Casa D'Asta",
+    orderType: order.created_via == "rest-api" ? "Galleria" : order?.meta_data.find(k => k.key === "_question_id")?.value ? "Artmatch" : order.created_via == "artpay_deposit_api" ? "Acconto + Finanziamento" : "Casa D'Asta",
     galleryName: galleryName || "",
     purchaseDate: datePaid,
     dateCreated: order.date_created,
@@ -242,6 +247,11 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
     quoteConditions: quoteConditions,
     orderKey: order.order_key,
     email: order.billing?.email || "",
+    // Deposit-specific props
+    depositAmount: depositAmount ? parseFloat(depositAmount) : undefined,
+    balanceAmount: balanceAmount ? parseFloat(balanceAmount) : undefined,
+    created_via: order.created_via,
+    depositStatus: depositStatus,
   };
 };
 
