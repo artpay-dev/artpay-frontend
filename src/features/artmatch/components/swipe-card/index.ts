@@ -1,0 +1,1 @@
+export { default as SwipeCard } from "./swipe-card";

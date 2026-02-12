@@ -170,7 +170,7 @@ const DirectPurchaseTransactionsProvider = ({ children }: DirectPurchaseTransact
         data.getArtwork(productId).then(async (artworkResp: Artwork) => {
           if (!artworkResp) throw new Error("Artwork not found");
 
-          const galleryResp: Gallery = await data.getGallery(artworkResp.vendor);
+          const galleryResp: Gallery = await data.getGallery(artworkResp.vendor as string);
           if (!galleryResp) throw new Error("Gallery not found");
 
           return { type: 'galleries', data: [galleryResp] };

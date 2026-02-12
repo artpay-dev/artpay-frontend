@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "../components/DefaultLayout.tsx";
 import { useData } from "../hoc/DataProvider.tsx";
-import { Box, Button, Divider, Grid, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { galleryToGalleryItem, getDefaultPaddingX } from "../utils.ts";
+import { Box, Button, CircularProgress, Divider, Grid, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { galleryToGalleryItem, getDefaultPaddingX, getVendorId } from "../utils.ts";
 import CloseIcon from "../components/icons/CloseIcon.tsx";
 import ChatList, { ChatMessage } from "../components/ChatList.tsx";
 import { Message, UserProfile } from "../types/user.ts";
@@ -39,7 +39,10 @@ const Messages: React.FC<MessagesProps> = ({}) => {
       data.getChatHistory().then(async (groupedMessages) => {
         const chatHistory: ChatMessage[] = await Promise.all(
           groupedMessages.map(async (msg) => {
-            const gallery = galleryToGalleryItem(await data.getGallery(msg.product.vendor));
+            const vendorId = getVendorId(msg.product);
+            const gallery = vendorId
+              ? galleryToGalleryItem(await data.getGallery(vendorId))
+              : galleryToGalleryItem(undefined);
             const mappedMsg: ChatMessage = {
               date: msg.lastMessageDate.toDate(),
               excerpt: msg.product.name,
@@ -66,7 +69,10 @@ const Messages: React.FC<MessagesProps> = ({}) => {
     try {
       const selectedArtwork = await data.getArtwork(msg.id.toString());
       setSelectedArtwork(selectedArtwork);
-      const selectedGallery = await data.getGallery(selectedArtwork.vendor);
+      const vendorId = getVendorId(selectedArtwork);
+      const selectedGallery = vendorId
+        ? await data.getGallery(vendorId)
+        : undefined;
       setSelectedGallery(galleryToGalleryItem(selectedGallery));
 
       const messages = await data.getProductChatHistory(msg.id);
@@ -152,16 +158,17 @@ const Messages: React.FC<MessagesProps> = ({}) => {
             )
           ) : (
             <Grid item sx={{ minHeight: { xs: 0 } }} xs={12}>
-              {chatHistory.length > 0 ?
-                (
+              {!ready ? (
+                <Box display="flex" justifyContent="center" alignItems="center" minHeight="40vh">
+                  <CircularProgress />
+                </Box>
+              ) : chatHistory.length > 0 ? (
                 <ChatList onClick={handleSelectChat} messages={chatHistory} />
-              ) :
-                (
-                  <div className={"emptyBoxMessages"}>
-                    <Typography variant={"subtitle1"} marginTop={4}>Nessun messaggio qui, per ora.</Typography>
-                  </div>
-                )
-              }
+              ) : (
+                <div className={"emptyBoxMessages"}>
+                  <Typography variant={"subtitle1"} marginTop={4}>Nessun messaggio qui, per ora.</Typography>
+                </div>
+              )}
             </Grid>
           )}
         </Grid>
@@ -210,7 +217,11 @@ const Messages: React.FC<MessagesProps> = ({}) => {
             )}
           </Box>
           <Box height={"100%"}>
-            {chatHistory.length > 0 ? (
+            {!ready ? (
+              <Box display="flex" justifyContent="center" alignItems="center" minHeight="40vh">
+                <CircularProgress />
+              </Box>
+            ) : chatHistory.length > 0 ? (
               <ChatContent
                 ready={chatReady}
                 messages={loadedMessages}

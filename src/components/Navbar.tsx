@@ -12,6 +12,7 @@ type MenuLinks = {
 };
 
 const menuLinks: MenuLinks[] = [
+  { label: "Feed", href: "/dashboard", requireAuth: true },
   { label: "Chi siamo", href: "/chi-siamo", requireAuth: false },
   { label: "Gallerie", href: "/gallerie", requireAuth: false },
   { label: "Guide", href: "/guide", requireAuth: false },

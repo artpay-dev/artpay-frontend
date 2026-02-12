@@ -321,6 +321,12 @@ const ProfileDropdown: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
               I miei ordini
             </button>
             <button
+              onClick={() => handleMenuItemClick("/profile/history-quotes")}
+              className="w-full text-left px-4 py-2 text-base hover:underline transition-all cursor-pointer"
+            >
+              Offerte dedicate
+            </button>
+            <button
               onClick={() => handleMenuItemClick("/profile/shipping-invoice-settings")}
               className="w-full text-left px-4 py-2 text-base hover:underline transition-all cursor-pointer "
             >
@@ -485,6 +491,9 @@ const MobileMenu: React.FC<{
                 </li>
                 <li>
                   <NavLink to={"/profile/history-orders"}>I miei ordini</NavLink>
+                </li>
+                <li>
+                  <NavLink to={"/profile/history-quotes"}>Offerte dedicate</NavLink>
                 </li>
                 <li>
                   <NavLink to={"/profile/shipping-invoice-settings"}>Fatturazione e spedizione</NavLink>

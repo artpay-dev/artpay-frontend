@@ -29,6 +29,15 @@ const PaymentsSelection = ({ paymentMethod, onChange }: PaymentsSelectionProps) 
     }
   };
 
+  const klarnaAvailable = isPaymentMethodAvailable("klarna");
+
+  const hasQuestionId = Boolean(
+    pendingOrder?.meta_data.find(k => k.key === "_question_id")?.value
+  );
+
+  const showKlarna = klarnaAvailable && (orderMode !== "redeem" || hasQuestionId);
+
+
   const paymentMethods = {
     Santander: {
       value: "Santander",
@@ -272,7 +281,7 @@ const PaymentsSelection = ({ paymentMethod, onChange }: PaymentsSelectionProps) 
       contentPadding={0}
       contentPaddingMobile={0}>
       <div className="space-y-8">
-        {orderMode !== "redeem" && isPaymentMethodAvailable("klarna") && (
+        {showKlarna && (
           <div className="space-y-4">
             <h3>Pagamento dilazionato</h3>
             <PaymentRadioSelector
@@ -283,7 +292,7 @@ const PaymentsSelection = ({ paymentMethod, onChange }: PaymentsSelectionProps) 
           </div>
         )}
         <div className="space-y-4">
-          {orderMode != "redeem" && <h3>Unica soluzione</h3>}
+          {showKlarna && <h3>Unica soluzione</h3>}
             <PaymentRadioSelector method={paymentMethods.card} selectedMethod={paymentMethod} onMethodChange={onChange} />
             <PaymentRadioSelector
               method={paymentMethods.bank_transfer}

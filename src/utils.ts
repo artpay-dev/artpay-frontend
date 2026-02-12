@@ -117,7 +117,7 @@ export const artworkToGalleryItem = (
   return {
     id: artwork.id.toString(),
     artistName: getPropertyFromMetadata(artwork.meta_data, "artist")?.artist_name,
-    galleryId: artwork.vendor,
+    galleryId: artwork.vendor as string,
     galleryName: artwork.store_name,
     price: +artwork.price,
     size: cardSize,
@@ -134,7 +134,7 @@ export const artworkToOrderItem = (artwork: Artwork, valueMatcher?: categoryValu
   return {
     id: artwork.id.toString(),
     artistName: getPropertyFromMetadata(artwork.meta_data, "artist")?.artist_name,
-    galleryId: artwork.vendor,
+    galleryId: artwork.vendor as string,
     galleryName: artwork.store_name,
     price: +artwork.price,
     title: artwork.name,
@@ -175,20 +175,36 @@ export const galleryToGalleryContent = (gallery: Gallery): GalleryContent => ({
   productsCount: gallery.products_count,
   foundationYear: gallery.shop?.foundation_year
 });
-export const galleryToGalleryItem = (gallery: Gallery): GalleryCardProps => ({
-  id: gallery.id,
-  title: gallery.display_name,
-  slug: gallery.shop.slug,
-  subtitle: `${gallery.address?.city}`,
-  imgUrl: normalizeImageUrl(gallery.shop.banner),
-  logoUrl: normalizeImageUrl(gallery.shop.image)
-});
+export const galleryToGalleryItem = (gallery: Gallery | null | undefined): GalleryCardProps => {
+  if (!gallery) {
+    return {
+      id: 0,
+      title: "",
+      slug: "",
+      subtitle: "",
+      imgUrl: "",
+      logoUrl: ""
+    };
+  }
+
+  return {
+    id: gallery.id,
+    title: gallery.display_name,
+    slug: gallery.shop?.slug || "",
+    subtitle: `${gallery.address?.city || ""}`,
+    imgUrl: normalizeImageUrl(gallery.shop?.banner),
+    logoUrl: normalizeImageUrl(gallery.shop?.image)
+  };
+};
 
 export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProps => {
   const orderDesc = order.meta_data.find((m) => m.key.toLowerCase() === "original_order_desc")?.value
   const lineItem = order.line_items.length ? order.line_items[0] : undefined;
   const galleryName = lineItem?.meta_data.find((m) => m.key?.toLowerCase() === "sold by" || m.key?.toLowerCase() === "venduto da")?.display_value;
+  const quoteNotes = order?.meta_data.find((m) => m.key === "_quote_notes")?.value || "";
+  const quoteConditions = order?.meta_data.find((m) => m.key === "_quote_conditions")?.value  || "";
 
+  console.log(order)
   // Cerca la data di scadenza nei meta_data
   const expiryDateMeta = order.meta_data.find((m) =>
     m.key.toLowerCase() === "_expiry_date" ||
@@ -210,7 +226,7 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
   return {
     id: order.id,
     formattePrice: `€ ${order.total}`,
-    orderType: order.created_via == "rest-api" ? "Galleria" : "Casa D'asta",
+    orderType: order.created_via == "rest-api" ? "Galleria" : order?.meta_data.find(k => k.key === "_question_id")?.value ? "Artmatch" : "Casa D'Asta",
     galleryName: galleryName || "",
     purchaseDate: datePaid,
     dateCreated: order.date_created,
@@ -221,7 +237,11 @@ export const orderToOrderHistoryCardProps = (order: Order): OrderHistoryCardProp
     status: order.status,
     imgSrc: lineItem?.image?.src || "",
     expiryDate: expiryDateMeta,
-    customer_note: order.customer_note
+    customer_note: order.customer_note,
+    quoteNotes: quoteNotes,
+    quoteConditions: quoteConditions,
+    orderKey: order.order_key,
+    email: order.billing?.email || "",
   };
 };
 
@@ -253,6 +273,30 @@ export const getArtworkDimensions = (artwork?: Artwork): string => {
   return `${artwork?.dimensions.width || 0} x ${artwork?.dimensions.height || 0} x ${
     artwork?.dimensions.length || 0
   } cm`;
+};
+
+/**
+ * Extracts vendor ID from an Artwork object
+ * Handles both object and string vendor formats
+ */
+export const getVendorId = (artwork?: Artwork): string | undefined => {
+  if (!artwork || !artwork.vendor) {
+    return undefined;
+  }
+
+  const vendor = artwork.vendor;
+
+  // If vendor is an object, return the id as string
+  if (typeof vendor === 'object' && 'id' in vendor) {
+    return vendor.id.toString();
+  }
+
+  // If vendor is already a string, return it
+  if (typeof vendor === 'string') {
+    return vendor;
+  }
+
+  return undefined;
 };
 
 function ctaFromLink(htmlString: string): Cta | undefined {
@@ -417,9 +461,9 @@ export const newOrder = (artwork: Artwork) => {
           {
             id: 19859,
             key: "_vendor_id",
-            value: artwork.vendor,
+            value: artwork.vendor as string,
             display_key: "_vendor_id",
-            display_value: artwork.vendor
+            display_value: artwork.vendor as string,
           },
           {
             id: 19860,

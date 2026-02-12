@@ -127,7 +127,7 @@ const CdsTransactionsProvider = ({ children }: { children: ReactNode }) => {
         data.getArtwork(productId).then(async (artworkResp: Artwork) => {
           if (!artworkResp) throw new Error("Artwork not found");
           
-          const vendorResp: Gallery = await data.getGallery(artworkResp.vendor);
+          const vendorResp: Gallery = await data.getGallery(artworkResp.vendor as string);
           if (!vendorResp) throw new Error("Vendor not found");
           
           return { type: 'vendor', data: vendorResp };

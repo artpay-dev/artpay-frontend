@@ -15,6 +15,7 @@ import ProfileStepsList from "../components/ProfileStepsList.tsx";
 import { UserProfile } from "../types/user.ts";
 import { Close } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
+import ArtMatch from "../components/ArtMatch.tsx";
 //import ArtMatch from "../components/ArtMatch.tsx";
 
 const Skeleton = () => {
@@ -161,29 +162,31 @@ const DashboardPage = () => {
         </h2>
       </section>
       <section className={"space-y-24 mb-22"}>
-        {isStepProgressVisible && (
-          <div className="relative flex flex-col md:flex-row gap-6 bg-[#fafafb] pt-10 p-6 rounded-lg">
-             <IconButton
-               onClick={handleCloseStepProgress}
-               className={'!absolute right-2 top-2'}
-               size="medium"
-               aria-label="close"
-             >
-               <Close fontSize="small" />
-             </IconButton>
-            <StepProgress
-              currentStep={calculateCompletionSteps(profile)}
-              totalSteps={4}
-              title="Completamento del profilo"
-            />
-            <ProfileStepsList
-              profile={profile}
-              favoriteArtworks={favoriteArtworksIds}
-              favoriteGalleries={favoriteGalleriesIds}
-            />
-          </div>
-        )}
-        {/*<ArtMatch />*/}
+        <div className="flex flex-col justify-between gap-6 md:flex-row">
+          <ArtMatch />
+          {isStepProgressVisible && (
+            <div className="relative flex flex-col gap-6 bg-[#fafafb] pt-10 p-6 rounded-lg max-w-sm h-full">
+              <IconButton
+                onClick={handleCloseStepProgress}
+                className={'!absolute right-2 top-2'}
+                size="medium"
+                aria-label="close"
+              >
+                <Close fontSize="small" />
+              </IconButton>
+              <StepProgress
+                currentStep={calculateCompletionSteps(profile)}
+                totalSteps={4}
+                title="Completamento del profilo"
+              />
+              <ProfileStepsList
+                profile={profile}
+                favoriteArtworks={favoriteArtworksIds}
+                favoriteGalleries={favoriteGalleriesIds}
+              />
+            </div>
+          )}
+        </div>
         <div>
           {loading ? (
             <>

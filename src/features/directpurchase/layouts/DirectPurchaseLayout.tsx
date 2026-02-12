@@ -378,7 +378,7 @@ const DirectPurchaseLayout = ({ children }: { children: ReactNode }) => {
                   </div>
                 ) : (
                   <div className={"w-full rounded-sm bg-[#FED1824D] p-4 space-y-2 flex flex-col"}>
-                    {pendingOrder?.status !== "pending" && pendingOrder?.status !== "processing" && (
+                    {pendingOrder?.status !== "pending" && pendingOrder?.status !== "processing" && !pendingOrder?.meta_data.find(k => k.key === "_question_id")?.value && (
                       <span className={"px-2 py-1 rounded-full text-xs font-medium bg-[#6576EE] text-white w-fit"}>
                         {pendingOrder?.status}
                       </span>

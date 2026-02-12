@@ -63,7 +63,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+     
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     usePHP({

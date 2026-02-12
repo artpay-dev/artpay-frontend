@@ -33,6 +33,24 @@ const PaymentDraw = () => {
     }
   };
 
+  const handleRefreshOrders = async () => {
+    // Ricarica la lista degli ordini dopo l'accettazione/rifiuto
+    if (!user) return;
+
+    try {
+      const listOrders = await data.listOrders({
+        status: ["processing", "completed", "on-hold", "failed", "pending", "quote"],
+        customer: Number(user.id) || 18,
+      });
+
+      if (!listOrders) return;
+
+      setOrders(listOrders.filter(order => order.created_via !== "mvx_vendor_order").filter(order => order.status !== "completed"));
+    } catch (e) {
+      console.error("Errore durante il refresh degli ordini:", e);
+    }
+  };
+
   useEffect(() => {
     const getOrders = async () => {
       setLoading(true);
@@ -99,6 +117,12 @@ const PaymentDraw = () => {
                       status={formattedOrder.status}
                       expiryDate={formattedOrder.expiryDate}
                       onClick={handleOrderClick}
+                      orderKey={formattedOrder.orderKey}
+                      email={formattedOrder.email}
+                      quoteNotes={formattedOrder.quoteNotes}
+                      quoteConditions={formattedOrder.quoteConditions}
+                      onQuoteAccepted={handleRefreshOrders}
+                      onQuoteRejected={handleRefreshOrders}
                     />
                   </li>
                 );
