@@ -122,7 +122,7 @@ export const useDirectPurchaseData = () => {
                 console.error("Error creating payment intent for loan:", e);
               }
             } else {
-              const supportedMethods = ["card", "klarna", "paypal", "revolut_pay", "google_pay"];
+              const supportedMethods = ["card", "klarna", "paypal", "paypal_paylater", "revolut_pay", "google_pay"];
 
               if (order.payment_method && supportedMethods.includes(order.payment_method)) {
                 updateState({ paymentMethod: order.payment_method });
@@ -202,7 +202,7 @@ export const useDirectPurchaseData = () => {
             // Per gli orderMode non-loan, controlla se l'utente ha già selezionato un metodo
             const currentPaymentMethod = useDirectPurchaseStore.getState().paymentMethod;
             const currentPaymentIntent = useDirectPurchaseStore.getState().paymentIntent;
-            const supportedMethods = ["card", "klarna", "paypal", "revolut_pay", "google_pay"];
+            const supportedMethods = ["card", "klarna", "paypal", "paypal_paylater", "revolut_pay", "google_pay"];
 
             // NON sovrascrivere se l'utente ha già selezionato un metodo e c'è un payment intent
             if (currentPaymentMethod && currentPaymentIntent && supportedMethods.includes(currentPaymentMethod)) {
@@ -290,7 +290,7 @@ export const useDirectPurchaseData = () => {
           // Per gli orderMode non-loan, controlla se l'utente ha già selezionato un metodo
           const currentPaymentMethod = useDirectPurchaseStore.getState().paymentMethod;
           const currentPaymentIntent = useDirectPurchaseStore.getState().paymentIntent;
-          const supportedMethods = ["card", "klarna", "paypal", "revolut_pay", "google_pay"];
+          const supportedMethods = ["card", "klarna", "paypal", "paypal_paylater", "revolut_pay", "google_pay"];
 
           // NON sovrascrivere se l'utente ha già selezionato un metodo e c'è un payment intent
           if (currentPaymentMethod && currentPaymentIntent && supportedMethods.includes(currentPaymentMethod)) {

@@ -84,6 +84,8 @@ export interface DataContext {
 
   createPaymentIntentKlarna: (wc_order_key: string) => Promise<PaymentIntent>;
 
+  createPaymentIntentPaypalPaylater: (wc_order_key: string) => Promise<PaymentIntent>;
+
   createPaymentIntentSantander: (wc_order_key: string) => Promise<PaymentIntent>;
 
   getGallery(id: string): Promise<Gallery>;
@@ -270,6 +272,7 @@ const defaultContext: DataContext = {
   updateCdsCustomerData: () => Promise.reject("Data provider loaded"),
   convertCdsOrderToGuest: () => Promise.reject("Data provider loaded"),
   createPaymentIntentKlarna: () => Promise.reject("Data provider loaded"),
+  createPaymentIntentPaypalPaylater: () => Promise.reject("Data provider loaded"),
   createPaymentIntentSantander: () => Promise.reject("Data provider loaded"),
   getCategoryMapValues: () => [],
   getArtistCategories: () => [],
@@ -1169,6 +1172,19 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
         const resp = await axios.post<{ wc_order_key: string }, AxiosResponse<PaymentIntent>>(
           `${baseUrl}/wp-json/wc/v3/stripe/cds_payment_intent_klarna`,
+          { wc_order_key },
+          {
+            headers: {
+              Authorization: authHeader,
+            },
+          },
+        );
+        return resp.data;
+      },
+      async createPaymentIntentPaypalPaylater(wc_order_key: string): Promise<PaymentIntent> {
+        const authHeader = auth.isAuthenticated ? auth.getAuthToken() : auth.getGuestAuth();
+        const resp = await axios.post<{ wc_order_key: string }, AxiosResponse<PaymentIntent>>(
+          `${baseUrl}/wp-json/wc/v3/stripe/cds_payment_intent_paypal_paylater`,
           { wc_order_key },
           {
             headers: {

@@ -1,6 +1,7 @@
 import PaymentProviderCard from "../ui/paymentprovidercard/PaymentProviderCard.tsx";
 import KlarnaIcon from "../ui/paymentprovidercard/KlarnaIcon.tsx";
 import SantanderIcon from "../../../../components/icons/SantanderIcon.tsx";
+import PayPal from "../../../../components/icons/custom/PayPal.tsx";
 
 const Payments = () => {
   return (
@@ -28,9 +29,16 @@ const Payments = () => {
           <li className={"w-full"}>
             <PaymentProviderCard
               backgroundColor={"bg-[#FFE9EE]"}
-              cardTitle={"klarna"}
+              cardTitle={"Klarna"}
               icon={<KlarnaIcon />}
               subtitle={"Pagamento in 3 rate fino a €2.500,00. Inclusi i costi del finanziamento."}></PaymentProviderCard>
+          </li>
+          <li className={"w-full"}>
+            <PaymentProviderCard
+              backgroundColor={"bg-[#EBF4FF]"}
+              cardTitle={"PayPal - Paga in 3 rate"}
+              icon={<PayPal />}
+              subtitle={"Tre rate senza interessi. Da €30 a €2.000. Inclusi i costi del servizio."}></PaymentProviderCard>
           </li>
           <li className={"w-full flex"}>
             <PaymentProviderCard

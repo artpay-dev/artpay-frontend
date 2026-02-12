@@ -2,6 +2,7 @@ import { Order } from "../../../../types/order.ts";
 import SkeletonCard from "../ui/paymentprovidercard/SkeletonCard.tsx";
 import KlarnaCard from "../ui/klarnacard/KlarnaCard.tsx";
 import SantanderCard from "../ui/santandercard/SantanderCard.tsx";
+import PaypalPaylaterCard from "../ui/paypalpaylatercard/PaypalPaylaterCard.tsx";
 import { calculateOrderSubtotal } from "../../utils/orderCalculations.ts";
 
 type PaymentMethodProps = {
@@ -42,6 +43,16 @@ const PaymentMethodsList = ({ order, isLoading }: PaymentMethodProps) => {
               <KlarnaCard
                 subtotal={subtotal}
                 disabled={Number(order.total) > 2500 || isLoading}
+              />
+            )}
+          </li>
+          <li className={"w-full"}>
+            {!order || isLoading ? (
+              <SkeletonCard />
+            ) : (
+              <PaypalPaylaterCard
+                subtotal={subtotal}
+                disabled={Number(order.total) < 30 || Number(order.total) > 2000 || isLoading}
               />
             )}
           </li>

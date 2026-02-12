@@ -467,6 +467,7 @@ const DirectPurchaseView = () => {
             />
           );
           case "paypal":
+        case "paypal_paylater":
           return (
             <PaymentCard
               orderMode={orderMode}
@@ -553,6 +554,7 @@ const DirectPurchaseView = () => {
           />
         );
         case "paypal":
+        case "paypal_paylater":
         return (
           <PaymentCard
             orderMode={orderMode}

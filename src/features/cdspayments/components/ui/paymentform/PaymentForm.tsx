@@ -6,7 +6,7 @@ import usePaymentStore from "../../../stores/paymentStore.ts";
 import { useData } from "../../../../../hoc/DataProvider.tsx";
 
 type PaymentFormProps = {
-  variant?: 'klarna' | 'santander' | 'default';
+  variant?: 'klarna' | 'santander' | 'paypal_paylater' | 'default';
 };
 
 const PaymentForm = ({ variant = 'default' }: PaymentFormProps) => {
@@ -47,6 +47,10 @@ const PaymentForm = ({ variant = 'default' }: PaymentFormProps) => {
     santander: {
       className: "artpay-button-style bg-[#EA1D25] hover:bg-[#c91920] text-white mt-6 disabled:opacity-65 py-3!",
       text: "Completa il pagamento",
+    },
+    paypal_paylater: {
+      className: "artpay-button-style bg-[#009CDE] hover:bg-[#007ab5] text-white mt-6 disabled:opacity-65 py-3!",
+      text: "Paga ora",
     },
     default: {
       className: "artpay-button-style bg-primary hover:bg-primary-hover text-white mt-6 disabled:opacity-65 py-3!",

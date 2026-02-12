@@ -41,6 +41,7 @@ export const useDirectPurchaseUtils = () => {
         Santander: "Santander",
         bank_transfer: "Bonifico",
         paypal: "PayPal",
+        paypal_paylater: "PayPal - Paga in 3 rate",
         revolut_pay: "Revolut Pay",
         google_pay: "Google Pay",
       };
