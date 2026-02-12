@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import logo_artpay from "../../../../assets/images/logo.svg";
 import { useNavigate } from "react-router-dom";
 import { Favorite, Menu } from "@mui/icons-material";
-import { IconButton, useMediaQuery, useTheme } from "@mui/material";
+import { IconButton, useMediaQuery, useTheme, Box } from "@mui/material";
 import { SidePanel } from "../../components";
 
 const BackButton = () => {
@@ -19,11 +19,32 @@ const BackButton = () => {
 };
 
 const ArtMatchLabel = () => (
-  <div className={"bg-tertiary px-2 flex items-center justify-center w-fit ms-2 relative"}>
+  <Box
+    className={"bg-tertiary px-2 flex items-center justify-center w-fit ms-2"}
+    sx={{ position: "relative" }}>
     <Favorite className="text-white" />
     <span className={"text-white font-medium"}>ArtMatch</span>
-    <span className={'text-xs block absolute bottom-0 right-0 text-white shadow -rotate-10 bg-linear-to-tr from-primary to-blue-600 border border-primary px-3 py-1 rounded-full translate-y-3/4 translate-x-1/3'}>Beta</span>
-  </div>
+    <Box
+      component="span"
+      sx={{
+        position: "absolute",
+        bottom: 0,
+        right: 0,
+        transform: "translate(30%, 60%) rotate(-8deg)",
+        fontSize: "0.625rem",
+        fontWeight: 700,
+        color: "white",
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        padding: "4px 10px",
+        borderRadius: "12px",
+        boxShadow: "0 4px 12px rgba(102, 126, 234, 0.5), 0 2px 4px rgba(118, 75, 162, 0.3)",
+        letterSpacing: "0.5px",
+        textTransform: "uppercase",
+        border: "1.5px solid rgba(255, 255, 255, 0.3)",
+      }}>
+      Beta
+    </Box>
+  </Box>
 )
 
 

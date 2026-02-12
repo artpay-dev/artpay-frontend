@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
+ 
 import React, { useEffect, useRef, useState } from "react";
 import { Typography } from "@mui/material";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";

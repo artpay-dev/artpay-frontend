@@ -14,6 +14,7 @@ export interface ArtmatchFilters {
 
 interface FiltersStore {
   filters: ArtmatchFilters;
+  filtersPanelOpen: boolean;
   setMinPrice: (min: number | undefined) => void;
   setMaxPrice: (max: number | undefined) => void;
   setSelectedPriceRanges: (ranges: string[]) => void;
@@ -21,6 +22,8 @@ interface FiltersStore {
   setArtTypes: (types: number[]) => void;
   resetFilters: () => void;
   hasActiveFilters: () => boolean;
+  setFiltersPanelOpen: (open: boolean) => void;
+  toggleFiltersPanel: () => void;
 }
 
 const initialFilters: ArtmatchFilters = {
@@ -31,6 +34,7 @@ const initialFilters: ArtmatchFilters = {
 
 export const useFiltersStore = create<FiltersStore>((set, get) => ({
   filters: initialFilters,
+  filtersPanelOpen: false,
 
   setMinPrice: (min) =>
     set((state) => ({
@@ -78,4 +82,8 @@ export const useFiltersStore = create<FiltersStore>((set, get) => ({
       (filters.artTypes && filters.artTypes.length > 0)
     );
   },
+
+  setFiltersPanelOpen: (open) => set({ filtersPanelOpen: open }),
+
+  toggleFiltersPanel: () => set((state) => ({ filtersPanelOpen: !state.filtersPanelOpen })),
 }));

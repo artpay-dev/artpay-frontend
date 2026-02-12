@@ -151,9 +151,9 @@ const FiltersPanel = ({ onApplyFilters }: FiltersPanelProps) => {
   };
 
   return (
-    <section className={"flex flex-col mt-12 space-y-8 overflow-y-auto h-full pb-24 relative"}>
+    <section className={"flex flex-col mt-12 space-y-8 overflow-y-auto overflow-x-hidden h-full pb-24 relative w-full max-w-full"}>
       <AccordionElement title={"Costo"}>
-        <div className="flex items-center justify-between gap-4 w-full">
+        <div className="flex items-center justify-between gap-2 w-full">
           <input
             type="number"
             title="Min"
@@ -161,7 +161,7 @@ const FiltersPanel = ({ onApplyFilters }: FiltersPanelProps) => {
             placeholder="Min"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
-            className={"border border-[#CDCFD3] rounded-lg p-4 max-w-40"}
+            className={"border border-[#CDCFD3] rounded-lg p-3 flex-1 min-w-0 text-sm"}
           />
           <input
             type="number"
@@ -170,7 +170,7 @@ const FiltersPanel = ({ onApplyFilters }: FiltersPanelProps) => {
             placeholder="Max"
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
-            className={"border border-[#CDCFD3] rounded-lg p-4 max-w-40"}
+            className={"border border-[#CDCFD3] rounded-lg p-3 flex-1 min-w-0 text-sm"}
           />
         </div>
         <ul className={"mt-7 space-y-2"}>
