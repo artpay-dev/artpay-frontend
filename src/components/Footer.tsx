@@ -4,6 +4,7 @@ import { styled } from "@mui/material/styles";
 import { ArrowUpward } from "@mui/icons-material";
 import NewsletterSmall from "./NewsletterSmall.tsx";
 import { getDefaultPaddingX } from "../utils.ts";
+import loghiImage from "../assets/images/loghi.png";
 
 export interface FooterProps {
 }
@@ -108,6 +109,29 @@ const Footer: React.FC<FooterProps> = ({}) => {
 
 
       </Grid>
+
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: theme.breakpoints.values["xl"],
+          px: px,
+          mt: { xs: 2, md: 3 },
+          mb: { xs: 2, md: 0 },
+          display: "flex",
+          justifyContent: "center",
+        }}>
+        <Box
+          component="img"
+          src={loghiImage}
+          alt="Loghi"
+          sx={{
+            width: "100%",
+            maxWidth: 520,
+            height: "auto",
+            objectFit: "contain",
+          }}
+        />
+      </Box>
 
       <Grid sx={{ ...gridProps, pb: { xs: 12, md: 8 }, pt: 0 }} container>
         <Grid xs={12} item><Divider sx={{ width: "100%", borderColor: "#CDCFD3", pt: 6, mb: 2 }} /> </Grid>
