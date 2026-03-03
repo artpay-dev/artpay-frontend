@@ -4,7 +4,7 @@ import { styled } from "@mui/material/styles";
 import { ArrowUpward } from "@mui/icons-material";
 import NewsletterSmall from "./NewsletterSmall.tsx";
 import { getDefaultPaddingX } from "../utils.ts";
-import loghiImage from "../assets/images/loghi.png";
+import loghiImage from "../assets/images/loghi_footer.png";
 
 export interface FooterProps {
 }
@@ -120,17 +120,23 @@ const Footer: React.FC<FooterProps> = ({}) => {
           display: "flex",
           justifyContent: "center",
         }}>
-        <Box
-          component="img"
-          src={loghiImage}
-          alt="Loghi"
-          sx={{
-            width: "100%",
-            maxWidth: 520,
-            height: "auto",
-            objectFit: "contain",
-          }}
-        />
+        <Link
+          href="https://thorn-study-663.notion.site/progetto-finanziato-dal-bando-31847413a0f580849a79c884bfc4702f"
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{ display: "flex", cursor: "pointer" }}>
+          <Box
+            component="img"
+            src={loghiImage}
+            alt="Loghi"
+            sx={{
+              width: "100%",
+              maxWidth: 520,
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+        </Link>
       </Box>
 
       <Grid sx={{ ...gridProps, pb: { xs: 12, md: 8 }, pt: 0 }} container>
