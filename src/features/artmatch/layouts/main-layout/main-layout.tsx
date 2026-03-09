@@ -67,29 +67,31 @@ const MainLayout = ({ children, onAiResults }: MainLayoutProps) => {
 
   return (
     <div className={"min-h-screen w-full bg-tertiary flex flex-col relative "}>
-      <nav className={"absolute flex flex-col lg:flex-row lg:items-center top-6 left-6 gap-6 z-80"}>
-        <div className={"custom-navbar flex items-center gap-2 bg-white"}>
-          {isMobile && (
-            <IconButton
-              onClick={toggleDrawer}
-              sx={{
-                paddingLeft: "16px",
-                color: "text.secondary",
-                backgroundColor: "rgba(255,255,255,0.1)",
-                "&:hover": {
-                  backgroundColor: "rgba(255,255,255,0.2)",
-                },
-              }}>
-              <Menu />
-            </IconButton>
-          )}
-          <BackButton />
-        </div>
-        <ArtMatchLabel />
-      </nav>
-      {!isMobile && <SidePanel open={true} onClose={toggleDrawer} onAiResults={onAiResults} />}
-      {isMobile && <SidePanel open={drawerOpen} onClose={toggleDrawer} onAiResults={onAiResults} />}
-      <div className={'flex justify-center items-center flex-1'}>{children}</div>
+      <div className={"flex-1 flex relative"}>
+        <nav className={"absolute flex flex-col lg:flex-row lg:items-center top-6 left-6 gap-6 z-80"}>
+          <div className={"custom-navbar flex items-center gap-2 bg-white"}>
+            {isMobile && (
+              <IconButton
+                onClick={toggleDrawer}
+                sx={{
+                  paddingLeft: "16px",
+                  color: "text.secondary",
+                  backgroundColor: "rgba(255,255,255,0.1)",
+                  "&:hover": {
+                    backgroundColor: "rgba(255,255,255,0.2)",
+                  },
+                }}>
+                <Menu />
+              </IconButton>
+            )}
+            <BackButton />
+          </div>
+          <ArtMatchLabel />
+        </nav>
+        {!isMobile && <SidePanel open={true} onClose={toggleDrawer} onAiResults={onAiResults} />}
+        {isMobile && <SidePanel open={drawerOpen} onClose={toggleDrawer} onAiResults={onAiResults} />}
+        <div className={'flex justify-center items-center flex-1'}>{children}</div>
+      </div>
       <Footer />
     </div>
   );
