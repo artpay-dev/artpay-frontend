@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Favorite, Menu } from "@mui/icons-material";
 import { IconButton, useMediaQuery, useTheme, Box } from "@mui/material";
 import { SidePanel } from "../../components";
+import Footer from "../../../../components/Footer.tsx";
 
 const BackButton = () => {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ const MainLayout = ({ children, onAiResults }: MainLayoutProps) => {
   };
 
   return (
-    <div className={"min-h-screen w-full bg-tertiary flex relative "}>
+    <div className={"min-h-screen w-full bg-tertiary flex flex-col relative "}>
       <nav className={"absolute flex flex-col lg:flex-row lg:items-center top-6 left-6 gap-6 z-80"}>
         <div className={"custom-navbar flex items-center gap-2 bg-white"}>
           {isMobile && (
@@ -89,6 +90,7 @@ const MainLayout = ({ children, onAiResults }: MainLayoutProps) => {
       {!isMobile && <SidePanel open={true} onClose={toggleDrawer} onAiResults={onAiResults} />}
       {isMobile && <SidePanel open={drawerOpen} onClose={toggleDrawer} onAiResults={onAiResults} />}
       <div className={'flex justify-center items-center flex-1'}>{children}</div>
+      <Footer />
     </div>
   );
 };
