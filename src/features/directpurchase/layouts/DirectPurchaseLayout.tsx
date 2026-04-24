@@ -12,7 +12,7 @@ import DisplayImage from "../../../components/DisplayImage.tsx";
 import ShoppingBagIcon from "../../../components/icons/ShoppingBagIcon.tsx";
 import UserIcon from "../../../components/icons/UserIcon.tsx";
 import FaqComponent from "../components/FaqComponent.tsx";
-import Tooltip from "../../cdspayments/components/ui/tooltip/ToolTip.tsx";
+import Tooltip from "../../cdspayments/components/ui/tooltip-legacy/ToolTip.tsx";
 import CountdownTimer from "../../../components/CountdownTimer.tsx";
 import useDirectPurchaseStore from "../stores/directPurchaseStore.ts";
 import { useData } from "../../../hoc/DataProvider.tsx";

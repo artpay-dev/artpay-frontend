@@ -15,7 +15,7 @@ import PaymentsSelection from "./PaymentsSelection.tsx";
 import PaymentProviderCard from "../../cdspayments/components/ui/paymentprovidercard/PaymentProviderCard.tsx";
 import BillingDataPreview from "../../../components/BillingDataPreview.tsx";
 import { Link, useNavigate } from "react-router-dom";
-import { BankTransfer } from "../../cdspayments/components/banktransfer";
+import { BankTransfer } from "../../cdspayments/components/banktransfer-legacy";
 import PaymentStatusPlaceholder from "./PaymentStatusPlaceholder.tsx";
 import SantanderIcon from "../../../components/icons/SantanderIcon.tsx";
 import Checkbox from "../../../components/Checkbox.tsx";
@@ -118,6 +118,28 @@ const DirectPurchaseView = () => {
   };
 
   const depositMetadata = getDepositMetadata();
+
+  // Ref per tracciare se il deposit è pagato (evita stale closure nel cleanup)
+  const depositPaidRef = useRef(false);
+  useEffect(() => {
+    depositPaidRef.current = depositMetadata?.depositStatus === "paid";
+  }, [depositMetadata?.depositStatus]);
+
+  // Elimina l'ordine deposit se l'utente lascia la pagina senza pagare l'acconto
+  useEffect(() => {
+    if (orderMode !== "deposit" || !pendingOrder?.id) return;
+
+    // Se c'è già un redirect_status in URL, il pagamento è in corso: non eliminare
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("redirect_status")) return;
+
+    return () => {
+      if (!depositPaidRef.current) {
+        data.setOrderStatus(pendingOrder.id, "cancelled").catch(console.error);
+        localStorage.removeItem(`deposit-balance-intents-${pendingOrder.id}`);
+      }
+    };
+  }, [orderMode, pendingOrder?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showBillingSection = userProfile && (requireInvoice || orderMode === "loan");
 
@@ -321,8 +343,49 @@ const DirectPurchaseView = () => {
 
     // Se orderMode è "deposit", mostra il form di pagamento
     if (orderMode === "deposit") {
+      const depositPaid = depositMetadata?.depositStatus === "paid";
+
+      // Acconto NON ancora pagato: mostra il form per completare il pagamento dell'acconto
+      if (!depositPaid) {
+        return (
+          <ContentCard
+            title="Pagamento acconto"
+            icon={<PiCreditCardThin size="28px" />}
+            contentPadding={0}
+            contentPaddingMobile={0}>
+            <PaymentProviderCard>
+              <div className="p-4 space-y-4">
+                {depositMetadata?.depositAmount && (
+                  <div className="w-full rounded-sm bg-[#FED1824D] p-3 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Acconto da pagare:</span>
+                      <span className="text-sm font-bold">€ {depositMetadata.depositAmount.toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+                <p className="text-secondary text-sm">
+                  Il pagamento dell'acconto è ancora da completare. Riprendi il checkout per concludere la transazione.
+                </p>
+                <PaymentCard
+                  orderMode={orderMode}
+                  paymentMethod={paymentMethod || pendingOrder?.payment_method || "card"}
+                  checkoutButtonRef={checkoutButtonRef}
+                  onCheckout={handleCheckout}
+                  onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
+                  onReady={() => updateState({ checkoutReady: true })}
+                  paymentIntent={paymentIntent}
+                  thankYouPage={thankYouPage}
+                />
+              </div>
+            </PaymentProviderCard>
+          </ContentCard>
+        );
+      }
+
+      // Acconto pagato: flusso per il saldo
+
       // Se non ha ancora selezionato un metodo di pagamento
-      if (pendingOrder?.payment_method === "") {
+      if (!paymentMethod) {
         return <PaymentsSelection paymentMethod={paymentMethod} onChange={onChangePaymentMethod} />;
       }
 
@@ -371,11 +434,11 @@ const DirectPurchaseView = () => {
                 <strong>
                   €&nbsp;
                   {depositMetadata
-                    ? depositMetadata.balanceAmount.toLocaleString("it-IT", {
+                    ? (depositMetadata.balanceAmount ?? 0).toLocaleString("it-IT", {
                         maximumFractionDigits: 2,
                         minimumFractionDigits: 2,
                       })
-                    : Number(pendingOrder.total)?.toLocaleString("it-IT", {
+                    : Number(pendingOrder?.total)?.toLocaleString("it-IT", {
                         maximumFractionDigits: 2,
                         minimumFractionDigits: 2,
                       })
@@ -757,7 +820,7 @@ const DirectPurchaseView = () => {
         if (!completedOrderId) return;
 
         switch (paymentIntent?.status) {
-          case "succeeded":
+          case "succeeded": {
             // Mappa i payment methods ai loro display names
             const getPaymentMethodDisplay = (method: string | null) => {
               switch (method) {
@@ -797,6 +860,7 @@ const DirectPurchaseView = () => {
             localStorage.removeItem("checkoutUrl");
             navigate(`/complete-order/${pendingOrder?.id}`);
             break;
+          }
 
           case "requires_capture":
             if (orderMode === "loan") {

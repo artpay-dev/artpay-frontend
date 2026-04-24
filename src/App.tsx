@@ -37,7 +37,7 @@ import Galleries from "./pages/Galleries.tsx";
 import LandingPage from "./pages/LandingPage.tsx";
 import LandingForCampaignPage from "./pages/LandingForCampaignPage.tsx";
 import CdsPaymentsPage from "./pages/CdsPaymentsPage.tsx";
-import PaymentDraw from "./features/cdspayments/components/ui/paymentdraw/PaymentDraw.tsx";
+import PaymentDraw from "./features/cdspayments/components/ui/paymentdraw-legacy/PaymentDraw.tsx";
 import { useScrollToTop } from "./utils.ts";
 import Tutorials from "./pages/Tutorials.tsx";
 import SinglePostPage from "./pages/SinglePostPage.tsx";

@@ -1,6 +1,25 @@
 import { BillingData, ShippingData } from "./user.ts";
 import { ReactNode } from "react";
 
+export interface DepositBalanceMethodPI {
+  client_secret: string;
+  amount: number;
+  fee_amount?: number;
+}
+
+export interface DepositBalanceIntents {
+  order_id: number;
+  balance_amount: number;
+  currency: string;
+  stripe_publishable_key: string;
+  test_mode: boolean;
+  payment_methods: {
+    card?: DepositBalanceMethodPI;
+    paypal?: DepositBalanceMethodPI;
+    klarna?: DepositBalanceMethodPI;
+  };
+}
+
 export type OrderCreateRequest = {
   id?: number;
   customer_id: number;

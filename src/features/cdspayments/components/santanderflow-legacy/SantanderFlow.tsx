@@ -5,7 +5,7 @@ import { ArrowRight } from "@mui/icons-material";
 import { useAuth } from "../../../../hoc/AuthProvider.tsx";
 import usePaymentStore from "../../stores/paymentStore.ts";
 import { useData } from "../../../../hoc/DataProvider.tsx";
-import BankTransfer from "../banktransfer/BankTransfer.tsx";
+import BankTransfer from "../banktransfer-legacy/BankTransfer.tsx";
 import SantanderIcon from "../../../../components/icons/SantanderIcon.tsx";
 
 type SantanderFlowProps = {

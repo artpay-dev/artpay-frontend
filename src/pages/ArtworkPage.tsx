@@ -38,7 +38,7 @@ import FavouriteFilledIcon from "../components/icons/FavouriteFilledIcon.tsx";
 import { FavouritesMap } from "../types/post.ts";
 import { useSnackbars } from "../hoc/SnackbarProvider.tsx";
 import { useAuth } from "../hoc/AuthProvider.tsx";
-import useToolTipStore from "../features/cdspayments/stores/tooltipStore.ts";
+import useToolTipStore from "../features/cdspayments/stores/tooltipStore-legacy.ts";
 import LockIcon from "../components/icons/LockIcon.tsx";
 import HourglassIcon from "../components/icons/HourglassIcon.tsx";
 import ShareIcon from "../components/icons/ShareIcon.tsx";
@@ -65,7 +65,12 @@ interface PaymentFormProps {
   type: "deposit" | "balance";
 }
 
-const DepositDialog = ({ artwork, onClose }: {artwork: Artwork, onClose?: (value?: unknown) => void}) => {
+const DepositDialog = ({ artwork, onClose, onOrderCreated, onDepositPaid }: {
+  artwork: Artwork;
+  onClose?: (value?: unknown) => void;
+  onOrderCreated?: (orderId: number) => void;
+  onDepositPaid?: () => void;
+}) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -139,6 +144,7 @@ const DepositDialog = ({ artwork, onClose }: {artwork: Artwork, onClose?: (value
         setDepositAmount(response.data.deposit_amount);
         setBalanceAmount(response.data.balance_amount);
         setShowPaymentForm(true);
+        if (onOrderCreated) onOrderCreated(response.data.order_id);
 
         // Save order data to localStorage for recovery after redirect
         localStorage.setItem(
@@ -161,6 +167,7 @@ const DepositDialog = ({ artwork, onClose }: {artwork: Artwork, onClose?: (value
   const handleDepositPaymentSuccess = () => {
     setDepositClientSecret(null);
     setDepositPaid(true);
+    if (onDepositPaid) onDepositPaid();
   };
 
   const handlePaymentError = (errorMsg: string) => {
@@ -176,138 +183,153 @@ const DepositDialog = ({ artwork, onClose }: {artwork: Artwork, onClose?: (value
         </Alert>
       )}
 
-      {depositPaid && (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          <Alert severity="success" icon={false} sx={{ bgcolor: 'success.light', color: 'success.dark' }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-              ✓ Acconto pagato con successo!
-            </Typography>
-            <Typography variant="body2">
-              Hai pagato <strong>{formatCurrency(depositAmount || 0)} €</strong> di acconto.
-            </Typography>
-          </Alert>
+      {depositPaid ? (
+        <div className="flex flex-col gap-4">
+          {/* Conferma pagamento */}
+          <div className="rounded-lg bg-[#42B3961A] border border-[#42B396] p-4 flex flex-col gap-1">
+            <span className="font-semibold text-[#42B396]">Acconto pagato con successo</span>
+            <span className="text-sm text-secondary">
+              Hai versato <strong>€ {formatCurrency(depositAmount || 0)}</strong> di acconto.
+              Il saldo residuo è <strong>€ {formatCurrency(balanceAmount || 0)}</strong>.
+            </span>
+          </div>
 
-          <Box sx={{ bgcolor: "#F5F5F5", p: 3, borderRadius: 2 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-              Prossimi passi:
-            </Typography>
-
-            <Box component="ol" sx={{ pl: 3, m: 0, '& li': { mb: 2 } }}>
+          {/* Prossimi passi */}
+          <div className="rounded-lg bg-[#F5F5F5] p-4 flex flex-col gap-3">
+            <span className="font-semibold text-sm">Prossimi passi</span>
+            <ol className="list-decimal pl-4 space-y-2 text-sm">
               <li>
-                <Typography variant="body1">
-                  <strong>Completa la richiesta di finanziamento</strong>
-                  <br />
-                  <Typography component="span" variant="body2" color="text.secondary">
-                    Importo da finanziare: <strong>{formatCurrency(balanceAmount || 0)} €</strong>
-                  </Typography>
-                </Typography>
+                {(() => {
+                  const balance = balanceAmount || 0;
+                  const opts = [
+                    { name: "Klarna", min: 30, max: 2500 },
+                    { name: "PayPal Pay Later", min: 30, max: 2000 },
+                    { name: "Santander", min: 1500, max: 30000 },
+                  ].filter(({ min, max }) => balance >= min && balance <= max).map(o => o.name);
+                  const label = opts.length > 0 ? opts.join(", ") : "Carta di credito";
+                  const title = opts.length === 1 ? `Paga il saldo con ${opts[0]}` : "Scegli come pagare il saldo";
+                  return (
+                    <>
+                      <span className="font-medium">{title}</span>
+                      {opts.length !== 1 && <p className="text-secondary text-xs mt-0.5">{label}</p>}
+                    </>
+                  );
+                })()}
               </li>
               <li>
-                <Typography variant="body1">
-                  <strong>Scegli la modalità di pagamento</strong>
-                  <br />
-                  <Typography component="span" variant="body2" color="text.secondary">
-                    Pagamento dilazionato, finanziamento o altre opzioni disponibili
-                  </Typography>
-                </Typography>
+                <span className="font-medium">Completa la richiesta</span>
+                <p className="text-secondary text-xs mt-0.5">Pochi passaggi, approvazione rapida</p>
               </li>
               <li>
-                <Typography variant="body1">
-                  <strong>Ricevi l'approvazione</strong>
-                  <br />
-                  <Typography component="span" variant="body2" color="text.secondary">
-                    Il processo di approvazione è veloce e sicuro
-                  </Typography>
-                </Typography>
+                <span className="font-medium">L'opera è tua</span>
+                <p className="text-secondary text-xs mt-0.5">Dopo l'approvazione verrai contattato per programmare la spedizione</p>
               </li>
-            </Box>
-          </Box>
+            </ol>
+          </div>
 
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            fullWidth
+          <button
             onClick={handleCompleteOrder}
-            sx={{
-              py: 1.5,
-              fontWeight: 600,
-              fontSize: "1rem",
-            }}>
-            Completa l'ordine con finanziamento →
-          </Button>
+            className="artpay-button-style w-full bg-primary hover:bg-primary-hover text-white">
+            Completa l'ordine →
+          </button>
 
-          <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
+          <p className="text-xs text-secondary text-center">
             Puoi trovare il tuo ordine anche nella <strong>tua area personale</strong>
-          </Typography>
-        </Box>
-      )}
-
-      {!depositPaid && (
+          </p>
+        </div>
+      ) : (
         <>
           <Typography variant="body1">
-            Con artpay puoi acquistare l'opera pagando subito solo un <strong>acconto del 30%</strong> e finanziare il
-            restante importo.
+            Con artpay puoi acquistare l'opera pagando subito solo un <strong>acconto del 30%</strong> con carta, e
+            scegliere come finanziare il restante importo.
           </Typography>
 
-          <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-              Come funziona:
-            </Typography>
-
-            <Box component="ol" sx={{ pl: 3, mt: 1, '& li': { mb: 1.5 } }}>
-              <li>
-                <Typography variant="body1">
-                  Paghi subito il <strong>30% dell'importo totale</strong> ({formatCurrency(depositAmount || (Number(artwork?.price) * 0.3))} €)
-                </Typography>
-              </li>
-              <li>
-                <Typography variant="body1">
-                  Il restante <strong>70%</strong> ({formatCurrency(balanceAmount || (Number(artwork?.price) * 0.7))} €) viene finanziato tramite uno dei nostri partner
-                </Typography>
-              </li>
-              <li>
-                <Typography variant="body1">Completi la richiesta in pochi passaggi</Typography>
-              </li>
+          {/* Step 1 – Acconto */}
+          <Box sx={{ border: "1px solid #E2E6FC", borderRadius: "12px", overflow: "hidden" }}>
+            <Box sx={{ px: 2, py: 1.5, bgcolor: "#F8F9FF", borderBottom: "1px solid #E2E6FC" }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                1 · Paga l'acconto ora
+              </Typography>
+            </Box>
+            <Box sx={{ px: 2, py: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Box>
+                <Typography variant="body2">30% del totale — <strong>solo con carta</strong></Typography>
+                <Typography variant="caption" color="text.secondary">Pagamento sicuro via Stripe</Typography>
+              </Box>
+              <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                € {formatCurrency(depositAmount || (Number(artwork?.price) * 0.3))}
+              </Typography>
             </Box>
           </Box>
-        </>
-      )}
 
-      <Box
-        sx={{
-          p: 2,
-          borderRadius: "12px",
-          backgroundColor: "#E3F2FD",
-          border: "1px solid #90CAF9",
-        }}>
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          *La richiesta di finanziamento è soggetta ad approvazione. Non ci sono costi nascosti.
-        </Typography>
-      </Box>
+          {/* Step 2 – Saldo */}
+          <Box sx={{ border: "1px solid #E2E6FC", borderRadius: "12px", overflow: "hidden" }}>
+            <Box sx={{ px: 2, py: 1.5, bgcolor: "#F8F9FF", borderBottom: "1px solid #E2E6FC", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                2 · Finanzia il saldo
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                € {formatCurrency(balanceAmount || (Number(artwork?.price) * 0.7))}
+              </Typography>
+            </Box>
+            <Box sx={{ px: 2, py: 1.5, display: "flex", flexDirection: "column", gap: 1 }}>
+              {(() => {
+                const balance = balanceAmount || (Number(artwork?.price) * 0.7);
+                const options = [
+                  { name: "Klarna", desc: "Paga in 3 rate senza interessi", range: "€ 30 – € 2.500", min: 30, max: 2500 },
+                  { name: "PayPal Pay Later", desc: "Paga in 3 rate", range: "€ 30 – € 2.000", min: 30, max: 2000 },
+                  { name: "Santander", desc: "Finanziamento rateale", range: "€ 1.500 – € 30.000", min: 1500, max: 30000 },
+                ].filter(({ min, max }) => balance >= min && balance <= max);
 
-      {showPaymentForm && depositClientSecret && !depositPaid && (
-        <Box>
-          <Divider sx={{ my: 2 }} />
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-            Paga l'acconto del 30%
+                if (options.length === 0) {
+                  return (
+                    <Typography variant="caption" color="text.secondary">
+                      Nessuna opzione di finanziamento disponibile per questo importo. Potrai pagare il saldo con carta.
+                    </Typography>
+                  );
+                }
+
+                return options.map(({ name, desc, range }) => (
+                  <Box key={name} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", py: 0.5 }}>
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>{name}</Typography>
+                      <Typography variant="caption" color="text.secondary">{desc}</Typography>
+                    </Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: "nowrap", ml: 1 }}>{range}</Typography>
+                  </Box>
+                ));
+              })()}
+            </Box>
+          </Box>
+
+          <Typography variant="caption" color="text.secondary">
+            * Il finanziamento del saldo è soggetto ad approvazione. Potrai scegliere il metodo dopo aver pagato l'acconto.
           </Typography>
-          <Elements stripe={stripePromise} options={{ ...elementsOptions, clientSecret: depositClientSecret }}>
-            <PaymentForm onSuccess={handleDepositPaymentSuccess} onError={handlePaymentError} type="deposit" />
-          </Elements>
-        </Box>
-      )}
 
-      {!showPaymentForm && !depositPaid && (
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handlePrepareDeposit}
-          disabled={loading}
-          fullWidth
-          sx={{ mt: 1 }}>
-          {loading ? <CircularProgress size={24} /> : "Procedi con acconto e finanziamento"}
-        </Button>
+          {showPaymentForm && depositClientSecret && (
+            <Box>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+                Paga l'acconto del 30%
+              </Typography>
+              <Elements stripe={stripePromise} options={{ ...elementsOptions, clientSecret: depositClientSecret }}>
+                <PaymentForm onSuccess={handleDepositPaymentSuccess} onError={handlePaymentError} type="deposit" />
+              </Elements>
+            </Box>
+          )}
+
+          {!showPaymentForm && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handlePrepareDeposit}
+              disabled={loading}
+              fullWidth
+              sx={{ mt: 1 }}>
+              {loading ? <CircularProgress size={24} /> : "Procedi con acconto e finanziamento"}
+            </Button>
+          )}
+        </>
       )}
     </Box>
   );
@@ -493,12 +515,27 @@ const ArtworkPage: React.FC = () => {
   const handleDepositDialog = async () => {
     if (!artwork) return;
 
+    let pendingOrderId: number | null = null;
+    let depositCompleted = false;
+
     await dialogs.custom(
       "Acconto + Finanziamento",
-      (closeDialog) => <DepositDialog artwork={artwork} onClose={closeDialog} />
-      ,
+      (closeDialog) => (
+        <DepositDialog
+          artwork={artwork}
+          onClose={closeDialog}
+          onOrderCreated={(id) => { pendingOrderId = id; }}
+          onDepositPaid={() => { depositCompleted = true; }}
+        />
+      ),
       { maxWidth: "md", fullScreen: belowSm },
     );
+
+    // Dialog chiuso: annulla l'ordine se non è stato pagato l'acconto
+    if (!depositCompleted && pendingOrderId) {
+      data.setOrderStatus(pendingOrderId, "cancelled").catch(console.error);
+      localStorage.removeItem("deposit-test-order");
+    }
   };
 
   useEffect(() => {

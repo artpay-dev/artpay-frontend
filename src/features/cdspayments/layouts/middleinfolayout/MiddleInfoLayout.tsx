@@ -1,29 +1,19 @@
 import { ReactNode, useEffect, useState } from "react";
 import Logo from "../../../../components/icons/Logo.tsx";
-import { Link, useNavigate } from "react-router-dom";
-import { useData } from "../../../../hoc/DataProvider.tsx";
-import { Gallery } from "../../../../types/gallery.ts";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArticleDraw } from "../../components/ui/articledraw/ArticleDraw.tsx";
 import useArticleStore from "../../stores/articleDrawStore.ts";
 import LogoSa from "../../../../components/LogoSa.tsx";
+import { fetchOrderDetails } from "@/features/cdspayments/api.ts";
 
 const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
+  const [searchParams] = useSearchParams();
+  const [loading, setLoading] = useState(false);
   const { setOpenArticleDraw, openArticleDraw } = useArticleStore();
   const navigate = useNavigate();
-  const [vendor, setVendor] = useState<Gallery | null>(null);
-  const data = useData();
+  const orderKey = searchParams.get('order_id') ?? searchParams.get('order');
 
-  const getVendor = async () => {
-    try {
-      //const galleryId = environment == 'production' ? '76' : '21'
-
-      const vendorResp: Gallery = await data.getGallery("76");
-      if (!vendorResp) throw new Error("Vendor not found");
-      setVendor(vendorResp);
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  console.log(orderKey);
 
   const trackEvent = () => {
     const event_name = "go_back_to_SA";
@@ -37,8 +27,21 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
     console.log("push", event_name, properties);
   }
 
+  const orderDetails = async () => {
+    if (!orderKey) return;
+    setLoading(true);
+
+    try {
+      const orderDetails = await fetchOrderDetails(orderKey);
+      console.log("orderDetails", orderDetails);
+    } catch (error) {
+      console.log(error);
+    } finally {}
+    setLoading(false);
+  }
+
   useEffect(() => {
-    if (!vendor) getVendor();
+
 
     if (openArticleDraw) {
       document.body.classList.add("overflow-hidden");
@@ -47,21 +50,26 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
     }
   }, [openArticleDraw]);
 
+  useEffect(() => {
+    if (orderKey) orderDetails();
+
+  }, []);
+
   return (
     <section>
       {openArticleDraw && (
         <div className={"overlay fixed z-50 inset-0 w-full h-screen bg-zinc-950/65 animate-fade-in"}></div>
       )}
       <div className={` min-h-screen flex flex-col bg-primary`}>
-        <div className={` mx-auto container max-w-md relative bg-white`}>
+        <div className={` mx-auto container max-w-2xl relative bg-white`}>
           <ArticleDraw />
-          <header className={"fixed w-full z-30 top-6 px-2 max-w-md "}>
+          <header className={"fixed w-full z-30 top-6 px-2 max-w-2xl "}>
             <nav className={"p-4 custom-navbar flex justify-center items-center w-full bg-white "}>
               <Logo />
             </nav>
           </header>
           <section className="bg-[#F5F5F5] pt-40 rounded-b-3xl">
-            {!vendor ? (
+            {loading ? (
               <div className="space-y-4 animate-pulse pb-12 px-8 -mt-14">
                 <div className="flex items-center gap-2.5"></div>
                 <div className="h-30 w-full bg-gray-400 rounded"></div>
@@ -80,7 +88,7 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
                     <LogoSa />
                   </div>
                 </div>
-                <p className={"mt-20 mb-4 leading-[125%] line-clamp-5 text-balance px-8"}>
+                <p className={"mt-40 mb-4 leading-[125%] line-clamp-5 text-balance px-8"}>
                   Stai per completare l’acquisto con artpay, un nuovo servizio selezionato da Sant’Agostino casa d'aste
                   per rendere l’arte più accessibile Rateizza il tuo pagamento in modo sicuro, 100% online scegliendo
                   tra i nostri partner selezionati.
@@ -96,7 +104,7 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
             )}
           </section>
           <main className="flex-1 bg-white pt-6 px-8 pb-50 ">{children}</main>
-          <section className="fixed bottom-0 w-full shadow-custom-top  bg-white rounded-t-3xl py-6 px-8 flex flex-col items-center justify-center space-y-4 md:max-w-md max-w-full">
+          <section className="fixed bottom-0 w-full shadow-custom-top  bg-white rounded-t-3xl py-6 px-8 flex flex-col items-center justify-center space-y-4 md:max-w-2xl max-w-full">
             <button
               className={"artpay-button-style bg-primary hover:bg-primary-hover text-white"}
               onClick={() => {
@@ -104,7 +112,7 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
                   document.body.classList.remove("overflow-hidden");
                 }
                 if (!document.body.classList.contains("overflow-hidden")) {
-                  navigate("/acquisto-esterno");
+                  navigate(`/acquisto-esterno?order=${orderKey}`);
                 }
               }}>
               Paga a rate

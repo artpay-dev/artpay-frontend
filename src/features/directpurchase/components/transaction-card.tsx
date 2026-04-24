@@ -28,7 +28,8 @@ const TransactionCard = ({
   depositStatus,
 }: OrderHistoryCardProps) => {
   const isDepositOrder = created_via === "artpay_deposit_api";
-  const displayPrice = isDepositOrder && balanceAmount ? `€ ${balanceAmount.toFixed(2)}` : formattePrice;
+  const isDepositPaid = depositStatus === "paid";
+  const displayPrice = isDepositOrder && isDepositPaid && balanceAmount ? `€ ${balanceAmount.toFixed(2)}` : formattePrice;
 
   const [loading, setLoading] = useState(false);
   const [rejectedLoader, setRejectedLoader] = useState(false);
@@ -109,14 +110,14 @@ const TransactionCard = ({
           )}
           <div className={"flex flex-col gap-1 max-w-[120px] md:max-w-[200px]"}>
             <span className="truncate">{title}</span>
-            {isDepositOrder && depositStatus === "paid" && (
+            {isDepositOrder && isDepositPaid && (
               <span className={"text-xs text-[#42B396] font-medium"}>Saldo da pagare</span>
             )}
           </div>
         </div>
         <div className={"flex flex-col gap-1"}>
           <strong>{displayPrice}</strong>
-          {isDepositOrder && depositAmount && (
+          {isDepositOrder && isDepositPaid && depositAmount && (
             <span className={"text-xs text-[#42B396]"}>Acconto pagato: € {depositAmount.toFixed(2)}</span>
           )}
         </div>
@@ -130,7 +131,7 @@ const TransactionCard = ({
           <span>Venditore:</span>
           <span className={"text-secondary"}>{galleryName}</span>
         </div>
-        {isDepositOrder && depositAmount && balanceAmount && (
+        {isDepositOrder && isDepositPaid && depositAmount && balanceAmount && (
           <div className={"w-full rounded-sm bg-[#E3F2FD] p-3 space-y-2"}>
             <div className={"flex justify-between items-center"}>
               <span className={"text-sm"}>Acconto pagato:</span>
@@ -139,6 +140,14 @@ const TransactionCard = ({
             <div className={"flex justify-between items-center"}>
               <span className={"text-sm font-medium"}>Saldo da pagare:</span>
               <span className={"text-sm font-bold text-[#2196F3]"}>€ {balanceAmount.toFixed(2)}</span>
+            </div>
+          </div>
+        )}
+        {isDepositOrder && !isDepositPaid && depositAmount && (
+          <div className={"w-full rounded-sm bg-[#FED1824D] p-3 space-y-2"}>
+            <div className={"flex justify-between items-center"}>
+              <span className={"text-sm font-medium"}>Acconto da pagare:</span>
+              <span className={"text-sm font-bold"}>€ {depositAmount.toFixed(2)}</span>
             </div>
           </div>
         )}
@@ -213,7 +222,11 @@ const TransactionCard = ({
             onClick={() => onClick(id)}
             variant="outlined"
             color={isDepositOrder ? "primary" : undefined}>
-            {isDepositOrder ? "Completa pagamento saldo" : "Gestisci transazione"}
+            {isDepositOrder
+            ? isDepositPaid
+              ? "Completa pagamento saldo"
+              : "Completa pagamento acconto"
+            : "Gestisci transazione"}
           </Button>
         </div>
       )}

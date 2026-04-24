@@ -4,7 +4,7 @@ import usePaymentStore from "../../stores/paymentStore.ts";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { Artwork } from "../../../../types/artwork.ts";
 import type { Gallery } from "../../../../types/gallery.ts";
-import { clearLocalStorage, sendPaymentNotification } from "../../utils.ts";
+import { clearLocalStorage, sendPaymentNotification } from "../../utils-legacy.ts";
 
 // Constants
 const ORDER_STATUS = {
