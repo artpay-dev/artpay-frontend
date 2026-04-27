@@ -1,4 +1,4 @@
-import useToolTipStore from "../../../stores/tooltipStore.ts";
+import useToolTipStore from "../../../stores/tooltipStore-legacy.ts";
 
 type ToolTipType = "success" | "error" | "info";
 

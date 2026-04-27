@@ -9,7 +9,7 @@ import { useDirectPurchaseData } from "./useDirectPurchaseData.ts";
 export const useDirectPurchaseUtils = () => {
   const snackbar = useSnackbars();
   const data = useData();
-  const { createPaymentIntent } = useDirectPurchaseData();
+  const { createPaymentIntent, buildPIFromDepositBalance } = useDirectPurchaseData();
 
   const {
     orderMode,
@@ -33,7 +33,6 @@ export const useDirectPurchaseUtils = () => {
 
     if (pendingOrder) {
       console.log("pendingOrder", pendingOrder);
-      //const wc_order_key = pendingOrder.order_key;
 
       const paymentMethodMap: Record<string, string> = {
         card: "Carta",
@@ -43,9 +42,31 @@ export const useDirectPurchaseUtils = () => {
         paypal: "PayPal",
         revolut_pay: "Revolut Pay",
         google_pay: "Google Pay",
+        paypal_paylater: "PayPal Pay Later",
       };
 
       const displayName = paymentMethodMap[payment] || payment;
+
+      // Per ordini deposit con acconto già pagato: usa i PI pre-creati dal backend
+      const depositStatus = pendingOrder.meta_data?.find((m: any) => m.key === "_adp_deposit_status")?.value;
+      if (orderMode === "deposit" && depositStatus === "paid") {
+        const { depositBalanceIntents } = useDirectPurchaseStore.getState();
+        if (depositBalanceIntents && payment !== "Santander" && payment !== "bank_transfer") {
+          try {
+            const pi = buildPIFromDepositBalance(depositBalanceIntents, payment);
+            updateState({ paymentMethod: payment, showCommissioni: true, isSaving: false });
+            updatePageData({ paymentIntent: pi });
+          } catch (e) {
+            console.error("Error selecting balance PI:", e);
+            updateState({ showCommissioni: true, isSaving: false });
+          }
+          return;
+        }
+        // Santander / bank_transfer o nessun depositBalanceIntents
+        updateState({ paymentMethod: payment, showCommissioni: true, isSaving: false });
+        updatePageData({ paymentIntent: undefined });
+        return;
+      }
 
       try {
         // 1. Aggiorna il metodo di pagamento su WooCommerce prima
@@ -101,7 +122,7 @@ export const useDirectPurchaseUtils = () => {
     } else {
       updateState({ isSaving: false });
     }
-  }, [pendingOrder, orderMode, data, updateState, updatePageData, showError, createPaymentIntent]);
+  }, [pendingOrder, orderMode, data, updateState, updatePageData, showError, createPaymentIntent, buildPIFromDepositBalance]);
 
   const getCurrentShippingMethod = useCallback((): string => {
     return pendingOrder?.shipping_lines?.length

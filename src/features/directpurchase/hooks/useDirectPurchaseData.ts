@@ -3,9 +3,12 @@ import { useData } from "../../../hoc/DataProvider.tsx";
 import { useAuth } from "../../../hoc/AuthProvider.tsx";
 import { useParams } from "react-router-dom";
 import { PaymentIntent } from "@stripe/stripe-js";
-import { Order } from "../../../types/order.ts";
+import { DepositBalanceIntents, Order } from "../../../types/order.ts";
 import { areBillingFieldsFilled, artworksToGalleryItems } from "../../../utils.ts";
 import useDirectPurchaseStore from "../stores/directPurchaseStore.ts";
+
+// Cache module-level per evitare chiamate concorrenti a payDepositBalance (idempotency key conflict)
+const _balanceIntentPromises = new Map<number, Promise<DepositBalanceIntents>>();
 
 export const useDirectPurchaseData = () => {
   const data = useData();
@@ -19,13 +22,71 @@ export const useDirectPurchaseData = () => {
     updatePageData,
   } = useDirectPurchaseStore();
 
+  const buildPIFromDepositBalance = useCallback((balanceIntents: DepositBalanceIntents, method: string): PaymentIntent => {
+    const methodKey = method as keyof typeof balanceIntents.payment_methods;
+    const methodPI = balanceIntents.payment_methods[methodKey] || balanceIntents.payment_methods.card;
+    if (!methodPI) throw new Error("No payment intent available for deposit balance method: " + method);
+    const piId = methodPI.client_secret.split("_secret_")[0];
+    return {
+      id: piId,
+      object: "payment_intent",
+      amount: Math.round(methodPI.amount * 100),
+      currency: balanceIntents.currency.toLowerCase(),
+      status: "requires_payment_method",
+      client_secret: methodPI.client_secret,
+      created: Math.floor(Date.now() / 1000),
+      livemode: !balanceIntents.test_mode,
+    } as PaymentIntent;
+  }, []);
+
   const createPaymentIntent = useCallback(async (resp: Order, orderMode: string, paymentMethod?: string): Promise<PaymentIntent> => {
     // Usa SEMPRE il metodo passato come parametro se fornito, altrimenti quello dell'ordine
     const methodToUse = paymentMethod || resp.payment_method;
 
     // Per gli ordini deposit, usa l'endpoint dedicato /adp/v1/balance/pay
+    // solo se l'acconto è stato effettivamente pagato
     if (orderMode === "deposit") {
-      return await data.payDepositBalance(resp.id);
+      const depositStatus = resp.meta_data?.find((m: any) => m.key === "_adp_deposit_status")?.value;
+      if (depositStatus !== "paid") {
+        // Acconto non ancora pagato: crea un intent normale per il pagamento dell'acconto
+        return await data.createPaymentIntent({
+          wc_order_key: resp.order_key as string,
+          payment_method: methodToUse || ""
+        });
+      }
+      // Acconto pagato: carica tutti i PI per il saldo.
+      // Usa store → localStorage → API (con deduplicazione Promise per evitare chiamate concorrenti)
+      const cacheKey = `deposit-balance-intents-${resp.id}`;
+      const fromStore = useDirectPurchaseStore.getState().depositBalanceIntents;
+      const fromStorage = (() => {
+        try {
+          const cached = localStorage.getItem(cacheKey);
+          return cached ? JSON.parse(cached) as DepositBalanceIntents : null;
+        } catch { return null; }
+      })();
+      let balanceIntents: DepositBalanceIntents;
+      if (fromStore) {
+        balanceIntents = fromStore;
+      } else if (fromStorage) {
+        balanceIntents = fromStorage;
+        updatePageData({ depositBalanceIntents: balanceIntents });
+      } else {
+        // Deduplicazione: se c'è già una chiamata in volo per questo ordine, riusa la stessa Promise
+        if (!_balanceIntentPromises.has(resp.id)) {
+          const promise = data.payDepositBalance(resp.id).then((result) => {
+            try { localStorage.setItem(cacheKey, JSON.stringify(result)); } catch { /* ignore */ }
+            _balanceIntentPromises.delete(resp.id);
+            return result;
+          }).catch((err) => {
+            _balanceIntentPromises.delete(resp.id);
+            throw err;
+          });
+          _balanceIntentPromises.set(resp.id, promise);
+        }
+        balanceIntents = await _balanceIntentPromises.get(resp.id)!;
+        updatePageData({ depositBalanceIntents: balanceIntents });
+      }
+      return buildPIFromDepositBalance(balanceIntents, methodToUse || "card");
     }
 
     if (resp.payment_method === "bnpl" && orderMode === "redeem") {
@@ -47,7 +108,7 @@ export const useDirectPurchaseData = () => {
     };
 
     return await (intentMap[orderMode] || intentMap.default)();
-  }, [data]);
+  }, [data, updatePageData, buildPIFromDepositBalance]);
 
   const logError = useCallback((err?: unknown) => {
     console.error(err);
@@ -125,6 +186,20 @@ export const useDirectPurchaseData = () => {
                 updatePageData({ paymentIntent });
               } catch (e) {
                 console.error("Error creating payment intent for loan:", e);
+              }
+            } else if (orderMode === "deposit") {
+              const supportedMethods = ["card", "paypal", "revolut_pay", "google_pay"];
+              const methodToUse = order.payment_method && supportedMethods.includes(order.payment_method)
+                ? order.payment_method
+                : "card";
+
+              updateState({ paymentMethod: methodToUse });
+
+              try {
+                const paymentIntent = await createPaymentIntent(order, orderMode, methodToUse);
+                updatePageData({ paymentIntent });
+              } catch (e) {
+                console.error("Error creating payment intent for deposit:", e);
               }
             } else {
               const supportedMethods = ["card", "klarna", "paypal", "revolut_pay", "google_pay"];
@@ -347,6 +422,7 @@ export const useDirectPurchaseData = () => {
     initialize,
     loadInitialData,
     createPaymentIntent,
+    buildPIFromDepositBalance,
     logError
   };
 };

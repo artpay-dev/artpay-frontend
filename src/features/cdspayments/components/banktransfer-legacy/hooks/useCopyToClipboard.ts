@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import useToolTipStore from "../../../stores/tooltipStore.ts";
+import useToolTipStore from "../../../stores/tooltipStore-legacy.ts";
 
 export const useCopyToClipboard = () => {
   const { showToolTip } = useToolTipStore();

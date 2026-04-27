@@ -20,7 +20,7 @@ import { useAuth } from "../hoc/AuthProvider.tsx";
 import ShareIcon from "../components/icons/ShareIcon.tsx";
 import GallerySkeleton from "../components/GallerySkeleton.tsx";
 import CardGridSkeleton from "../components/CardGridSkeleton.tsx";
-import useToolTipStore from "../features/cdspayments/stores/tooltipStore.ts";
+import useToolTipStore from "../features/cdspayments/stores/tooltipStore-legacy.ts";
 
 export interface GalleryProps {
   selectedTab?: number;

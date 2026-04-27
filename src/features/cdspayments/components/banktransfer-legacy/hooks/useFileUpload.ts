@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { uploadFile } from "@uploadcare/upload-client";
-import useToolTipStore from "../../../stores/tooltipStore.ts";
+import useToolTipStore from "../../../stores/tooltipStore-legacy.ts";
 import type { FileUploadConfig } from "../types.ts";
 
 export const useFileUpload = (config: FileUploadConfig) => {

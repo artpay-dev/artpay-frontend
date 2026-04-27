@@ -69,7 +69,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
   const theme = useTheme();
   const data = useData();
 
-  const { privacyChecked, updateState, isSaving, pendingOrder, orderMode, updatePageData } = useDirectPurchase();
+  const { privacyChecked, updateState, isSaving, pendingOrder, orderMode, updatePageData, depositBalanceIntents } = useDirectPurchase();
   const { onCancelPaymentMethod } = useDirectPurchaseUtils();
   const navigate = useNavigate();
   const dialogs = useDialogs();
@@ -332,80 +332,96 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
           ) : null
         }>
         <div className={"space-y-4 py-6 border-t border-gray-950/20"}>
-          <div className="flex items-center justify-between">
-            <span className={"font-semibold"}>
-              <span>{depositMetadata ? "Saldo da pagare" : "Prezzo"}</span>
-              <br />
-              <span className={"text-secondary text-sm font-light"}>Incluse commissioni artpay</span>
-            </span>
-            <span>
-              €&nbsp;
-              {paymentMethod == "klarna"
-                ? (
-                    (depositMetadata ? depositMetadata.balanceAmount : +(pendingOrder?.total || 0)) -
-                    +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total || 0) -
-                    +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total_tax || 0)
-                  ).toLocaleString("it-IT", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })
-                : (depositMetadata ? depositMetadata.balanceAmount : Number(pendingOrder?.total) || 0).toLocaleString("it-IT", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-            </span>
-          </div>
-          {orderMode == "loan" && (
-            <>
-              <div className="flex items-center justify-between">
-                <span className={"font-semibold"}>
-                  <span>Caparra</span>
-                </span>
-                <span>5%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className={"font-semibold"}>
-                  <span>Totale da pagare ora</span>
-                </span>
-                <span>
-                  €&nbsp;
-                  {paymentMethod == "klarna"
-                    ? (
-                        (depositMetadata ? depositMetadata.balanceAmount : +(pendingOrder?.total || 0)) -
-                        +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total || 0) -
-                        +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total_tax || 0)
-                      ).toFixed(2)
-                    : ((Number(paymentIntent?.amount) || 0) / 100).toLocaleString("it-IT", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                </span>
-              </div>
-            </>
-          )}
-          {paymentMethod == "klarna" && (
-            <>
-              <div className="flex items-center justify-between">
-                <span>Commissione klarna</span>
-                <span>
-                  €&nbsp;
-                  {(
-                    +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total || 0) +
-                    +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total_tax || 0)
-                  ).toFixed(2)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className={"font-bold"}>Totale</span>
-                <span>
-                  €&nbsp;
-                  {(
-                    (depositMetadata ? depositMetadata.balanceAmount : +(pendingOrder?.total || 0))
-                  ).toFixed(2)}
-                </span>
-              </div>
-            </>
-          )}
+          {(() => {
+            // Dati Klarna per deposit balance (dal backend multi-PI)
+            const depositKlarna = orderMode === "deposit" && paymentMethod === "klarna"
+              ? depositBalanceIntents?.payment_methods?.klarna
+              : null;
+            const depositCard = orderMode === "deposit" && paymentMethod !== "klarna"
+              ? depositBalanceIntents?.payment_methods?.card
+              : null;
+
+            // Importo base (senza fee Klarna)
+            const baseAmount = depositKlarna
+              ? depositKlarna.amount - (depositKlarna.fee_amount || 0)
+              : depositMetadata
+              ? depositMetadata.balanceAmount
+              : paymentMethod === "klarna"
+              ? (+(pendingOrder?.total || 0)) -
+                +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total || 0) -
+                +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total_tax || 0)
+              : Number(pendingOrder?.total) || 0;
+
+            // Importo totale (con fee Klarna se applicabile)
+            const totalAmount = depositKlarna
+              ? depositKlarna.amount
+              : depositCard
+              ? depositCard.amount
+              : depositMetadata
+              ? depositMetadata.balanceAmount
+              : Number(pendingOrder?.total) || 0;
+
+            // Fee Klarna
+            const klarnaFee = depositKlarna
+              ? (depositKlarna.fee_amount || 0)
+              : +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total || 0) +
+                +(pendingOrder?.fee_lines.find((fee) => fee.name === "payment-gateway-fee")?.total_tax || 0);
+
+            return (
+              <>
+                <div className="flex items-center justify-between">
+                  <span className={"font-semibold"}>
+                    <span>{depositMetadata ? "Saldo da pagare" : "Prezzo"}</span>
+                    <br />
+                    <span className={"text-secondary text-sm font-light"}>Incluse commissioni artpay</span>
+                  </span>
+                  <span>
+                    €&nbsp;
+                    {(paymentMethod === "klarna" ? baseAmount : totalAmount).toLocaleString("it-IT", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+                {orderMode === "loan" && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className={"font-semibold"}>
+                        <span>Caparra</span>
+                      </span>
+                      <span>5%</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className={"font-semibold"}>
+                        <span>Totale da pagare ora</span>
+                      </span>
+                      <span>
+                        €&nbsp;
+                        {paymentMethod === "klarna"
+                          ? baseAmount.toFixed(2)
+                          : ((Number(paymentIntent?.amount) || 0) / 100).toLocaleString("it-IT", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                      </span>
+                    </div>
+                  </>
+                )}
+                {paymentMethod === "klarna" && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span>Commissione Klarna</span>
+                      <span>€&nbsp;{klarnaFee.toFixed(2)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className={"font-bold"}>Totale</span>
+                      <span>€&nbsp;{totalAmount.toFixed(2)}</span>
+                    </div>
+                  </>
+                )}
+              </>
+            );
+          })()}
         </div>
         {/* Coupon Section */}
         {orderMode != "loan" && (
