@@ -2,18 +2,22 @@ import { useEffect, useState } from "react";
 import useListDrawStore from "../../features/fastpay/stores/listDrawStore.tsx";
 import LoginComponent from "../../features/fastpay/components/login-component.tsx";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@mui/material";
+import { Button, CircularProgress, Container } from "@mui/material";
+import { useSSOLogin } from "../../features/fastpay/hooks/useSSOLogin.ts";
 
 const FastPay = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLocalLoading, setIsLocalLoading] = useState(true);
   const { setOpenListDraw } = useListDrawStore();
+  const { isProcessing: isSSOProcessing, error: ssoError } = useSSOLogin();
 
   useEffect(() => {
+    if (isSSOProcessing) return;
+
     const vendorUser = localStorage.getItem("vendor-user");
     setIsAuthenticated(!!vendorUser);
-    setIsLoading(false);
+    setIsLocalLoading(false);
 
     const handleLoginSuccess = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -31,14 +35,18 @@ const FastPay = () => {
       window.removeEventListener("vendor-login-success", handleLoginSuccess);
       window.removeEventListener("vendor-logout", handleLogout);
     };
-  }, []);
+  }, [isSSOProcessing]);
 
-  if (isLoading) {
-    return null;
+  if (isSSOProcessing || isLocalLoading) {
+    return (
+      <Container maxWidth="sm" sx={{ mt: 8, display: "flex", justifyContent: "center" }}>
+        <CircularProgress />
+      </Container>
+    );
   }
 
   if (!isAuthenticated) {
-    return <LoginComponent />;
+    return <LoginComponent ssoError={ssoError} />;
   }
 
   return (
