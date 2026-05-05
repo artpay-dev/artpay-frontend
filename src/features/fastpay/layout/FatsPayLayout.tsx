@@ -58,9 +58,9 @@ const Footer :  React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
         <div className="mb-4">
           <Typography variant="body2">
             <Link
-              className="!text-white flex gap-2 items-center"
+              className="flex gap-2 items-center"
               component="button"
-              sx={{ textDecoration: "none", cursor: "pointer" }}
+              sx={{ textDecoration: "none", cursor: "pointer", color: "text.secondary" }}
               onClick={handleLogout}>
               Esci
               <LogoutSharp />
@@ -120,7 +120,7 @@ const FatsPayLayout = () => {
 
   return (
     <>
-      <div className="bg-tertiary min-h-screen w-full flex flex-col">
+      <div className="bg-gray-50 min-h-screen w-full flex flex-col">
         <nav className="fixed top-0 left-0 right-0 z-50 pt-6 pb-6 w-full px-6">
           <div className={`flex items-center ${!isVisible ?'justify-between' : 'justify-center'} w-full max-w-lg md:mx-auto`}>
             <BackButton isVisible={!isVisible} />

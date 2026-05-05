@@ -7,6 +7,8 @@ const baseUrl = import.meta.env.VITE_SERVER_URL || "";
 export interface QuoteValidationParams {
   order_key: string;
   email: string;
+  payment_method?: "card" | "klarna";
+  add_klarna_fee?: boolean;
 }
 
 export interface QuoteOrderResponse {
@@ -338,6 +340,27 @@ export const quoteService = {
       return resp.data;
     } catch (error) {
       console.error("Errore nell'eliminazione dell'offerta:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Aggiorna il Payment Intent esistente quando il cliente cambia metodo di pagamento
+   */
+  async updatePaymentIntentFee(params: {
+    order_key: string;
+    email: string;
+    add_klarna_fee: boolean;
+  }): Promise<any> {
+    try {
+      const resp = await axios.post<any, AxiosResponse<any>>(
+        `${baseUrl}/wp-json/wc-quote/v1/update-payment-intent-fee`,
+        params,
+        { headers: { "Content-Type": "application/json" } },
+      );
+      return resp.data;
+    } catch (error) {
+      console.error("Errore nell'aggiornamento della fee del payment intent:", error);
       throw error;
     }
   },

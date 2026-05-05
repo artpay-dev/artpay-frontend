@@ -5,7 +5,7 @@ import { PaymentIntent } from '@stripe/stripe-js';
 import { usePayments } from '../hoc/PaymentProvider';
 import { usePaymentMethods } from '../hooks/usePaymentMethods';
 import PaymentCard from './PaymentCard';
-import KlarnaCard from '../features/cdspayments/components/ui/klarnacard/KlarnaCard';
+import KlarnaCard from '../features/cdspayments/components/ui/klarnacard-legacy/KlarnaCard';
 
 interface PaymentMethodSelectorProps {
   orderKey: string;

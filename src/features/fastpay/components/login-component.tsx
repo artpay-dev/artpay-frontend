@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
-import { Box, Card, Container, Typography, CircularProgress } from "@mui/material";
+import { Alert, Box, Card, Container, Typography, CircularProgress } from "@mui/material";
 import FastPayLoginForm, { FastPayLoginFormData } from "./FastPayLoginForm";
 import { login } from "../utils";
 
-const LoginComponent = () => {
+interface LoginComponentProps {
+  ssoError?: string;
+}
+
+const LoginComponent = ({ ssoError }: LoginComponentProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
 
@@ -63,6 +67,11 @@ const LoginComponent = () => {
           <Typography variant="body1" textAlign="center" color="textSecondary" sx={{ mb: 3 }}>
             Inserisci le tue credenziali per accedere
           </Typography>
+          {ssoError && (
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              {ssoError}
+            </Alert>
+          )}
           <FastPayLoginForm onSubmit={handleLogin} disabled={isLoading} />
         </Box>
       </Card>

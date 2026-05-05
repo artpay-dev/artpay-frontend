@@ -162,7 +162,7 @@ const FastPayDetail = () => {
     return (
       <main className="flex flex-col items-center justify-center py-12 max-w-lg mx-auto">
         <CircularProgress size={40} />
-        <Typography variant="body2" className="mt-4 text-white">
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
           Caricamento dettagli...
         </Typography>
       </main>
@@ -206,10 +206,10 @@ const FastPayDetail = () => {
 
   return (
     <>
-      <main className="text-white w-full max-w-lg mx-auto px-6">
-        <h1 className="text-4xl font-light mb-8">Dettaglio Offerta</h1>
+      <main className="w-full max-w-lg mx-auto px-6 pb-6">
+        <h1 className="text-4xl font-light text-gray-900 mb-6">Dettaglio Offerta</h1>
 
-        <div className="bg-white rounded-t-3xl p-6 space-y-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
           {/* Header con immagine e info base */}
           <div className="flex items-start gap-4">
             <img
@@ -217,21 +217,21 @@ const FastPayDetail = () => {
               alt={mainItem?.name || "Artwork"}
               className="rounded-lg object-cover w-24 h-24"
             />
-            <div className="flex-1">
-              <Typography variant="h6" className="!font-semibold text-tertiary">
+            <div className="flex-1 min-w-0">
+              <Typography variant="h6" fontWeight={600} color="text.primary">
                 Offerta N.{order.number}
               </Typography>
-              <Typography variant="body1" className="!mt-1 text-tertiary">
+              <Typography variant="body1" color="text.primary" sx={{ mt: 1 }}>
                 {mainItem?.name || "Opera d'arte"}
               </Typography>
               {order.billing?.first_name && (
-                <Typography variant="body2" className="!mt-1 text-tertiary">
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                   Cliente: {order.billing.first_name} {order.billing.last_name}
                 </Typography>
               )}
               {order.billing?.email && (
-                <Typography variant="body2" className="!mt-1 text-tertiary">
-                  Email: {order.billing.email}
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                  {order.billing.email}
                 </Typography>
               )}
             </div>
@@ -250,49 +250,41 @@ const FastPayDetail = () => {
           )}
 
           {/* Dettagli prezzo */}
-          <Box className="space-y-4">
+          <Box className="space-y-3">
             {parseFloat(order.discount_total || "0") > 0 && (
               <div>
                 <Typography variant="body2" color="text.secondary">
-                  Prezzo di partenza:
+                  Prezzo di listino
                 </Typography>
-                <Typography variant="body1" className="!mt-1 text-tertiary">
-                  {order.currency_symbol || "€"} {(parseFloat(order.total || "0") + parseFloat(order.discount_total || "0") * 1.05).toFixed(2)}
+                <Typography variant="body1" color="text.primary" sx={{ mt: 0.5 }}>
+                  {order.currency_symbol || "€"} {(parseFloat(order.total || "0") + parseFloat(order.discount_total || "0")).toFixed(2)}
                 </Typography>
               </div>
             )}
 
             <div>
               <Typography variant="body2" color="text.secondary">
-                Prezzo finale:
+                Prezzo offerta
               </Typography>
-              <Typography variant="body1" className="!mt-1 text-tertiary">
+              <Typography variant="body1" color="text.primary" sx={{ mt: 0.5 }}>
                 {order.currency_symbol || "€"} {parseFloat(order.total || "0").toFixed(2)}
               </Typography>
             </div>
 
             {parseFloat(order.discount_total || "0") > 0 && (
               <div>
-                <Typography variant="body2" color="text.secondary">
-                  Sconto applicato:
-                </Typography>
-                <Typography variant="body1" className={'text-tertiary !mb-4 !mt-1'}>{discountPercentage}%</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Risparmio:
-                </Typography>
-                <Typography variant="body1" className={'text-tertiary !mt-1'}>
-                  {order.currency_symbol || "€"} {(parseFloat(order.discount_total || "0") * 1.05).toFixed(2)}
+                <Typography variant="body2" color="text.secondary">Sconto applicato</Typography>
+                <Typography variant="body1" color="success.main" fontWeight={500} sx={{ mt: 0.5 }}>
+                  -{discountPercentage}% ({order.currency_symbol || "€"} {parseFloat(order.discount_total || "0").toFixed(2)})
                 </Typography>
               </div>
             )}
 
-            {mainItem?.meta_data && mainItem.meta_data.length > 0 && (
+            {mainItem?.meta_data && mainItem.meta_data.find((m: any) => m.key === "_product_description")?.value && (
               <div>
-                <Typography variant="body2" color="text.secondary">
-                  Descrizione opera
-                </Typography>
-                <Typography variant="body1" className="!mt-1">
-                  {mainItem.meta_data.find((m: any) => m.key === "_product_description")?.value || "N/A"}
+                <Typography variant="body2" color="text.secondary">Descrizione opera</Typography>
+                <Typography variant="body1" color="text.primary" sx={{ mt: 0.5 }}>
+                  {mainItem.meta_data.find((m: any) => m.key === "_product_description")?.value}
                 </Typography>
               </div>
             )}

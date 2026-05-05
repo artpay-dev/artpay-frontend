@@ -1,47 +1,34 @@
-import { create } from "zustand";
-import { Order } from "../../../types/order.ts";
-import { Gallery } from "../../../types/gallery.ts";
-import { PaymentIntent } from "@stripe/stripe-js";
-import { UserProfile } from "../../../types/user.ts";
+import { create } from 'zustand';
+import type { CdsOrderDetails, CdsPaymentIntent, PaymentMethod } from '../types';
 
-interface PaymentState {
-  order: Order | null;
-  vendor: Gallery | null;
-  total: number;
-  paymentStatus: Order["status"];
-  paymentMethod: string | null;
-  paymentIntent: PaymentIntent | null;
-  readyToPay: boolean;
+interface CdsPaymentState {
+  orderDetails: CdsOrderDetails | null;
+  paymentMethod: PaymentMethod | null;
+  paymentIntent: CdsPaymentIntent | null;
   loading: boolean;
-  isError: boolean;
-  receipt: boolean;
-  orderNote: string;
-  user: UserProfile | null;
-  openDraw?: boolean;
-  refreshTimestamp?: number;
-
-  setPaymentData: (data: Partial<PaymentState>) => void;
+  error: string | null;
+  setOrderDetails: (order: CdsOrderDetails | null) => void;
+  setPaymentMethod: (method: PaymentMethod | null) => void;
+  setPaymentIntent: (intent: CdsPaymentIntent | null) => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  reset: () => void;
   refreshOrders: () => void;
 }
 
-const usePaymentStore = create<PaymentState>((set) => ({
-  order: null,
-  vendor: null,
-  total: 0,
-  paymentStatus: "pending",
+const useCdsPaymentStore = create<CdsPaymentState>((set) => ({
+  orderDetails: null,
   paymentMethod: null,
   paymentIntent: null,
-  readyToPay: false,
   loading: false,
-  isError: false,
-  receipt: false,
-  orderNote: "",
-  user: null,
-  openDraw: false,
-  refreshTimestamp: 0,
-
-  setPaymentData: (data) => set((state) => ({ ...state, ...data })),
-  refreshOrders: () => set({ refreshTimestamp: Date.now() }),
+  error: null,
+  setOrderDetails: (orderDetails) => set({ orderDetails }),
+  setPaymentMethod: (paymentMethod) => set({ paymentMethod }),
+  setPaymentIntent: (paymentIntent) => set({ paymentIntent }),
+  setLoading: (loading) => set({ loading }),
+  setError: (error) => set({ error }),
+  reset: () => set({ orderDetails: null, paymentMethod: null, paymentIntent: null, loading: false, error: null }),
+  refreshOrders: () => {},
 }));
 
-export default usePaymentStore;
+export default useCdsPaymentStore;

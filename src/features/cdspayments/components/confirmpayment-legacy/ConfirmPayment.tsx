@@ -1,6 +1,6 @@
 import { Order } from "../../../../types/order.ts";
 import SkeletonCard from "../ui/paymentprovidercard/SkeletonCard.tsx";
-import KlarnaCard from "../ui/klarnacard/KlarnaCard.tsx";
+import KlarnaCard from "../ui/klarnacard-legacy/KlarnaCard.tsx";
 import SantanderCard from "../ui/santandercard/SantanderCard.tsx";
 import usePaymentStore from "../../stores/paymentStore.ts";
 

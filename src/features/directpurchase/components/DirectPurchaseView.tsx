@@ -15,7 +15,7 @@ import PaymentsSelection from "./PaymentsSelection.tsx";
 import PaymentProviderCard from "../../cdspayments/components/ui/paymentprovidercard/PaymentProviderCard.tsx";
 import BillingDataPreview from "../../../components/BillingDataPreview.tsx";
 import { Link, useNavigate } from "react-router-dom";
-import { BankTransfer } from "../../cdspayments/components/banktransfer";
+import { BankTransfer } from "../../cdspayments/components/banktransfer-legacy";
 import PaymentStatusPlaceholder from "./PaymentStatusPlaceholder.tsx";
 import SantanderIcon from "../../../components/icons/SantanderIcon.tsx";
 import Checkbox from "../../../components/Checkbox.tsx";
@@ -37,8 +37,6 @@ const DirectPurchaseView = () => {
     orderNumber?: number;
     orderTotal?: string;
   }>({ status: null });
-
-
 
   const {
     // State
@@ -103,6 +101,45 @@ const DirectPurchaseView = () => {
   const currentShippingMethod = getCurrentShippingMethod();
   const estimatedShippingCost = getEstimatedShippingCost();
   const thankYouPage = getThankYouPage();
+
+  // Helper per estrarre metadata specifici dell'ordine deposit
+  const getDepositMetadata = () => {
+    if (!pendingOrder?.meta_data) return null;
+
+    const depositAmount = pendingOrder.meta_data.find((m: any) => m.key === '_adp_deposit_amount')?.value;
+    const balanceAmount = pendingOrder.meta_data.find((m: any) => m.key === '_adp_balance_amount')?.value;
+    const depositStatus = pendingOrder.meta_data.find((m: any) => m.key === '_adp_deposit_status')?.value;
+
+    return {
+      depositAmount: depositAmount ? parseFloat(depositAmount) : null,
+      balanceAmount: balanceAmount ? parseFloat(balanceAmount) : null,
+      depositStatus,
+    };
+  };
+
+  const depositMetadata = getDepositMetadata();
+
+  // Ref per tracciare se il deposit è pagato (evita stale closure nel cleanup)
+  const depositPaidRef = useRef(false);
+  useEffect(() => {
+    depositPaidRef.current = depositMetadata?.depositStatus === "paid";
+  }, [depositMetadata?.depositStatus]);
+
+  // Elimina l'ordine deposit se l'utente lascia la pagina senza pagare l'acconto
+  useEffect(() => {
+    if (orderMode !== "deposit" || !pendingOrder?.id) return;
+
+    // Se c'è già un redirect_status in URL, il pagamento è in corso: non eliminare
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("redirect_status")) return;
+
+    return () => {
+      if (!depositPaidRef.current) {
+        data.setOrderStatus(pendingOrder.id, "cancelled").catch(console.error);
+        localStorage.removeItem(`deposit-balance-intents-${pendingOrder.id}`);
+      }
+    };
+  }, [orderMode, pendingOrder?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showBillingSection = userProfile && (requireInvoice || orderMode === "loan");
 
@@ -201,8 +238,7 @@ const DirectPurchaseView = () => {
   };
 
   const handleLoanRequest = () => {
-
-    handleUpdateCustomerNote("Richiesta prestito in corso", false);
+    handleUpdateCustomerNote("Ottenuto", false);
   };
 
   const handleLoanCompleted = () => {
@@ -295,6 +331,158 @@ const DirectPurchaseView = () => {
         <PaymentCard
           orderMode={orderMode}
           paymentMethod={paymentMethod || "card"}
+          checkoutButtonRef={checkoutButtonRef}
+          onCheckout={handleCheckout}
+          onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
+          onReady={() => updateState({ checkoutReady: true })}
+          paymentIntent={paymentIntent}
+          thankYouPage={thankYouPage}
+        />
+      );
+    }
+
+    // Se orderMode è "deposit", mostra il form di pagamento
+    if (orderMode === "deposit") {
+      const depositPaid = depositMetadata?.depositStatus === "paid";
+
+      // Acconto NON ancora pagato: mostra il form per completare il pagamento dell'acconto
+      if (!depositPaid) {
+        return (
+          <ContentCard
+            title="Pagamento acconto"
+            icon={<PiCreditCardThin size="28px" />}
+            contentPadding={0}
+            contentPaddingMobile={0}>
+            <PaymentProviderCard>
+              <div className="p-4 space-y-4">
+                {depositMetadata?.depositAmount && (
+                  <div className="w-full rounded-sm bg-[#FED1824D] p-3 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Acconto da pagare:</span>
+                      <span className="text-sm font-bold">€ {depositMetadata.depositAmount.toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+                <p className="text-secondary text-sm">
+                  Il pagamento dell'acconto è ancora da completare. Riprendi il checkout per concludere la transazione.
+                </p>
+                <PaymentCard
+                  orderMode={orderMode}
+                  paymentMethod={paymentMethod || pendingOrder?.payment_method || "card"}
+                  checkoutButtonRef={checkoutButtonRef}
+                  onCheckout={handleCheckout}
+                  onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
+                  onReady={() => updateState({ checkoutReady: true })}
+                  paymentIntent={paymentIntent}
+                  thankYouPage={thankYouPage}
+                />
+              </div>
+            </PaymentProviderCard>
+          </ContentCard>
+        );
+      }
+
+      // Acconto pagato: flusso per il saldo
+
+      // Se non ha ancora selezionato un metodo di pagamento
+      if (!paymentMethod) {
+        return <PaymentsSelection paymentMethod={paymentMethod} onChange={onChangePaymentMethod} />;
+      }
+
+      // Se ha selezionato Santander, mostra il flusso prestito
+      if (paymentMethod === "Santander" || pendingOrder?.payment_method === "Santander") {
+        // Se ha già confermato la richiesta di prestito, mostra il bonifico
+        if (
+          pendingOrder?.customer_note?.includes("Ottenuto") ||
+          pendingOrder?.customer_note?.includes("Documentazione caricata") ||
+          pendingOrder?.payment_method.includes("bank_transfer")
+        ) {
+          return (
+            <ContentCard
+              title="Pagamento"
+              icon={<PiCreditCardThin size="28px" />}
+              contentPadding={0}
+              contentPaddingMobile={0}>
+              <PaymentProviderCard>
+                <BankTransfer order={pendingOrder} handleRestoreOrder={handleCancelPaymentMethod} />
+              </PaymentProviderCard>
+            </ContentCard>
+          );
+        }
+
+        // Altrimenti mostra il form per richiedere il prestito Santander
+        return (
+          <ContentCard
+            title="Finanziamento"
+            icon={<PiCreditCardThin size="28px" />}
+            contentPadding={0}
+            contentPaddingMobile={0}>
+            <PaymentProviderCard
+              icon={<SantanderIcon />}
+              cardTitle={"Santander"}
+              subtitle={"A partire da € 1.500,00 fino a € 30.000,00"}>
+              <ol className={"list-decimal ps-4 space-y-1 border-b border-zinc-300 pb-6"}>
+                <li>Richiedi finanziamento</li>
+                <li>Calcola rata e conferma richiesta</li>
+                <li>Paga su artpay con il finanziamento ricevuto</li>
+              </ol>
+              <div className={"w-full flex justify-between py-4"}>
+                <div>
+                  <strong>Saldo da pagare:</strong>
+                  <p className={"text-secondary text-xs"}>Incluse commissioni artpay</p>
+                </div>
+                <strong>
+                  €&nbsp;
+                  {depositMetadata
+                    ? (depositMetadata.balanceAmount ?? 0).toLocaleString("it-IT", {
+                        maximumFractionDigits: 2,
+                        minimumFractionDigits: 2,
+                      })
+                    : Number(pendingOrder?.total)?.toLocaleString("it-IT", {
+                        maximumFractionDigits: 2,
+                        minimumFractionDigits: 2,
+                      })
+                  }
+                </strong>
+              </div>
+              <p className={"mt-6 text-secondary text-xs"}>
+                Il costo del finanziamento varia in base al piano scelto
+              </p>
+              <button
+                disabled={!privacyChecked || isSaving}
+                onClick={handleSantanderLoanRequest}
+                className={
+                  "artpay-button-style w-full bg-primary hover:bg-primary-hover text-white disabled:opacity-60"
+                }>
+                {isSaving ? "Avvio in corso..." : "Avvia richiesta prestito"}
+              </button>
+              <Checkbox
+                disabled={isSaving}
+                checked={privacyChecked}
+                onChange={(e) => updateState({ privacyChecked: e.target.checked })}
+                label={
+                  <Typography variant="body1">
+                    Accetto le{" "}
+                    <Link to="/condizioni-generali-di-acquisto" target="_blank" className={'underline text-primary'}>
+                      condizioni generali d'acquisto
+                    </Link>
+                  </Typography>
+                }
+              />
+            </PaymentProviderCard>
+
+            <PaymentProviderCard backgroundColor={'bg-[#FAFAFB] mt-6'}>
+              <Button variant={'link'} className={'!text-primary '} onClick={handleLoanRequest}>Ho già richiesto il prestito</Button>
+            </PaymentProviderCard>
+          </ContentCard>
+        );
+      }
+
+      // Mostra sempre PaymentCard (gestirà internamente il caso senza payment intent per deposit)
+      return (
+        <PaymentCard
+          orderMode={orderMode}
+          paymentMethod={paymentMethod || pendingOrder?.payment_method || "card"}
           checkoutButtonRef={checkoutButtonRef}
           onCheckout={handleCheckout}
           onChange={(payment_method: string) => onChangePaymentMethod(payment_method)}
@@ -632,7 +820,7 @@ const DirectPurchaseView = () => {
         if (!completedOrderId) return;
 
         switch (paymentIntent?.status) {
-          case "succeeded":
+          case "succeeded": {
             // Mappa i payment methods ai loro display names
             const getPaymentMethodDisplay = (method: string | null) => {
               switch (method) {
@@ -672,6 +860,7 @@ const DirectPurchaseView = () => {
             localStorage.removeItem("checkoutUrl");
             navigate(`/complete-order/${pendingOrder?.id}`);
             break;
+          }
 
           case "requires_capture":
             if (orderMode === "loan") {
@@ -863,7 +1052,35 @@ const DirectPurchaseView = () => {
               )}
               <Divider sx={{ my: 3, borderColor: "#d8ddfa" }} />
               <Box display="flex" flexDirection="column" gap={2} sx={{ px: 2 }}>
-                {orderMode === "loan" ? (
+                {orderMode === "deposit" ? (
+                  <>
+                    <Box display="flex" justifyContent="space-between">
+                      <Typography variant="body1" fontWeight={500}>
+                        Totale opera
+                      </Typography>
+                      <Typography variant="body1" fontWeight={500}>
+                        € {pendingOrder?.total}
+                      </Typography>
+                    </Box>
+                    <Box display="flex" justifyContent="space-between">
+                      <Typography variant="body1" fontWeight={500} sx={{ color: 'success.main' }}>
+                        Acconto pagato ✓
+                      </Typography>
+                      <Typography variant="body1" fontWeight={500} sx={{ color: 'success.main' }}>
+                        - € {depositMetadata?.depositAmount?.toFixed(2) || '0.00'}
+                      </Typography>
+                    </Box>
+                    <Divider sx={{ my: 1 }} />
+                    <Box display="flex" justifyContent="space-between">
+                      <Typography variant="subtitle1" fontSize={20} fontWeight={700}>
+                        Saldo da pagare
+                      </Typography>
+                      <Typography variant="subtitle1" fontSize={20} fontWeight={700} sx={{ color: 'primary.main' }}>
+                        € {depositMetadata?.balanceAmount?.toFixed(2) || (+(pendingOrder?.total || 0)).toFixed(2)}
+                      </Typography>
+                    </Box>
+                  </>
+                ) : orderMode === "loan" ? (
                   <>
                     <Box display="flex" justifyContent="space-between">
                       <Typography variant="body1" fontWeight={500}>

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Order, ShippingMethodOption } from "../../../types/order.ts";
+import { DepositBalanceIntents, Order, ShippingMethodOption } from "../../../types/order.ts";
 import { UserProfile } from "../../../types/user.ts";
 import { PaymentIntent } from "@stripe/stripe-js";
 import { ArtworkCardProps } from "../../../components/ArtworkCard.tsx";
@@ -25,9 +25,10 @@ export interface DirectPurchaseState {
   availableShippingMethods: ShippingMethodOption[];
   pendingOrder?: Order;
   paymentIntent?: PaymentIntent;
+  depositBalanceIntents?: DepositBalanceIntents;
   artworks: ArtworkCardProps[];
   galleries: Gallery[];
-  orderMode: "standard" | "loan" | "redeem" | "onHold";
+  orderMode: "standard" | "loan" | "redeem" | "onHold" | "deposit";
 
   // Actions
   setDirectPurchaseData: (data: Partial<DirectPurchaseState>) => void;
@@ -37,7 +38,7 @@ export interface DirectPurchaseState {
     'showCommissioni' | 'subtotal' | 'loading' | 'isProcessingCheckout'>>) => void;
   updatePageData: (updates: Partial<Pick<DirectPurchaseState,
     'userProfile' | 'availableShippingMethods' | 'pendingOrder' | 'paymentIntent' |
-    'artworks' | 'galleries'>>) => void;
+    'depositBalanceIntents' | 'artworks' | 'galleries'>>) => void;
   reset: () => void;
 }
 

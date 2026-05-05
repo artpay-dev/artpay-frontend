@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import MiddleInfoLayout from "../features/cdspayments/layouts/middleinfolayout/MiddleInfoLayout.tsx";
-import Payments from "../features/cdspayments/components/payments/Payments.tsx";
+import Payments from "../features/cdspayments/components/payments-legacy/Payments.tsx";
 
 export interface HomeProps {
 }

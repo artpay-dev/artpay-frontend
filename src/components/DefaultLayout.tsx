@@ -6,7 +6,7 @@ import Footer from "./Footer.tsx";
 import { Breakpoint } from "@mui/system";
 import usePaymentStore from "../features/cdspayments/stores/paymentStore.ts";
 import GalleryNavbar from "./GalleryNavbar.tsx";
-import ToolTip from "../features/cdspayments/components/ui/tooltip/ToolTip.tsx";
+import ToolTip from "../features/cdspayments/components/ui/tooltip-legacy/ToolTip.tsx";
 
 export interface DefaultLayoutProps {
   authRequired?: boolean;

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useData } from "../hoc/DataProvider.tsx";
 import { useStripe } from "@stripe/react-stripe-js";
 import { useAuth } from "../hoc/AuthProvider.tsx";
-import Tooltip from "../features/cdspayments/components/ui/tooltip/ToolTip.tsx";
+import Tooltip from "../features/cdspayments/components/ui/tooltip-legacy/ToolTip.tsx";
 import Navbar from "../features/cdspayments/components/ui/navbar/Navbar.tsx";
 import useDirectPurchaseStore from "../features/directpurchase/stores/directPurchaseStore";
 import { Link, NavLink, useNavigate } from "react-router-dom";

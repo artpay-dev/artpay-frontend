@@ -214,8 +214,8 @@ const FastPayCreate = () => {
 
   return (
     <>
-      <h1 className={"text-4xl text-white mx-auto w-full max-w-lg px-8 font-light mb-12"}>Crea offerta</h1>
-      <main className={` py-6 w-full  rounded-t-3xl bottom-0 bg-white max-w-lg mx-auto flex-1`}>
+      <h1 className={"text-4xl text-gray-900 mx-auto w-full max-w-lg px-8 font-light mb-6"}>Crea offerta</h1>
+      <main className={"py-6 w-full rounded-2xl bg-white max-w-lg mx-auto flex-1 shadow-sm"}>
         {!isComplete && (
           <div className={"px-8"}>
             <div className={"flex items-center justify-between"}>

@@ -18,6 +18,7 @@ import {
 import { HomeContent } from "../types/home.ts";
 import { PromoComponentType } from "../components/PromoItem.tsx";
 import {
+  DepositBalanceIntents,
   Order,
   OrderCreateRequest,
   OrderFilters,
@@ -130,6 +131,10 @@ export interface DataContext {
 
   createBlockIntent(body: PaymentIntentRequest): Promise<PaymentIntent>;
 
+  payDepositBalance(orderId: number): Promise<DepositBalanceIntents>;
+
+  deleteOrder(orderId: number): Promise<void>;
+
   clearCachedPaymentIntent(body: PaymentIntentRequest): Promise<void>;
 
   getArtist(id: string): Promise<Artist>;
@@ -222,6 +227,8 @@ const defaultContext: DataContext = {
   createPaymentIntentCds: () => Promise.reject("Data provider loaded"),
   createRedeemIntent: () => Promise.reject("Data provider loaded"),
   createBlockIntent: () => Promise.reject("Data provider loaded"),
+  payDepositBalance: () => Promise.reject("Data provider loaded"),
+  deleteOrder: () => Promise.reject("Data provider loaded"),
   clearCachedPaymentIntent: () => Promise.reject("Data provider loaded"),
   getUserInfo: () => Promise.reject("Data provider loaded"),
   getUserProfile: () => Promise.reject("Data provider loaded"),
@@ -817,6 +824,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         }
       },
 
+      //GET /wp-json/wc/v3/orders?order_key={wc_order_key}
+
       async getOrder(id: number): Promise<Order | null> {
         const resp = await axios.get<unknown, AxiosResponse<Order>>(`${baseUrl}/wp-json/wc/v3/orders/${id}`, {
           headers: { Authorization: auth.getAuthToken() },
@@ -877,6 +886,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
           },
         );
         return resp.data;
+      },
+      async deleteOrder(orderId: number): Promise<void> {
+        await axios.delete(
+          `${baseUrl}/wp-json/wc/v3/orders/${orderId}?force=true`,
+          { headers: { Authorization: auth.getAuthToken() } },
+        );
       },
       async purchaseArtwork(artworkId: number, loan = false): Promise<Order> {
         // , loan = false
@@ -963,11 +978,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         } catch (error) {
           if (
             isAxiosError(error) &&
-            error.response?.data?.error === "Vendor has not connected their Stripe account"
+            (
+              error.response?.data?.error === "Vendor has not connected their Stripe account" ||
+              error.response?.data?.message?.includes("No such destination")
+            )
           ) {
             console.log("Vendor Stripe account not connected, using fallback endpoint");
             const fallbackResp = await axios.post<PaymentIntentRequest, AxiosResponse<PaymentIntent>>(
-              `https://vendor.artpay.art/wp-json/wc/v3/stripe/payment_intent`,
+              `${baseUrl}/wp-json/wc/v3/stripe/payment_intent`,
               body,
               {
                 headers: {
@@ -1071,6 +1089,18 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         );
         // localStorage.setItem(cacheKey, JSON.stringify(resp.data));
         return resp.data;
+      },
+      async payDepositBalance(orderId: number): Promise<DepositBalanceIntents> {
+        const resp = await axios.post<{ order_id: number }, AxiosResponse<{ success: boolean; data: DepositBalanceIntents }>>(
+          `${baseUrl}/wp-json/adp/v1/balance/pay`,
+          { order_id: orderId },
+          {
+            headers: {
+              Authorization: auth.getAuthToken(),
+            },
+          },
+        );
+        return resp.data.data;
       },
       async clearCachedPaymentIntent(body: PaymentIntentRequest): Promise<void> {
         const cacheKey = `payment-intents-${body.wc_order_key}`;
