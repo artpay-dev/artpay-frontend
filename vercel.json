@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    {
+      "source": "/api/sso/:path*",
+      "destination": "https://vendor.artpay.art/wp-json/artpay-sso/:path*"
+    },
     { "source": "/(.*)", "destination": "/" }
   ]
 }
