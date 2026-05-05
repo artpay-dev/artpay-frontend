@@ -64,6 +64,7 @@ import ArtMatch from "./pages/artmatch/ArtMatch.tsx";
 import HistoryQuotesPage from "./pages/HistoryQuotesPage.tsx";
 import DepositTestPage from "./pages/deposit/DepositTestPage.tsx";
 import DepositPage from "@/pages/deposit/DepositPage.tsx";
+import HomeThePhair from "@/pages/HomeTePhair.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -93,6 +94,7 @@ function AppContent() {
                 <PaymentProvider>
                   <Routes>
                     <Route path="/" element={<Home />} />
+                    <Route path="/thephair" element={<HomeThePhair />} />
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/showcase" element={<Showcase />} />
                     <Route path="/gallerie" element={<Galleries />} />

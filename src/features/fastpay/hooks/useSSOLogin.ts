@@ -39,10 +39,8 @@ export const useSSOLogin = (): SSOState => {
 
     if (!ssoToken) return;
 
-    const baseUrl = import.meta.env.VITE_SERVER_URL || "";
-
     axios
-      .post<SSOExchangeResponse>(`${baseUrl}/wp-json/artpay-sso/v1/exchange-token`, { token: ssoToken })
+      .post<SSOExchangeResponse>(`/api/sso/v1/exchange-token`, { token: ssoToken })
       .then((resp) => {
         const { id, email, display_name, roles, wc_api_user_keys } = resp.data;
 
