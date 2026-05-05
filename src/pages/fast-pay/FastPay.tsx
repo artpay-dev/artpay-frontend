@@ -50,7 +50,7 @@ const FastPay = () => {
   }
 
   return (
-    <main className="text-white text-2xl flex flex-col h-full mx-auto max-w-lg px-6">
+    <main className="text-2xl flex flex-col h-full mx-auto max-w-lg px-6">
       {/*<h1 className={"text-secondary "}>Menu FastPay</h1>*/}
       <ul className={"mt-6 space-y-6"}>
         <li className={'space-y-2'}>

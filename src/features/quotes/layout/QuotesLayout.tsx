@@ -54,7 +54,7 @@ const QuotesLayout = () => {
 
   return (
     <>
-      <div className="bg-tertiary min-h-screen w-full flex flex-col">
+      <div className="bg-gray-50 min-h-screen w-full flex flex-col">
         <nav className="fixed top-0 left-0 right-0 z-50 pt-6 pb-6 w-full px-6">
           <div className="flex items-center justify-center w-full max-w-lg md:mx-auto">
             <div className="custom-navbar bg-white p-6 w-fit">

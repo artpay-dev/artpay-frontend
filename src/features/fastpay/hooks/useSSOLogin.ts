@@ -19,11 +19,11 @@ interface SSOState {
 
 const VENDOR_ROLES = ["dc_vendor", "vendor", "wcfm_vendor"];
 
-const hasSSOToken = () => !!new URLSearchParams(window.location.search).get("sso_token");
+const hasSSOToken = () => !!new URLSearchParams(window.location.search).get("token");
 
 const cleanSSOTokenFromURL = () => {
   const params = new URLSearchParams(window.location.search);
-  params.delete("sso_token");
+  params.delete("token");
   const newSearch = params.toString();
   window.history.replaceState({}, "", window.location.pathname + (newSearch ? `?${newSearch}` : ""));
 };
@@ -35,7 +35,7 @@ export const useSSOLogin = (): SSOState => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const ssoToken = params.get("sso_token");
+    const ssoToken = params.get("token");
 
     if (!ssoToken) return;
 
