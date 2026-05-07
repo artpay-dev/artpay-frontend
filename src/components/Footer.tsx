@@ -62,7 +62,7 @@ const Footer: React.FC<FooterProps> = ({}) => {
         </Grid>
         <Grid xs={12} md={4} item></Grid>
       </Grid>*/}
-      <Grid sx={gridProps} container>
+      {/*<Grid sx={gridProps} container>
         <NewsletterSmall />
         <Grid xs={12} md={3} item>
           <Typography variant="body1" fontWeight={600}>
@@ -107,7 +107,7 @@ const Footer: React.FC<FooterProps> = ({}) => {
         </Grid>
 
 
-      </Grid>
+      </Grid>*/}
 
       <Grid sx={{ ...gridProps, pb: { xs: 12, md: 8 }, pt: 0 }} container>
         <Grid xs={12} item><Divider sx={{ width: "100%", borderColor: "#CDCFD3", pt: 6, mb: 2 }} /> </Grid>
