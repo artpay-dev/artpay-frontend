@@ -421,6 +421,26 @@ export const quoteService = {
   },
 
   /**
+   * Recupera la commissione del vendor
+   */
+  async getVendorCommission(): Promise<{ commission_percentage: number; months_since_registration: number }> {
+    const vendorUserStr = localStorage.getItem("vendor-user");
+    if (!vendorUserStr) {
+      throw new Error("Vendor non autenticato");
+    }
+
+    const vendorUser = JSON.parse(vendorUserStr);
+    const { consumer_key, consumer_secret } = vendorUser.wc_api_user_keys;
+    const wcCredentials = btoa(`${consumer_key}:${consumer_secret}`);
+
+    const resp = await axios.get(`${baseUrl}/wp-json/wc-quote/v1/vendor/commission`, {
+      headers: { Authorization: "Basic " + wcCredentials },
+    });
+
+    return resp.data;
+  },
+
+  /**
    * Crea una nuova opera d'arte (prodotto + artista)
    */
   async createArtwork(artworkData: {

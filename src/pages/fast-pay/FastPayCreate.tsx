@@ -26,7 +26,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import OfferCard from "../../features/fastpay/components/offer-card/offer-card.tsx";
 import { Order } from "../../types/order.ts";
 import { Artwork } from "../../types/artwork.ts";
@@ -47,6 +47,13 @@ const FastPayCreate = () => {
   const [couponCode, setCouponCode] = useState<string | null>(null);
   const [creatingArtwork, setCreatingArtwork] = useState<boolean>(false);
   const [createArtworkError, setCreateArtworkError] = useState<string>("");
+  const [commissionPercentage, setCommissionPercentage] = useState<number | null>(null);
+
+  useEffect(() => {
+    quoteService.getVendorCommission()
+      .then((data) => setCommissionPercentage(data.commission_percentage))
+      .catch(() => setCommissionPercentage(null));
+  }, []);
 
   const [formData, setFormData] = useState({
     titolo: "",
@@ -157,14 +164,13 @@ const FastPayCreate = () => {
         const couponData = {
           code: couponCode,
           discount_type: "percent",
-          amount: formData.sconto, // Usa direttamente il valore stringa dal form
+          amount: formData.sconto,
         };
 
         const couponCreated = await quoteService.createCoupon(couponData);
         if (couponCreated) {
           setCouponCode(couponCreated.code);
         }
-
       }
 
       // Prepara i dati dell'ordine per la chiamata API
@@ -177,7 +183,6 @@ const FastPayCreate = () => {
             quantity: 1,
           },
         ],
-        // Aggiungi il coupon direttamente alla creazione dell'ordine
         coupon_lines: couponCode ? [{ code: couponCode }] : [],
         meta_data: [
           // Marca questo ordine come preventivo FastPay
@@ -352,6 +357,56 @@ const FastPayCreate = () => {
                   }}
                   sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, height: 48, paddingRight: 2 } }}
                 />
+
+                {commissionPercentage !== null && formData.prezzo && (() => {
+                  const prezzoBase = parseFloat(formData.prezzo) || 0;
+                  const scontoPerc = parseFloat(formData.sconto) || 0;
+                  const prezzoOfferto = prezzoBase * (1 - scontoPerc / 100);
+                  const commissioneArtpay = prezzoOfferto * (commissionPercentage / 100);
+                  const guadagnoNetto = prezzoOfferto - commissioneArtpay;
+
+                  return (
+                    <Box
+                      sx={{
+                        borderRadius: 2,
+                        border: "1px solid",
+                        borderColor: "divider",
+                        bgcolor: "grey.50",
+                        px: 2.5,
+                        py: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 1,
+                      }}
+                    >
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        Riepilogo guadagno
+                      </Typography>
+                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                        <Typography variant="body2" color="text.secondary">Prezzo di listino</Typography>
+                        <Typography variant="body2">€{prezzoBase.toFixed(2)}</Typography>
+                      </Box>
+                      {scontoPerc > 0 && (
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <Typography variant="body2" color="text.secondary">Sconto applicato ({scontoPerc}%)</Typography>
+                          <Typography variant="body2" color="error.main">−€{(prezzoBase - prezzoOfferto).toFixed(2)}</Typography>
+                        </Box>
+                      )}
+                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700 }}>Prezzo offerto al cliente</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 700 }}>€{prezzoOfferto.toFixed(2)}</Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                        <Typography variant="body2" color="text.secondary">Commissione Artpay ({commissionPercentage}%)</Typography>
+                        <Typography variant="body2" color="error.main">−€{commissioneArtpay.toFixed(2)}</Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", pt: 1, borderTop: "1px solid", borderColor: "divider" }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700 }}>Guadagno netto</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: "success.main" }}>€{guadagnoNetto.toFixed(2)}</Typography>
+                      </Box>
+                    </Box>
+                  );
+                })()}
 
                 <FormControlLabel
                   control={<Switch checked={formData.hasScadenza} onChange={handleSwitchChange} color="primary" />}

@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "https://gallerie.artpay.art",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/sso/:path*",
