@@ -113,8 +113,8 @@ const HomeThePhair: React.FC<HomeProps> = () => {
       </section>
 
       {/* ── ABOUT ── */}
-      <section id="features" className="min-h-screen w-full flex flex-col items-center justify-center px-6 py-40 bg-white">
-        <div className="w-full flex flex-col items-center gap-16">
+      <section id="features" className="min-h-screen w-full flex flex-col items-center justify-center px-6 py-20 bg-white">
+        <div className="w-full flex flex-col items-center gap-10">
 
           {/* Intestazione */}
           <div className="text-center flex flex-col gap-3 max-w-5xl">
@@ -157,7 +157,7 @@ const HomeThePhair: React.FC<HomeProps> = () => {
       </section>
 
       {/* ── PROMO ── */}
-      <section className="min-h-screen w-full flex flex-col items-center justify-center px-6 py-40">
+      <section className="min-h-screen w-full flex flex-col items-center justify-center px-6 py-20">
         <div className="w-full rounded-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2" style={{ backgroundColor: "rgb(224, 222, 216)" }}>
           {/* Immagine */}
           <div className="relative min-h-[400px] md:min-h-full">
@@ -182,8 +182,8 @@ const HomeThePhair: React.FC<HomeProps> = () => {
       </section>
 
       {/* ── FEATURES ── */}
-      <section className="w-full flex flex-col items-center px-6 py-40 bg-gray-50">
-        <div className="w-full max-w-6xl flex flex-col items-center gap-16">
+      <section className="w-full flex flex-col items-center px-6 py-20 bg-gray-50">
+        <div className="w-full max-w-6xl flex flex-col items-center gap-10">
 
           {/* Intestazione */}
           <div className="text-center flex flex-col gap-3">
@@ -252,7 +252,7 @@ const HomeThePhair: React.FC<HomeProps> = () => {
 
 
       {/* ── CTA GALLERIE ── */}
-      <section id="cta-gallerie" className="w-full flex items-center justify-center px-6 py-40 bg-white">
+      <section id="cta-gallerie" className="w-full flex items-center justify-center px-6 py-20 bg-white">
         <div className="w-full max-w-5xl rounded-2xl bg-gray-900 px-12 py-16 flex flex-col md:flex-row items-start justify-between gap-12">
           {/* Testo + bullet */}
           <div className="flex flex-col gap-6">
@@ -293,8 +293,8 @@ const HomeThePhair: React.FC<HomeProps> = () => {
       </section>
 
       {/* ── GALLERY / GALLERIE ── */}
-      <section className="w-full flex flex-col items-center justify-center px-6 py-40 bg-white">
-        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+      <section className="w-full flex flex-col items-center justify-center px-6 py-20 bg-white">
+        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
 
           {/* Testo sx */}
           <div className="flex flex-col gap-6">
@@ -332,8 +332,8 @@ const HomeThePhair: React.FC<HomeProps> = () => {
 
 
       {/* ── PARTNER ── */}
-      <section className="w-full flex flex-col items-center justify-center px-6 py-32 bg-white">
-        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+      <section className="w-full flex flex-col items-center justify-center px-6 py-16 bg-white">
+        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
 
           {/* Sx — testo */}
           <div className="flex flex-col gap-5">
@@ -360,8 +360,8 @@ const HomeThePhair: React.FC<HomeProps> = () => {
       </section>
 
       {/* ── HTSI ── */}
-      <section className="w-full flex flex-col items-center justify-center px-6 py-32 bg-white">
-        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+      <section className="w-full flex flex-col items-center justify-center px-6 py-16 bg-white">
+        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
 
           {/* Sx — testo */}
           <div className="flex flex-col gap-5">
