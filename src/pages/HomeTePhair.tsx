@@ -170,10 +170,10 @@ const HomeThePhair: React.FC<HomeProps> = () => {
           {/* Testo */}
           <div className="flex flex-col justify-center gap-6 p-12 md:p-16">
             <h2 className="text-4xl md:text-5xl font-light text-gray-900 leading-[1.05] tracking-tight">
-              Partner fintech The Phair 2026
+              Partner fintech <br/> The Phair 2026
             </h2>
             <p className="text-gray-500 leading-relaxed">
-              Il 22–25 maggio all’OGR di Torino. artpay è il partner fintech ufficiale dell’edizione 2026. <br/> <br/>
+              Il 22–25 maggio alle OGR di Torino. artpay è il partner fintech ufficiale dell’edizione 2026. <br/> <br/>
 
               Un appuntamento imperdibile dedicato alla fotografia e alle immagini contemporanee, capace di mettere in dialogo artisti, gallerie e pubblico internazionale. Saremo presenti per supportare l’innovazione nei pagamenti e contribuire a un’esperienza ancora più fluida e digitale.
             </p>
@@ -367,9 +367,9 @@ const HomeThePhair: React.FC<HomeProps> = () => {
           <div className="flex flex-col gap-5">
             <span className="text-sm font-semibold tracking-widest uppercase text-primary">Riconoscimenti</span>
             <h2 className="text-4xl md:text-5xl font-semibold text-gray-900 leading-[1.05] tracking-tight">
-              Best Luxury Startup 2025 <br/> <span className={'text-gray-400'}>How to Spend It — Il Sole 24 Ore</span>
+              Best Luxury Startup 2025 <br/> <span className={'text-gray-400'}>How to Spend It - <br/>Il Sole 24 Ore</span>
             </h2>
-            <p className="text-base text-gray-500 leading-relaxed">
+            <p className="text-base text-gray-500 leading-relaxed text-balance">
               Siamo stati selezionati e premiati tra le migliori startup italiane dal Sole 24 Ore, a conferma della solidità del nostro modello e della visione innovativa che portiamo nel mercato dell’arte.
             </p>
           </div>
