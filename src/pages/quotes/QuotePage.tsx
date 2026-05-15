@@ -7,6 +7,7 @@ import { quoteService } from "../../services/quoteService";
 import CountdownTimer from "../../components/CountdownTimer";
 
 const KLARNA_FEE = 0.05;
+const KLARNA_MAX_AMOUNT = 2500;
 
 type PageStatus = "loading" | "loaded" | "accepted" | "rejected" | "error";
 
@@ -178,15 +179,16 @@ const QuotePage = () => {
   const hasExpiryDate = !!expiryDateMeta;
   const expiryDate = hasExpiryDate ? new Date(expiryDateMeta.value) : null;
 
-  const couponLine = order.coupon_lines?.[0];
-  const couponData = couponLine?.meta_data?.find((meta: any) => meta.key === "coupon_data")?.value;
-  const discountPercentage = couponData?.amount || "0";
-
   const mainItem = order.line_items?.[0];
   const imageUrl = typeof mainItem?.image === 'string' ? mainItem.image : mainItem?.image?.src;
   const currencySymbol = order.currency_symbol || (order.currency === 'EUR' ? '€' : order.currency);
 
   const baseTotal = parseFloat(order.total || "0");
+  const listPrice = parseFloat(mainItem?.subtotal || "0") || baseTotal;
+  const discountAmount = listPrice - baseTotal;
+  const hasDiscount = discountAmount > 0.009;
+  const discountPercent = hasDiscount ? ((discountAmount / listPrice) * 100).toFixed(0) : "0";
+  const klarnaAvailable = baseTotal <= KLARNA_MAX_AMOUNT;
   const klarnaFeeAmount = paymentMethod === "klarna" ? baseTotal * KLARNA_FEE : 0;
   const finalTotal = baseTotal + klarnaFeeAmount;
 
@@ -254,18 +256,18 @@ const QuotePage = () => {
               </Typography>
             </div>
 
-            {parseFloat(order.discount_total || "0") > 0 && (
+            {hasDiscount && (
               <>
                 <div>
                   <Typography variant="body2" color="text.secondary">Prezzo di listino</Typography>
                   <Typography variant="body1" color="text.primary" sx={{ mt: 0.5 }}>
-                    {currencySymbol} {(baseTotal + parseFloat(order.discount_total || "0")).toFixed(2)}
+                    {currencySymbol} {listPrice.toFixed(2)}
                   </Typography>
                 </div>
                 <div>
                   <Typography variant="body2" color="text.secondary">Sconto applicato</Typography>
                   <Typography variant="body1" color="success.main" fontWeight={500} sx={{ mt: 0.5 }}>
-                    -{discountPercentage}% ({currencySymbol} {parseFloat(order.discount_total || "0").toFixed(2)})
+                    -{discountPercent}% ({currencySymbol} {discountAmount.toFixed(2)})
                   </Typography>
                 </div>
               </>
@@ -315,15 +317,17 @@ const QuotePage = () => {
                 control={<Radio size="small" />}
                 label={<Typography variant="body2" color="text.primary">Carta di credito/debito</Typography>}
               />
-              <FormControlLabel
-                value="klarna"
-                control={<Radio size="small" />}
-                label={
-                  <Typography variant="body2" color="text.primary">
-                    Klarna (paga dopo) — commissione +{(KLARNA_FEE * 100).toFixed(0)}%
-                  </Typography>
-                }
-              />
+              {klarnaAvailable && (
+                <FormControlLabel
+                  value="klarna"
+                  control={<Radio size="small" />}
+                  label={
+                    <Typography variant="body2" color="text.primary">
+                      Klarna (paga dopo) — commissione +{(KLARNA_FEE * 100).toFixed(0)}%
+                    </Typography>
+                  }
+                />
+              )}
             </RadioGroup>
           </Box>
 
