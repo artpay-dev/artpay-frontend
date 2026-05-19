@@ -3,11 +3,15 @@ import { useSearchParams } from "react-router-dom";
 import { Alert, Button, CircularProgress, Typography, Box, Divider, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 import { CheckCircle, Cancel } from "@mui/icons-material";
 import { Order } from "../../types/order";
-import { quoteService } from "../../services/quoteService";
+import { quoteService, BankTransferInstructions } from "../../services/quoteService";
 import CountdownTimer from "../../components/CountdownTimer";
+import SantanderIcon from "../../components/icons/SantanderIcon";
 
 const KLARNA_FEE = 0.05;
 const KLARNA_MAX_AMOUNT = 2500;
+const BANK_TRANSFER_MIN = 2500;
+const BANK_TRANSFER_MAX = 30000;
+const SANTANDER_URL = "https://www.santanderconsumer.it/prestito/partner/artpay";
 
 type PageStatus = "loading" | "loaded" | "accepted" | "rejected" | "error";
 
@@ -19,7 +23,8 @@ const QuotePage = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [processing, setProcessing] = useState<boolean>(false);
   const [vendorName, setVendorName] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "klarna">("card");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "klarna" | "bank_transfer">("card");
+  const [bankTransferInstructions, setBankTransferInstructions] = useState<BankTransferInstructions | null>(null);
 
   const orderId = searchParams.get("order_id");
   const orderKey = searchParams.get("key");
@@ -81,12 +86,92 @@ const QuotePage = () => {
 
     try {
       setProcessing(true);
-      await quoteService.acceptQuote({
+      const response = await quoteService.acceptQuote({
         order_key: orderKey,
         email,
         payment_method: paymentMethod,
         add_klarna_fee: paymentMethod === "klarna",
       });
+      if (paymentMethod === "bank_transfer" && response.payment_intent?.bank_transfer_instructions) {
+        const instructions = response.payment_intent.bank_transfer_instructions;
+        setBankTransferInstructions(instructions);
+
+        const ibanInfo = instructions.financial_addresses?.[0]?.iban;
+        const amount = (instructions.amount_remaining / 100).toFixed(2);
+        const recipientName = `${order?.billing?.first_name || ""} ${order?.billing?.last_name || ""}`.trim();
+
+        await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: {
+            "api-key": import.meta.env.VITE_BREVO_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sender: { name: "artpay", email: "noreply@artpay.art" },
+            to: [{ email, name: recipientName }],
+            subject: "Istruzioni per il bonifico – artpay",
+            htmlContent: `<!DOCTYPE html>
+<html lang="it">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:'Inter',Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:40px 16px">
+    <tr><td align="center">
+      <table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;max-width:520px;width:100%">
+
+        <!-- Header -->
+        <tr>
+          <td style="background:#3E4EEC;padding:32px 40px">
+            <div style="color:#ffffff;font-size:22px;font-weight:300;letter-spacing:-0.5px">artpay</div>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding:40px">
+            <p style="margin:0 0 8px;font-size:13px;color:#3E4EEC;font-weight:600;text-transform:uppercase;letter-spacing:1px">Bonifico bancario</p>
+            <h1 style="margin:0 0 16px;font-size:24px;font-weight:400;color:#111">Istruzioni per il pagamento</h1>
+            <p style="margin:0 0 32px;font-size:15px;color:#666;line-height:1.6">
+              Ciao${recipientName ? ` <strong>${recipientName}</strong>` : ""},<br/>
+              hai accettato l'offerta. Effettua il bonifico con i dati qui sotto per completare l'acquisto. Il pagamento verrà confermato automaticamente.
+            </p>
+
+            <!-- Dati bonifico -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:12px;overflow:hidden">
+              ${[
+                ["Intestatario", ibanInfo?.account_holder_name],
+                ["IBAN", ibanInfo?.iban],
+                ["BIC / SWIFT", ibanInfo?.bic],
+                ["Causale", instructions.reference],
+                ["Importo da versare", `<strong style="color:#3E4EEC;font-size:16px">${amount} ${instructions.currency.toUpperCase()}</strong>`],
+              ].map(([label, value], i, arr) => `
+                <tr style="background:${i % 2 === 0 ? "#fafafa" : "#ffffff"}">
+                  <td style="padding:14px 20px;font-size:13px;color:#888;width:42%;${i < arr.length - 1 ? "border-bottom:1px solid #eee" : ""}">${label}</td>
+                  <td style="padding:14px 20px;font-size:14px;color:#111;font-weight:600;${i < arr.length - 1 ? "border-bottom:1px solid #eee" : ""}">${value}</td>
+                </tr>
+              `).join("")}
+            </table>
+
+            <p style="margin:32px 0 0;font-size:13px;color:#999;line-height:1.6">
+              Una volta ricevuto il bonifico, riceverai una conferma via email. Per assistenza scrivi a <a href="mailto:hello@artpay.art" style="color:#3E4EEC">hello@artpay.art</a>.
+            </p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="padding:24px 40px;border-top:1px solid #f0f0f0">
+            <p style="margin:0;font-size:12px;color:#bbb">© ${new Date().getFullYear()} artpay · <a href="https://artpay.art" style="color:#bbb">artpay.art</a></p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+          }),
+        }).catch((err) => console.error("Errore invio email bonifico:", err));
+      }
       setStatus("accepted");
     } catch (error: any) {
       console.error("Errore nell'accettazione dell'offerta:", error);
@@ -145,16 +230,56 @@ const QuotePage = () => {
   }
 
   if (status === "accepted") {
+    const ibanInfo = bankTransferInstructions?.financial_addresses?.[0]?.iban;
+    const rows = bankTransferInstructions && ibanInfo ? [
+      ["Intestatario", ibanInfo.account_holder_name],
+      ["IBAN", ibanInfo.iban],
+      ["BIC / SWIFT", ibanInfo.bic],
+      ["Causale", bankTransferInstructions.reference],
+      ["Importo", `${(bankTransferInstructions.amount_remaining / 100).toFixed(2)} ${bankTransferInstructions.currency.toUpperCase()}`],
+    ] : [];
+
     return (
       <main className="min-h-screen bg-gray-50 flex flex-col items-center justify-center mx-auto max-w-lg px-6 py-12">
-        <CheckCircle sx={{ fontSize: 80, color: "#22c55e", mb: 2 }} />
-        <Typography variant="h4" color="text.primary" gutterBottom>
-          Offerta Accettata!
-        </Typography>
-        <Typography variant="body1" color="text.secondary" className="mt-4 text-center max-w-md">
-          Grazie per aver accettato l'offerta a te dedicata. Riceverai a breve una email con le istruzioni per completare il
-          pagamento.
-        </Typography>
+        <Box sx={{ width: "100%", bgcolor: "white", borderRadius: 3, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
+          {/* Header verde */}
+          <Box sx={{ bgcolor: "#22c55e", px: 4, py: 3, display: "flex", alignItems: "center", gap: 2 }}>
+            <CheckCircle sx={{ color: "white", fontSize: 28 }} />
+            <Typography variant="h6" sx={{ color: "white", fontWeight: 400 }}>
+              Offerta accettata
+            </Typography>
+          </Box>
+
+          <Box sx={{ px: 4, py: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+            {rows.length > 0 ? (
+              <>
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.8, color: "primary.main" }}>
+                    Dati per il bonifico
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                    Ti abbiamo inviato queste istruzioni anche via email.
+                  </Typography>
+                </Box>
+                <Divider />
+                {rows.map(([label, value]) => (
+                  <Box key={label} sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 2 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0 }}>{label}</Typography>
+                    <Typography variant="body2" fontWeight={600} sx={{ textAlign: "right", wordBreak: "break-all" }}>{value}</Typography>
+                  </Box>
+                ))}
+                <Divider />
+                <Typography variant="caption" color="text.secondary">
+                  Il pagamento verrà confermato automaticamente non appena il bonifico sarà ricevuto.
+                </Typography>
+              </>
+            ) : (
+              <Typography variant="body1" color="text.secondary">
+                Grazie per aver accettato l'offerta. Riceverai a breve una email con le istruzioni per completare il pagamento.
+              </Typography>
+            )}
+          </Box>
+        </Box>
       </main>
     );
   }
@@ -189,6 +314,8 @@ const QuotePage = () => {
   const hasDiscount = discountAmount > 0.009;
   const discountPercent = hasDiscount ? ((discountAmount / listPrice) * 100).toFixed(0) : "0";
   const klarnaAvailable = baseTotal <= KLARNA_MAX_AMOUNT;
+  const bankTransferAvailable = baseTotal > BANK_TRANSFER_MIN && baseTotal <= BANK_TRANSFER_MAX;
+  const santanderAvailable = baseTotal > BANK_TRANSFER_MIN;
   const klarnaFeeAmount = paymentMethod === "klarna" ? baseTotal * KLARNA_FEE : 0;
   const finalTotal = baseTotal + klarnaFeeAmount;
 
@@ -310,7 +437,7 @@ const QuotePage = () => {
             </Typography>
             <RadioGroup
               value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value as "card" | "klarna")}
+              onChange={(e) => setPaymentMethod(e.target.value as "card" | "klarna" | "bank_transfer")}
             >
               <FormControlLabel
                 value="card"
@@ -328,7 +455,33 @@ const QuotePage = () => {
                   }
                 />
               )}
+              {bankTransferAvailable && (
+                <FormControlLabel
+                  value="bank_transfer"
+                  control={<Radio size="small" />}
+                  label={<Typography variant="body2" color="text.primary">Bonifico bancario</Typography>}
+                />
+              )}
             </RadioGroup>
+            {santanderAvailable && (
+              <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
+                <Box
+                  component="a"
+                  href={SANTANDER_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{ display: "flex", alignItems: "center", gap: 1, textDecoration: "none", color: "text.secondary", "&:hover": { color: "text.primary" } }}
+                >
+                  <Box sx={{ width: 18, height: 18, "& svg": { width: 18, height: 18 } }}>
+                    <SantanderIcon />
+                  </Box>
+                  <Typography variant="caption">Chiedi il finanziamento con Santander →</Typography>
+                </Box>
+                <Typography variant="caption" color="text.disabled" sx={{ pl: "26px" }}>
+                  (torna su questa pagina una volta ottenuto il prestito, seleziona bonifico e accetta l'offerta per ricevere le istruzioni di pagamento)
+                </Typography>
+              </Box>
+            )}
           </Box>
 
           {/* Riepilogo totale */}
