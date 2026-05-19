@@ -7,8 +7,24 @@ const baseUrl = import.meta.env.VITE_SERVER_URL || "";
 export interface QuoteValidationParams {
   order_key: string;
   email: string;
-  payment_method?: "card" | "klarna";
+  payment_method?: "card" | "klarna" | "bank_transfer";
   add_klarna_fee?: boolean;
+}
+
+export interface BankTransferInstructions {
+  reference: string;
+  amount_remaining: number;
+  currency: string;
+  financial_addresses: {
+    type: string;
+    iban: {
+      account_holder_name: string;
+      bic: string;
+      country: string;
+      iban: string;
+    };
+  }[];
+  hosted_instructions_url: string;
 }
 
 export interface QuoteOrderResponse {
@@ -17,12 +33,21 @@ export interface QuoteOrderResponse {
   order_id: number;
   order_key: string;
   new_status: string;
+  payment_method?: string;
   order_data: {
     id: number;
     status: string;
     total: string;
     currency: string;
     date_created: string;
+  };
+  payment_intent?: {
+    payment_intent_id: string;
+    client_secret: string | null;
+    amount: number;
+    currency: string;
+    payment_method: string;
+    bank_transfer_instructions?: BankTransferInstructions;
   };
 }
 
