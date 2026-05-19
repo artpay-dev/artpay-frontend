@@ -184,7 +184,7 @@ const QuotePage = () => {
   const currencySymbol = order.currency_symbol || (order.currency === 'EUR' ? '€' : order.currency);
 
   const baseTotal = parseFloat(order.total || "0");
-  const listPrice = mainItem?.price || baseTotal;
+  const listPrice = Number(mainItem?.price) || baseTotal;
   const discountAmount = listPrice - baseTotal;
   const hasDiscount = discountAmount > 0.009;
   const discountPercent = hasDiscount ? ((discountAmount / listPrice) * 100).toFixed(0) : "0";
