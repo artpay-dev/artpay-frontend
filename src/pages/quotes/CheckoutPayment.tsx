@@ -280,15 +280,6 @@ const CheckoutPayment = () => {
                 <Typography variant="body2" color="text.secondary" textAlign="center">
                   Riceverai una conferma via email a breve.
                 </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  href={`/gallerie/${gallery?.nice_name}`}
-                  sx={{ mt: 3 }}
-                >
-                  Scopri le altre opere di {gallery?.display_name}
-                </Button>
               </Box>
             ) : paymentProcessing ? (
               <Box

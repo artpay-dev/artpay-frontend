@@ -250,7 +250,7 @@ const FastPayCreate = () => {
           </>
         ) : (
           <section className={"px-8 py-12"}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="it">
               <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
                 {!selectedArtwork ? (
                   <Box
@@ -418,13 +418,14 @@ const FastPayCreate = () => {
                     label="Data di scadenza"
                     value={formData.dataScadenza}
                     onChange={handleDateChange}
+                    format="DD/MM/YYYY"
                     slots={{
                       textField: TextField,
                     }}
                     slotProps={{
                       textField: {
                         fullWidth: true,
-                        sx: { "& .MuiOutlinedInput-root": { borderRadius: 2, height: 48 } },
+                        sx: { "& .MuiOutlinedInput-root": { borderRadius: 2, height: 48, paddingRight: 1 } },
                       },
                     }}
                   />
