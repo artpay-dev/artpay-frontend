@@ -25,6 +25,7 @@ const QuotePage = () => {
   const [vendorName, setVendorName] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<"card" | "klarna" | "bank_transfer">("card");
   const [bankTransferInstructions, setBankTransferInstructions] = useState<BankTransferInstructions | null>(null);
+  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
 
   const orderId = searchParams.get("order_id");
   const orderKey = searchParams.get("key");
@@ -384,20 +385,30 @@ const QuotePage = () => {
             </div>
 
             {hasDiscount && (
-              <>
-                <div>
-                  <Typography variant="body2" color="text.secondary">Prezzo di listino</Typography>
-                  <Typography variant="body1" color="text.primary" sx={{ mt: 0.5 }}>
-                    {currencySymbol} {listPrice.toFixed(2)}
-                  </Typography>
-                </div>
-                <div>
-                  <Typography variant="body2" color="text.secondary">Sconto applicato</Typography>
-                  <Typography variant="body1" color="success.main" fontWeight={500} sx={{ mt: 0.5 }}>
-                    -{discountPercent}% ({currencySymbol} {discountAmount.toFixed(2)})
-                  </Typography>
-                </div>
-              </>
+              <div>
+                <Typography variant="body2" color="text.secondary">Prezzo di listino</Typography>
+                <Typography variant="body1" color="text.primary" sx={{ mt: 0.5 }}>
+                  {currencySymbol} {listPrice.toFixed(2)}
+                </Typography>
+              </div>
+            )}
+
+            <div>
+              <Typography variant="body2" color="text.secondary">
+                {hasDiscount ? "Prezzo offerta" : "Prezzo"}
+              </Typography>
+              <Typography variant="body1" fontWeight={600} color="text.primary" sx={{ mt: 0.5 }}>
+                {currencySymbol} {baseTotal.toFixed(2)}
+              </Typography>
+            </div>
+
+            {hasDiscount && (
+              <div>
+                <Typography variant="body2" color="text.secondary">Sconto applicato</Typography>
+                <Typography variant="body1" color="success.main" fontWeight={500} sx={{ mt: 0.5 }}>
+                  -{discountPercent}% ({currencySymbol} {discountAmount.toFixed(2)})
+                </Typography>
+              </div>
             )}
 
             {mainItem?.meta_data && mainItem.meta_data.find((m: any) => m.key === "_product_description")?.value && (
@@ -428,100 +439,117 @@ const QuotePage = () => {
             )}
           </Box>
 
-          <Divider />
+          {showPaymentMethods && (
+            <>
+              <Divider />
 
-          {/* Selezione metodo di pagamento */}
-          <Box>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              Metodo di pagamento
-            </Typography>
-            <RadioGroup
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value as "card" | "klarna" | "bank_transfer")}
-            >
-              <FormControlLabel
-                value="card"
-                control={<Radio size="small" />}
-                label={<Typography variant="body2" color="text.primary">Carta di credito/debito</Typography>}
-              />
-              {klarnaAvailable && (
-                <FormControlLabel
-                  value="klarna"
-                  control={<Radio size="small" />}
-                  label={
-                    <Typography variant="body2" color="text.primary">
-                      Klarna (paga dopo) — commissione +{(KLARNA_FEE * 100).toFixed(0)}%
-                    </Typography>
-                  }
-                />
-              )}
-              {bankTransferAvailable && (
-                <FormControlLabel
-                  value="bank_transfer"
-                  control={<Radio size="small" />}
-                  label={<Typography variant="body2" color="text.primary">Bonifico bancario</Typography>}
-                />
-              )}
-            </RadioGroup>
-            {santanderAvailable && (
-              <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
-                <Box
-                  component="a"
-                  href={SANTANDER_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{ display: "flex", alignItems: "center", gap: 1, textDecoration: "none", color: "text.secondary", "&:hover": { color: "text.primary" } }}
+              {/* Selezione metodo di pagamento */}
+              <Box className={'mt-4'}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Scegli la modalità di pagamento
+                </Typography>
+                <RadioGroup
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value as "card" | "klarna" | "bank_transfer")}
                 >
-                  <Box sx={{ width: 18, height: 18, "& svg": { width: 18, height: 18 } }}>
-                    <SantanderIcon />
+                  <FormControlLabel
+                    value="card"
+                    control={<Radio size="small" />}
+                    label={<Typography variant="body2" color="text.primary">Carta di credito/debito</Typography>}
+                  />
+                  {klarnaAvailable && (
+                    <FormControlLabel
+                      value="klarna"
+                      control={<Radio size="small" />}
+                      label={
+                        <Typography variant="body2" color="text.primary">
+                          Klarna (paga dopo) — commissione +{(KLARNA_FEE * 100).toFixed(0)}%
+                        </Typography>
+                      }
+                    />
+                  )}
+                  {bankTransferAvailable && (
+                    <FormControlLabel
+                      value="bank_transfer"
+                      control={<Radio size="small" />}
+                      label={<Typography variant="body2" color="text.primary">Bonifico bancario</Typography>}
+                    />
+                  )}
+                </RadioGroup>
+                {santanderAvailable && (
+                  <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
+                    <Box
+                      component="a"
+                      href={SANTANDER_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{ display: "flex", alignItems: "center", gap: 1, textDecoration: "none", color: "text.secondary", "&:hover": { color: "text.primary" } }}
+                    >
+                      <Box sx={{ width: 18, height: 18, "& svg": { width: 18, height: 18 } }}>
+                        <SantanderIcon />
+                      </Box>
+                      <Typography variant="caption">Chiedi il finanziamento con Santander →</Typography>
+                    </Box>
+                    <Typography variant="caption" color="text.disabled" sx={{ pl: "26px" }}>
+                      (torna su questa pagina una volta ottenuto il prestito, seleziona bonifico e accetta l'offerta per ricevere le istruzioni di pagamento)
+                    </Typography>
                   </Box>
-                  <Typography variant="caption">Chiedi il finanziamento con Santander →</Typography>
-                </Box>
-                <Typography variant="caption" color="text.disabled" sx={{ pl: "26px" }}>
-                  (torna su questa pagina una volta ottenuto il prestito, seleziona bonifico e accetta l'offerta per ricevere le istruzioni di pagamento)
-                </Typography>
+                )}
               </Box>
-            )}
-          </Box>
 
-          {/* Riepilogo totale */}
-          <Box sx={{ bgcolor: "grey.50", borderRadius: 2, p: 2 }} className="space-y-2">
-            <div className="flex justify-between items-center">
-              <Typography variant="body2" color="text.secondary">Prezzo offerta</Typography>
-              <Typography variant="body2" color="text.primary">{currencySymbol} {baseTotal.toFixed(2)}</Typography>
-            </div>
-            {paymentMethod === "klarna" && (
-              <div className="flex justify-between items-center">
-                <Typography variant="body2" color="text.secondary">
-                  Commissione Klarna (+{(KLARNA_FEE * 100).toFixed(0)}%)
-                </Typography>
-                <Typography variant="body2" color="text.primary">{currencySymbol} {klarnaFeeAmount.toFixed(2)}</Typography>
-              </div>
-            )}
-            <Divider sx={{ my: 1 }} />
-            <div className="flex justify-between items-center">
-              <Typography variant="body1" fontWeight={600} color="text.primary">Totale da pagare</Typography>
-              <Typography variant="body1" fontWeight={600} color="text.primary">
-                {currencySymbol} {finalTotal.toFixed(2)}
-              </Typography>
-            </div>
-          </Box>
+              {/* Riepilogo totale */}
+              <Box sx={{ bgcolor: "grey.50", borderRadius: 2, p: 2 }} className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Typography variant="body2" color="text.secondary">Prezzo offerta</Typography>
+                  <Typography variant="body2" color="text.primary">{currencySymbol} {baseTotal.toFixed(2)}</Typography>
+                </div>
+                {paymentMethod === "klarna" && (
+                  <div className="flex justify-between items-center">
+                    <Typography variant="body2" color="text.secondary">
+                      Commissione Klarna (+{(KLARNA_FEE * 100).toFixed(0)}%)
+                    </Typography>
+                    <Typography variant="body2" color="text.primary">{currencySymbol} {klarnaFeeAmount.toFixed(2)}</Typography>
+                  </div>
+                )}
+                <Divider sx={{ my: 1 }} />
+                <div className="flex justify-between items-center">
+                  <Typography variant="body1" fontWeight={600} color="text.primary">Totale da pagare</Typography>
+                  <Typography variant="body1" fontWeight={600} color="text.primary">
+                    {currencySymbol} {finalTotal.toFixed(2)}
+                  </Typography>
+                </div>
+              </Box>
+            </>
+          )}
 
           <Divider />
 
           {/* Azioni */}
-          <Box className="flex flex-col gap-3">
-            <Button
-              variant="contained"
-              color="success"
-              fullWidth
-              onClick={handleAccept}
-              disabled={processing}
-              startIcon={processing ? <CircularProgress size={18} color="inherit" /> : <CheckCircle />}
-              sx={{ py: 1.5 }}
-            >
-              {processing ? "Elaborazione..." : "Accetta Offerta"}
-            </Button>
+          <Box className="flex flex-col gap-3 mt-4">
+            {!showPaymentMethods ? (
+              <Button
+                variant="contained"
+                color="success"
+                fullWidth
+                onClick={() => setShowPaymentMethods(true)}
+                startIcon={<CheckCircle />}
+                sx={{ py: 1.5 }}
+              >
+                Accetta Offerta
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color="success"
+                fullWidth
+                onClick={handleAccept}
+                disabled={processing}
+                startIcon={processing ? <CircularProgress size={18} color="inherit" /> : <CheckCircle />}
+                sx={{ py: 1.5 }}
+              >
+                {processing ? "Elaborazione..." : "Conferma"}
+              </Button>
+            )}
 
             <Button
               variant="outlined"
