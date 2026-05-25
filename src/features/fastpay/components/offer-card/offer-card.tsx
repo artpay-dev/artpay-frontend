@@ -1,5 +1,5 @@
 import CountdownTimer from "../../../../components/CountdownTimer.tsx";
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress, Alert, Chip, Tabs, Tab, Box } from "@mui/material";
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress, Alert, Chip } from "@mui/material";
 import { Order } from "../../../../types/order.ts";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -18,13 +18,9 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerFirstName, setCustomerFirstName] = useState("");
   const [customerLastName, setCustomerLastName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [sendMethod, setSendMethod] = useState<"email" | "whatsapp">("email");
   const [sendingEmail, setSendingEmail] = useState(false);
   const [formError, setFormError] = useState("");
-  const [phoneError, setPhoneError] = useState("");
   const [emailSuccess, setEmailSuccess] = useState(false);
-  const [whatsappLink, setWhatsappLink] = useState("");
   const [isShared, setIsShared] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [deletingQuote, setDeletingQuote] = useState(false);
@@ -52,15 +48,11 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
   const handleShareClick = () => {
     setOpenEmailDialog(true);
     setFormError("");
-    setPhoneError("");
     setEmailSuccess(false);
-    setSendMethod("email");
   };
 
   const handleSendEmail = async () => {
-    // Reset errori
     setFormError("");
-    setPhoneError("");
 
     if (!customerFirstName.trim()) {
       setFormError("Inserisci il nome del cliente");
@@ -77,20 +69,6 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
       return;
     }
 
-    // Validazione telefono per WhatsApp
-    if (sendMethod === "whatsapp") {
-      if (!customerPhone.trim()) {
-        setPhoneError("Inserisci il numero di telefono");
-        return;
-      }
-      // Validazione formato base del numero (solo numeri e spazi)
-      const phoneRegex = /^[\d\s+]+$/;
-      if (!phoneRegex.test(customerPhone)) {
-        setPhoneError("Il numero di telefono non è valido");
-        return;
-      }
-    }
-
     if (!order.id) {
       setFormError("ID ordine non disponibile");
       return;
@@ -99,47 +77,27 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
     try {
       setSendingEmail(true);
       setFormError("");
-      setPhoneError("");
 
-      const response: any = await quoteService.updateOrderEmail(
+      await quoteService.updateOrderEmail(
         order.id,
         customerEmail,
         customerFirstName,
         customerLastName,
-        sendMethod,
-        sendMethod === "whatsapp" ? customerPhone : undefined
+        "email"
       );
-
-      console.log("Risposta backend:", response);
-
-      // Se è WhatsApp e c'è un link, salvalo e aprilo automaticamente
-      if (sendMethod === "whatsapp" && response?.whatsapp_link) {
-        setWhatsappLink(response.whatsapp_link);
-        console.log("Link WhatsApp generato:", response.whatsapp_link);
-
-        // Apri WhatsApp automaticamente in una nuova finestra
-        window.open(response.whatsapp_link, '_blank');
-      }
 
       setEmailSuccess(true);
       setIsShared(true);
 
-      // Se è WhatsApp, non chiudere automaticamente il dialog per mostrare il link
-      if (sendMethod !== "whatsapp") {
-        setTimeout(() => {
-          setOpenEmailDialog(false);
-          setCustomerEmail("");
-          setCustomerFirstName("");
-          setCustomerLastName("");
-          setCustomerPhone("");
-          setEmailSuccess(false);
-          setWhatsappLink("");
-          setSendMethod("email");
-        }, 2000);
-      }
+      setTimeout(() => {
+        setOpenEmailDialog(false);
+        setCustomerEmail("");
+        setCustomerFirstName("");
+        setCustomerLastName("");
+        setEmailSuccess(false);
+      }, 2000);
     } catch (error: any) {
       console.error("Errore nell'invio:", error);
-      console.error("Dettagli errore:", error?.response?.data);
       setFormError(error?.response?.data?.message || error?.message || "Errore nell'invio dell'offerta");
     } finally {
       setSendingEmail(false);
@@ -305,119 +263,11 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
       <DialogTitle className={'text-center'}>Invia offerta al cliente</DialogTitle>
       <DialogContent>
         {emailSuccess ? (
-          <>
-            <Alert severity="success" sx={{ mt: 2 }}>
-              {sendMethod === "email" ? "Email inviata con successo!" : "Link WhatsApp generato con successo!"}
-            </Alert>
-            {sendMethod === "whatsapp" && whatsappLink && (
-              <Box sx={{ mt: 2 }}>
-                <Button
-                  variant="contained"
-                  color="success"
-                  fullWidth
-                  component="a"
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{ borderRadius: 2 }}
-                >
-                  Apri WhatsApp
-                </Button>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  onClick={() => {
-                    setOpenEmailDialog(false);
-                    setCustomerEmail("");
-                    setCustomerFirstName("");
-                    setCustomerLastName("");
-                    setCustomerPhone("");
-                    setEmailSuccess(false);
-                    setWhatsappLink("");
-                    setSendMethod("email");
-                  }}
-                  sx={{ mt: 1, borderRadius: 2 }}
-                >
-                  Chiudi
-                </Button>
-              </Box>
-            )}
-          </>
+          <Alert severity="success" sx={{ mt: 2 }}>
+            Email inviata con successo!
+          </Alert>
         ) : (
           <>
-            <Box sx={{ mt: 2 }}>
-              <Tabs
-                value={sendMethod}
-                onChange={(_, newValue) => {
-                  setSendMethod(newValue);
-                  setFormError("");
-                  setPhoneError("");
-                }}
-                aria-label="Metodo di invio"
-                TabIndicatorProps={{ style: { display: 'none' } }}
-                sx={{
-                  minHeight: 'auto',
-                  '& .MuiTabs-flexContainer': {
-                    gap: 1,
-                  },
-                }}
-              >
-                <Tab
-                  label="Email"
-                  value="email"
-                  sx={{
-                    minHeight: '36px',
-                    py: 1,
-                    px: 3,
-                    borderRadius: 24,
-                    textTransform: 'none',
-                    fontWeight: 500,
-                    flex: 1,
-                    '&.Mui-selected': {
-                      bgcolor: '#6576EE',
-                      color: 'white',
-                      '&:hover': {
-                        bgcolor: '#6576EE',
-                      },
-                    },
-                    '&:not(.Mui-selected)': {
-                      color: 'text.secondary',
-                      bgcolor: '#f5f5f5',
-                      '&:hover': {
-                        bgcolor: '#e8e8e8',
-                      },
-                    },
-                  }}
-                />
-                <Tab
-                  label="WhatsApp"
-                  value="whatsapp"
-                  sx={{
-                    minHeight: '36px',
-                    py: 1,
-                    px: 3,
-                    borderRadius: 24,
-                    textTransform: 'none',
-                    fontWeight: 500,
-                    flex: 1,
-                    '&.Mui-selected': {
-                      bgcolor: '#6576EE',
-                      color: 'white',
-                      '&:hover': {
-                        bgcolor: '#6576EE',
-                      },
-                    },
-                    '&:not(.Mui-selected)': {
-                      color: 'text.secondary',
-                      bgcolor: '#f5f5f5',
-                      '&:hover': {
-                        bgcolor: '#e8e8e8',
-                      },
-                    },
-                  }}
-                />
-              </Tabs>
-            </Box>
             <TextField
               autoFocus
               margin="dense"
@@ -473,27 +323,6 @@ const OfferCard = ({ order, sharingButton = false, onDeleted }: OfferCardProps) 
                 },
               }}
             />
-            {sendMethod === "whatsapp" && (
-              <TextField
-                margin="dense"
-                label="Numero di telefono"
-                type="tel"
-                fullWidth
-                variant="outlined"
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                error={!!phoneError}
-                helperText={phoneError || "Formato: 3331234567"}
-                disabled={sendingEmail}
-                placeholder="3331234567"
-                sx={{
-                  mt: 2,
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: 2,
-                  },
-                }}
-              />
-            )}
           </>
         )}
       </DialogContent>
