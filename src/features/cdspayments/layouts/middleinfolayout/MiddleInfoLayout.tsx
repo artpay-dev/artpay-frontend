@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 import Logo from "../../../../components/icons/Logo.tsx";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArticleDraw } from "../../components/ui/articledraw/ArticleDraw.tsx";
-import useArticleStore from "../../stores/articleDrawStore.ts";
+//import useArticleStore from "../../stores/articleDrawStore.ts";
 import { fetchOrderDetails } from "@/features/cdspayments/api.ts";
 import type { CdsOrderDetails } from "../../types.ts";
 
@@ -10,7 +10,7 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<CdsOrderDetails | null>(null);
-  const { setOpenArticleDraw, openArticleDraw } = useArticleStore();
+  //const { setOpenArticleDraw, openArticleDraw } = useArticleStore();
   const navigate = useNavigate();
   const orderKey = searchParams.get('order_id') ?? searchParams.get('order');
 
@@ -38,19 +38,19 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
       .finally(() => setLoading(false));
   }, [orderKey]);
 
-  useEffect(() => {
+/*  useEffect(() => {
     if (openArticleDraw) {
       document.body.classList.add("overflow-hidden");
     } else {
       document.body.classList.remove("overflow-hidden");
     }
-  }, [openArticleDraw]);
+  }, [openArticleDraw]);*/
 
   return (
     <section>
-      {openArticleDraw && (
+      {/*{openArticleDraw && (
         <div className={"overlay fixed z-50 inset-0 w-full h-screen bg-zinc-950/65 animate-fade-in"} />
-      )}
+      )}*/}
       <div className="min-h-screen flex flex-col bg-primary">
         <div className="mx-auto container max-w-2xl relative bg-white">
           <ArticleDraw />
@@ -82,11 +82,11 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
                   {order?.vendor_name ? ` da ${order.vendor_name}` : ""} per rendere l'arte più accessibile.
                   Rateizza il tuo pagamento in modo sicuro, 100% online scegliendo tra i nostri partner selezionati.
                 </p>
-                <button
+                {/*<button
                   onClick={() => setOpenArticleDraw({ openArticleDraw: true })}
                   className="underline text-secondary cursor-pointer">
                   Leggi articolo
-                </button>
+                </button>*/}
               </article>
             )}
           </section>
@@ -95,9 +95,6 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
             <button
               className={"artpay-button-style bg-primary hover:bg-primary-hover text-white"}
               onClick={() => {
-                if (openArticleDraw) {
-                  document.body.classList.remove("overflow-hidden");
-                }
                 if (!document.body.classList.contains("overflow-hidden")) {
                   navigate(`/acquisto-esterno?order=${orderKey}`);
                 }
