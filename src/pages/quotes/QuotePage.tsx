@@ -9,7 +9,7 @@ import SantanderIcon from "../../components/icons/SantanderIcon";
 
 const KLARNA_FEE = 0.05;
 const KLARNA_MAX_AMOUNT = 2500;
-const BANK_TRANSFER_MIN = 2500;
+const BANK_TRANSFER_MIN = 1500;
 const BANK_TRANSFER_MAX = 30000;
 const SANTANDER_URL = "https://www.santanderconsumer.it/prestito/partner/artpay";
 
