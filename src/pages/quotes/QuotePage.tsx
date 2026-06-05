@@ -106,7 +106,7 @@ const QuotePage = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             to: email,
-            to_name: recipientName,
+            to_name: recipientName || email,
             subject: "Istruzioni per il bonifico – artpay",
             sender_name: "artpay",
             sender_email: "noreply@artpay.art",
