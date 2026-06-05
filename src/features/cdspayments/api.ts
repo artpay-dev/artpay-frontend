@@ -106,6 +106,7 @@ export async function sendBankTransferEmail(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       to: order.customer_email,
+      to_name: order.customer_email,
       subject: `Istruzioni per il bonifico — Ordine N. ${order.order_id}`,
       html_content: html,
       sender_name: 'Artpay',
