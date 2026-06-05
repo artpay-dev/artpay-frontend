@@ -101,23 +101,21 @@ export async function sendBankTransferEmail(
 </body>
 </html>`;
 
-  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+  const res = await fetch(`${baseUrl()}/wp-json/api/v1/send-email`, {
     method: 'POST',
-    headers: {
-      'api-key': import.meta.env.VITE_BREVO_KEY!,
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      sender: { name: 'Artpay', email: 'hello@artpay.art' },
-      to: [{ email: order.customer_email }],
+      to: order.customer_email,
       subject: `Istruzioni per il bonifico — Ordine N. ${order.order_id}`,
-      htmlContent: html,
+      html_content: html,
+      sender_name: 'Artpay',
+      sender_email: 'hello@artpay.art',
     }),
   });
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error((body as any).message || `Brevo error ${res.status}`);
+    throw new Error((body as any).message || `Email error ${res.status}`);
   }
 }
 

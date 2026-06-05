@@ -101,24 +101,16 @@ export const sendBrevoEmail = async ({
 </html>`;
 
   try {
-    await axios.post(
-      "https://api.brevo.com/v3/smtp/email",
-      {
-        sender: { name: "Team artpay", email: "hello@artpay.art" },
-        to: [{ email: toEmail, name: toName }],
-        subject: "Nuova ricevuta bancaria caricata",
-        htmlContent: html,
-        params,
-      },
-      {
-        headers: {
-          "api-key": import.meta.env.VITE_BREVO_KEY!,
-          "Content-Type": "application/json",
-        },
-      },
-    );
+    await axios.post(`${import.meta.env.VITE_SERVER_URL}/wp-json/api/v1/send-email`, {
+      to: toEmail,
+      to_name: toName,
+      subject: "Nuova ricevuta bancaria caricata",
+      html_content: html,
+      sender_name: "Team artpay",
+      sender_email: "hello@artpay.art",
+    });
   } catch (error: any) {
-    console.error("Errore invio email Brevo:", error.response?.data || error.message);
+    console.error("Errore invio email:", error.response?.data || error.message);
     throw new Error("Errore invio email");
   }
 };

@@ -9,7 +9,7 @@ import SantanderIcon from "../../components/icons/SantanderIcon";
 
 const KLARNA_FEE = 0.05;
 const KLARNA_MAX_AMOUNT = 2500;
-const BANK_TRANSFER_MIN = 2500;
+const BANK_TRANSFER_MIN = 1500;
 const BANK_TRANSFER_MAX = 30000;
 const SANTANDER_URL = "https://www.santanderconsumer.it/prestito/partner/artpay";
 
@@ -101,17 +101,16 @@ const QuotePage = () => {
         const amount = (instructions.amount_remaining / 100).toFixed(2);
         const recipientName = `${order?.billing?.first_name || ""} ${order?.billing?.last_name || ""}`.trim();
 
-        await fetch("https://api.brevo.com/v3/smtp/email", {
+        await fetch(`${import.meta.env.VITE_SERVER_URL}/wp-json/api/v1/send-email`, {
           method: "POST",
-          headers: {
-            "api-key": import.meta.env.VITE_BREVO_KEY,
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            sender: { name: "artpay", email: "noreply@artpay.art" },
-            to: [{ email, name: recipientName }],
+            to: email,
+            to_name: recipientName,
             subject: "Istruzioni per il bonifico – artpay",
-            htmlContent: `<!DOCTYPE html>
+            sender_name: "artpay",
+            sender_email: "noreply@artpay.art",
+            html_content: `<!DOCTYPE html>
 <html lang="it">
 <head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:'Inter',Arial,sans-serif">
