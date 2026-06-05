@@ -4,6 +4,7 @@ import PaymentProviderCard from '../paymentprovidercard/PaymentProviderCard.tsx'
 import SantanderIcon from '../../../../../components/icons/SantanderIcon.tsx';
 import useCdsPaymentStore from '../../../stores/paymentStore.ts';
 import { createPaymentIntent, sendBankTransferEmail } from '../../../api.ts';
+import { track } from '../../../lib/pillarAnalytics.ts';
 
 const Spinner = () => (
   <div className="size-4 border border-white border-b-transparent rounded-full animate-spin" />
@@ -21,22 +22,19 @@ const SantanderCard = () => {
   const fmt = (n: number) => n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const handleSantanderLinkClick = () => {
-    window.Brevo?.push([
-      'track',
-      'santander_click',
-      {
-        id: orderDetails.customer_email,
-        username: orderDetails.customer_email,
-        event_data: {
-          order: orderDetails.order_id,
-          user_email: orderDetails.customer_email,
-          total: orderDetails.grand_total,
-        },
-      },
-    ]);
+    track('santander_click', {
+      email: orderDetails.customer_email,
+      order: orderDetails.order_id,
+      total: orderDetails.grand_total,
+    });
   };
 
   const handleLoanObtained = async () => {
+    track('santander_loan_obtained', {
+      email: orderDetails.customer_email,
+      order: orderDetails.order_id,
+      total: orderDetails.grand_total,
+    });
     setLocalLoading(true);
     setLoading(true);
     setError(null);

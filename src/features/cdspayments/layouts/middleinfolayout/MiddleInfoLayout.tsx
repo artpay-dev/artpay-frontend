@@ -5,6 +5,7 @@ import { ArticleDraw } from "../../components/ui/articledraw/ArticleDraw.tsx";
 //import useArticleStore from "../../stores/articleDrawStore.ts";
 import { fetchOrderDetails } from "@/features/cdspayments/api.ts";
 import type { CdsOrderDetails } from "../../types.ts";
+import { track } from "../../lib/pillarAnalytics.ts";
 
 const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
   const [searchParams] = useSearchParams();
@@ -14,19 +15,20 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
   const orderKey = searchParams.get('order_id') ?? searchParams.get('order');
 
-  const trackEvent = () => {
-    window.Brevo?.push([
-      "track",
-      "go_back_to_vendor",
-      {
-        id: order?.customer_email ?? "anonimo",
-        username: order?.customer_email ?? "anonimo",
-        event_data: {
-          order: order?.order_id,
-          vendor: order?.vendor_name,
-        },
-      },
-    ]);
+  const trackGoBackToVendor = () => {
+    track("go_back_to_vendor", {
+      email: order?.customer_email ?? "anonimo",
+      order: order?.order_id,
+      vendor: order?.vendor_name,
+    });
+  };
+
+  const trackPayaRate = () => {
+    track("paga_a_rate_clicked", {
+      email: order?.customer_email ?? "anonimo",
+      order: order?.order_id,
+      vendor: order?.vendor_name,
+    });
   };
 
   useEffect(() => {
@@ -96,6 +98,7 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
               className={"artpay-button-style bg-primary hover:bg-primary-hover text-white"}
               onClick={() => {
                 if (!document.body.classList.contains("overflow-hidden")) {
+                  trackPayaRate();
                   navigate(`/acquisto-esterno?order=${orderKey}`);
                 }
               }}>
@@ -103,7 +106,7 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
             </button>
             {order?.return_url ? (
               <Link
-                onClick={trackEvent}
+                onClick={trackGoBackToVendor}
                 to={order.return_url}
                 className={"text-secondary artpay-button-style"}>
                 Torna su {order.vendor_name}
