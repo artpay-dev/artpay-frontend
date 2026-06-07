@@ -4,6 +4,7 @@ import KlarnaIcon from '../ui/paymentprovidercard/KlarnaIcon.tsx';
 import SantanderCard from '../ui/santandercard/SantanderCard.tsx';
 import useCdsPaymentStore from '../../stores/paymentStore.ts';
 import { createPaymentIntent } from '../../api.ts';
+import { track } from '../../lib/pillarAnalytics.ts';
 
 const KLARNA_MAX = 2500;
 const SANTANDER_MIN = 1500;
@@ -42,6 +43,11 @@ const PaymentMethodsList = () => {
   const fmt = (n: number) => n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const handleSelectKlarna = async () => {
+    track('klarna_selected', {
+      email: orderDetails.customer_email,
+      order: orderDetails.order_id,
+      total: orderDetails.grand_total,
+    });
     setSelectingKlarna(true);
     setLoading(true);
     setError(null);

@@ -1,6 +1,7 @@
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { useState } from 'react';
 import useCdsPaymentStore from '../../../stores/paymentStore.ts';
+import { track } from '../../../lib/pillarAnalytics.ts';
 
 const CreditCardIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -34,6 +35,8 @@ const PaymentForm = ({ orderKey }: PaymentFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!stripe || !elements) return;
+
+    track('klarna_payment_submitted', { order: orderKey });
 
     setIsLoading(true);
     setMessage(undefined);
