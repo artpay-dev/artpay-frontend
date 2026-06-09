@@ -1,26 +1,30 @@
 import { ReactNode, useEffect, useState } from "react";
 import Logo from "../../../../components/icons/Logo.tsx";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+
 import { ArticleDraw } from "../../components/ui/articledraw/ArticleDraw.tsx";
 //import useArticleStore from "../../stores/articleDrawStore.ts";
 import { fetchOrderDetails } from "@/features/cdspayments/api.ts";
 import type { CdsOrderDetails } from "../../types.ts";
 import { track } from "../../lib/pillarAnalytics.ts";
+import AbandonCartModal from "../../components/abandonmodal/AbandonCartModal.tsx";
 
 const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<CdsOrderDetails | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   //const { setOpenArticleDraw, openArticleDraw } = useArticleStore();
   const navigate = useNavigate();
   const orderKey = searchParams.get('order_id') ?? searchParams.get('order');
 
-  const trackGoBackToVendor = () => {
+  const doGoBackToVendor = () => {
     track("go_back_to_vendor", {
       email: order?.customer_email ?? "anonimo",
       order: order?.order_id,
       vendor: order?.vendor_name,
     });
+    if (order?.return_url) window.location.href = order.return_url;
   };
 
   const trackPayaRate = () => {
@@ -105,16 +109,21 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
               Paga a rate
             </button>
             {order?.return_url ? (
-              <Link
-                onClick={trackGoBackToVendor}
-                to={order.return_url}
+              <button
+                onClick={() => setModalOpen(true)}
                 className={"text-secondary artpay-button-style"}>
                 Torna su {order.vendor_name}
-              </Link>
+              </button>
             ) : null}
           </section>
         </div>
       </div>
+
+      <AbandonCartModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirmLeave={doGoBackToVendor}
+      />
     </section>
   );
 };
