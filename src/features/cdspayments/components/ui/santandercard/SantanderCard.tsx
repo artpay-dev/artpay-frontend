@@ -30,11 +30,21 @@ const SantanderCard = () => {
   };
 
   const handleLoanObtained = async () => {
+    console.log('LoanObtained');
+
     track('santander_loan_obtained', {
       email: orderDetails.customer_email,
       order: orderDetails.order_id,
       total: orderDetails.grand_total,
     });
+
+    console.log({
+      email: orderDetails.customer_email,
+      order: orderDetails.order_id,
+      total: orderDetails.grand_total,
+    });
+
+
     setLocalLoading(true);
     setLoading(true);
     setError(null);
