@@ -8,5 +8,10 @@ declare global {
 }
 
 export function track(event: string, properties?: Record<string, unknown>) {
-  window.PillarAnalytics?.track(event, properties);
+  if (!window.PillarAnalytics) {
+    console.warn('PillarAnalytics not initialized — skipping track:', event, properties);
+    return;
+  }
+  console.log('PillarAnalytics track', event, properties);
+  window.PillarAnalytics.track(event, properties);
 }
