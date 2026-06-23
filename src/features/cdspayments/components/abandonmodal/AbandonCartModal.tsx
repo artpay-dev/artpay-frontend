@@ -32,6 +32,7 @@ const AbandonCartModal = ({ open, onClose, onConfirmLeave }: Props) => {
     track('cart_abandoned', {
       email: orderDetails?.customer_email,
       order: orderDetails?.order_id,
+      total: orderDetails?.grand_total,
       reason,
     });
 

@@ -21,7 +21,7 @@ type PaymentFormProps = {
 const PaymentForm = ({ orderKey }: PaymentFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
-  const { setPaymentMethod, setPaymentIntent } = useCdsPaymentStore();
+  const { setPaymentMethod, setPaymentIntent, orderDetails } = useCdsPaymentStore();
   const [message, setMessage] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,7 +36,7 @@ const PaymentForm = ({ orderKey }: PaymentFormProps) => {
     e.preventDefault();
     if (!stripe || !elements) return;
 
-    track('klarna_payment_submitted', { order: orderKey });
+    track('klarna_payment_submitted', { order: orderKey, total: orderDetails?.grand_total });
 
     setIsLoading(true);
     setMessage(undefined);

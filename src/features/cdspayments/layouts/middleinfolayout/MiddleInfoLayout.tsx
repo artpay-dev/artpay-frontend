@@ -23,6 +23,7 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
       email: order?.customer_email ?? "anonimo",
       order: order?.order_id,
       vendor: order?.vendor_name,
+      total: order?.grand_total,
     });
     if (order?.return_url) window.location.href = order.return_url;
   };
@@ -32,6 +33,7 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
       email: order?.customer_email ?? "anonimo",
       order: order?.order_id,
       vendor: order?.vendor_name,
+      total: order?.grand_total,
     });
   };
 
