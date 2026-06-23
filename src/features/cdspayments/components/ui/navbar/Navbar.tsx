@@ -20,6 +20,7 @@ const Navbar = ({ returnUrl }: { returnUrl?: string }) => {
       stage: currentStage,
       email: orderDetails?.customer_email,
       order: orderDetails?.order_id,
+      total: orderDetails?.grand_total,
     });
     if (returnUrl) {
       window.location.href = returnUrl;

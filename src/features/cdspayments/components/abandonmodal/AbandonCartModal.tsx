@@ -3,11 +3,9 @@ import useCdsPaymentStore from '../../stores/paymentStore.ts';
 import { track } from '../../lib/pillarAnalytics.ts';
 
 const REASONS = [
-  'Il prezzo è troppo alto',
-  'Non sono ancora pronto ad acquistare',
-  'Devo confrontare altre opzioni',
-  'Ho riscontrato un problema tecnico',
-  'Voglio pensarci ancora',
+  'Voglio pagare in modo diverso',
+  'Non riesco a completare il pagamento',
+  'Commissione del servizio elevata',
   'Altro',
 ];
 
@@ -32,6 +30,7 @@ const AbandonCartModal = ({ open, onClose, onConfirmLeave }: Props) => {
     track('cart_abandoned', {
       email: orderDetails?.customer_email,
       order: orderDetails?.order_id,
+      total: orderDetails?.grand_total,
       reason,
     });
 
@@ -72,13 +71,13 @@ const AbandonCartModal = ({ open, onClose, onConfirmLeave }: Props) => {
             <div className="flex flex-col gap-2">
               <button
                 onClick={onConfirmLeave}
-                className="artpay-button-style bg-primary hover:bg-primary-hover text-white">
+                className="artpay-button-style text-secondary border border-gray-200 bg-white hover:bg-gray-50">
                 Esci dalla pagina
               </button>
               <button
                 onClick={onClose}
-                className="artpay-button-style text-secondary border border-gray-200 bg-white hover:bg-gray-50">
-                Rimani qui
+                className="artpay-button-style bg-primary hover:bg-primary-hover text-white">
+                Continua con Artpay
               </button>
             </div>
           </>
@@ -118,13 +117,13 @@ const AbandonCartModal = ({ open, onClose, onConfirmLeave }: Props) => {
               <button
                 onClick={handleSubmit}
                 disabled={sending}
-                className="artpay-button-style bg-primary hover:bg-primary-hover text-white disabled:opacity-65">
+                className="artpay-button-style text-secondary border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-65">
                 {sending ? 'Invio...' : 'Invia'}
               </button>
               <button
                 onClick={onClose}
-                className="artpay-button-style text-secondary border border-gray-200 bg-white hover:bg-gray-50">
-                Rimani qui
+                className="artpay-button-style bg-primary hover:bg-primary-hover text-white">
+                Continua con Artpay
               </button>
             </div>
           </>
