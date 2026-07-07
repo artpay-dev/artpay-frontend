@@ -40,7 +40,9 @@ const Navbar = ({ returnUrl }: { returnUrl?: string }) => {
             onClick={() => setModalOpen(true)}>
             Torna indietro
           </button>
-          {isSantagostino && orderDetails?.vendor_logo_url ? (
+          {!orderDetails ? (
+            <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
+          ) : isSantagostino && orderDetails.vendor_logo_url ? (
             <img src={orderDetails.vendor_logo_url} alt={orderDetails.vendor_name} className="h-8 w-auto object-contain" />
           ) : (
             <LogoFastArtpay />
