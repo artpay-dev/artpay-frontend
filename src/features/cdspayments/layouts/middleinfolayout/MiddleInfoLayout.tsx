@@ -68,7 +68,9 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
           <ArticleDraw />
           <header className={"fixed w-full z-30 top-6 px-2 max-w-2xl"}>
             <nav className={"p-4 custom-navbar flex justify-center items-center w-full bg-white"}>
-              {isSantagostino && order?.vendor_logo_url ? (
+              {loading || !order ? (
+                <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
+              ) : isSantagostino && order.vendor_logo_url ? (
                 <img src={order.vendor_logo_url} alt={order.vendor_name} className="h-8 w-auto object-contain" />
               ) : (
                 <Logo />
