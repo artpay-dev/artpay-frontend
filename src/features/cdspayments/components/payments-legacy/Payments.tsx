@@ -1,8 +1,13 @@
 import PaymentProviderCard from "../ui/paymentprovidercard/PaymentProviderCard.tsx";
 import KlarnaIcon from "../ui/paymentprovidercard/KlarnaIcon.tsx";
 import SantanderIcon from "../../../../components/icons/SantanderIcon.tsx";
+import useCdsPaymentStore from "../../stores/paymentStore.ts";
 
 const Payments = () => {
+  const { orderDetails } = useCdsPaymentStore();
+  const vendorName = orderDetails?.vendor_name?.toLowerCase() ?? '';
+  const isSantagostino = vendorName.includes("sant'agostino") || vendorName.includes('auction-house-test');
+
   return (
     <section className={"space-y-6"}>
       <div>
@@ -25,15 +30,9 @@ const Payments = () => {
           Metodi di pagamento
         </h3>
         <ul className={"flex flex-col items-center space-y-6"}>
-          <li className={"w-full"}>
-            <PaymentProviderCard
-              backgroundColor={"bg-[#FFE9EE]"}
-              cardTitle={"klarna"}
-              icon={<KlarnaIcon />}
-              subtitle={"Pagamento in 3 rate fino a €2.500,00. Inclusi i costi del finanziamento."}></PaymentProviderCard>
-          </li>
           <li className={"w-full flex"}>
             <PaymentProviderCard
+              backgroundColor={isSantagostino ? 'bg-[#F2F2F2]' : 'bg-[#E2E6FC]'}
               icon={<SantanderIcon />}
               cardTitle={"Santander"}
               subtitle={"A partire da € 1.500,00 fino a € 30.000,00. Inclusi i costi del finanziamento."}>
@@ -43,6 +42,13 @@ const Payments = () => {
                 <li>Paga su artpay con il finanziamento ricevuto</li>
               </ol>
             </PaymentProviderCard>
+          </li>
+          <li className={"w-full"}>
+            <PaymentProviderCard
+              backgroundColor={"bg-[#FFE9EE]"}
+              cardTitle={"klarna"}
+              icon={<KlarnaIcon />}
+              subtitle={"Pagamento in 3 rate fino a €2.500,00. Inclusi i costi del finanziamento."}></PaymentProviderCard>
           </li>
         </ul>
       </div>

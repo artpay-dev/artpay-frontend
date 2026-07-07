@@ -13,6 +13,8 @@ const Spinner = () => (
 const SantanderCard = () => {
   const { orderDetails, setPaymentMethod, setPaymentIntent, setLoading, setError } = useCdsPaymentStore();
   const [loading, setLocalLoading] = useState(false);
+  const vendorName = orderDetails?.vendor_name?.toLowerCase() ?? '';
+  const isSantagostino = vendorName.includes("sant'agostino") || vendorName.includes('auction-house-test');
 
   if (!orderDetails) return null;
 
@@ -70,7 +72,7 @@ const SantanderCard = () => {
       cardTitle="Finanziamento con bonifico"
       icon={<SantanderIcon />}
       subtitle="Richiedi un prestito e paga tramite bonifico"
-      backgroundColor="bg-[#E2E6FC]"
+      backgroundColor={isSantagostino ? 'bg-[#F2F2F2]' : 'bg-[#E2E6FC]'}
       button={
         <button
           onClick={handleLoanObtained}

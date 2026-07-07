@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import Logo from "../../../../components/icons/Logo.tsx";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -8,11 +8,13 @@ import { fetchOrderDetails } from "@/features/cdspayments/api.ts";
 import type { CdsOrderDetails } from "../../types.ts";
 import { track } from "../../lib/pillarAnalytics.ts";
 import AbandonCartModal from "../../components/abandonmodal/AbandonCartModal.tsx";
+import useCdsPaymentStore from "../../stores/paymentStore.ts";
 
 const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<CdsOrderDetails | null>(null);
+  const { setOrderDetails } = useCdsPaymentStore();
   const vendorName = order?.vendor_name?.toLowerCase() ?? '';
   const isSantagostino = vendorName.includes("sant'agostino") || vendorName.includes('auction-house-test');
   const [modalOpen, setModalOpen] = useState(false);
@@ -43,7 +45,7 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
     if (!orderKey) return;
     setLoading(true);
     fetchOrderDetails(orderKey)
-      .then(setOrder)
+      .then((data) => { setOrder(data); setOrderDetails(data); })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [orderKey]);
@@ -57,7 +59,7 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
   }, [openArticleDraw]);*/
 
   return (
-    <section>
+    <section style={isSantagostino ? { '--color-primary': '#8C0000', '--color-primary-hover': '#6e0000' } as React.CSSProperties : undefined}>
       {/*{openArticleDraw && (
         <div className={"overlay fixed z-50 inset-0 w-full h-screen bg-zinc-950/65 animate-fade-in"} />
       )}*/}
