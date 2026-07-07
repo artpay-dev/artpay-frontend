@@ -5,9 +5,13 @@ import useCdsPaymentStore from '../../stores/paymentStore.ts';
 
 const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
   const { orderDetails } = useCdsPaymentStore();
+  const vendorName = orderDetails?.vendor_name?.toLowerCase() ?? '';
+  const isSantagostino = vendorName.includes("sant'agostino") || vendorName.includes('auction-house-test');
 
   return (
-    <div className="min-h-screen flex flex-col bg-primary pt-35">
+    <div
+      className="min-h-screen flex flex-col pt-35"
+      style={{ backgroundColor: !orderDetails ? '#ffffff' : isSantagostino ? '#8C0000' : 'var(--color-primary)' }}>
       <div className="mx-auto w-full max-w-2xl flex flex-col flex-1">
         <Navbar returnUrl={orderDetails?.return_url ?? undefined} />
         <section className="px-8 pb-6 lg:px-0">

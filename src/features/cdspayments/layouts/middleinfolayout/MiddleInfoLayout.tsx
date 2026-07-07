@@ -13,6 +13,8 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<CdsOrderDetails | null>(null);
+  const vendorName = order?.vendor_name?.toLowerCase() ?? '';
+  const isSantagostino = vendorName.includes("sant'agostino") || vendorName.includes('auction-house-test');
   const [modalOpen, setModalOpen] = useState(false);
   //const { setOpenArticleDraw, openArticleDraw } = useArticleStore();
   const navigate = useNavigate();
@@ -59,12 +61,18 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
       {/*{openArticleDraw && (
         <div className={"overlay fixed z-50 inset-0 w-full h-screen bg-zinc-950/65 animate-fade-in"} />
       )}*/}
-      <div className="min-h-screen flex flex-col bg-primary">
+      <div
+        className="min-h-screen flex flex-col"
+        style={{ backgroundColor: !order ? '#ffffff' : isSantagostino ? '#8C0000' : 'var(--color-primary)' }}>
         <div className="mx-auto container max-w-2xl relative bg-white">
           <ArticleDraw />
           <header className={"fixed w-full z-30 top-6 px-2 max-w-2xl"}>
             <nav className={"p-4 custom-navbar flex justify-center items-center w-full bg-white"}>
-              <Logo />
+              {isSantagostino && order?.vendor_logo_url ? (
+                <img src={order.vendor_logo_url} alt={order.vendor_name} className="h-8 w-auto object-contain" />
+              ) : (
+                <Logo />
+              )}
             </nav>
           </header>
           <section className="bg-[#F5F5F5] pt-32 pb-12 rounded-b-3xl px-8">

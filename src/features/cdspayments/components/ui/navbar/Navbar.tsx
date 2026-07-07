@@ -6,6 +6,8 @@ import AbandonCartModal from '../../abandonmodal/AbandonCartModal.tsx';
 
 const Navbar = ({ returnUrl }: { returnUrl?: string }) => {
   const { paymentIntent, paymentMethod, orderDetails } = useCdsPaymentStore();
+  const vendorName = orderDetails?.vendor_name?.toLowerCase() ?? '';
+  const isSantagostino = vendorName.includes("sant'agostino") || vendorName.includes('auction-house-test');
   const [modalOpen, setModalOpen] = useState(false);
 
   const currentStage = (() => {
@@ -38,7 +40,11 @@ const Navbar = ({ returnUrl }: { returnUrl?: string }) => {
             onClick={() => setModalOpen(true)}>
             Torna indietro
           </button>
-          <LogoFastArtpay />
+          {isSantagostino && orderDetails?.vendor_logo_url ? (
+            <img src={orderDetails.vendor_logo_url} alt={orderDetails.vendor_name} className="h-8 w-auto object-contain" />
+          ) : (
+            <LogoFastArtpay />
+          )}
         </nav>
       </header>
 
