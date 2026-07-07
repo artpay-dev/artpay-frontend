@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import Navbar from '../../components/ui/navbar/Navbar.tsx';
 import useCdsPaymentStore from '../../stores/paymentStore.ts';
@@ -11,7 +11,10 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
   return (
     <div
       className="min-h-screen flex flex-col pt-35"
-      style={{ backgroundColor: !orderDetails ? '#ffffff' : isSantagostino ? '#8C0000' : 'var(--color-primary)' }}>
+      style={{
+        backgroundColor: !orderDetails ? '#ffffff' : isSantagostino ? '#8C0000' : 'var(--color-primary)',
+        ...(isSantagostino && { '--color-primary': '#8C0000', '--color-primary-hover': '#6e0000' } as React.CSSProperties),
+      }}>
       <div className="mx-auto w-full max-w-2xl flex flex-col flex-1">
         <Navbar returnUrl={orderDetails?.return_url ?? undefined} />
         <section className="px-8 pb-6 lg:px-0">
