@@ -12,6 +12,7 @@ import PaymentComplete from './components/paymentcomplete/PaymentComplete.tsx';
 import PaymentFailed from './components/paymentfailed/PaymentFailed.tsx';
 import SkeletonOrderDetails from './components/paymentmethodslist/SkeletonOrderDetails.tsx';
 import BankTransferInstructions from './components/banktransferinstructions/BankTransferInstructions.tsx';
+import { useMsClarity } from './lib/useMsClarity.ts';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY || '');
 
@@ -36,6 +37,8 @@ const CdsPayments = () => {
 
   const orderKey = searchParams.get('order_id') ?? searchParams.get('order');
   const redirectStatus = searchParams.get('redirect_status');
+
+  useEffect(() => { useMsClarity(); }, []);
 
   useEffect(() => {
     reset();
