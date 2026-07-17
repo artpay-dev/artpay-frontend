@@ -3,7 +3,7 @@
  * Handles API calls for deposit + balance payment flow
  */
 
-const BASE_URL = 'https://staging-api.artpay.art/wp-json/adp/v1';
+const BASE_URL = `${import.meta.env.VITE_SERVER_URL || ""}/wp-json/adp/v1`;
 
 export interface Product {
   product_id: number;

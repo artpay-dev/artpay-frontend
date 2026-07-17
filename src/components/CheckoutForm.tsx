@@ -74,7 +74,15 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
             : "https://artpay.art/acquisto?order=" + pendingOrder?.id),
       };
 
-      return environment ? returnUrl[environment] : returnUrl.local;
+      if (environment) {
+        return returnUrl[environment];
+      }
+
+      // Ambienti non mappati (es. dev.artpay.art): costruisci l'URL dall'host corrente
+      const currentBaseUrl = `${window.location.protocol}//${window.location.host}`;
+      return orderMode == "loan"
+        ? `${currentBaseUrl}/opera-bloccata`
+        : `${currentBaseUrl}/acquisto?order=${pendingOrder?.id}`;
     };
 
     const handleSubmit = async (e: { preventDefault: () => void }) => {
