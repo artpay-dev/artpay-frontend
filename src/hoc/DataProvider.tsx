@@ -610,7 +610,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       async getGallery(id: string): Promise<Gallery | null> {
         try {
           const resp = await axios.get<SignInFormData, AxiosResponse<Gallery>>(
-            `${baseUrl}/wp-json/mvx/v1/vendors/${id}`,
+            `${baseUrl}/wp-json/artpay/v1/galleries/${id}`,
             {
               headers: {
                 Authorization: auth.getGuestAuth(),
@@ -626,7 +626,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       async getGalleries(ids?: number[]): Promise<Gallery[]> {
         if (!ids) {
           const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(
-            `${baseUrl}/wp-json/mvx/v1/vendors?page=1&per_page=100`,
+            `${baseUrl}/wp-json/artpay/v1/galleries?page=1&per_page=100`,
             {
               headers: { Authorization: auth.getGuestAuth() },
             },
@@ -638,7 +638,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
       },
       async getGalleryBySlug(slug: string): Promise<Gallery> {
         const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(
-          `${baseUrl}/wp-json/mvx/v1/vendors?page=1&per_page=100&nice_name${slug}`,
+          `${baseUrl}/wp-json/artpay/v1/galleries?page=1&per_page=100`,
           { headers: { Authorization: auth.getGuestAuth() } },
         );
         const gallery = resp.data.find((g) => g.shop?.slug === slug);
@@ -648,7 +648,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, baseUrl })
         return gallery as Gallery;
       },
       async listGalleries(): Promise<Gallery[]> {
-        const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(`${baseUrl}/wp-json/mvx/v1/vendors`, {
+        const resp = await axios.get<SignInFormData, AxiosResponse<Gallery[]>>(`${baseUrl}/wp-json/artpay/v1/galleries`, {
           headers: { Authorization: auth.getGuestAuth() },
         });
         return resp.data;

@@ -429,7 +429,7 @@ export const quoteService = {
 
     try {
       const resp = await axios.get<any, AxiosResponse<any>>(
-        `${baseUrl}/wp-json/mvx/v1/vendors/${vendorId}`,
+        `${baseUrl}/wp-json/artpay/v1/galleries/${vendorId}`,
         {
           headers: {
             "Content-Type": "application/json",

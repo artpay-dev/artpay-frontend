@@ -27,7 +27,7 @@ const HomeThePhair: React.FC<HomeProps> = () => {
     };
     Promise.all(
       GALLERY_IDS.map((id) =>
-        fetch(`${baseUrl}/wp-json/mvx/v1/vendors/${id}`).then((r) => r.json())
+        fetch(`${baseUrl}/wp-json/artpay/v1/galleries/${id}`).then((r) => r.json())
       )
     )
       .then((results) => {
