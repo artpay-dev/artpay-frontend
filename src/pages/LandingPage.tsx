@@ -1,30 +1,8 @@
-import React, { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import MiddleInfoLayout from "../features/cdspayments/layouts/middleinfolayout/MiddleInfoLayout.tsx";
-import Payments from "../features/cdspayments/components/payments-legacy/Payments.tsx";
+import { Navigate, useSearchParams } from "react-router-dom";
 
-export interface HomeProps {
-}
-
-const Home: React.FC<HomeProps> = ({}) => {
+const LandingPage = () => {
   const [searchParams] = useSearchParams();
-
-  const orderId = searchParams.get("order_id");
-
-
-  useEffect(() => {
-    if(orderId != null) localStorage.setItem("externalOrderKey",orderId);
-
-
-  }, []);
-
-
-
-  return (
-    <MiddleInfoLayout>
-      <Payments />
-    </MiddleInfoLayout>
-  )
+  return <Navigate to={`/acquisto-esterno?${searchParams.toString()}`} replace />;
 };
 
-export default Home;
+export default LandingPage;

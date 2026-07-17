@@ -37,7 +37,6 @@ import ArtworkReserved from "./pages/ArtworkReserved.tsx";
 import Contacts from "./pages/Contacts.tsx";
 import Messages from "./pages/Messages.tsx";
 import Galleries from "./pages/Galleries.tsx";
-import LandingPage from "./pages/LandingPage.tsx";
 import LandingForCampaignPage from "./pages/LandingForCampaignPage.tsx";
 import CdsPaymentsPage from "./pages/CdsPaymentsPage.tsx";
 import PaymentDraw from "./features/cdspayments/components/ui/paymentdraw-legacy/PaymentDraw.tsx";
@@ -101,7 +100,6 @@ function AppContent() {
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/showcase" element={<Showcase />} />
                     <Route path="/gallerie" element={<Galleries />} />
-                    <Route path="/landing" element={<LandingPage />} />
                     <Route path="/gallerie/:slug" element={<Gallery selectedTab={0} />} />
                     <Route path="/gallerie/:slug/tutte-le-opere" element={<Artworks />} />
                     <Route path="/gallerie/:slug/tutti-gli-artisti" element={<Gallery selectedTab={1} />} />
