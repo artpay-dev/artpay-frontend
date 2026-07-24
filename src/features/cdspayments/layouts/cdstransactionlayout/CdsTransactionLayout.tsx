@@ -18,15 +18,20 @@ const CdsTransactionLayout = ({ children }: { children: ReactNode }) => {
       <div className="mx-auto w-full max-w-2xl flex flex-col flex-1">
         <Navbar returnUrl={orderDetails?.return_url ?? undefined} />
         <section className="px-8 pb-6 lg:px-0">
-          <h2 className="text-4xl text-white font-normal">
-            {orderDetails ? (
-              <>
-                Ordine <br /> N.{orderDetails.order_id}
-              </>
-            ) : (
-              <span className="size-12 my-5 block border-2 border-white border-b-transparent rounded-full animate-spin" />
-            )}
-          </h2>
+          {orderDetails ? (
+            <div className="bg-white rounded-2xl p-4 border border-gray-100 space-y-2">
+              <h3 className="font-semibold text-tertiary text-sm">Acquisto con artpay</h3>
+              <div className="border-t border-gray-100 pt-2">
+                <p className="leading-[125%] text-balance text-secondary text-sm">
+                  Stai per completare l'acquisto con artpay, un nuovo servizio selezionato
+                  {orderDetails.vendor_name ? ` da ${orderDetails.vendor_name}` : ""} per rendere l'arte più accessibile.
+                  Rateizza il tuo pagamento in modo sicuro, 100% online scegliendo tra i nostri partner selezionati.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <span className="size-12 my-5 block border-2 border-white border-b-transparent rounded-full animate-spin" />
+          )}
         </section>
         <main className="flex-1 bg-white rounded-t-3xl p-8 pb-24">{children}</main>
       </div>

@@ -2,6 +2,7 @@ import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import { useState } from 'react';
 import useCdsPaymentStore from '../../../stores/paymentStore.ts';
 import { track } from '../../../lib/pillarAnalytics.ts';
+import AgreementCheckBox from '../agreementcheckbox-legacy/AgreementCheckBox.tsx';
 
 const CreditCardIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -24,6 +25,7 @@ const PaymentForm = ({ orderKey }: PaymentFormProps) => {
   const { setPaymentMethod, setPaymentIntent, orderDetails } = useCdsPaymentStore();
   const [message, setMessage] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
+  const [isAgreed, setIsAgreed] = useState(false);
 
   const returnUrl = `${window.location.origin}${window.location.pathname}?order=${orderKey}`;
 
@@ -64,8 +66,9 @@ const PaymentForm = ({ orderKey }: PaymentFormProps) => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <PaymentElement options={{ layout: 'accordion' }} />
         {message && <p className="text-red-500 text-sm">*{message}</p>}
+        <AgreementCheckBox isChecked={isAgreed} handleChange={(e) => setIsAgreed(e.target.checked)} />
         <button
-          disabled={isLoading || !stripe || !elements}
+          disabled={isLoading || !stripe || !elements || !isAgreed}
           className="artpay-button-style bg-primary hover:bg-primary-hover text-white mt-6 disabled:opacity-65">
           {isLoading ? (
             <div className="size-4 border border-white border-b-transparent rounded-full animate-spin" />
