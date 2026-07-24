@@ -1,0 +1,59 @@
+PIANO DI PROGETTO — Redesign flussi di pagamento
+
+
+
+C'è un punto tecnico importante da chiarire subito.
+
+Per il flusso delle aste (CDS Payments), i dati che ci mancano
+non sono nel nostro sistema perché le case d'asta non ce li
+mandano. Oggi ci inviano solo l'importo del lotto. Per mostrare
+immagini e dettagli dell'opera, dovranno aggiornare la loro
+integrazione con noi e iniziare a mandare anche: immagini, nome
+dell'artista, anno, tecnica, dimensioni e condizioni.
+
+Se una casa d'asta non riesce ad aggiornare il proprio sistema
+in tempi brevi, il team Artpay potrà inserire quei dati
+manualmente dal backoffice finché non si allineano. Non è
+la soluzione definitiva, ma non blocca il progetto.
+
+Per gli altri due flussi (Direct Purchase e Fast-Pay) i dati
+ci sono già, è principalmente lavoro di sviluppo frontend.
+
+--------------------------------------------------------------
+PIANO E TEMPI
+--------------------------------------------------------------
+
+Il lavoro è stimato in circa 7/8 settimane.
+
+Settimane 1-2:
+  Lavori sul backend e accordo con le case d'asta sul nuovo
+  formato dei dati. Il frontend parte in parallelo con dati
+  di test, senza aspettare.
+
+Settimane 3-4:
+  Redesign del flusso CDS Payments (aste). È il più complesso
+  perché dipende dall'integrazione esterna.
+
+Settimane 5-6:
+  Redesign del Direct Purchase.
+
+Settimane 7-8:
+  Redesign del Fast-Pay, con particolare attenzione alla
+  pagina che vede il cliente quando riceve l'offerta via email.
+  Quella è la superficie più visibile di tutto il flusso.
+
+ Al termine:
+  Test completi su tutti i flussi e deploy.
+
+--------------------------------------------------------------
+RISCHI DA TENERE D'OCCHIO
+--------------------------------------------------------------
+
+Le case d'asta sono la variabile più incerta. Se tardano
+ad aggiornare il loro sistema, il flusso CDS esce con il
+nuovo layout ma senza i dettagli dell'opera. Non è un blocco
+totale, ma è un'esperienza a metà. Prima si avvia il confronto
+con loro, meglio è.
+
+Il resto è sviluppo ordinario con qualche incognita normale
+sulle stime, niente di critico.

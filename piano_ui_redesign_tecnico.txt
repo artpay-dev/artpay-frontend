@@ -1,0 +1,196 @@
+PIANO SVILUPPO — CDS Payments, Direct Purchase, Fast-Pay
+23 luglio 2026
+
+--------------------------------------------------------------
+SITUAZIONE DI PARTENZA
+--------------------------------------------------------------
+
+Tre flussi di pagamento, stesso problema: l'utente arriva e vede
+solo l'importo e i metodi di pagamento. Zero contesto sull'opera.
+
+CDS Payments:
+  lot_image_url esiste già nell'API ma viene usato come thumbnail
+  da 16x16px. Artista, tecnica, dimensioni, condizioni non arrivano
+  nemmeno dal backend perché le case d'asta non li mandano.
+
+Direct Purchase:
+  I dati ci sono tutti (ACF fields su WooCommerce, array images,
+  artista, anno, condizioni). C'era anche una sezione UI fatta
+  (righe 961-1185 di DirectPurchaseView.tsx) ma è commentata.
+  Da capire perché prima di toccarla.
+
+Fast-Pay:
+  Lato vendor già mostra qualcosa, ma solo thumbnail e nome.
+  Lato cliente (pagina /quotes) è la più scarsa: titolo, prezzo,
+  sconto, countdown. Nient'altro.
+
+--------------------------------------------------------------
+COSA BISOGNA FARE, IN ORDINE DI PRIORITÀ
+--------------------------------------------------------------
+
+1. BACKEND — CDS Payments (blocca tutto il resto per questo flusso)
+
+   Il problema principale è che le case d'asta oggi mandano solo
+   l'importo del lotto e poco altro. Bisogna:
+
+   - Definire il nuovo payload che le case d'asta devono mandarci:
+     immagini (array di URL), artista, anno, tecnica, dimensioni,
+     condizioni, numero lotto. Più o meno così:
+
+       images[]: string[]
+       artist: string
+       year: string
+       technique: string
+       dimensions: { width, height, depth?, unit }
+       condition: string
+       lot_number: string
+
+   - Aggiornare il nostro endpoint cds-order-details per salvare
+     e restituire questi campi. Probabilmente aggiungere meta
+     sull'ordine WooCommerce.
+
+   - Piano B se la casa d'asta non riesce ad aggiornare il suo
+     sistema: una schermata backoffice dove il team Artpay inserisce
+     manualmente i dati per ogni lotto. Non è elegante ma sblocca
+     il frontend mentre aspettiamo.
+
+   Stima: 2-3 settimane lato backend.
+
+2. BACKEND — Direct Purchase e Fast-Pay (più semplice)
+
+   Per Direct Purchase non serve quasi niente: GET /wc/v3/products/:id
+   dovrebbe già restituire tutto, basta verificare che i campi ACF
+   siano effettivamente nell'API response. Se mancano, aggiungere
+   register_rest_field() nel plugin WC. Mezza giornata di lavoro.
+
+   Per Fast-Pay bisogna estendere /wc-quote/v1/vendor/quotes/:id
+   e /wc-quote/v1/order (lato cliente) con un oggetto artwork_details
+   che aggreghi i dati dal prodotto WooCommerce collegato all'ordine.
+   Un paio di giorni.
+
+3. FRONTEND — CDS Payments
+
+   Qui si parte da zero lato UI. Il layout nuovo mette l'immagine
+   dell'opera in cima (grande, non thumbnail), con gallery se ci
+   sono più immagini. Sotto: metadati artistici. Poi il riepilogo
+   economico. Poi la selezione metodo di pagamento.
+
+   Componenti nuovi da creare:
+     - ArtworkHero.tsx: immagine hero + thumbnail clickabili
+     - ArtworkMetadata.tsx: griglia con artista, anno, tecnica,
+       dimensioni, condizioni
+
+   Componenti da aggiornare:
+     - OrderSummary.tsx: spostarlo dopo i metadati opera
+     - PaymentForm.tsx: già in staging con alcune modifiche,
+       da adattare al nuovo layout
+     - PaymentComplete.tsx e PaymentFailed.tsx: aggiungere
+       contesto opera anche nelle pagine di esito
+     - BankTransferInstructions.tsx: aggiungere almeno il
+       thumbnail opera nel recap
+
+   CdsOrderDetails type va aggiornato con i nuovi campi.
+   paymentStore.ts va aggiornato di conseguenza.
+
+   Attenzione alle immagini: se arrivano da WP media library
+   senza ottimizzazione, la pagina crasha su mobile. Lazy loading
+   obbligatorio, WebP dove possibile, skeleton placeholder durante
+   il caricamento.
+
+   Stima: 3 settimane.
+
+4. FRONTEND — Direct Purchase
+
+   Prima cosa: aprire git blame sulle righe 961-1185 di
+   DirectPurchaseView.tsx e capire perché è stato commentato.
+   Se era un bug, risolverlo. Se era una scelta temporanea,
+   capire se il codice è ancora attuale o va riscritto.
+
+   Dopo: riattivare la sezione prodotto e aggiornarla al design
+   system corrente (MUI v5 + Tailwind). ArtworkHero e
+   ArtworkMetadata creati per CDS si possono riusare direttamente.
+
+   I casi speciali da gestire bene:
+     - deposit: deve essere chiaro che si sta pagando un acconto
+       e quanto rimane. L'opera deve essere visibile.
+     - loan/redeem: il breakdown Santander va integrato con i
+       dettagli opera, non messo in un layout separato.
+     - onHold: mostrare saldo residuo con contesto opera.
+
+   Stima: 2 settimane.
+
+5. FRONTEND — Fast-Pay
+
+   Lato vendor (FastPayCreate):
+   - La selezione dell'opera deve mostrare anteprima immagine
+     e metadati, non solo il nome nel dropdown
+   - Nella card di riepilogo dell'offerta creata, aggiungere
+     immagine e dati artistici
+
+   Lato vendor (FastPayDetail):
+   - Gallery immagini al posto del thumbnail singolo
+   - Metadati completi dell'opera
+
+   Lato cliente (/quotes):
+   - Questa è la pagina più importante del flusso Fast-Pay.
+     Il cliente arriva da una email con un link, non ha contesto.
+     Va rifatta mostrando: immagine hero, dati opera, galleria,
+     poi l'offerta (prezzo listino barrato, sconto, prezzo offerta),
+     poi il countdown scadenza, poi i pulsanti accetta/rifiuta.
+     Dopo accettazione: Stripe Elements o istruzioni bonifico,
+     sempre con l'opera visibile nel recap laterale.
+
+   Stima: 2 settimane.
+
+6. QA E DEPLOY
+
+   - Test su tutti i flussi, tutti gli stage (loading, selection,
+     checkout, bank_transfer, success, failed)
+   - Stripe test mode per tutti i metodi: carta, Klarna, Revolut,
+     Google Pay, bonifico
+   - Mobile 375px, tablet 768px, desktop 1280px+
+   - Chrome, Safari, Firefox, Safari iOS
+   - Test con immagini mancanti: deve degradare gracefully
+   - Test con campi metadati vuoti: nessun campo obbligatorio
+     deve rompere il layout
+
+   Stima: 2 settimane.
+
+--------------------------------------------------------------
+TIMELINE
+--------------------------------------------------------------
+
+Le fasi backend e frontend girano in parallelo. Il frontend
+parte con mock data mentre il backend lavora sugli endpoint.
+
+  Settimane 1-3:   Backend CDS + definizione payload con case d'asta
+  Settimane 2-4:   Backend Direct Purchase e Fast-Pay (più piccolo)
+  Settimane 3-5:   Frontend CDS Payments
+  Settimane 5-7:   Frontend Direct Purchase
+  Settimane 7-9:   Frontend Fast-Pay
+  Settimane 9-11:  Test integrati, fix, QA con dati reali
+  Settimane 11-12: Deploy progressivo
+
+  Totale: circa 12 settimane
+
+--------------------------------------------------------------
+RISCHI
+--------------------------------------------------------------
+
+Il rischio più grosso è la casa d'asta.
+Se non aggiornano il loro sistema per mandarci i dati aggiuntivi,
+il CDS Payments UI aggiornato mostra comunque il layout nuovo
+ma senza i dettagli dell'opera. Si attiva il piano B (backoffice)
+nel frattempo. Non blocca lo sviluppo, ma degrada l'esperienza
+fino a quando non si sistemano.
+
+Il secondo rischio è la sezione commentata in Direct Purchase.
+Se è commentata per un motivo preciso (bug, rework in corso,
+decisione del PM), riaprirla senza capire perché è rischiosa.
+Prima di toccarla, 30 minuti su git history per capire il contesto.
+
+Il resto sono normali rischi di sviluppo: stima leggermente
+ottimistica su CDS (dipende dalla complessità della gallery
+immagini e dall'ottimizzazione), e la pagina /quotes di Fast-Pay
+non è stata analizzata nel dettaglio, potrebbe riservare qualche
+sorpresa.
