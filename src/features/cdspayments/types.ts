@@ -4,6 +4,12 @@ export type OrderStatus = 'pending' | 'on-hold' | 'processing' | 'completed' | '
 
 export type PaymentMethod = 'klarna' | 'bank_transfer';
 
+export type CdsProduct = {
+  price: number;
+  description: string;
+  image_url: string;
+};
+
 export type CdsOrderDetails = {
   order_key: string;
   order_id: number;
@@ -20,6 +26,7 @@ export type CdsOrderDetails = {
   lot_image_url: string | null;
   return_url: string | null;
   customer_email: string;
+  products?: CdsProduct[];
 };
 
 export type BankTransferIban = {
