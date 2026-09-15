@@ -100,7 +100,7 @@ const MiddleInfoLayout = ({ children }: { children: ReactNode }) => {
                 <p className="leading-[125%] text-balance text-secondary">
                   Stai per completare l'acquisto con Artpay, un nuovo servizio selezionato
                   {order?.vendor_name ? ` da ${order.vendor_name}` : ""} per rendere l'arte più accessibile.
-                  Rateizza il tuo pagamento in modo sicuro, 100% online scegliendo tra i nostri partner selezionati.
+                  Rateizza il tuo pagamento in modo sicuro, 100% online con Scalapay, Klarna o Santander.
                 </p>
                 {/*<button
                   onClick={() => setOpenArticleDraw({ openArticleDraw: true })}

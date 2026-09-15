@@ -26,6 +26,7 @@ export async function createPaymentIntent(
       wc_order_key: orderKey,
       payment_method: method,
       add_klarna_fee: method === 'klarna',
+      add_scalapay_fee: method === 'scalapay',
     }),
   });
   return parseResponse<CdsPaymentIntent>(res);

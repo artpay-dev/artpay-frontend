@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import PaymentProviderCard from '../ui/paymentprovidercard/PaymentProviderCard.tsx';
 import KlarnaIcon from '../ui/paymentprovidercard/KlarnaIcon.tsx';
+import ScalapayIcon from '../ui/paymentprovidercard/ScalapayIcon.tsx';
 import SantanderCard from '../ui/santandercard/SantanderCard.tsx';
 import useCdsPaymentStore from '../../stores/paymentStore.ts';
 import { createPaymentIntent } from '../../api.ts';
@@ -9,6 +10,8 @@ import { track } from '../../lib/pillarAnalytics.ts';
 const KLARNA_MAX = 2500;
 const SANTANDER_MIN = 1500;
 const SANTANDER_MAX = 30000;
+const SCALAPAY_MIN = 40;
+const SCALAPAY_MAX = 5000;
 
 const CreditCardIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -28,6 +31,7 @@ const Spinner = () => (
 const PaymentMethodsList = () => {
   const { orderDetails, setPaymentMethod, setPaymentIntent, setLoading, setError } = useCdsPaymentStore();
   const [selectingKlarna, setSelectingKlarna] = useState(false);
+  const [selectingScalapay, setSelectingScalapay] = useState(false);
 
   if (!orderDetails) return null;
 
@@ -38,7 +42,11 @@ const PaymentMethodsList = () => {
 
   const showKlarna = grandTotal <= KLARNA_MAX;
   const showSantander = grandTotal >= SANTANDER_MIN && grandTotal <= SANTANDER_MAX;
-  const noMethodsAvailable = !showKlarna && !showSantander;
+  const showScalapay = grandTotal >= SCALAPAY_MIN && grandTotal <= SCALAPAY_MAX;
+  const scalapayFee = grandTotal * 0.05;
+  const scalapayTotal = grandTotal + scalapayFee;
+  const scalapayQuota = scalapayTotal / 3;
+  const noMethodsAvailable = !showKlarna && !showSantander && !showScalapay;
 
   const fmt = (n: number) => n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -63,12 +71,33 @@ const PaymentMethodsList = () => {
     }
   };
 
+  const handleSelectScalapay = async () => {
+    track('scalapay_selected', {
+      email: orderDetails.customer_email,
+      order: orderDetails.order_id,
+      total: orderDetails.grand_total,
+    });
+    setSelectingScalapay(true);
+    setLoading(true);
+    setError(null);
+    try {
+      const intent = await createPaymentIntent(orderDetails.order_key, 'scalapay');
+      setPaymentMethod('scalapay');
+      setPaymentIntent(intent);
+    } catch (e: any) {
+      setError(e.message ?? 'Errore nella creazione del pagamento');
+    } finally {
+      setSelectingScalapay(false);
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="space-y-6">
       <div className="border-t border-secondary mt-12">
         <h3 className="text-secondary py-4.5 flex items-center gap-2">
           <CreditCardIcon />
-          Metodi di pagamento
+          I nostri partner finanziari
         </h3>
 
         {noMethodsAvailable ? (
@@ -77,9 +106,39 @@ const PaymentMethodsList = () => {
           </p>
         ) : (
           <ul className="flex flex-col items-center space-y-6">
-            {showSantander && (
+            {showScalapay && (
               <li className="w-full">
-                <SantanderCard />
+                <PaymentProviderCard
+                  cardTitle="Scalapay"
+                  icon={<ScalapayIcon />}
+                  subtitle={`Paga in 3 rate senza interessi da € ${fmt(SCALAPAY_MIN)} a € ${fmt(SCALAPAY_MAX)}`}
+                  backgroundColor="bg-[#FEF3F4]"
+                  button={
+                    <button
+                      onClick={handleSelectScalapay}
+                      disabled={selectingScalapay}
+                      className="artpay-button-style bg-black hover:bg-zinc-800 text-white disabled:opacity-65">
+                      {selectingScalapay ? <Spinner /> : `Paga la prima rata da € ${fmt(scalapayQuota)}`}
+                    </button>
+                  }>
+                  <ul className="space-y-4 py-4 border-t border-zinc-300">
+                    <li className="w-full flex justify-between">
+                      Tre rate senza interessi da: <span>€ {fmt(scalapayQuota)}</span>
+                    </li>
+                    <li className="w-full flex justify-between">
+                      Subtotale: <span>€ {fmt(grandTotal)}</span>
+                    </li>
+                    <li>
+                      <div className="w-full flex justify-between">
+                        Commissione Scalapay (5%): <span>€ {fmt(scalapayFee)}</span>
+                      </div>
+                      <p className="text-secondary text-xs">Inclusi costi del finanziamento</p>
+                    </li>
+                    <li className="w-full flex justify-between">
+                      <strong>Totale:</strong> <strong>€ {fmt(scalapayTotal)}</strong>
+                    </li>
+                  </ul>
+                </PaymentProviderCard>
               </li>
             )}
 
@@ -116,6 +175,12 @@ const PaymentMethodsList = () => {
                     </li>
                   </ul>
                 </PaymentProviderCard>
+              </li>
+            )}
+
+            {showSantander && (
+              <li className="w-full">
+                <SantanderCard />
               </li>
             )}
           </ul>

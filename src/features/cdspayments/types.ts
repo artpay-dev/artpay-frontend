@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react';
 
 export type OrderStatus = 'pending' | 'on-hold' | 'processing' | 'completed' | 'cancelled' | 'failed';
 
-export type PaymentMethod = 'klarna' | 'bank_transfer';
+export type PaymentMethod = 'klarna' | 'scalapay' | 'bank_transfer';
 
 export type CdsProduct = {
   price: number;
