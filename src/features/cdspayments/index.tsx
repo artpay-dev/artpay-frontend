@@ -12,11 +12,13 @@ import PaymentComplete from './components/paymentcomplete/PaymentComplete.tsx';
 import PaymentFailed from './components/paymentfailed/PaymentFailed.tsx';
 import SkeletonOrderDetails from './components/paymentmethodslist/SkeletonOrderDetails.tsx';
 import BankTransferInstructions from './components/banktransferinstructions/BankTransferInstructions.tsx';
+import HeyLightPolling from './components/heylight/HeyLightPolling.tsx';
+import { heylightStorageKey } from './components/heylight/heylightStorage.ts';
 import { useMsClarity } from './lib/useMsClarity.ts';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY || '');
 
-type Stage = 'loading' | 'selection' | 'checkout' | 'bank_transfer' | 'success' | 'failed' | 'error';
+type Stage = 'loading' | 'selection' | 'checkout' | 'bank_transfer' | 'heylight_polling' | 'success' | 'failed' | 'error';
 
 const isBankTransferIntent = (intent: { status: string; next_action?: { type: string } } | null) =>
   intent?.status === 'requires_action' &&
@@ -27,6 +29,7 @@ const CdsPayments = () => {
   const {
     orderDetails,
     paymentIntent,
+    heylightStatus,
     loading,
     error,
     setOrderDetails,
@@ -37,6 +40,8 @@ const CdsPayments = () => {
 
   const orderKey = searchParams.get('order_id') ?? searchParams.get('order');
   const redirectStatus = searchParams.get('redirect_status');
+  const heylightReturn = searchParams.get('heylight_return');
+  const heylightUuid = heylightReturn && orderKey ? localStorage.getItem(heylightStorageKey(orderKey)) : null;
 
   useEffect(() => { useMsClarity(); }, []);
 
@@ -58,6 +63,11 @@ const CdsPayments = () => {
   const stage = useMemo((): Stage => {
     if (loading) return 'loading';
     if (error) return 'error';
+    if (heylightReturn && heylightUuid) {
+      if (heylightStatus === 'success') return 'success';
+      if (heylightStatus === 'cancelled') return 'failed';
+      return 'heylight_polling';
+    }
     if (redirectStatus === 'succeeded') return 'success';
     if (redirectStatus === 'failed') return 'failed';
     if (orderDetails?.status === 'processing' || orderDetails?.status === 'completed') return 'success';
@@ -67,7 +77,7 @@ const CdsPayments = () => {
       return 'checkout';
     }
     return 'selection';
-  }, [loading, error, redirectStatus, orderDetails?.status, paymentIntent]);
+  }, [loading, error, redirectStatus, orderDetails?.status, paymentIntent, heylightReturn, heylightUuid, heylightStatus]);
 
   const bankTransferInstructions =
     paymentIntent?.next_action?.display_bank_transfer_instructions ?? null;
@@ -103,6 +113,13 @@ const CdsPayments = () => {
         <>
           <OrderSummary />
           <PaymentMethodsList />
+        </>
+      )}
+
+      {stage === 'heylight_polling' && heylightUuid && (
+        <>
+          <OrderSummary />
+          <HeyLightPolling uuid={heylightUuid} orderKey={orderKey!} />
         </>
       )}
 
