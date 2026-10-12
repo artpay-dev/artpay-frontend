@@ -125,12 +125,16 @@ export type HeylightCreateParams = {
   wc_order_id: number;
   success_url: string;
   failure_url: string;
+  product_type: 'finanziamento' | 'dilazione';
+  vendor_id?: number;
   language?: string;
-  product_type?: 'finanziamento' | 'dilazione';
   allowed_terms?: number[];
-  first_name: string;
-  last_name: string;
-  phone?: string;
+  customer_details: {
+    first_name: string;
+    last_name: string;
+    email_address: string;
+    contact_number: string;
+  };
 };
 
 export async function createHeylightSession(params: HeylightCreateParams): Promise<HeylightSession> {

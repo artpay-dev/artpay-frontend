@@ -73,11 +73,11 @@ const HeyLightPolling = ({ uuid, orderKey }: Props) => {
                 fill="#ea1c00"
               />
             </svg>
-            Approvato! In attesa di conferma finale
+            In attesa di conferma finale
           </h3>
           <PaymentProviderCard backgroundColor="bg-[#FFF0EE]">
             <div className="space-y-4 py-4 text-center">
-              <p className="font-semibold leading-[125%]">La tua richiesta è stata approvata da HeyLight.</p>
+              <p className="font-semibold leading-[125%]">Riceverai una mail da parte di Heylight con il tuo contratto.</p>
               <p className="text-secondary text-sm leading-[125%]">
                 Il pagamento non è ancora completato — stiamo aspettando la conferma finale. Riceverai una notifica a
                 breve. Non è necessaria alcuna azione da parte tua.

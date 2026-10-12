@@ -20,6 +20,15 @@ export type HeylightSessionDetails = {
   wc_order_id: number;
   status: HeylightSessionStatus;
   product_type: HeylightProductType;
+  additional_data: {
+    pricing_structure_code: string;
+  };
+  customer_details: {
+    email_address: string;
+    first_name: string;
+    last_name: string;
+    contact_number: string;
+  };
   amount: number;
   currency: string;
   created_at: string;

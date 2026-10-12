@@ -37,8 +37,12 @@ const PaymentMethodsList = () => {
   const [selectingScalapay, setSelectingScalapay] = useState(false);
   const [selectingHeylight, setSelectingHeylight] = useState(false);
   const [heylightForm, setHeylightForm] = useState({ firstName: '', lastName: '', phone: '' });
+  const [heylightProductType, setHeylightProductType] = useState<'dilazione' | 'finanziamento'>('dilazione');
 
-  const heylightFormValid = heylightForm.firstName.trim() !== '' && heylightForm.lastName.trim() !== '';
+  const heylightFormValid =
+    heylightForm.firstName.trim() !== '' &&
+    heylightForm.lastName.trim() !== '' &&
+    heylightForm.phone.trim() !== '';
 
   if (!orderDetails) return null;
 
@@ -54,8 +58,6 @@ const PaymentMethodsList = () => {
   const scalapayFee = grandTotal * 0.05;
   const scalapayTotal = grandTotal + scalapayFee;
   const scalapayQuota = scalapayTotal / 3;
-  const heylightFee = grandTotal * 0.06;
-  const heylightTotal = grandTotal + heylightFee;
   const noMethodsAvailable = !showKlarna && !showSantander && !showScalapay && !showHeylight;
 
   const fmt = (n: number) => n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -97,12 +99,15 @@ const PaymentMethodsList = () => {
         wc_order_id: orderDetails.order_id,
         success_url: `${returnBase}&heylight_return=success`,
         failure_url: `${returnBase}&heylight_return=failed`,
+        product_type: heylightProductType,
         language: 'it',
-        product_type: 'dilazione',
-        allowed_terms: [3, 6, 12],
-        first_name: heylightForm.firstName.trim(),
-        last_name: heylightForm.lastName.trim(),
-        ...(heylightForm.phone.trim() && { phone: heylightForm.phone.trim() }),
+        allowed_terms: heylightProductType === 'dilazione' ? [3, 6, 12, 24] : [12, 24, 36],
+        customer_details: {
+          first_name: heylightForm.firstName.trim(),
+          last_name: heylightForm.lastName.trim(),
+          email_address: orderDetails.customer_email,
+          contact_number: heylightForm.phone.trim(),
+        },
       });
       localStorage.setItem(heylightStorageKey(orderDetails.order_key), session.application_uuid);
       window.location.href = session.redirect_url;
@@ -235,18 +240,57 @@ const PaymentMethodsList = () => {
                       {selectingHeylight ? <Spinner /> : 'Procedi con HeyLight'}
                     </button>
                   }>
+                  <div className="flex gap-3 py-4 border-t border-zinc-300">
+                    <button
+                      type="button"
+                      onClick={() => setHeylightProductType('dilazione')}
+                      className={`flex-1 rounded-lg border-2 px-3 py-2.5 text-left transition-colors ${
+                        heylightProductType === 'dilazione'
+                          ? 'border-[#ea1c00] bg-[#FFF0EE]'
+                          : 'border-zinc-200 bg-white hover:border-zinc-300'
+                      }`}>
+                      <p className={`text-sm font-semibold ${heylightProductType === 'dilazione' ? 'text-[#ea1c00]' : 'text-zinc-800'}`}>
+                        Dilazione
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-0.5">3 – 24 rate · Tasso 0%</p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setHeylightProductType('finanziamento')}
+                      className={`flex-1 rounded-lg border-2 px-3 py-2.5 text-left transition-colors ${
+                        heylightProductType === 'finanziamento'
+                          ? 'border-[#ea1c00] bg-[#FFF0EE]'
+                          : 'border-zinc-200 bg-white hover:border-zinc-300'
+                      }`}>
+                      <p className={`text-sm font-semibold ${heylightProductType === 'finanziamento' ? 'text-[#ea1c00]' : 'text-zinc-800'}`}>
+                        Finanziamento
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-0.5">3 – 24 rate · con interessi</p>
+                    </button>
+                  </div>
                   <ul className="space-y-4 py-4 border-t border-zinc-300">
                     <li className="w-full flex justify-between">
                       Subtotale: <span>€ {fmt(grandTotal)}</span>
                     </li>
                     <li>
-                      <div className="w-full flex justify-between">
-                        Commissione HeyLight (6%): <span>€ {fmt(heylightFee)}</span>
-                      </div>
-                      <p className="text-secondary text-xs">Inclusi costi del finanziamento</p>
+                      {heylightProductType === 'dilazione' ? (
+                        <>
+                          <div className="w-full flex justify-between">
+                            Rate da 3 a 24 mesi
+                          </div>
+                          <p className="text-secondary text-xs">Senza interessi · Tasso 0%</p>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-full flex justify-between">
+                            Da 3 rate (5,36%) fino a 24 rate (13,36%)
+                          </div>
+                          <p className="text-secondary text-xs">Inclusi costi del finanziamento</p>
+                        </>
+                      )}
                     </li>
                     <li className="w-full flex justify-between">
-                      <strong>Totale:</strong> <strong>€ {fmt(heylightTotal)}</strong>
+                      <strong>Totale:</strong> <strong>€ {fmt(grandTotal)}</strong>
                     </li>
                   </ul>
                   <div className="space-y-3 pt-4 border-t border-zinc-300">
@@ -269,7 +313,7 @@ const PaymentMethodsList = () => {
                     </div>
                     <input
                       type="tel"
-                      placeholder="Telefono (opzionale)"
+                      placeholder="Telefono *"
                       value={heylightForm.phone}
                       onChange={(e) => setHeylightForm((f) => ({ ...f, phone: e.target.value }))}
                       className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#ea1c00] transition-colors"
