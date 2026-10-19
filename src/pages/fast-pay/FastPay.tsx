@@ -50,9 +50,9 @@ const FastPay = () => {
   }
 
   return (
-    <main className="text-2xl flex flex-col h-full mx-auto max-w-lg px-6">
+    <main className="flex flex-col h-full">
       {/*<h1 className={"text-secondary "}>Menu FastPay</h1>*/}
-      <ul className={"mt-6 space-y-6"}>
+      <ul className={"space-y-6"}>
         <li className={'space-y-2'}>
           <Button variant={'contained'} size={'medium'} onClick={() => {
             setOpenListDraw({ openListDraw: false })

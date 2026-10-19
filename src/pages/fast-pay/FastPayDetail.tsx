@@ -160,18 +160,18 @@ const FastPayDetail = () => {
 
   if (loading) {
     return (
-      <main className="flex flex-col items-center justify-center py-12 max-w-lg mx-auto">
+      <div className="flex flex-col items-center justify-center py-12">
         <CircularProgress size={40} />
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
           Caricamento dettagli...
         </Typography>
-      </main>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <main className="px-8 py-12 max-w-lg mx-auto">
+      <div className="py-12">
         <Alert severity="error">{error}</Alert>
         <Button
           variant="contained"
@@ -180,7 +180,7 @@ const FastPayDetail = () => {
         >
           Torna indietro
         </Button>
-      </main>
+      </div>
     );
   }
 
@@ -206,10 +206,10 @@ const FastPayDetail = () => {
 
   return (
     <>
-      <main className="w-full max-w-lg mx-auto px-6 pb-6">
+      <div>
         <h1 className="text-4xl font-light text-gray-900 mb-6">Dettaglio Offerta</h1>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
+        <div className="border border-gray-100 rounded-2xl p-6 space-y-5">
           {/* Header con immagine e info base */}
           <div className="flex items-start gap-4">
             <img
@@ -313,7 +313,7 @@ const FastPayDetail = () => {
             </Button>
           </Box>
         </div>
-      </main>
+      </div>
 
       {/* Dialog per inserire l'email del cliente */}
       <Dialog

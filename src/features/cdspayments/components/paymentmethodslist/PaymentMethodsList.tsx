@@ -54,7 +54,7 @@ const PaymentMethodsList = () => {
   const showKlarna = grandTotal <= KLARNA_MAX;
   const showSantander = grandTotal >= SANTANDER_MIN && grandTotal <= SANTANDER_MAX;
   const showScalapay = grandTotal >= SCALAPAY_MIN && grandTotal <= SCALAPAY_MAX;
-  const showHeylight = grandTotal <= HEYLIGHT_MAX;
+  const showHeylight = false; // grandTotal <= HEYLIGHT_MAX;
   const scalapayFee = grandTotal * 0.05;
   const scalapayTotal = grandTotal + scalapayFee;
   const scalapayQuota = scalapayTotal / 3;
@@ -99,7 +99,7 @@ const PaymentMethodsList = () => {
         wc_order_id: orderDetails.order_id,
         success_url: `${returnBase}&heylight_return=success`,
         failure_url: `${returnBase}&heylight_return=failed`,
-        product_type: heylightProductType,
+        product_type: heylightProdutType,
         language: 'it',
         allowed_terms: heylightProductType === 'dilazione' ? [3, 6, 12, 24] : [12, 24, 36],
         customer_details: {

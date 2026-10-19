@@ -594,7 +594,7 @@ export const useEnvDetector = (): string | undefined => {
       setEnvironment("local");
     } else if (hostname.startsWith("staging2.")) {
       setEnvironment("staging");
-    } else if (hostname === "artpay.art") {
+    } else if (hostname === "checkout.artpay.art") {
       setEnvironment("production");
     } else {
       setEnvironment(undefined);

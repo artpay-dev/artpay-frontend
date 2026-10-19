@@ -209,7 +209,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, baseUrl = 
     const response = await appleAuthHelpers.signIn({
       authOptions: {
         clientId: "art.artpay.login",
-        redirectURI: "https://artpay.art",
+        redirectURI: "https://checkout.artpay.art",
         scope: "name email",
         usePopup: true,
 
