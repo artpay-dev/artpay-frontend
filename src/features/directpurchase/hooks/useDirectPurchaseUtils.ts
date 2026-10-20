@@ -37,6 +37,7 @@ export const useDirectPurchaseUtils = () => {
       const paymentMethodMap: Record<string, string> = {
         card: "Carta",
         klarna: "Klarna",
+        scalapay: "Scalapay",
         Santander: "Santander",
         bank_transfer: "Bonifico",
         paypal: "PayPal",

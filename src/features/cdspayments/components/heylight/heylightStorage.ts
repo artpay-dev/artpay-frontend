@@ -1,0 +1,1 @@
+export const heylightStorageKey = (orderKey: string) => `hl_session_${orderKey}`;

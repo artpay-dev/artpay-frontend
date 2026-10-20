@@ -70,8 +70,8 @@ const CheckoutForm = React.forwardRef<HTMLButtonElement, CheckoutFormProps>(
             : "https://staging2.artpay.art/acquisto?order=" + pendingOrder?.id),
         production:
           (orderMode == "loan"
-            ? "https://artpay.art/opera-bloccata"
-            : "https://artpay.art/acquisto?order=" + pendingOrder?.id),
+            ? "https://checkout.artpay.art/opera-bloccata"
+            : "https://checkout.artpay.art/acquisto?order=" + pendingOrder?.id),
       };
 
       return environment ? returnUrl[environment] : returnUrl.local;

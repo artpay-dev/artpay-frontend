@@ -1,14 +1,20 @@
 import { useState } from 'react';
 import PaymentProviderCard from '../ui/paymentprovidercard/PaymentProviderCard.tsx';
 import KlarnaIcon from '../ui/paymentprovidercard/KlarnaIcon.tsx';
+import ScalapayIcon from '../ui/paymentprovidercard/ScalapayIcon.tsx';
+import HeyLightIcon from '../ui/paymentprovidercard/HeyLightIcon.tsx';
 import SantanderCard from '../ui/santandercard/SantanderCard.tsx';
 import useCdsPaymentStore from '../../stores/paymentStore.ts';
-import { createPaymentIntent } from '../../api.ts';
+import { createPaymentIntent, createHeylightSession } from '../../api.ts';
+import { heylightStorageKey } from '../heylight/heylightStorage.ts';
 import { track } from '../../lib/pillarAnalytics.ts';
 
 const KLARNA_MAX = 2500;
 const SANTANDER_MIN = 1500;
 const SANTANDER_MAX = 30000;
+const SCALAPAY_MIN = 40;
+const SCALAPAY_MAX = 5000;
+const HEYLIGHT_MAX = 5000;
 
 const CreditCardIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -28,6 +34,15 @@ const Spinner = () => (
 const PaymentMethodsList = () => {
   const { orderDetails, setPaymentMethod, setPaymentIntent, setLoading, setError } = useCdsPaymentStore();
   const [selectingKlarna, setSelectingKlarna] = useState(false);
+  const [selectingScalapay, setSelectingScalapay] = useState(false);
+  const [selectingHeylight, setSelectingHeylight] = useState(false);
+  const [heylightForm, setHeylightForm] = useState({ firstName: '', lastName: '', phone: '' });
+  const [heylightProductType, setHeylightProductType] = useState<'dilazione' | 'finanziamento'>('dilazione');
+
+  const heylightFormValid =
+    heylightForm.firstName.trim() !== '' &&
+    heylightForm.lastName.trim() !== '' &&
+    heylightForm.phone.trim() !== '';
 
   if (!orderDetails) return null;
 
@@ -38,7 +53,12 @@ const PaymentMethodsList = () => {
 
   const showKlarna = grandTotal <= KLARNA_MAX;
   const showSantander = grandTotal >= SANTANDER_MIN && grandTotal <= SANTANDER_MAX;
-  const noMethodsAvailable = !showKlarna && !showSantander;
+  const showScalapay = grandTotal >= SCALAPAY_MIN && grandTotal <= SCALAPAY_MAX;
+  const showHeylight = false; // grandTotal <= HEYLIGHT_MAX;
+  const scalapayFee = grandTotal * 0.05;
+  const scalapayTotal = grandTotal + scalapayFee;
+  const scalapayQuota = scalapayTotal / 3;
+  const noMethodsAvailable = !showKlarna && !showSantander && !showScalapay && !showHeylight;
 
   const fmt = (n: number) => n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -63,12 +83,68 @@ const PaymentMethodsList = () => {
     }
   };
 
+  const handleSelectHeylight = async () => {
+    track('heylight_selected', {
+      email: orderDetails.customer_email,
+      order: orderDetails.order_id,
+      total: orderDetails.grand_total,
+    });
+    setSelectingHeylight(true);
+    setLoading(true);
+    setError(null);
+    try {
+      const pageBase = `${window.location.origin}${window.location.pathname}`;
+      const returnBase = `${pageBase}?order_id=${encodeURIComponent(orderDetails.order_key)}`;
+      const session = await createHeylightSession({
+        wc_order_id: orderDetails.order_id,
+        success_url: `${returnBase}&heylight_return=success`,
+        failure_url: `${returnBase}&heylight_return=failed`,
+        product_type: heylightProdutType,
+        language: 'it',
+        allowed_terms: heylightProductType === 'dilazione' ? [3, 6, 12, 24] : [12, 24, 36],
+        customer_details: {
+          first_name: heylightForm.firstName.trim(),
+          last_name: heylightForm.lastName.trim(),
+          email_address: orderDetails.customer_email,
+          contact_number: heylightForm.phone.trim(),
+        },
+      });
+      localStorage.setItem(heylightStorageKey(orderDetails.order_key), session.application_uuid);
+      window.location.href = session.redirect_url;
+    } catch (e: any) {
+      setError(e.message ?? 'Errore nella creazione della sessione Heylight');
+      setSelectingHeylight(false);
+      setLoading(false);
+    }
+  };
+
+  const handleSelectScalapay = async () => {
+    track('scalapay_selected', {
+      email: orderDetails.customer_email,
+      order: orderDetails.order_id,
+      total: orderDetails.grand_total,
+    });
+    setSelectingScalapay(true);
+    setLoading(true);
+    setError(null);
+    try {
+      const intent = await createPaymentIntent(orderDetails.order_key, 'scalapay');
+      setPaymentMethod('scalapay');
+      setPaymentIntent(intent);
+    } catch (e: any) {
+      setError(e.message ?? 'Errore nella creazione del pagamento');
+    } finally {
+      setSelectingScalapay(false);
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="space-y-6">
       <div className="border-t border-secondary mt-12">
         <h3 className="text-secondary py-4.5 flex items-center gap-2">
           <CreditCardIcon />
-          Metodi di pagamento
+          I nostri partner finanziari
         </h3>
 
         {noMethodsAvailable ? (
@@ -77,9 +153,39 @@ const PaymentMethodsList = () => {
           </p>
         ) : (
           <ul className="flex flex-col items-center space-y-6">
-            {showSantander && (
+            {showScalapay && (
               <li className="w-full">
-                <SantanderCard />
+                <PaymentProviderCard
+                  cardTitle="Scalapay"
+                  icon={<ScalapayIcon />}
+                  subtitle={`Paga in 3 rate senza interessi da € ${fmt(SCALAPAY_MIN)} a € ${fmt(SCALAPAY_MAX)}`}
+                  backgroundColor="bg-[#FEF3F4]"
+                  button={
+                    <button
+                      onClick={handleSelectScalapay}
+                      disabled={selectingScalapay}
+                      className="artpay-button-style bg-black hover:bg-zinc-800 text-white disabled:opacity-65">
+                      {selectingScalapay ? <Spinner /> : `Paga la prima rata da € ${fmt(scalapayQuota)}`}
+                    </button>
+                  }>
+                  <ul className="space-y-4 py-4 border-t border-zinc-300">
+                    <li className="w-full flex justify-between">
+                      Tre rate senza interessi da: <span>€ {fmt(scalapayQuota)}</span>
+                    </li>
+                    <li className="w-full flex justify-between">
+                      Subtotale: <span>€ {fmt(grandTotal)}</span>
+                    </li>
+                    <li>
+                      <div className="w-full flex justify-between">
+                        Commissione Scalapay (5%): <span>€ {fmt(scalapayFee)}</span>
+                      </div>
+                      <p className="text-secondary text-xs">Inclusi costi del finanziamento</p>
+                    </li>
+                    <li className="w-full flex justify-between">
+                      <strong>Totale:</strong> <strong>€ {fmt(scalapayTotal)}</strong>
+                    </li>
+                  </ul>
+                </PaymentProviderCard>
               </li>
             )}
 
@@ -116,6 +222,110 @@ const PaymentMethodsList = () => {
                     </li>
                   </ul>
                 </PaymentProviderCard>
+              </li>
+            )}
+
+            {showHeylight && (
+              <li className="w-full">
+                <PaymentProviderCard
+                  cardTitle="HeyLight"
+                  icon={<HeyLightIcon />}
+                  subtitle={`Paga a rate fino a € ${fmt(HEYLIGHT_MAX)}`}
+                  backgroundColor="bg-[#FFF0EE]"
+                  button={
+                    <button
+                      onClick={handleSelectHeylight}
+                      disabled={selectingHeylight || !heylightFormValid}
+                      className="artpay-button-style bg-[#ea1c00] hover:bg-[#c41800] text-white disabled:opacity-65">
+                      {selectingHeylight ? <Spinner /> : 'Procedi con HeyLight'}
+                    </button>
+                  }>
+                  <div className="flex gap-3 py-4 border-t border-zinc-300">
+                    <button
+                      type="button"
+                      onClick={() => setHeylightProductType('dilazione')}
+                      className={`flex-1 rounded-lg border-2 px-3 py-2.5 text-left transition-colors ${
+                        heylightProductType === 'dilazione'
+                          ? 'border-[#ea1c00] bg-[#FFF0EE]'
+                          : 'border-zinc-200 bg-white hover:border-zinc-300'
+                      }`}>
+                      <p className={`text-sm font-semibold ${heylightProductType === 'dilazione' ? 'text-[#ea1c00]' : 'text-zinc-800'}`}>
+                        Dilazione
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-0.5">3 – 24 rate · Tasso 0%</p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setHeylightProductType('finanziamento')}
+                      className={`flex-1 rounded-lg border-2 px-3 py-2.5 text-left transition-colors ${
+                        heylightProductType === 'finanziamento'
+                          ? 'border-[#ea1c00] bg-[#FFF0EE]'
+                          : 'border-zinc-200 bg-white hover:border-zinc-300'
+                      }`}>
+                      <p className={`text-sm font-semibold ${heylightProductType === 'finanziamento' ? 'text-[#ea1c00]' : 'text-zinc-800'}`}>
+                        Finanziamento
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-0.5">3 – 24 rate · con interessi</p>
+                    </button>
+                  </div>
+                  <ul className="space-y-4 py-4 border-t border-zinc-300">
+                    <li className="w-full flex justify-between">
+                      Subtotale: <span>€ {fmt(grandTotal)}</span>
+                    </li>
+                    <li>
+                      {heylightProductType === 'dilazione' ? (
+                        <>
+                          <div className="w-full flex justify-between">
+                            Rate da 3 a 24 mesi
+                          </div>
+                          <p className="text-secondary text-xs">Senza interessi · Tasso 0%</p>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-full flex justify-between">
+                            Da 3 rate (5,36%) fino a 24 rate (13,36%)
+                          </div>
+                          <p className="text-secondary text-xs">Inclusi costi del finanziamento</p>
+                        </>
+                      )}
+                    </li>
+                    <li className="w-full flex justify-between">
+                      <strong>Totale:</strong> <strong>€ {fmt(grandTotal)}</strong>
+                    </li>
+                  </ul>
+                  <div className="space-y-3 pt-4 border-t border-zinc-300">
+                    <p className="text-sm font-medium text-tertiary">I tuoi dati</p>
+                    <div className="flex gap-3">
+                      <input
+                        type="text"
+                        placeholder="Nome *"
+                        value={heylightForm.firstName}
+                        onChange={(e) => setHeylightForm((f) => ({ ...f, firstName: e.target.value }))}
+                        className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#ea1c00] transition-colors"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Cognome *"
+                        value={heylightForm.lastName}
+                        onChange={(e) => setHeylightForm((f) => ({ ...f, lastName: e.target.value }))}
+                        className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#ea1c00] transition-colors"
+                      />
+                    </div>
+                    <input
+                      type="tel"
+                      placeholder="Telefono *"
+                      value={heylightForm.phone}
+                      onChange={(e) => setHeylightForm((f) => ({ ...f, phone: e.target.value }))}
+                      className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#ea1c00] transition-colors"
+                    />
+                  </div>
+                </PaymentProviderCard>
+              </li>
+            )}
+
+            {showSantander && (
+              <li className="w-full">
+                <SantanderCard />
               </li>
             )}
           </ul>

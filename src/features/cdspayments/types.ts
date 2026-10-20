@@ -2,7 +2,44 @@ import type { JSX, ReactNode } from 'react';
 
 export type OrderStatus = 'pending' | 'on-hold' | 'processing' | 'completed' | 'cancelled' | 'failed';
 
-export type PaymentMethod = 'klarna' | 'bank_transfer';
+export type PaymentMethod = 'klarna' | 'scalapay' | 'bank_transfer' | 'heylight';
+
+export type HeylightSessionStatus = 'pending' | 'success' | 'awaiting_confirmation' | 'cancelled';
+
+export type HeylightProductType = 'finanziamento' | 'dilazione';
+
+export type HeylightSession = {
+  application_uuid: string;
+  redirect_url: string;
+  product_type: HeylightProductType;
+  status: HeylightSessionStatus;
+};
+
+export type HeylightSessionDetails = {
+  application_uuid: string;
+  wc_order_id: number;
+  status: HeylightSessionStatus;
+  product_type: HeylightProductType;
+  additional_data: {
+    pricing_structure_code: string;
+  };
+  customer_details: {
+    email_address: string;
+    first_name: string;
+    last_name: string;
+    contact_number: string;
+  };
+  amount: number;
+  currency: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CdsProduct = {
+  price: number;
+  description: string;
+  image_url: string;
+};
 
 export type CdsOrderDetails = {
   order_key: string;
@@ -20,6 +57,7 @@ export type CdsOrderDetails = {
   lot_image_url: string | null;
   return_url: string | null;
   customer_email: string;
+  products?: CdsProduct[];
 };
 
 export type BankTransferIban = {

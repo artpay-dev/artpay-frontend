@@ -642,6 +642,7 @@ const DirectPurchaseView = () => {
             />
           );
         case "klarna":
+        case "scalapay":
           return (
             <PaymentCard
               orderMode={orderMode}
@@ -728,6 +729,7 @@ const DirectPurchaseView = () => {
           />
         );
       case "klarna":
+      case "scalapay":
         return (
           <PaymentCard
             orderMode={orderMode}
@@ -826,6 +828,8 @@ const DirectPurchaseView = () => {
               switch (method) {
                 case "klarna":
                   return { method: "Klarna", title: "Klarna" };
+                case "scalapay":
+                  return { method: "Scalapay", title: "Scalapay" };
                 case "paypal":
                   return { method: "PayPal", title: "PayPal" };
                 case "revolut_pay":
@@ -904,7 +908,7 @@ const DirectPurchaseView = () => {
       <div className={"flex flex-col mb-6"}>
         <div className={"order-last lg:order-first"}>
           {renderer()}
-          {orderMode !== "loan" && auth.isAuthenticated && (paymentMethod == "card" || paymentMethod == "klarna") && (
+          {orderMode !== "loan" && auth.isAuthenticated && (paymentMethod == "card" || paymentMethod == "klarna" || paymentMethod == "scalapay") && (
             <ContentCard contentPadding={0} title="Metodo di spedizione" icon={<PiTruckThin size="28px" />}>
               <RadioGroup defaultValue="selected" name="radio-buttons-group" className={"p-0!"}>
                 {availableShippingMethods.map((s) => {

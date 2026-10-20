@@ -2,7 +2,8 @@ import { PiCreditCardThin } from "react-icons/pi";
 import ContentCard from "../../../components/ContentCard.tsx";
 import PaymentRadioSelector from "../../../components/PaymentRadioSelector.tsx";
 import { useDirectPurchase } from "../contexts/DirectPurchaseContext.tsx";
-import { KLARNA_FEE, KLARNA_MAX_LIMIT } from "../../../constants.ts";
+import { KLARNA_FEE, KLARNA_MAX_LIMIT, SCALAPAY_MIN, SCALAPAY_MAX } from "../../../constants.ts";
+import ScalapayLogo from "@/assets/images/Scalapay.svg";
 import GooglePayMark from "../../../components/icons/GooglePayMark.tsx";
 
 interface PaymentsSelectionProps {
@@ -27,12 +28,14 @@ const PaymentsSelection = ({ paymentMethod, onChange }: PaymentsSelectionProps) 
   const klarnaAvailable = (amountForMethod * KLARNA_FEE) <= KLARNA_MAX_LIMIT && amountForMethod >= 30;
   const paypalPaylaterAvailable = amountForMethod >= 30 && amountForMethod <= 2000;
   const santanderAvailable = amountForMethod >= 1500 && amountForMethod <= 30000;
+  const scalapayAvailable = amountForMethod >= SCALAPAY_MIN && amountForMethod <= SCALAPAY_MAX;
 
   const hasQuestionId = Boolean(
     pendingOrder?.meta_data.find(k => k.key === "_question_id")?.value
   );
 
   const showKlarna = klarnaAvailable && (orderMode !== "redeem" || hasQuestionId);
+  const showScalapay = scalapayAvailable && (orderMode !== "redeem" || hasQuestionId);
   const isDepositOrder = orderMode === "deposit";
 
   const paymentMethods = {
@@ -65,6 +68,12 @@ const PaymentsSelection = ({ paymentMethod, onChange }: PaymentsSelectionProps) 
           />
         </svg>
       ),
+    },
+    scalapay: {
+      value: "scalapay",
+      label: "Scalapay",
+      description: "Paga in 3 rate senza interessi da €40 a €5.000",
+      icon: <img src={ScalapayLogo} alt="Scalapay" height={24} style={{ objectFit: "contain" }} />,
     },
     card: {
       value: "card",
@@ -339,6 +348,13 @@ const PaymentsSelection = ({ paymentMethod, onChange }: PaymentsSelectionProps) 
                 onMethodChange={onChange}
               />
             )}
+            {scalapayAvailable && (
+              <PaymentRadioSelector
+                method={paymentMethods.scalapay}
+                selectedMethod={paymentMethod}
+                onMethodChange={onChange}
+              />
+            )}
             {paypalPaylaterAvailable && (
               <PaymentRadioSelector
                 method={paymentMethods.paypal_paylater}
@@ -350,18 +366,27 @@ const PaymentsSelection = ({ paymentMethod, onChange }: PaymentsSelectionProps) 
         ) : (
           // Per ordini normali: mostra tutti i metodi
           <>
-            {showKlarna && (
+            {(showKlarna || showScalapay) && (
               <div className="space-y-4">
                 <h3>Pagamento dilazionato</h3>
-                <PaymentRadioSelector
-                  method={paymentMethods.klarna}
-                  selectedMethod={paymentMethod}
-                  onMethodChange={onChange}
-                />
+                {showKlarna && (
+                  <PaymentRadioSelector
+                    method={paymentMethods.klarna}
+                    selectedMethod={paymentMethod}
+                    onMethodChange={onChange}
+                  />
+                )}
+                {showScalapay && (
+                  <PaymentRadioSelector
+                    method={paymentMethods.scalapay}
+                    selectedMethod={paymentMethod}
+                    onMethodChange={onChange}
+                  />
+                )}
               </div>
             )}
             <div className="space-y-4">
-              {showKlarna && <h3>Unica soluzione</h3>}
+              {(showKlarna || showScalapay) && <h3>Unica soluzione</h3>}
               <PaymentRadioSelector method={paymentMethods.card} selectedMethod={paymentMethod} onMethodChange={onChange} />
               <PaymentRadioSelector
                 method={paymentMethods.bank_transfer}

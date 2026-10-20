@@ -20,32 +20,55 @@ const OrderSummary = () => {
 
   const status = STATUS_CONFIG[orderDetails.status];
 
+  const products = orderDetails.products;
+  const isMultiProduct = products && products.length > 1;
+
   return (
     <div className="space-y-5 mb-8">
-      <div className="flex items-start gap-4">
-        {orderDetails.lot_image_url && (
-          <div className="size-16 overflow-hidden border border-gray-200 rounded-md bg-white flex-shrink-0 flex justify-center items-center">
-            <img
-              src={orderDetails.lot_image_url}
-              alt="Lotto"
-              className="object-cover w-full h-full"
-            />
-          </div>
-        )}
-        <div className="space-y-1.5">
-          <p className="text-secondary text-sm leading-snug">{orderDetails.description}</p>
-          <div className="flex items-center gap-2">
-            {orderDetails.vendor_logo_url && (
+      {isMultiProduct ? (
+        <div className="space-y-3">
+          {products.map((product, i) => (
+            <div key={i} className="flex items-start gap-4">
+              {product.image_url && (
+                <div className="size-16 overflow-hidden border border-gray-200 rounded-md bg-white flex-shrink-0 flex justify-center items-center">
+                  <img src={product.image_url} alt={product.description} className="object-cover w-full h-full" />
+                </div>
+              )}
+              <div className="flex-1 flex items-center justify-between gap-2">
+                <p className="text-secondary text-sm leading-snug">
+                  {product.description || orderDetails.description}
+                </p>
+                <span className="text-tertiary text-sm font-medium flex-shrink-0">€ {fmt(product.price)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex items-start gap-4">
+          {(products?.[0]?.image_url ?? orderDetails.lot_image_url) && (
+            <div className="size-16 overflow-hidden border border-gray-200 rounded-md bg-white flex-shrink-0 flex justify-center items-center">
               <img
-                src={orderDetails.vendor_logo_url}
-                alt={orderDetails.vendor_name}
-                className="h-4 object-contain"
+                src={(products?.[0]?.image_url ?? orderDetails.lot_image_url)!}
+                alt="Lotto"
+                className="object-cover w-full h-full"
               />
-            )}
-            <span className="text-secondary text-sm">{orderDetails.vendor_name}</span>
+            </div>
+          )}
+          <div className="space-y-1.5">
+            <p className="text-secondary text-sm leading-snug">{products?.[0]?.description ?? orderDetails.description}</p>
+            <div className="flex items-center gap-2">
+              {orderDetails.vendor_logo_url && (
+                <img
+                  src={orderDetails.vendor_logo_url}
+                  alt={orderDetails.vendor_name}
+                  className="h-4 object-contain"
+                />
+              )}
+              <span className="text-secondary text-sm">{orderDetails.vendor_name}</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="border-t border-gray-100 pt-4 space-y-2.5">
         <div className="flex justify-between text-sm">

@@ -1,0 +1,55 @@
+Ciao Luca,
+riepilogo degli ultimi giorni.
+
+Task lavorati
+Integrazione Heylight (testata)
+
+Attività svolte
+Integrazione Heylight:
+
+Studio della documentazione ufficiale Heylight e mappatura del flusso di pagamento
+
+Progettazione e sviluppo del plugin di integrazione, pensato per la nostra architettura headless
+
+Implementazione del supporto a entrambi i prodotti Heylight (finanziamento e dilazione) con credenziali separate e gestione indipendente dei token JWT
+
+Implementazione delle API che il frontend chiamerà per avviare una sessione di pagamento a rate e ricevere il link di redirect verso Heylight
+
+Implementazione del sistema di ricezione e verifica delle notifiche di pagamento in arrivo da Heylight, con aggiornamento automatico dello stato degli ordini WooCommerce
+
+Implementazione dell'endpoint di rimborso
+
+Test end-to-end completato con successo per il prodotto dilazione: creazione sessione, redirect su checkout Heylight, completamento del flusso, ricezione webhook, aggiornamento stato ordine WooCommerce
+
+Integrazione Heylight frontend (carrello CDS Payments):
+
+Aggiunta della card HeyLight nella lista metodi di pagamento del carrello CDS, con logo ufficiale e colori brand, breakdown commissione 6% e limite massimo €5.000
+
+Implementazione del flusso completo lato frontend: creazione sessione via POST /artpay/v1/heylight/sessions, salvataggio UUID in localStorage, redirect verso la pagina Heylight, ritorno con polling automatico dello stato tramite GET /artpay/v1/heylight/sessions/{uuid}
+
+Form dati cliente integrato nella card prima del redirect: nome, cognome e telefono opzionale, con validazione inline e bottone disabilitato finché i campi obbligatori non sono compilati
+
+Gestione di tutti gli stati del polling: pending (in corso), awaiting_confirmation (approvato ma non ancora completato, con messaggio esplicito), success (transizione a pagamento completato), cancelled (transizione a pagamento fallito)
+
+Risolto problema CORS rimuovendo credentials: include dai fetch, allineando il comportamento agli altri endpoint CDS
+
+Documentazione API salvata in docs/heylight-integration.md e aggiornata con i nuovi campi (product_type, dati cliente, response aggiornate)
+
+​
+Stato di avanzamento
+
+Integrazione Heylight:
+
+Plugin backend completato e testato con successo in sandbox per il prodotto dilazione. Il flusso completo funziona correttamente. Il prodotto finanziamento richiede verifica con Heylight (l'account sandbox potrebbe non averlo abilitato)
+
+Frontend: integrazione completata nel carrello CDS Payments. Flusso redirect + polling funzionante, gestione stati aggiornata secondo le indicazioni del backend
+
+​
+Blocchi incontrati
+
+Per Heylight: il prodotto finanziamento restituisce un errore 500 dalla loro pagina checkout in sandbox. Il prodotto dilazione funziona correttamente. Da chiarire con il supporto Heylight se finanziamento è abilitato sull'account sandbox fornito
+
+​
+Chiarimenti o indicazioni necessarie
+
+Chiedere a Heylight se il prodotto finanziamento è abilitato sull'account sandbox, e se awaiting_confirmation richiede una chiamata di conferma esplicita da parte nostra oppure passa automaticamente a success

@@ -89,12 +89,6 @@ const SantanderCard = () => {
 
       <ul className="space-y-4 py-4 border-t border-zinc-300">
         <li className="w-full flex justify-between">
-          Subtotale: <span>€ {fmt(baseTotal)}</span>
-        </li>
-        <li className="w-full flex justify-between">
-          Commissione Artpay (4%): <span>€ {fmt(platformFee)}</span>
-        </li>
-        <li className="w-full flex justify-between">
           <strong>Totale:</strong> <strong>€ {fmt(grandTotal)}</strong>
         </li>
       </ul>

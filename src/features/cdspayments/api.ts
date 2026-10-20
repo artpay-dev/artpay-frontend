@@ -1,4 +1,4 @@
-import type { CdsOrderDetails, CdsPaymentIntent, PaymentMethod, BankTransferInstructions } from './types';
+import type { CdsOrderDetails, CdsPaymentIntent, PaymentMethod, BankTransferInstructions, HeylightSession, HeylightSessionDetails } from './types';
 
 const baseUrl = () => import.meta.env.VITE_SERVER_URL || '';
 
@@ -26,6 +26,7 @@ export async function createPaymentIntent(
       wc_order_key: orderKey,
       payment_method: method,
       add_klarna_fee: method === 'klarna',
+      add_scalapay_fee: method === 'scalapay',
     }),
   });
   return parseResponse<CdsPaymentIntent>(res);
@@ -118,6 +119,38 @@ export async function sendBankTransferEmail(
     const body = await res.json().catch(() => ({}));
     throw new Error((body as any).message || `Email error ${res.status}`);
   }
+}
+
+export type HeylightCreateParams = {
+  wc_order_id: number;
+  success_url: string;
+  failure_url: string;
+  product_type: 'finanziamento' | 'dilazione';
+  vendor_id?: number;
+  language?: string;
+  allowed_terms?: number[];
+  customer_details: {
+    first_name: string;
+    last_name: string;
+    email_address: string;
+    contact_number: string;
+  };
+};
+
+export async function createHeylightSession(params: HeylightCreateParams): Promise<HeylightSession> {
+  const res = await fetch(`${baseUrl()}/wp-json/artpay/v1/heylight/sessions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+  return parseResponse<HeylightSession>(res);
+}
+
+export async function getHeylightSession(applicationUuid: string): Promise<HeylightSessionDetails> {
+  const res = await fetch(
+    `${baseUrl()}/wp-json/artpay/v1/heylight/sessions/${encodeURIComponent(applicationUuid)}`
+  );
+  return parseResponse<HeylightSessionDetails>(res);
 }
 
 export async function updatePaymentIntentFee(

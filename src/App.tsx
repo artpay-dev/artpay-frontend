@@ -165,7 +165,9 @@ function AppContent() {
                     <Route path={"/quotes"} element={<QuotesLayout />}>
                       <Route element={<QuotePage />} index />
                     </Route>
-                    <Route path="/checkout/payment" element={<CheckoutPayment />} />
+                    <Route path="/checkout/payment" element={<QuotesLayout />}>
+                      <Route index element={<CheckoutPayment />} />
+                    </Route>
                     <Route path="/artmatch" element={<ArtMatch />} />
                     <Route path="/deposit-test" element={<DepositTestPage />} />
                     <Route path="/deposit" element={<DepositPage />} />
