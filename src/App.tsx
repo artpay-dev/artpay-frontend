@@ -67,6 +67,7 @@ import HistoryQuotesPage from "./pages/HistoryQuotesPage.tsx";
 import DepositTestPage from "./pages/deposit/DepositTestPage.tsx";
 import DepositPage from "@/pages/deposit/DepositPage.tsx";
 import HomeThePhair from "@/pages/HomeTePhair.tsx";
+import GatewayPaymentPage from "./pages/GatewayPaymentPage.tsx";
 
 function AppContent() {
   const baseUrl = import.meta.env.VITE_SERVER_URL || "";
@@ -171,6 +172,7 @@ function AppContent() {
                     <Route path="/artmatch" element={<ArtMatch />} />
                     <Route path="/deposit-test" element={<DepositTestPage />} />
                     <Route path="/deposit" element={<DepositPage />} />
+                    <Route path="/pay/:sessionKey" element={<GatewayPaymentPage />} />
                   </Routes>
                 </PaymentProvider>
               </DataProvider>
