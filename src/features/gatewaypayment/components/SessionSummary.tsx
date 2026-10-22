@@ -8,8 +8,10 @@ const fmt = (amount: number, currency: string) =>
     maximumFractionDigits: 2,
   });
 
+const parseUtcDate = (s: string) => new Date(s.replace(' ', 'T') + 'Z');
+
 const ExpiryBadge = ({ expiresAt }: { expiresAt: string }) => {
-  const minutesLeft = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 60000);
+  const minutesLeft = Math.floor((parseUtcDate(expiresAt).getTime() - Date.now()) / 60000);
   if (minutesLeft > 10) return null;
   const label = minutesLeft <= 1 ? 'Scade tra meno di 1 minuto' : `Scade tra ${minutesLeft} minuti`;
   return (

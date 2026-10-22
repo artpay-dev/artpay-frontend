@@ -15,6 +15,10 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY || '');
 
 type Stage = 'loading' | 'checkout' | 'success' | 'paid' | 'cancelled' | 'expired' | 'failed' | 'error';
 
+// WordPress returns timestamps without timezone offset (UTC). Appending 'Z' prevents
+// browsers from misinterpreting them as local time, which causes false expiry on UTC+N clients.
+const parseUtcDate = (s: string) => new Date(s.replace(' ', 'T') + 'Z');
+
 const GatewayPayment = () => {
   const { sessionKey } = useParams<{ sessionKey: string }>();
   const [searchParams] = useSearchParams();
@@ -38,7 +42,7 @@ const GatewayPayment = () => {
 
         // Only create a payment intent if the session is pending and we are not returning from a Stripe redirect
         if (data.status === 'pending' && !redirectStatus) {
-          const isExpired = new Date(data.expires_at) < new Date();
+          const isExpired = parseUtcDate(data.expires_at) < new Date();
           if (!isExpired) {
             try {
               const intent = await createGatewayPaymentIntent(sessionKey);
@@ -62,7 +66,7 @@ const GatewayPayment = () => {
     if (session.status === 'paid') return 'paid';
     if (session.status === 'cancelled') return 'cancelled';
     if (session.status === 'expired') return 'expired';
-    const isExpired = new Date(session.expires_at) < new Date();
+    const isExpired = parseUtcDate(session.expires_at) < new Date();
     if (isExpired) return 'expired';
     if (session.status === 'pending' && paymentIntent) return 'checkout';
     return 'loading';
