@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { NavLink } from 'react-router-dom';
 import useGatewayPaymentStore from '../store';
+import { confirmGatewaySession } from '../api';
 import type { GatewaySession } from '../types';
 
 const CreditCardIcon = () => (
@@ -28,7 +29,9 @@ const SessionPaymentForm = ({ sessionKey, session }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isAgreed, setIsAgreed] = useState(false);
 
-  const returnUrl = `${window.location.origin}/pay/${encodeURIComponent(sessionKey)}`;
+  // Used only for Klarna/Scalapay which require a browser redirect.
+  // For card, redirect: 'if_required' handles success inline below.
+  const returnUrl = `${window.location.origin}/pay/${encodeURIComponent(sessionKey)}?redirect_status=succeeded`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,10 +40,22 @@ const SessionPaymentForm = ({ sessionKey, session }: Props) => {
     setIsLoading(true);
     setMessage(undefined);
 
-    const { error } = await stripe.confirmPayment({
+    const { paymentIntent: confirmedIntent, error } = await stripe.confirmPayment({
       elements,
       confirmParams: { return_url: returnUrl },
+      redirect: 'if_required',
     });
+
+    if (confirmedIntent?.status === 'succeeded') {
+      try {
+        const { success_url } = await confirmGatewaySession(sessionKey);
+        window.location.href = success_url;
+      } catch {
+        setMessage('Pagamento ricevuto, ma si è verificato un errore. Contatta il supporto.');
+        setIsLoading(false);
+      }
+      return;
+    }
 
     if (error?.type === 'card_error' || error?.type === 'validation_error') {
       setMessage(error.message);

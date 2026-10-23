@@ -3,7 +3,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import useGatewayPaymentStore from './store';
-import { fetchGatewaySession } from './api';
+import { fetchGatewaySession, confirmGatewaySession } from './api';
 import GatewayLayout from './components/GatewayLayout';
 import SessionSummary from './components/SessionSummary';
 import SessionPaymentSelection, { gatewayHeylightStorageKey } from './components/SessionPaymentSelection';
@@ -52,7 +52,14 @@ const GatewayPayment = () => {
     }
     setLoading(true);
     fetchGatewaySession(sessionKey)
-      .then((data) => setSession(data))
+      .then(async (data) => {
+        setSession(data);
+        // Klarna/Scalapay redirect back here after payment — call /confirm to notify the merchant
+        if (redirectStatus === 'succeeded') {
+          const { success_url } = await confirmGatewaySession(sessionKey);
+          window.location.href = success_url;
+        }
+      })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }, [sessionKey]);

@@ -44,6 +44,14 @@ export async function createGatewayHeylightSession(
   return parseResponse<GatewayHeylightSession>(res);
 }
 
+export async function confirmGatewaySession(sessionKey: string): Promise<{ success_url: string }> {
+  const res = await fetch(
+    `${baseUrl()}/wp-json/artpay/v1/gateway/sessions/${encodeURIComponent(sessionKey)}/confirm`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' } }
+  );
+  return parseResponse<{ success_url: string }>(res);
+}
+
 export async function createGatewayPaymentIntent(
   sessionKey: string,
   method: Exclude<GatewayPaymentMethod, 'heylight'>
