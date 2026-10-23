@@ -37,8 +37,11 @@ const GatewayPayment = () => {
   const redirectStatus = searchParams.get('redirect_status');
   const heylightReturn = searchParams.get('heylight_return');
 
-  const { session, paymentIntent, heylightStatus, loading, error, setSession, setLoading, setError, reset } =
-    useGatewayPaymentStore();
+  const {
+    session, paymentIntent, heylightStatus, successUrl,
+    loading, error,
+    setSession, setSuccessUrl, setLoading, setError, reset,
+  } = useGatewayPaymentStore();
 
   const heylightUuid = heylightReturn && sessionKey
     ? localStorage.getItem(gatewayHeylightStorageKey(sessionKey))
@@ -54,10 +57,10 @@ const GatewayPayment = () => {
     fetchGatewaySession(sessionKey)
       .then(async (data) => {
         setSession(data);
-        // Klarna/Scalapay redirect back here after payment — call /confirm to notify the merchant
+        // Klarna/Scalapay redirect back here — call /confirm, then show success screen
         if (redirectStatus === 'succeeded') {
           const { success_url } = await confirmGatewaySession(sessionKey);
-          window.location.href = success_url;
+          setSuccessUrl(success_url);
         }
       })
       .catch((e: Error) => setError(e.message))
@@ -74,7 +77,8 @@ const GatewayPayment = () => {
       return 'heylight_polling';
     }
 
-    if (redirectStatus === 'succeeded') return 'success';
+    if (successUrl) return 'success';
+    if (redirectStatus === 'succeeded') return 'loading'; // waiting for /confirm to resolve
     if (redirectStatus === 'failed') return 'failed';
     if (!session) return 'loading';
     if (session.status === 'paid') return 'paid';
@@ -83,7 +87,7 @@ const GatewayPayment = () => {
     if (parseUtcDate(session.expires_at) < new Date()) return 'expired';
     if (paymentIntent) return 'checkout';
     return 'selection';
-  }, [loading, error, session, paymentIntent, redirectStatus, heylightReturn, heylightUuid, heylightStatus]);
+  }, [loading, error, session, paymentIntent, redirectStatus, heylightReturn, heylightUuid, heylightStatus, successUrl]);
 
   return (
     <GatewayLayout session={session}>
@@ -96,7 +100,9 @@ const GatewayPayment = () => {
         </div>
       )}
 
-      {stage === 'success' && session && <SessionComplete session={session} />}
+      {stage === 'success' && session && (
+        <SessionComplete session={session} successUrl={successUrl ?? session.success_url} />
+      )}
 
       {(stage === 'paid' || stage === 'cancelled' || stage === 'expired' || stage === 'failed') && session && (
         <SessionStatus session={session} stage={stage} />

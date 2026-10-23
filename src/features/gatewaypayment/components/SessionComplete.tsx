@@ -9,7 +9,7 @@ const CheckCircleIcon = () => (
   </svg>
 );
 
-const SessionComplete = ({ session }: { session: GatewaySession }) => {
+const SessionComplete = ({ session, successUrl }: { session: GatewaySession; successUrl?: string }) => {
   const fmt = (amount: number) =>
     (amount / 100).toLocaleString('it-IT', {
       style: 'currency',
@@ -48,9 +48,9 @@ const SessionComplete = ({ session }: { session: GatewaySession }) => {
                 <span className="text-tertiary font-medium">{fmt(session.amount)}</span>
               </li>
             </ul>
-            {session.success_url && (
+            {(successUrl ?? session.success_url) && (
               <a
-                href={session.success_url}
+                href={successUrl ?? session.success_url}
                 className="artpay-button-style bg-primary hover:bg-primary-hover text-white mt-4 block text-center">
                 Torna al negozio
               </a>

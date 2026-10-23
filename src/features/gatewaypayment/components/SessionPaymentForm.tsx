@@ -24,7 +24,7 @@ type Props = {
 const SessionPaymentForm = ({ sessionKey, session }: Props) => {
   const stripe = useStripe();
   const elements = useElements();
-  const { paymentIntent } = useGatewayPaymentStore();
+  const { paymentIntent, setSuccessUrl } = useGatewayPaymentStore();
   const [message, setMessage] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [isAgreed, setIsAgreed] = useState(false);
@@ -49,7 +49,7 @@ const SessionPaymentForm = ({ sessionKey, session }: Props) => {
     if (confirmedIntent?.status === 'succeeded') {
       try {
         const { success_url } = await confirmGatewaySession(sessionKey);
-        window.location.href = success_url;
+        setSuccessUrl(success_url);
       } catch {
         setMessage('Pagamento ricevuto, ma si è verificato un errore. Contatta il supporto.');
         setIsLoading(false);
