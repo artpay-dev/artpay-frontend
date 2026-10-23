@@ -1,5 +1,9 @@
 export type GatewaySessionStatus = 'pending' | 'paid' | 'cancelled' | 'expired';
 
+export type GatewayPaymentMethod = 'card' | 'klarna' | 'scalapay' | 'heylight';
+
+export type GatewayHeylightStatus = 'pending' | 'success' | 'awaiting_confirmation' | 'cancelled';
+
 export type GatewaySession = {
   session_key: string;
   status: GatewaySessionStatus;

@@ -1,4 +1,4 @@
-import type { GatewaySession, GatewayPaymentIntent } from './types';
+import type { GatewaySession, GatewayPaymentIntent, GatewayPaymentMethod } from './types';
 
 const baseUrl = () => import.meta.env.VITE_SERVER_URL || '';
 
@@ -15,10 +15,17 @@ export async function fetchGatewaySession(sessionKey: string): Promise<GatewaySe
   return parseResponse<GatewaySession>(res);
 }
 
-export async function createGatewayPaymentIntent(sessionKey: string): Promise<GatewayPaymentIntent> {
+export async function createGatewayPaymentIntent(
+  sessionKey: string,
+  method: Exclude<GatewayPaymentMethod, 'heylight'>
+): Promise<GatewayPaymentIntent> {
   const res = await fetch(
     `${baseUrl()}/wp-json/artpay/v1/gateway/sessions/${encodeURIComponent(sessionKey)}/payment-intent`,
-    { method: 'POST', headers: { 'Content-Type': 'application/json' } }
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payment_method: method }),
+    }
   );
   return parseResponse<GatewayPaymentIntent>(res);
 }
