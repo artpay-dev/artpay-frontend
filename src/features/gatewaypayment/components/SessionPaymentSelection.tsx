@@ -3,8 +3,7 @@ import PaymentProviderCard from '../../cdspayments/components/ui/paymentprovider
 import KlarnaIcon from '../../cdspayments/components/ui/paymentprovidercard/KlarnaIcon';
 import ScalapayIcon from '../../cdspayments/components/ui/paymentprovidercard/ScalapayIcon';
 import HeyLightIcon from '../../cdspayments/components/ui/paymentprovidercard/HeyLightIcon';
-import { createGatewayPaymentIntent } from '../api';
-import { createHeylightSession } from '../../cdspayments/api';
+import { createGatewayPaymentIntent, createGatewayHeylightSession } from '../api';
 import useGatewayPaymentStore from '../store';
 import type { GatewaySession } from '../types';
 
@@ -60,7 +59,7 @@ const SessionPaymentSelection = ({ session, sessionKey }: Props) => {
   const showCard = true;
   const showKlarna = grandTotal <= KLARNA_MAX;
   const showScalapay = grandTotal >= SCALAPAY_MIN && grandTotal <= SCALAPAY_MAX;
-  const showHeylight = grandTotal <= HEYLIGHT_MAX;
+  const showHeylight = false; // grandTotal <= HEYLIGHT_MAX;
 
   const fmt = (n: number) => n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -111,8 +110,7 @@ const SessionPaymentSelection = ({ session, sessionKey }: Props) => {
     setError(null);
     try {
       const pageBase = `${window.location.origin}/pay/${encodeURIComponent(sessionKey)}`;
-      const hlSession = await createHeylightSession({
-        wc_order_id: Number(session.order_ref),
+      const hlSession = await createGatewayHeylightSession(sessionKey, {
         success_url: `${pageBase}?heylight_return=success`,
         failure_url: `${pageBase}?heylight_return=failed`,
         product_type: heylightProductType,

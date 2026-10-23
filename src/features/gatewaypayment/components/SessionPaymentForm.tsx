@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { NavLink } from 'react-router-dom';
+import useGatewayPaymentStore from '../store';
 import type { GatewaySession } from '../types';
 
 const CreditCardIcon = () => (
@@ -22,6 +23,7 @@ type Props = {
 const SessionPaymentForm = ({ sessionKey, session }: Props) => {
   const stripe = useStripe();
   const elements = useElements();
+  const { paymentIntent } = useGatewayPaymentStore();
   const [message, setMessage] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [isAgreed, setIsAgreed] = useState(false);
@@ -87,7 +89,7 @@ const SessionPaymentForm = ({ sessionKey, session }: Props) => {
           {isLoading ? (
             <div className="size-4 border border-white border-b-transparent rounded-full animate-spin" />
           ) : (
-            `Paga ${fmt(session.amount)}`
+            `Paga ${fmt(paymentIntent?.amount ?? session.amount)}`
           )}
         </button>
         {session.cancel_url && (

@@ -18,6 +18,13 @@ export type GatewaySession = {
   cancel_url?: string;
 };
 
+export type GatewayHeylightSession = {
+  application_uuid: string;
+  redirect_url: string;
+};
+
 export type GatewayPaymentIntent = {
   client_secret: string;
+  amount: number;
+  payment_method: Exclude<GatewayPaymentMethod, 'heylight'>;
 };
